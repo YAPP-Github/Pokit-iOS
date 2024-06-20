@@ -14,7 +14,7 @@ let mypageTarget: Target = .makeTarget(
     product: .framework,
     bundleName: "Feature.MyPage",
     dependencies: [
-        .project(target: "DSKit", path: .relativeToRoot("Projects/DSkit")),
+        .project(target: "DSKit", path: .relativeToRoot("Projects/DSKit")),
         .project(target: "Domain", path: .relativeToRoot("Projects/Domain"))
     ]
 )
@@ -33,7 +33,7 @@ let myFolderTarget: Target = .makeTarget(
     product: .framework,
     bundleName: "Feature.MyFolder",
     dependencies: [
-        .project(target: "DSKit", path: .relativeToRoot("Projects/DSkit")),
+        .project(target: "DSKit", path: .relativeToRoot("Projects/DSKit")),
         .project(target: "Domain", path: .relativeToRoot("Projects/Domain"))
     ]
 )
@@ -52,7 +52,7 @@ let linkDetailTarget: Target = .makeTarget(
     product: .framework,
     bundleName: "Feature.LinkDetail",
     dependencies: [
-        .project(target: "DSKit", path: .relativeToRoot("Projects/DSkit")),
+        .project(target: "DSKit", path: .relativeToRoot("Projects/DSKit")),
         .project(target: "Domain", path: .relativeToRoot("Projects/Domain"))
     ]
 )
@@ -72,7 +72,7 @@ let addLinkTarget: Target = .makeTarget(
     product: .framework,
     bundleName: "Feature.AddLink",
     dependencies: [
-        .project(target: "DSKit", path: .relativeToRoot("Projects/DSkit")),
+        .project(target: "DSKit", path: .relativeToRoot("Projects/DSKit")),
         .project(target: "Domain", path: .relativeToRoot("Projects/Domain"))
     ]
 )
@@ -91,7 +91,7 @@ let addCategoryTarget: Target = .makeTarget(
     product: .framework,
     bundleName: "Feature.AddCategory",
     dependencies: [
-        .project(target: "DSKit", path: .relativeToRoot("Projects/DSkit")),
+        .project(target: "DSKit", path: .relativeToRoot("Projects/DSKit")),
         .project(target: "Domain", path: .relativeToRoot("Projects/Domain"))
     ]
 )
@@ -110,7 +110,7 @@ let homeTarget: Target = .makeTarget(
     product: .framework,
     bundleName: "Feature.Home",
     dependencies: [
-        .project(target: "DSKit", path: .relativeToRoot("Projects/DSkit")),
+        .project(target: "DSKit", path: .relativeToRoot("Projects/DSKit")),
         .project(target: "Domain", path: .relativeToRoot("Projects/Domain"))
     ]
 )
