@@ -125,11 +125,11 @@ public enum PokitFont {
             return 20
         case .detail2:
             return 16
-        case .l1(let weight):
+        case .l1:
             return 24
-        case .l2(let weight):
+        case .l2:
             return 20
-        case .l3(let weight):
+        case .l3:
             return 16
         case .l4:
             return 12
@@ -161,7 +161,7 @@ public enum PokitFont {
             return -0.13
         case .l1:
             return -0.2
-        case .l2(let weight):
+        case .l2:
             return -0.18
         case .l3:
             return -0.15
