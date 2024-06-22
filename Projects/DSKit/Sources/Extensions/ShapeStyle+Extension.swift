@@ -8,7 +8,7 @@
 import SwiftUI
 
 public extension ShapeStyle where Self == Color {
-    static func pokit(pokitColor: PokitColor) -> Color {
+    static func pokit(_ pokitColor: PokitColor) -> Color {
         return .pokit(pokitColor)
     }
 }
