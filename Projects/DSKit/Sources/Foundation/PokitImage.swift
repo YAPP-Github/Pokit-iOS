@@ -44,6 +44,18 @@ public enum PokitImage {
                 return .init(.iconStar)
             case .trash:
                 return .init(.iconTrash)
+            case .plusR:
+                return .init(.iconPlusR)
+            case .reminder:
+                return .init(.iconReminder)
+            case .info:
+                return .init(.iconInfo)
+            case .link:
+                return .init(.iconLink)
+            case .folderLine:
+                return .init(.iconFolderline)
+            case .linkLine:
+                return .init(.iconLinkline)
             }
         }
     }
@@ -66,5 +78,11 @@ public extension PokitImage {
         case share
         case star
         case trash
+        case plusR
+        case reminder
+        case info
+        case link
+        case folderLine
+        case linkLine
     }
 }
