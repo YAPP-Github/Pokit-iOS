@@ -14,19 +14,19 @@ public struct PokitInput: View {
     @FocusState private var isFocused: Bool
     
     private let icon: PokitImage?
-    private let labelText: String
-    private let category: Category
+    private let info: String
+    private let category: Self.Category
     private let isDisable: Bool
     private let isReadOnly: Bool
-    private let shape: Shape
+    private let shape: Self.Shape
     private let onSubmit: (() -> Void)?
     
     public init(
         text: Binding<String>,
         isError: Binding<Bool> = .constant(false),
         icon: PokitImage? = nil,
-        labelText: String = "내용을 입력해주세요.",
-        category: Category = .textOnly,
+        info: String = "내용을 입력해주세요.",
+        category: Self.Category = .textOnly,
         isDisable: Bool = false,
         isReadOnly: Bool = false,
         shape: Shape = .rectangle,
@@ -35,7 +35,7 @@ public struct PokitInput: View {
         self._text = text
         self._isError = isError
         self.icon = icon
-        self.labelText = labelText
+        self.info = info
         self.category = category
         self.isDisable = isDisable
         self.isReadOnly = isReadOnly
@@ -77,7 +77,7 @@ public struct PokitInput: View {
     }
     
     private var label: some View {
-        Text(labelText)
+        Text(info)
             .foregroundStyle(isDisable ? .pokit(.text(.disable)) : .pokit(.text(.tertiary)))
     }
     
