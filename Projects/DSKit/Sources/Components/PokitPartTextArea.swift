@@ -46,6 +46,9 @@ public struct PokitPartTextArea: View {
             .textInputAutocapitalization(.never)
             .scrollContentBackground(.hidden)
             .focused($isFocused)
+            .onSubmit {
+                onSubmit?()
+            }
             .background(alignment: .topLeading) {
                 if text.isEmpty {
                     Text(info)
