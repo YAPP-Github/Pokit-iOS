@@ -7,12 +7,12 @@
 
 import SwiftUI
 
-public struct PokitButtonLabel: View {
+public struct PokitButton: View {
     private let text: String?
     private let icon: PokitImage?
     private let isDisable: Bool
     private let category: Self.Category
-    private let state: Self.State
+    private let state: Self.Style
     private let type: Self.ButtonType
     private let shape: Self.Shape
     private let size: Self.Size
@@ -24,7 +24,7 @@ public struct PokitButtonLabel: View {
         icon: PokitImage? = nil,
         isDisable: Bool = false,
         category: Self.Category = .iconL,
-        state: Self.State = .default,
+        state: Self.Style = .default,
         type: Self.ButtonType = .primary,
         shape: Self.Shape = .rectangle,
         size: Self.Size = .small,
@@ -105,6 +105,76 @@ public struct PokitButtonLabel: View {
                 RoundedRectangle(cornerRadius: radius, style: /*@START_MENU_TOKEN@*/.continuous/*@END_MENU_TOKEN@*/)
                     .stroke(strokeColor, lineWidth: 1)
             }
+    }
+    
+    public func state(_ state: Self.Style) -> Self {
+        return .init(
+            text: self.text,
+            icon: self.icon,
+            isDisable: self.isDisable,
+            category: self.category,
+            state: state,
+            type: self.type,
+            shape: self.shape,
+            size: self.size,
+            action: self.action
+        )
+    }
+    
+    public func disable(_ isDisable: Bool = true) -> Self {
+        return .init(
+            text: self.text,
+            icon: self.icon,
+            isDisable: isDisable,
+            category: self.category,
+            state: self.state,
+            type: self.type,
+            shape: self.shape,
+            size: self.size,
+            action: self.action
+        )
+    }
+    
+    public func type(_ type: Self.ButtonType) -> Self {
+        return .init(
+            text: self.text,
+            icon: self.icon,
+            isDisable: self.isDisable,
+            category: self.category,
+            state: self.state,
+            type: type,
+            shape: self.shape,
+            size: self.size,
+            action: self.action
+        )
+    }
+    
+    public func shape(_ shape: Self.Shape) -> Self {
+        return .init(
+            text: self.text,
+            icon: self.icon,
+            isDisable: self.isDisable,
+            category: self.category,
+            state: self.state,
+            type: self.type,
+            shape: shape,
+            size: self.size,
+            action: self.action
+        )
+    }
+    
+    public func size(_ size: Self.Size) -> Self {
+        return .init(
+            text: self.text,
+            icon: self.icon,
+            isDisable: self.isDisable,
+            category: self.category,
+            state: self.state,
+            type: self.type,
+            shape: self.shape,
+            size: size,
+            action: self.action
+        )
     }
     
     private var spacing: CGFloat {
@@ -273,7 +343,7 @@ public struct PokitButtonLabel: View {
     }
 }
 
-public extension PokitButtonLabel {
+public extension PokitButton {
     enum Category {
         case iconL
         case iconR
@@ -281,7 +351,7 @@ public extension PokitButtonLabel {
         case iconOnly
     }
     
-    enum State {
+    enum Style {
         case `default`
         case stroke
         case filled
@@ -305,15 +375,18 @@ public extension PokitButtonLabel {
 }
 
 #Preview {
-    LazyVGrid(columns: [.init(.adaptive(minimum: 100, maximum: 100))]) {
-        PokitButtonLabel(
+    LazyVGrid(columns: [.init(.adaptive(minimum: 111, maximum: 111))]) {
+        PokitButton(
             text: "버튼",
             icon: .icon(.search)
         ) {
             
         }
+        .state(.filled)
+        .disable(false)
+        .size(.large)
         
-        PokitButtonLabel(
+        PokitButton(
             text: "버튼",
             icon: .icon(.search),
             state: .filled,
@@ -322,7 +395,7 @@ public extension PokitButtonLabel {
             
         }
         
-        PokitButtonLabel(
+        PokitButton(
             text: "버튼",
             icon: .icon(.search),
             category: .iconOnly,
@@ -332,7 +405,7 @@ public extension PokitButtonLabel {
             
         }
         
-        PokitButtonLabel(
+        PokitButton(
             text: "버튼",
             icon: .icon(.search),
             category: .textOnly,
