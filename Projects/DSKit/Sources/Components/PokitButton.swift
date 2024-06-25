@@ -10,9 +10,9 @@ import SwiftUI
 public struct PokitButtonLabel: View {
     private let text: String?
     private let icon: PokitImage?
-    private let state: Bool = true
+    private let isDisable: Bool
     private let category: Self.Category
-    private let style: Self.Style
+    private let state: Self.State
     private let type: Self.ButtonType
     private let shape: Self.Shape
     private let size: Self.Size
@@ -22,8 +22,9 @@ public struct PokitButtonLabel: View {
     public init(
         text: String? = nil,
         icon: PokitImage? = nil,
+        isDisable: Bool = false,
         category: Self.Category = .iconL,
-        style: Self.Style = .filled,
+        state: Self.State = .default,
         type: Self.ButtonType = .primary,
         shape: Self.Shape = .rectangle,
         size: Self.Size = .small,
@@ -31,8 +32,9 @@ public struct PokitButtonLabel: View {
     ) {
         self.text = text
         self.icon = icon
+        self.isDisable = isDisable
         self.category = category
-        self.style = style
+        self.state = state
         self.type = type
         self.shape = shape
         self.size = size
@@ -43,6 +45,7 @@ public struct PokitButtonLabel: View {
         Button(action: self.action) {
             self.label
         }
+        .disabled(isDisable)
     }
     
     private var label: some View {
@@ -86,11 +89,9 @@ public struct PokitButtonLabel: View {
             if let icon {
                 Image(icon)
                     .resizable()
-                    .renderingMode(.template)
             } else {
                 Image(systemName: "questionmark")
                     .resizable()
-                    .renderingMode(.template)
             }
         }
         .frame(width: iconSize.width, height: iconSize.height)
@@ -211,10 +212,11 @@ public struct PokitButtonLabel: View {
     }
     
     private var iconColor: Color {
-        if state {
-            switch self.style {
+        if !isDisable {
+            switch self.state {
             case .filled: return .pokit(.icon(.inverseWh))
             case .stroke: return .pokit(.icon(.primary))
+            case .default: return .pokit(.icon(.secondary))
             }
         } else {
             return .pokit(.icon(.disable))
@@ -222,10 +224,11 @@ public struct PokitButtonLabel: View {
     }
     
     private var textColor: Color {
-        if state {
-            switch self.style {
+        if !isDisable {
+            switch self.state {
             case .filled: return .pokit(.text(.inverseWh))
             case .stroke: return .pokit(.text(.primary))
+            case .default: return .pokit(.text(.tertiary))
             }
         } else {
             return .pokit(.text(.disable))
@@ -233,14 +236,14 @@ public struct PokitButtonLabel: View {
     }
     
     private var backgroundColor: Color {
-        if state {
-            switch self.style {
+        if !isDisable {
+            switch self.state {
             case .filled:
                 switch self.type {
                 case .primary: return .pokit(.bg(.brand))
                 case .secondary: return .pokit(.bg(.tertiary))
                 }
-            case .stroke: return .pokit(.bg(.base))
+            case .stroke, .default: return .pokit(.bg(.base))
             }
         } else {
             return .pokit(.bg(.disable))
@@ -248,10 +251,14 @@ public struct PokitButtonLabel: View {
     }
     
     private var strokeColor: Color {
-        if state {
-            switch self.type {
-            case .primary: return .pokit(.border(.brand))
-            case .secondary: return .pokit(.border(.secondary))
+        if !isDisable {
+            switch self.state {
+            case .default: return .pokit(.border(.secondary))
+            case .filled, .stroke:
+                switch self.type {
+                case .primary: return .pokit(.border(.brand))
+                case .secondary: return .pokit(.border(.secondary))
+                }
             }
         } else {
             return .pokit(.border(.disable))
@@ -260,7 +267,7 @@ public struct PokitButtonLabel: View {
     
     private var radius: CGFloat {
         switch self.shape {
-        case .rectangle: return 4
+        case .rectangle: return 8
         case .round: return 9999
         }
     }
@@ -274,7 +281,8 @@ public extension PokitButtonLabel {
         case iconOnly
     }
     
-    enum Style {
+    enum State {
+        case `default`
         case stroke
         case filled
     }
@@ -297,7 +305,41 @@ public extension PokitButtonLabel {
 }
 
 #Preview {
-    PokitButtonLabel(text: "버튼", icon: .icon(.search), style: .stroke) {
+    LazyVGrid(columns: [.init(.adaptive(minimum: 100, maximum: 100))]) {
+        PokitButtonLabel(
+            text: "버튼",
+            icon: .icon(.search)
+        ) {
+            
+        }
         
+        PokitButtonLabel(
+            text: "버튼",
+            icon: .icon(.search),
+            state: .filled,
+            type: .primary
+        ) {
+            
+        }
+        
+        PokitButtonLabel(
+            text: "버튼",
+            icon: .icon(.search),
+            category: .iconOnly,
+            state: .filled,
+            type: .primary
+        ) {
+            
+        }
+        
+        PokitButtonLabel(
+            text: "버튼",
+            icon: .icon(.search),
+            category: .textOnly,
+            state: .filled,
+            type: .primary
+        ) {
+            
+        }
     }
 }
