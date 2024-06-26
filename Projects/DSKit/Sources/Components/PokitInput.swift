@@ -123,6 +123,48 @@ public struct PokitInput: View {
         .padding(.horizontal, 12)
     }
     
+    public func disable(_ isDisable: Bool = true) -> Self {
+        return .init(
+            text: self.$text,
+            isError: self.$isError,
+            icon: self.icon,
+            info: self.info,
+            category: self.category,
+            isDisable: isDisable,
+            isReadOnly: self.isReadOnly,
+            shape: self.shape,
+            onSubmit: self.onSubmit
+        )
+    }
+    
+    public func readOnly(_ isReadOnly: Bool = true) -> Self {
+        return .init(
+            text: self.$text,
+            isError: self.$isError,
+            icon: self.icon,
+            info: self.info,
+            category: self.category,
+            isDisable: self.isDisable,
+            isReadOnly: isReadOnly,
+            shape: self.shape,
+            onSubmit: self.onSubmit
+        )
+    }
+    
+    public func shape(_ shape: Self.Shape) -> Self {
+        return .init(
+            text: self.$text,
+            isError: self.$isError,
+            icon: self.icon,
+            info: self.info,
+            category: self.category,
+            isDisable: self.isDisable,
+            isReadOnly: self.isReadOnly,
+            shape: shape,
+            onSubmit: self.onSubmit
+        )
+    }
+    
     private var background: some View {
         RoundedRectangle(cornerRadius: self.radius, style: /*@START_MENU_TOKEN@*/.continuous/*@END_MENU_TOKEN@*/)
             .fill(backgroundColor)
@@ -197,6 +239,8 @@ public extension PokitInput {
             icon: .icon(.search),
             category: .iconL
         )
+        .shape(.rectangle)
+        .readOnly()
         
         PokitInput(
             text: .constant(""),
