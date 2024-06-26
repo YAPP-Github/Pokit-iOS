@@ -1,5 +1,5 @@
 //
-//  PoKitIconRButton.swift
+//  PokitIconRButton.swift
 //  DSKit
 //
 //  Created by 김도형 on 6/26/24.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-public struct PoKitIconRButton: View {
+public struct PokitIconRButton: View {
     private let labelText: String
     private let labelIcon: PokitImage
     private let state: PokitButtonStyle.State
@@ -93,6 +93,66 @@ public struct PoKitIconRButton: View {
         size: .medium
     ) {
         
+        VStack {
+            PokitIconRButton("버튼", .icon(.search), state: .default, size: .large) {
+                
+            }
+            .background(shape: .rectangle)
+            
+            PokitIconRButton("버튼", .icon(.search), state: .filled(.primary), size: .large) {
+                
+            }
+            .background(shape: .rectangle)
+            
+            PokitIconRButton("버튼", .icon(.search), state: .filled(.secondary), size: .large) {
+                
+            }
+            .background(shape: .rectangle)
+            
+            PokitIconRButton("버튼", .icon(.search), state: .stroke(.primary), size: .large) {
+                
+            }
+            .background(shape: .rectangle)
+            
+            PokitIconRButton("버튼", .icon(.search), state: .stroke(.secondary), size: .large) {
+                
+            }
+            .background(shape: .rectangle)
+            
+            PokitIconRButton("버튼", .icon(.search), state: .disable, size: .large) {
+                
+            }
+            .background(shape: .rectangle)
+            
+            PokitIconRButton("버튼", .icon(.search), state: .default, size: .large) {
+                
+            }
+            .background(shape: .round)
+            
+            PokitIconRButton("버튼", .icon(.search), state: .filled(.primary), size: .large) {
+                
+            }
+            .background(shape: .round)
+            
+            PokitIconRButton("버튼", .icon(.search), state: .filled(.secondary), size: .large) {
+                
+            }
+            .background(shape: .round)
+            
+            PokitIconRButton("버튼", .icon(.search), state: .stroke(.primary), size: .large) {
+                
+            }
+            .background(shape: .round)
+            
+            PokitIconRButton("버튼", .icon(.search), state: .stroke(.secondary), size: .large) {
+                
+            }
+            .background(shape: .round)
+            
+            PokitIconRButton("버튼", .icon(.search), state: .disable, size: .large) {
+                
+            }
+            .background(shape: .round)
+        }
     }
-    .background(shape: .rectangle)
 }
