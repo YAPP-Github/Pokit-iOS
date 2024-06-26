@@ -10,22 +10,29 @@ import Dependencies
 
 public struct SocialLoginClient {
     var appleLogin: @Sendable () async throws -> SocialLoginInfo
+    var googleLogin: @Sendable () async throws -> SocialLoginInfo
 }
 
 extension SocialLoginClient: DependencyKey {
     public static let liveValue: Self = {
         let appleLoginController = AppleLoginController()
+        let googleLoginController = GoogleLoginController()
 
         return Self(
             appleLogin: {
                 try await appleLoginController.login()
+            },
+            googleLogin: {
+                try await googleLoginController.login()
             }
         )
     }()
 
     public static let previewValue: Self = {
         Self(
-            appleLogin: { .mock }
+            appleLogin: { .appleMock },
+            googleLogin: { .googleMock }
+            
         )
     }()
 }

@@ -9,6 +9,7 @@ import Foundation
 
 public struct SocialLoginInfo: Equatable {
     let id: String
+    /// - 구글로그인에서는 idToken으로 사용
     let authorization: String
     var identityToken: String?
     var name: String?
@@ -17,12 +18,21 @@ public struct SocialLoginInfo: Equatable {
 }
 
 public extension SocialLoginInfo {
-    static let mock = SocialLoginInfo(
+    static let appleMock = SocialLoginInfo(
         id: "",
         authorization: "",
         identityToken: "",
         name: "김민호",
         email: "mino@naver.com",
         provider: .apple
+    )
+    
+    static let googleMock = SocialLoginInfo(
+        id: "",
+        authorization: "",
+        identityToken: "",
+        name: "김민호",
+        email: "mino@gmail.com",
+        provider: .google
     )
 }
