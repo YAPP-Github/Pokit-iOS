@@ -9,6 +9,8 @@ import SwiftUI
 
 @main
 struct PokitApp: App {
+    
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     var body: some Scene {
         WindowGroup {
             // TODO: 루트 뷰 추가
