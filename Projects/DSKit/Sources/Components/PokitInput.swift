@@ -74,6 +74,7 @@ public struct PokitInput: View {
         .onSubmit {
             onSubmit?()
         }
+        .padding(.horizontal, self.shape == .round ? 8 : 0)
     }
     
     private var label: some View {
@@ -182,9 +183,13 @@ public struct PokitInput: View {
             RoundedRectangle(cornerRadius: self.radius, style: /*@START_MENU_TOKEN@*/.continuous/*@END_MENU_TOKEN@*/)
                 .stroke(.pokit(.border(.brand)), lineWidth: 1)
                 .animation(.smooth, value: isFocused)
-        } else {
+        } else if isReadOnly {
             RoundedRectangle(cornerRadius: self.radius, style: /*@START_MENU_TOKEN@*/.continuous/*@END_MENU_TOKEN@*/)
                 .stroke(.pokit(.border(.secondary)), lineWidth: 1)
+                .animation(.smooth, value: isFocused)
+        } else {
+            RoundedRectangle(cornerRadius: self.radius, style: /*@START_MENU_TOKEN@*/.continuous/*@END_MENU_TOKEN@*/)
+                .stroke(.clear, lineWidth: 1)
                 .animation(.smooth, value: isFocused)
         }
     }
@@ -192,7 +197,7 @@ public struct PokitInput: View {
     private var radius: CGFloat {
         switch self.shape {
         case .rectangle:
-            return 4
+            return 8
         case .round:
             return 9999
         }
@@ -204,7 +209,7 @@ public struct PokitInput: View {
         } else if isDisable {
             return .pokit(.bg(.disable))
         } else {
-            return .pokit(.bg(.base))
+            return .pokit(.bg(.primary))
         }
     }
     
@@ -239,57 +244,32 @@ public extension PokitInput {
             icon: .icon(.search),
             category: .iconL
         )
-        .shape(.rectangle)
-        .readOnly()
         
         PokitInput(
-            text: .constant(""),
+            text: .constant("내용을 입력해주세요."),
             icon: .icon(.search),
-            category: .iconR
+            category: .iconL
         )
         
         PokitInput(
             text: .constant(""),
             icon: .icon(.search),
-            category: .textOnly
+            category: .iconL
         )
         
         PokitInput(
             text: .constant(""),
             icon: .icon(.search),
             category: .iconL,
-            shape: .round
+            isDisable: true
         )
         
         PokitInput(
             text: .constant(""),
             icon: .icon(.search),
-            category: .iconR,
-            shape: .round
+            category: .iconL
         )
-        
-        PokitInput(
-            text: .constant(""),
-            icon: .icon(.search),
-            category: .textOnly,
-            shape: .round
-        )
-        
-        PokitInput(
-            text: .constant(""),
-            icon: .icon(.search),
-            category: .textOnly,
-            isDisable: true,
-            shape: .round
-        )
-        
-        PokitInput(
-            text: .constant(""),
-            icon: .icon(.search),
-            category: .textOnly,
-            isReadOnly: true,
-            shape: .round
-        )
+        .readOnly()
         
         PokitInput(
             text: .constant(""),
