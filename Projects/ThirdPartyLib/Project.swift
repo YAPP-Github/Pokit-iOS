@@ -22,7 +22,8 @@ let project = Project(
             sources: ["Sources/**"],
             dependencies: [
                 // TODO: 의존성 추가
-                .external(name: "ComposableArchitecture")
+                .external(name: "ComposableArchitecture"),
+                .external(name: "GoogleSignIn")
             ]
         )
     ]
