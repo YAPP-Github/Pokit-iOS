@@ -96,6 +96,7 @@ public struct PokitTextArea<Value: Hashable>: View {
                 .foregroundStyle(
                     state == .error ? .pokit(.text(.error)) : .pokit(.text(.tertiary))
                 )
+                .contentTransition(.numericText())
         }
     }
 }
