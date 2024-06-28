@@ -7,30 +7,23 @@
 
 import SwiftUI
 
-struct PokitInputModifier<Value: Hashable>: ViewModifier {
+struct PokitInputModifier: ViewModifier {
     private let state: PokitInputStyle.State
     private let shape: PokitInputStyle.Shape
-    private var focusState: FocusState<Value>.Binding
-    private let equals: Value
     
     init(
         state: PokitInputStyle.State,
-        shape: PokitInputStyle.Shape,
-        focusState: FocusState<Value>.Binding,
-        equals: Value
+        shape: PokitInputStyle.Shape
     ) {
         self.state = state
         self.shape = shape
-        self.focusState = focusState
-        self.equals = equals
     }
     
     func body(content: Content) -> some View {
-        let backgroundColor = focusState.wrappedValue == equals ? .pokit(.bg(.base)) : self.state.backgroundColor
-        let backgroundStrokeColor = focusState.wrappedValue == equals ? .pokit(.border(.brand)) : self.state.backgroundStrokeColor
+        let backgroundColor = state == .active ? .pokit(.bg(.base)) : self.state.backgroundColor
+        let backgroundStrokeColor = state == .active ? .pokit(.border(.brand)) : self.state.backgroundStrokeColor
         
         content
-            .focused(focusState, equals: equals)
             .background {
                 RoundedRectangle(cornerRadius: shape.radius, style: /*@START_MENU_TOKEN@*/.continuous/*@END_MENU_TOKEN@*/)
                     .fill(backgroundColor)
@@ -39,35 +32,18 @@ struct PokitInputModifier<Value: Hashable>: ViewModifier {
                             .stroke(backgroundStrokeColor, lineWidth: 1)
                     }
             }
-            .animation(.smooth, value: focusState.wrappedValue)
+            .animation(.smooth, value: state)
     }
 }
 
 extension View {
     func background(
         state: PokitInputStyle.State,
-        shape: PokitInputStyle.Shape,
-        focusState: FocusState<Bool>.Binding
+        shape: PokitInputStyle.Shape
     ) -> some View {
         modifier(PokitInputModifier(
             state: state,
-            shape: shape,
-            focusState: focusState,
-            equals: true
-        ))
-    }
-    
-    func background<Value: Hashable>(
-        state: PokitInputStyle.State,
-        shape: PokitInputStyle.Shape,
-        focusState: FocusState<Value>.Binding,
-        equals: Value
-    ) -> some View {
-        modifier(PokitInputModifier(
-            state: state,
-            shape: shape,
-            focusState: focusState,
-            equals: equals
+            shape: shape
         ))
     }
 }

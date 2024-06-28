@@ -7,13 +7,16 @@
 
 import SwiftUI
 
-public struct PokitIconRInput: View {
+public struct PokitIconRInput<Value: Hashable>: View {
     @Binding private var text: String
     
     private let icon: PokitImage
     
     @State private var state: PokitInputStyle.State
     
+    private var focusState: FocusState<Value>.Binding
+    
+    private let equals: Value
     private let info: String
     private let onSubmit: (() -> Void)?
     
@@ -22,11 +25,15 @@ public struct PokitIconRInput: View {
         icon: PokitImage,
         state: PokitInputStyle.State = .default,
         info: String = "내용을 입력해주세요.",
+        focusState: FocusState<Value>.Binding,
+        equals: Value,
         onSubmit: (() -> Void)? = nil
     ) {
         self._text = text
         self.icon = icon
         self.state = state
+        self.focusState = focusState
+        self.equals = equals
         self.info = info
         self.onSubmit = onSubmit
     }
@@ -44,19 +51,27 @@ public struct PokitIconRInput: View {
     
     private var textField: some View {
         TextField(text: $text) {
-            label
+            placeholder
         }
         .autocorrectionDisabled()
         .textInputAutocapitalization(.never)
+        .focused(focusState, equals: equals)
         .pokitFont(.b3(.m))
         .foregroundStyle(.pokit(.text(.secondary)))
         .disabled(state == .disable || state == .readOnly)
         .onSubmit {
             onSubmit?()
         }
+        .onChange(of: focusState.wrappedValue) { newValue in
+            if newValue == equals {
+                self.state = .active
+            } else {
+                self.state = .default
+            }
+        }
     }
     
-    private var label: some View {
+    private var placeholder: some View {
         Text(info)
             .foregroundStyle(self.state.infoColor)
     }
@@ -84,25 +99,7 @@ public struct PokitIconRInput: View {
             .padding(.trailing, 13)
             .background(
                 state: self.state,
-                shape: shape,
-                focusState: focusState
-            )
-    }
-    
-    public func background<Value: Hashable>(
-        shape: PokitInputStyle.Shape,
-        focusState: FocusState<Value>.Binding,
-        equals: Value
-    ) -> some View {
-        return self
-            .padding(.vertical, 13)
-            .padding(.leading, shape == .round ? 20 : 12)
-            .padding(.trailing, 13)
-            .background(
-                state: self.state,
-                shape: shape,
-                focusState: focusState,
-                equals: equals
+                shape: shape
             )
     }
 }
