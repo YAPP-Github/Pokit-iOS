@@ -59,6 +59,8 @@ public struct PokitTextInput<Value: Hashable>: View {
         .onChange(of: isMaxLetters) { newValue in
             if isMaxLetters {
                 state = .error
+            } else {
+                state = .active
             }
         }
     }
