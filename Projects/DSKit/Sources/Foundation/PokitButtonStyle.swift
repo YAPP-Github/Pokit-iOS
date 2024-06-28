@@ -9,7 +9,7 @@ import SwiftUI
 
 public enum PokitButtonStyle {
     public enum State: Equatable {
-        case `default`
+        case `default`(PokitButtonStyle.ButtonType)
         case stroke(PokitButtonStyle.ButtonType)
         case filled(PokitButtonStyle.ButtonType)
         case disable
