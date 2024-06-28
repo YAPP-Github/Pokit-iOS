@@ -66,6 +66,8 @@ public enum PokitImage {
                 return .init(.iconFilter)
             case .x:
                 return .init(.iconX)
+            case .check:
+                return .init(.iconCheck)
             }
         }
     }
@@ -99,5 +101,6 @@ public extension PokitImage {
         case dicover
         case filter
         case x
+        case check
     }
 }
