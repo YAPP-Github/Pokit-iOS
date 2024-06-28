@@ -1,14 +1,16 @@
 //
-//  PokitInput.swift
+//  PokitIconRInput.swift
 //  DSKit
 //
-//  Created by 김도형 on 6/22/24.
+//  Created by 김도형 on 6/28/24.
 //
 
 import SwiftUI
 
-public struct PokitInput: View {
+public struct PokitIconRInput: View {
     @Binding private var text: String
+    
+    private let icon: PokitImage
     
     @State private var state: PokitInputStyle.State
     
@@ -17,18 +19,27 @@ public struct PokitInput: View {
     
     public init(
         text: Binding<String>,
+        icon: PokitImage,
         state: PokitInputStyle.State = .default,
         info: String = "내용을 입력해주세요.",
         onSubmit: (() -> Void)? = nil
     ) {
         self._text = text
+        self.icon = icon
         self.state = state
         self.info = info
         self.onSubmit = onSubmit
     }
     
     public var body: some View {
-        textField
+        HStack(spacing: 8) {
+            textField
+            
+            iconButton(icon: icon)
+        }
+        .onChange(of: text) { newValue in
+            state = text != "" ? .input : .default
+        }
     }
     
     private var textField: some View {
@@ -50,13 +61,27 @@ public struct PokitInput: View {
             .foregroundStyle(self.state.infoColor)
     }
     
+    @ViewBuilder
+    private func iconButton(icon: PokitImage) -> some View {
+        Button {
+            onSubmit?()
+        } label: {
+            Image(icon)
+                .resizable()
+                .frame(width: 24, height: 24)
+                .foregroundStyle(state.iconColor)
+                .animation(.smooth, value: self.state)
+        }
+    }
+    
     public func background(
         shape: PokitInputStyle.Shape,
         focusState: FocusState<Bool>.Binding
     ) -> some View {
-        self
-            .padding(.vertical, 16)
-            .padding(.horizontal, shape == .round ? 20 : 12)
+        return self
+            .padding(.vertical, 13)
+            .padding(.leading, shape == .round ? 20 : 12)
+            .padding(.trailing, 13)
             .background(
                 state: self.state,
                 shape: shape,
@@ -69,9 +94,10 @@ public struct PokitInput: View {
         focusState: FocusState<Value>.Binding,
         equals: Value
     ) -> some View {
-        self
-            .padding(.vertical, 16)
-            .padding(.horizontal, shape == .round ? 20 : 12)
+        return self
+            .padding(.vertical, 13)
+            .padding(.leading, shape == .round ? 20 : 12)
+            .padding(.trailing, 13)
             .background(
                 state: self.state,
                 shape: shape,
@@ -81,46 +107,3 @@ public struct PokitInput: View {
     }
 }
 
-#Preview {
-    VStack {
-        PokitInput(
-            text: .constant(""),
-            icon: .icon(.search),
-            category: .iconL
-        )
-        
-        PokitInput(
-            text: .constant("내용을 입력해주세요."),
-            icon: .icon(.search),
-            category: .iconL
-        )
-        
-        PokitInput(
-            text: .constant(""),
-            icon: .icon(.search),
-            category: .iconL
-        )
-        
-        PokitInput(
-            text: .constant(""),
-            icon: .icon(.search),
-            category: .iconL,
-            isDisable: true
-        )
-        
-        PokitInput(
-            text: .constant(""),
-            icon: .icon(.search),
-            category: .iconL
-        )
-        .readOnly()
-        
-        PokitInput(
-            text: .constant(""),
-            isError: .constant(true),
-            icon: .icon(.search),
-            category: .iconL
-        )
-    }
-    .padding()
-}
