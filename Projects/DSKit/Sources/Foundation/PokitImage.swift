@@ -56,6 +56,16 @@ public enum PokitImage {
                 return .init(.iconFolderline)
             case .linkLine:
                 return .init(.iconLinkline)
+            case .align:
+                return .init(.iconAlign)
+            case .dash:
+                return .init(.iconDash)
+            case .dicover:
+                return .init(.iconDiscover)
+            case .filter:
+                return .init(.iconFilter)
+            case .x:
+                return .init(.iconX)
             }
         }
     }
@@ -84,5 +94,10 @@ public extension PokitImage {
         case link
         case folderLine
         case linkLine
+        case align
+        case dash
+        case dicover
+        case filter
+        case x
     }
 }
