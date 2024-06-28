@@ -99,21 +99,3 @@ public struct PokitTextArea<Value: Hashable>: View {
         }
     }
 }
-
-#Preview {
-    VStack {
-        PokitTextArea(
-            text: .constant(""),
-            label: "Label",
-            showInfo: true
-        )
-        
-        PokitTextArea(
-            text: .constant(""),
-            isError: .constant(true),
-            label: "Label",
-            showInfo: true
-        )
-    }
-    .padding()
-}

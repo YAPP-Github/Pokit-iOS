@@ -74,35 +74,3 @@ public struct PokitPartTextArea<Value: Hashable>: View {
             .padding(.leading, 4)
     }
 }
-
-#Preview {
-    VStack {
-        PokitPartTextArea(
-            text: .constant("")
-        )
-        
-        PokitPartTextArea(
-            text: .constant("내용을 입력해주세요.")
-        )
-        
-        PokitPartTextArea(
-            text: .constant("")
-        )
-        
-        PokitPartTextArea(
-            text: .constant(""),
-            isDisable: true
-        )
-        
-        PokitPartTextArea(
-            text: .constant(""),
-            isReadOnly: true
-        )
-        
-        PokitPartTextArea(
-            text: .constant(""),
-            isError: .constant(true)
-        )
-    }
-    .padding()
-}
