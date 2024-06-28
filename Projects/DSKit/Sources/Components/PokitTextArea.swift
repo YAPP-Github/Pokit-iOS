@@ -97,6 +97,7 @@ public struct PokitTextArea<Value: Hashable>: View {
                     state == .error ? .pokit(.text(.error)) : .pokit(.text(.tertiary))
                 )
                 .contentTransition(.numericText())
+                .animation(.smooth, value: text)
         }
     }
 }

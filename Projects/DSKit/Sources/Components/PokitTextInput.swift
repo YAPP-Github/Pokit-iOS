@@ -132,6 +132,7 @@ public struct PokitTextInput<Value: Hashable>: View {
                     state == .error ? .pokit(.text(.error)) : .pokit(.text(.tertiary))
                 )
                 .contentTransition(.numericText())
+                .animation(.smooth, value: text)
         }
         .padding(.top, 4)
     }
