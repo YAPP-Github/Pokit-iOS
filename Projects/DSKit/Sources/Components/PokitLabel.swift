@@ -31,11 +31,3 @@ public extension PokitLabel {
         case small
     }
 }
-
-#Preview {
-    VStack {
-        PokitLabel(text: "Label", size: .large)
-        
-        PokitLabel(text: "Label", size: .small)
-    }
-}

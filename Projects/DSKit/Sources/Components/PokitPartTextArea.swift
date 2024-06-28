@@ -106,8 +106,11 @@ public struct PokitPartTextArea: View {
         )
         
         PokitPartTextArea(
-            text: .constant(""),
-            isError: .constant(true)
+            text: .constant("내용을 입력해주세요.")
+        )
+        
+        PokitPartTextArea(
+            text: .constant("")
         )
         
         PokitPartTextArea(
@@ -118,6 +121,11 @@ public struct PokitPartTextArea: View {
         PokitPartTextArea(
             text: .constant(""),
             isReadOnly: true
+        )
+        
+        PokitPartTextArea(
+            text: .constant(""),
+            isError: .constant(true)
         )
     }
     .padding()
