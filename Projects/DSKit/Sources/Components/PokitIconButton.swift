@@ -44,10 +44,14 @@ public struct PokitIconButton: View {
         shape: PokitButtonStyle.Shape
     ) -> some View {
         self
-            .pokitButtonBackground(
-                state: self.state,
-                shape: shape
-            )
+            .background {
+                RoundedRectangle(cornerRadius: shape.radius, style: /*@START_MENU_TOKEN@*/.continuous/*@END_MENU_TOKEN@*/)
+                    .fill(self.state.backgroundColor)
+                    .overlay {
+                        RoundedRectangle(cornerRadius: shape.radius, style: /*@START_MENU_TOKEN@*/.continuous/*@END_MENU_TOKEN@*/)
+                            .stroke(self.state.backgroundStrokeColor, lineWidth: 1)
+                    }
+            }
     }
 }
 
@@ -58,6 +62,128 @@ public struct PokitIconButton: View {
         size: .large
     ) {
         
+        VStack {
+            PokitIconButton(.icon(.search), state: .default, size: .medium) {
+                
+            }
+            .background(shape: .rectangle)
+            
+            PokitIconButton(.icon(.search), state: .filled(.primary), size: .medium) {
+                
+            }
+            .background(shape: .rectangle)
+            
+            PokitIconButton(.icon(.search), state: .filled(.secondary), size: .medium) {
+                
+            }
+            .background(shape: .rectangle)
+            
+            PokitIconButton(.icon(.search), state: .stroke(.primary), size: .medium) {
+                
+            }
+            .background(shape: .rectangle)
+            
+            PokitIconButton(.icon(.search), state: .stroke(.secondary), size: .medium) {
+                
+            }
+            .background(shape: .rectangle)
+            
+            PokitIconButton(.icon(.search), state: .disable, size: .medium) {
+                
+            }
+            .background(shape: .rectangle)
+            
+            PokitIconButton(.icon(.search), state: .default, size: .medium) {
+                
+            }
+            .background(shape: .round)
+            
+            PokitIconButton(.icon(.search), state: .filled(.primary), size: .medium) {
+                
+            }
+            .background(shape: .round)
+            
+            PokitIconButton(.icon(.search), state: .filled(.secondary), size: .medium) {
+                
+            }
+            .background(shape: .round)
+            
+            PokitIconButton(.icon(.search), state: .stroke(.primary), size: .medium) {
+                
+            }
+            .background(shape: .round)
+            
+            PokitIconButton(.icon(.search), state: .stroke(.secondary), size: .medium) {
+                
+            }
+            .background(shape: .round)
+            
+            PokitIconButton(.icon(.search), state: .disable, size: .medium) {
+                
+            }
+            .background(shape: .round)
+        }
+        
+        VStack {
+            PokitIconButton(.icon(.search), state: .default, size: .large) {
+                
+            }
+            .background(shape: .rectangle)
+            
+            PokitIconButton(.icon(.search), state: .filled(.primary), size: .large) {
+                
+            }
+            .background(shape: .rectangle)
+            
+            PokitIconButton(.icon(.search), state: .filled(.secondary), size: .large) {
+                
+            }
+            .background(shape: .rectangle)
+            
+            PokitIconButton(.icon(.search), state: .stroke(.primary), size: .large) {
+                
+            }
+            .background(shape: .rectangle)
+            
+            PokitIconButton(.icon(.search), state: .stroke(.secondary), size: .large) {
+                
+            }
+            .background(shape: .rectangle)
+            
+            PokitIconButton(.icon(.search), state: .disable, size: .large) {
+                
+            }
+            .background(shape: .rectangle)
+            
+            PokitIconButton(.icon(.search), state: .default, size: .large) {
+                
+            }
+            .background(shape: .round)
+            
+            PokitIconButton(.icon(.search), state: .filled(.primary), size: .large) {
+                
+            }
+            .background(shape: .round)
+            
+            PokitIconButton(.icon(.search), state: .filled(.secondary), size: .large) {
+                
+            }
+            .background(shape: .round)
+            
+            PokitIconButton(.icon(.search), state: .stroke(.primary), size: .large) {
+                
+            }
+            .background(shape: .round)
+            
+            PokitIconButton(.icon(.search), state: .stroke(.secondary), size: .large) {
+                
+            }
+            .background(shape: .round)
+            
+            PokitIconButton(.icon(.search), state: .disable, size: .large) {
+                
+            }
+            .background(shape: .round)
+        }
     }
-    .background(shape: .round)
 }

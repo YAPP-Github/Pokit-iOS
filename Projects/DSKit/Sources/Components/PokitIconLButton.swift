@@ -77,10 +77,14 @@ public struct PokitIconLButton: View {
         shape: PokitButtonStyle.Shape
     ) -> some View {
         self
-            .pokitButtonBackground(
-                state: self.state,
-                shape: shape
-            )
+            .background {
+                RoundedRectangle(cornerRadius: shape.radius, style: /*@START_MENU_TOKEN@*/.continuous/*@END_MENU_TOKEN@*/)
+                    .fill(self.state.backgroundColor)
+                    .overlay {
+                        RoundedRectangle(cornerRadius: shape.radius, style: /*@START_MENU_TOKEN@*/.continuous/*@END_MENU_TOKEN@*/)
+                            .stroke(self.state.backgroundStrokeColor, lineWidth: 1)
+                    }
+            }
     }
 }
 
@@ -92,6 +96,66 @@ public struct PokitIconLButton: View {
         size: .medium
     ) {
         
+        VStack {
+            PokitIconLButton("버튼", .icon(.search), state: .default, size: .large) {
+                
+            }
+            .background(shape: .rectangle)
+            
+            PokitIconLButton("버튼", .icon(.search), state: .filled(.primary), size: .large) {
+                
+            }
+            .background(shape: .rectangle)
+            
+            PokitIconLButton("버튼", .icon(.search), state: .filled(.secondary), size: .large) {
+                
+            }
+            .background(shape: .rectangle)
+            
+            PokitIconLButton("버튼", .icon(.search), state: .stroke(.primary), size: .large) {
+                
+            }
+            .background(shape: .rectangle)
+            
+            PokitIconLButton("버튼", .icon(.search), state: .stroke(.secondary), size: .large) {
+                
+            }
+            .background(shape: .rectangle)
+            
+            PokitIconLButton("버튼", .icon(.search), state: .disable, size: .large) {
+                
+            }
+            .background(shape: .rectangle)
+            
+            PokitIconLButton("버튼", .icon(.search), state: .default, size: .large) {
+                
+            }
+            .background(shape: .round)
+            
+            PokitIconLButton("버튼", .icon(.search), state: .filled(.primary), size: .large) {
+                
+            }
+            .background(shape: .round)
+            
+            PokitIconLButton("버튼", .icon(.search), state: .filled(.secondary), size: .large) {
+                
+            }
+            .background(shape: .round)
+            
+            PokitIconLButton("버튼", .icon(.search), state: .stroke(.primary), size: .large) {
+                
+            }
+            .background(shape: .round)
+            
+            PokitIconLButton("버튼", .icon(.search), state: .stroke(.secondary), size: .large) {
+                
+            }
+            .background(shape: .round)
+            
+            PokitIconLButton("버튼", .icon(.search), state: .disable, size: .large) {
+                
+            }
+            .background(shape: .round)
+        }
     }
-    .background(shape: .rectangle)
 }

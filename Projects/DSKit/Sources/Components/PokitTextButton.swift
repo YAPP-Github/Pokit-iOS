@@ -55,16 +55,80 @@ public struct PokitTextButton: View {
         shape: PokitButtonStyle.Shape
     ) -> some View {
         self
-            .pokitButtonBackground(
-                state: self.state,
-                shape: shape
-            )
+            .background {
+                RoundedRectangle(cornerRadius: shape.radius, style: /*@START_MENU_TOKEN@*/.continuous/*@END_MENU_TOKEN@*/)
+                    .fill(self.state.backgroundColor)
+                    .overlay {
+                        RoundedRectangle(cornerRadius: shape.radius, style: /*@START_MENU_TOKEN@*/.continuous/*@END_MENU_TOKEN@*/)
+                            .stroke(self.state.backgroundStrokeColor, lineWidth: 1)
+                    }
+            }
     }
 }
 
 #Preview {
     PokitTextButton("버튼", state: .filled(.primary), size: .medium) {
         
+        VStack {
+            PokitTextButton("버튼", state: .default, size: .large) {
+                
+            }
+            .background(shape: .rectangle)
+            
+            PokitTextButton("버튼", state: .filled(.primary), size: .large) {
+                
+            }
+            .background(shape: .rectangle)
+            
+            PokitTextButton("버튼", state: .filled(.secondary), size: .large) {
+                
+            }
+            .background(shape: .rectangle)
+            
+            PokitTextButton("버튼", state: .stroke(.primary), size: .large) {
+                
+            }
+            .background(shape: .rectangle)
+            
+            PokitTextButton("버튼", state: .stroke(.secondary), size: .large) {
+                
+            }
+            .background(shape: .rectangle)
+            
+            PokitTextButton("버튼", state: .disable, size: .large) {
+                
+            }
+            .background(shape: .rectangle)
+            
+            PokitTextButton("버튼", state: .default, size: .large) {
+                
+            }
+            .background(shape: .round)
+            
+            PokitTextButton("버튼", state: .filled(.primary), size: .large) {
+                
+            }
+            .background(shape: .round)
+            
+            PokitTextButton("버튼", state: .filled(.secondary), size: .large) {
+                
+            }
+            .background(shape: .round)
+            
+            PokitTextButton("버튼", state: .stroke(.primary), size: .large) {
+                
+            }
+            .background(shape: .round)
+            
+            PokitTextButton("버튼", state: .stroke(.secondary), size: .large) {
+                
+            }
+            .background(shape: .round)
+            
+            PokitTextButton("버튼", state: .disable, size: .large) {
+                
+            }
+            .background(shape: .round)
+        }
     }
-    .background(shape: .round)
 }

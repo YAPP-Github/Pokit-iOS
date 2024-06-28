@@ -78,10 +78,14 @@ public struct PokitIconRButton: View {
         shape: PokitButtonStyle.Shape
     ) -> some View {
         self
-            .pokitButtonBackground(
-                state: self.state,
-                shape: shape
-            )
+            .background {
+                RoundedRectangle(cornerRadius: shape.radius, style: /*@START_MENU_TOKEN@*/.continuous/*@END_MENU_TOKEN@*/)
+                    .fill(self.state.backgroundColor)
+                    .overlay {
+                        RoundedRectangle(cornerRadius: shape.radius, style: /*@START_MENU_TOKEN@*/.continuous/*@END_MENU_TOKEN@*/)
+                            .stroke(self.state.backgroundStrokeColor, lineWidth: 1)
+                    }
+            }
     }
 }
 
