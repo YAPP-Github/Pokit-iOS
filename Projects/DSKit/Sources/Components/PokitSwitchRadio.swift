@@ -55,32 +55,47 @@ public struct PokitSwitchRadio: View {
             
             self.selection = selection
         } label: {
-            HStack {
-                Spacer()
-                
-                Group {
-                    switch selection {
-                    case .left:
-                        Text(leftLabelText)
-                    case .right:
-                        Text(rightLableText)
-                    }
-                }
-                .foregroundStyle(state.textColor)
-                .pokitFont(.b2(.m))
-                
-                Spacer()
-            }
-            .padding(.vertical, 16)
-            .background {
-                RoundedRectangle(cornerRadius: 8, style: .continuous)
-                    .fill(state.backgroundColor)
-                    .overlay {
-                        RoundedRectangle(cornerRadius: 8, style: .continuous)
-                            .stroke(state.backgroundStrokeColor, lineWidth: 1)
-                    }
-            }
+            buttonLabel(selection: selection, state: state)
         }
+        .disabled(isDisable)
+    }
+    
+    @ViewBuilder
+    private func buttonLabel(
+        selection: Selection, 
+        state: PokitSwitchRadio.RadioState
+    ) -> some View {
+        HStack {
+            Spacer()
+            
+            Group {
+                switch selection {
+                case .left:
+                    Text(leftLabelText)
+                case .right:
+                    Text(rightLableText)
+                }
+            }
+            .foregroundStyle(state.textColor)
+            .pokitFont(.b2(.m))
+            
+            Spacer()
+        }
+        .padding(.vertical, 16)
+        .background {
+            background(state)
+        }
+    }
+    
+    @ViewBuilder
+    private func background(_ state: PokitSwitchRadio.RadioState) -> some View {
+        RoundedRectangle(cornerRadius: 8, style: .continuous)
+            .fill(state.backgroundColor)
+            .overlay {
+                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                    .stroke(state.backgroundStrokeColor, lineWidth: 1)
+            }
+            .animation(.smooth, value: self.selection)
     }
 }
 
