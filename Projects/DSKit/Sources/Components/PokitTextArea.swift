@@ -7,39 +7,41 @@
 
 import SwiftUI
 
-public struct PokitTextArea: View {
+public struct PokitTextArea<Value: Hashable>: View {
     @Binding private var text: String
-    @Binding private var isError: Bool
     
     @State private var isMaxLetters: Bool = false
+    @State private var state: PokitInputStyle.State
+    
+    private var focusState: FocusState<Value>.Binding
+    
+    private let equals: Value
     
     private let label: String
     private let info: String
     private let maxLetter: Int
     private let showInfo: Bool
-    private let isDisable: Bool
-    private let isReadOnly: Bool
     private let onSubmit: (() -> Void)?
     
     public init(
         text: Binding<String>,
-        isError: Binding<Bool> = .constant(false),
         label: String,
+        state: PokitInputStyle.State = .default,
         info: String = "내용을 입력해주세요.",
         maxLetter: Int = 100,
         showInfo: Bool = false,
-        isDisable: Bool = false,
-        isReadOnly: Bool = false,
+        focusState: FocusState<Value>.Binding,
+        equals: Value,
         onSubmit: (() -> Void)? = nil
     ) {
         self._text = text
-        self._isError = isError
         self.label = label
+        self.state = state
+        self.focusState = focusState
+        self.equals = equals
         self.info = info
         self.maxLetter = maxLetter
         self.showInfo = showInfo
-        self.isDisable = isDisable
-        self.isReadOnly = isReadOnly
         self.onSubmit = onSubmit
     }
     
@@ -50,19 +52,31 @@ public struct PokitTextArea: View {
             
             PokitPartTextArea(
                 text: $text,
-                isError: $isError,
+                state: state,
                 info: info,
-                isDisable: isDisable,
-                isReadOnly: isReadOnly,
+                focusState: focusState,
+                equals: equals,
                 onSubmit: onSubmit
             )
-            .padding(.bottom, 4)
-            .onChange(of: text) { newValue in
-                isMaxLetters = text.count > maxLetter ? true : false
-                isError = text.count > maxLetter ? true : false
+            .onChange(of: focusState.wrappedValue) { newValue in
+                if newValue == equals {
+                    self.state = .active
+                } else {
+                    self.state = state == .error ? .error : .default
+                }
             }
             
             infoLabel
+        }
+        .onChange(of: text) { newValue in
+            isMaxLetters = text.count > maxLetter ? true : false
+        }
+        .onChange(of: isMaxLetters) { newValue in
+            if isMaxLetters {
+                state = .error
+            } else {
+                state = .active
+            }
         }
     }
     
@@ -80,7 +94,7 @@ public struct PokitTextArea: View {
             Text("\(text.count)/\(maxLetter)")
                 .pokitFont(.detail1)
                 .foregroundStyle(
-                    isError ? .pokit(.text(.error)) : .pokit(.text(.tertiary))
+                    state == .error ? .pokit(.text(.error)) : .pokit(.text(.tertiary))
                 )
         }
     }
