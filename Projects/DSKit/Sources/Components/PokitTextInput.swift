@@ -132,49 +132,4 @@ public struct PokitTextInput<Value: Hashable>: View {
         }
         .padding(.top, 4)
     }
-    
-}
-
-#Preview {
-    VStack {
-        PokitTextInput(
-            text: .constant(""),
-            label: "Label",
-            showInfo: true
-        )
-        
-        PokitTextInput(
-            text: .constant("내용을 입력해주세요"),
-            label: "Label",
-            showInfo: true
-        )
-        
-        PokitTextInput(
-            text: .constant(""),
-            label: "Label",
-            showInfo: true
-        )
-        
-        PokitTextInput(
-            text: .constant(""),
-            label: "Label",
-            showInfo: true,
-            isDisable: true
-        )
-        
-        PokitTextInput(
-            text: .constant(""),
-            label: "Label",
-            showInfo: true,
-            isReadOnly: true
-        )
-        
-        PokitTextInput(
-            text: .constant(""),
-            isError: .constant(true),
-            label: "Label",
-            showInfo: true
-        )
-    }
-    .padding()
 }
