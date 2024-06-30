@@ -50,7 +50,9 @@ public struct PokitSelect<Item: PokitSelectItemProtocol>: View {
         }
         .sheet(isPresented: $showSheet) {
             listSheet
+                .pokitPresentationCornerRadius()
                 .presentationDetents([.medium, .large])
+                .pokitPresentationBackground()
         }
     }
     

@@ -24,6 +24,8 @@ public struct PokitBottomSheet: View {
             list()
         }
         .presentationDetents([.medium])
+        .pokitPresentationCornerRadius()
+        .pokitPresentationBackground()
     }
     
     @ViewBuilder
