@@ -69,14 +69,10 @@ public struct PokitTextArea<Value: Hashable>: View {
             infoLabel
         }
         .onChange(of: text) { newValue in
-            isMaxLetters = text.count > maxLetter ? true : false
+            self.onChangeOfText(newValue)
         }
         .onChange(of: isMaxLetters) { newValue in
-            if isMaxLetters {
-                state = .error
-            } else {
-                state = .active
-            }
+            self.onChangeOfIsMaxLetters(newValue)
         }
     }
     
@@ -91,7 +87,7 @@ public struct PokitTextArea<Value: Hashable>: View {
             
             Spacer()
             
-            Text("\(text.count)/\(maxLetter)")
+            Text("\(text.count > maxLetter ? maxLetter : text.count)/\(maxLetter)")
                 .pokitFont(.detail1)
                 .foregroundStyle(
                     state == .error ? .pokit(.text(.error)) : .pokit(.text(.tertiary))
@@ -100,4 +96,21 @@ public struct PokitTextArea<Value: Hashable>: View {
                 .animation(.smooth, value: text)
         }
     }
+    
+    private func onChangeOfText(_ newValue: String) {
+        if isMaxLetters {
+            self.text = String(newValue.prefix(maxLetter + 1))
+        }
+        isMaxLetters = text.count > maxLetter ? true : false
+    }
+    
+    private func onChangeOfIsMaxLetters(_ newValue: Bool) {
+        if isMaxLetters {
+            state = .error
+        } else {
+            state = .active
+        }
+    }
+}
+
 }
