@@ -82,7 +82,6 @@ public struct PokitSelect<Item: PokitSelectItemProtocol>: View {
         .padding(.horizontal, 12)
         .padding(.vertical, 13)
         .background(background)
-        .blurTransition(.smooth)
     }
     
     private var background: some View {

@@ -82,7 +82,7 @@ public struct PokitTextArea<Value: Hashable>: View {
                 Text("최대 \(maxLetter)자까지 입력가능합니다.")
                     .pokitFont(.detail1)
                     .foregroundStyle(.pokit(.text(.error)))
-                    .blurTransition(.smooth)
+                    .pokitBlurReplaceTransition(.smooth)
             }
             
             Spacer()

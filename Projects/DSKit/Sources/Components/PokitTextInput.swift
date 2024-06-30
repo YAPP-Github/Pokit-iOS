@@ -101,14 +101,14 @@ public struct PokitTextInput<Value: Hashable>: View {
                     .resizable()
                     .foregroundStyle(.pokit(.icon(.error)))
                     .frame(width: 20, height: 20)
-                    .blurTransition(.smooth)
+                    .pokitBlurReplaceTransition(.smooth)
             }
             
             if isMaxLetters {
                 Text("최대 \(maxLetter)자까지 입력가능합니다.")
                     .pokitFont(.detail1)
                     .foregroundStyle(.pokit(.text(.error)))
-                    .blurTransition(.smooth)
+                    .pokitBlurReplaceTransition(.smooth)
             } else {
                 if showInfo {
                     Text(info)

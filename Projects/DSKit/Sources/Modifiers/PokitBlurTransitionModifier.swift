@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct BlurTransitionModifier: ViewModifier {
+struct PokitBlurTransitionModifier: ViewModifier {
     private let animation: Animation
     
     public init(animation: Animation) {
@@ -26,7 +26,7 @@ struct BlurTransitionModifier: ViewModifier {
 }
 
 public extension View {
-    func blurTransition(_ animation: Animation) -> some View {
-        modifier(BlurTransitionModifier(animation: animation))
+    func pokitBlurReplaceTransition(_ animation: Animation) -> some View {
+        modifier(PokitBlurTransitionModifier(animation: animation))
     }
 }
