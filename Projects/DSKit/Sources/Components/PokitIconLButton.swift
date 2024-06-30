@@ -12,6 +12,7 @@ public struct PokitIconLButton: View {
     private let labelIcon: PokitImage
     private let state: PokitButtonStyle.State
     private let size: PokitButtonStyle.Size
+    private let shape: PokitButtonStyle.Shape
     private let action: () -> Void
     
     public init(
@@ -19,12 +20,14 @@ public struct PokitIconLButton: View {
         _ labelIcon: PokitImage,
         state: PokitButtonStyle.State,
         size: PokitButtonStyle.Size,
+        shape: PokitButtonStyle.Shape,
         action: @escaping () -> Void
     ) {
         self.labelText = labelText
         self.labelIcon = labelIcon
         self.state = state
         self.size = size
+        self.shape = shape
         self.action = action
     }
     
@@ -49,6 +52,14 @@ public struct PokitIconLButton: View {
         .padding(.leading, self.lPadding)
         .padding(.trailing, self.tPadding)
         .padding(.vertical, self.size.vPadding)
+        .background {
+            RoundedRectangle(cornerRadius: shape.radius, style: /*@START_MENU_TOKEN@*/.continuous/*@END_MENU_TOKEN@*/)
+                .fill(self.state.backgroundColor)
+                .overlay {
+                    RoundedRectangle(cornerRadius: shape.radius, style: /*@START_MENU_TOKEN@*/.continuous/*@END_MENU_TOKEN@*/)
+                        .stroke(self.state.backgroundStrokeColor, lineWidth: 1)
+                }
+        }
     }
     
     private var lPadding: CGFloat {
@@ -71,19 +82,5 @@ public struct PokitIconLButton: View {
         case .large:
             return 24
         }
-    }
-    
-    public func background(
-        shape: PokitButtonStyle.Shape
-    ) -> some View {
-        self
-            .background {
-                RoundedRectangle(cornerRadius: shape.radius, style: /*@START_MENU_TOKEN@*/.continuous/*@END_MENU_TOKEN@*/)
-                    .fill(self.state.backgroundColor)
-                    .overlay {
-                        RoundedRectangle(cornerRadius: shape.radius, style: /*@START_MENU_TOKEN@*/.continuous/*@END_MENU_TOKEN@*/)
-                            .stroke(self.state.backgroundStrokeColor, lineWidth: 1)
-                    }
-            }
     }
 }

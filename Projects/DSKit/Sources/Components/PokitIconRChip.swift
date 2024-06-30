@@ -36,13 +36,13 @@ public struct PokitIconRChip: View {
             self.labelText,
             .icon(.x),
             state: state,
-            size: size
+            size: size, 
+            shape: .round
         ) {
             pokitTextButtonTapped()
             
             action()
         }
-        .background(shape: .round)
     }
     
     private func pokitTextButtonTapped() {

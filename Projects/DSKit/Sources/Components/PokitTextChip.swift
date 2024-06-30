@@ -35,13 +35,13 @@ public struct PokitTextChip: View {
         PokitTextButton(
             labelText,
             state: state,
-            size: size
+            size: size, 
+            shape: .round
         ) {
             pokitTextButtonTapped()
             
             action()
         }
-        .background(shape: .round)
     }
     
     private func pokitTextButtonTapped() {

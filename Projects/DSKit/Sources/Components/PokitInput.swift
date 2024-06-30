@@ -14,6 +14,7 @@ public struct PokitInput<Value: Hashable>: View {
     
     private var focusState: FocusState<Value>.Binding
     
+    private let shape: PokitInputStyle.Shape
     private let equals: Value
     private let info: String
     private let onSubmit: (() -> Void)?
@@ -22,12 +23,14 @@ public struct PokitInput<Value: Hashable>: View {
         text: Binding<String>,
         state: PokitInputStyle.State = .default,
         info: String = "내용을 입력해주세요.",
+        shape: PokitInputStyle.Shape,
         focusState: FocusState<Value>.Binding,
         equals: Value,
         onSubmit: (() -> Void)? = nil
     ) {
         self._text = text
         self.state = state
+        self.shape = shape
         self.focusState = focusState
         self.equals = equals
         self.info = info
@@ -51,6 +54,19 @@ public struct PokitInput<Value: Hashable>: View {
         .onSubmit {
             onSubmit?()
         }
+        .padding(.vertical, 16)
+        .padding(.horizontal, shape == .round ? 20 : 12)
+        .background(
+            state: self.state,
+            shape: shape
+        )
+        .onChange(of: focusState.wrappedValue) { newValue in
+            if newValue == equals {
+                self.state = .active
+            } else {
+                self.state = state == .error ? .error : .default
+            }
+        }
     }
     
     private var placeholder: some View {
@@ -58,30 +74,5 @@ public struct PokitInput<Value: Hashable>: View {
             .foregroundStyle(self.state.infoColor)
     }
     
-    public func background(
-        shape: PokitInputStyle.Shape,
-        focusState: FocusState<Bool>.Binding
-    ) -> some View {
-        self
-            .padding(.vertical, 16)
-            .padding(.horizontal, shape == .round ? 20 : 12)
-            .focused(focusState)
-            .background(
-                state: self.state,
-                shape: shape
-            )
-    }
-    
-    public func background(
-        shape: PokitInputStyle.Shape
-    ) -> some View {
-        self
-            .padding(.vertical, 16)
-            .padding(.horizontal, shape == .round ? 20 : 12)
-            .focused(focusState, equals: equals)
-            .background(
-                state: self.state,
-                shape: shape
-            )
     }
 }
