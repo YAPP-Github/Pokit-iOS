@@ -161,8 +161,4 @@ extension PokitPartSwitchRadio {
     }
 }
 
-enum RadioButton: String {
-    case button1 = "버튼1"
-    case button2 = "버튼2"
 }
-

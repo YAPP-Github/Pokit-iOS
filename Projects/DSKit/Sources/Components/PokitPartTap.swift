@@ -77,9 +77,4 @@ public struct PokitPartTap<Selection: Equatable>: View {
     }
 }
 
-enum TapButton: String {
-    case tap1 = "탭1"
-    case tap2 = "탭2"
-    case tap3 = "탭3"
 }
-
