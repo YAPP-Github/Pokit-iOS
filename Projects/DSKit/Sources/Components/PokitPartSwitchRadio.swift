@@ -44,6 +44,7 @@ public struct PokitPartSwitchRadio<Selection: Equatable>: View {
     private var radioButton: some View {
         Button {
             self.selection = current
+            action?()
         } label: {
             buttonLabel
         }
