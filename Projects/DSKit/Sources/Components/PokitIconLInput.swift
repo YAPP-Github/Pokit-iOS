@@ -16,6 +16,7 @@ public struct PokitIconLInput<Value: Hashable>: View {
     
     private var focusState: FocusState<Value>.Binding
     
+    private let shape: PokitInputStyle.Shape
     private let equals: Value
     private let info: String
     private let onSubmit: (() -> Void)?
@@ -25,6 +26,7 @@ public struct PokitIconLInput<Value: Hashable>: View {
         icon: PokitImage,
         state: PokitInputStyle.State = .default,
         info: String = "내용을 입력해주세요.",
+        shape: PokitInputStyle.Shape,
         focusState: FocusState<Value>.Binding,
         equals: Value,
         onSubmit: (() -> Void)? = nil
@@ -32,6 +34,7 @@ public struct PokitIconLInput<Value: Hashable>: View {
         self._text = text
         self.icon = icon
         self.state = state
+        self.shape = shape
         self.focusState = focusState
         self.equals = equals
         self.info = info
@@ -47,6 +50,13 @@ public struct PokitIconLInput<Value: Hashable>: View {
         .onChange(of: text) { newValue in
             state = text != "" ? .input : .default
         }
+        .padding(.vertical, 13)
+        .padding(.trailing, shape == .round ? 20 : 12)
+        .padding(.leading, 13)
+        .background(
+            state: self.state,
+            shape: shape
+        )
     }
     
     private var textField: some View {
@@ -88,17 +98,7 @@ public struct PokitIconLInput<Value: Hashable>: View {
                 .animation(.smooth, value: self.state)
         }
     }
+}
     
-    public func background(
-        shape: PokitInputStyle.Shape
-    ) -> some View {
-        return self
-            .padding(.vertical, 13)
-            .padding(.trailing, shape == .round ? 20 : 12)
-            .padding(.leading, 13)
-            .background(
-                state: self.state,
-                shape: shape
-            )
     }
 }
