@@ -71,3 +71,6 @@ Tuist/.build
 
 ### Package.resolved ###
 *.resolved
+
+### xcconfig ###
+*.xcconfig
