@@ -25,6 +25,5 @@ let package = Package(
         .package(url: "https://github.com/pointfreeco/swift-composable-architecture", from: "1.10.4"),
         .package(url: "https://github.com/google/GoogleSignIn-iOS", "7.0.0" ..< "7.1.0"),
         .package(url: "https://github.com/Moya/Moya", from: "15.0.0")
-    ],
-    targets: [.target(name: "Pokit", dependencies: ["Moya"])]
+    ]
 )
