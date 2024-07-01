@@ -8,13 +8,6 @@
 import Foundation
 import GoogleSignIn
 
-public enum GoogleLoginError: Error {
-    case invalidCredential
-    case invalidIdToken
-    case invalidUserId
-    case transferError(String)
-}
-
 public final class GoogleLoginController {
     private var continuation: CheckedContinuation<SocialLoginInfo, Error>?
     
@@ -29,7 +22,7 @@ public final class GoogleLoginController {
     
     private func googleSignIn() {
         guard let root = UIApplication.shared.rootViewController else {
-            continuation?.resume(throwing: GoogleLoginError.transferError("Root view does not exist."))
+            continuation?.resume(throwing: SocialLoginError.transferError("Root view does not exist."))
             return
         }
         
@@ -42,20 +35,20 @@ public final class GoogleLoginController {
             }
 
             guard let result = signInResult else {
-                continuation?.resume(throwing: GoogleLoginError.invalidCredential)
+                continuation?.resume(throwing: SocialLoginError.invalidCredential)
                 continuation = nil
                 return
             }
             
             guard let idToken = result.user.idToken else {
-                continuation?.resume(throwing: GoogleLoginError.invalidIdToken)
+                continuation?.resume(throwing: SocialLoginError.googleLoginError(.invalidIdToken))
                 continuation = nil
                 return
             }
             print("🌐 googleLogin idToken: \(idToken)")
             
             guard let id = result.user.userID else {
-                continuation?.resume(throwing: GoogleLoginError.invalidUserId)
+                continuation?.resume(throwing: SocialLoginError.googleLoginError(.invalidUserId))
                 continuation = nil
                 return
             }

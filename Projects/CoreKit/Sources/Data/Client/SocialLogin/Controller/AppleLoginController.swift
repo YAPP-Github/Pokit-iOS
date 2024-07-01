@@ -8,12 +8,6 @@
 import Foundation
 import AuthenticationServices
 
-public enum AppleLoginError: LocalizedError {
-    case invalidCredential
-    case invalidIdentityToken
-    case invalidAuthorizationCode
-}
-
 public final class AppleLoginController: NSObject, ASAuthorizationControllerDelegate {
 
     private var continuation: CheckedContinuation<SocialLoginInfo, Error>?
@@ -39,7 +33,7 @@ public final class AppleLoginController: NSObject, ASAuthorizationControllerDele
         didCompleteWithAuthorization authorization: ASAuthorization
     ) {
         guard let credential = authorization.credential as? ASAuthorizationAppleIDCredential else {
-            continuation?.resume(throwing: AppleLoginError.invalidCredential)
+            continuation?.resume(throwing: SocialLoginError.invalidCredential)
             continuation = nil
             return
         }
@@ -52,14 +46,14 @@ public final class AppleLoginController: NSObject, ASAuthorizationControllerDele
 
         guard let tokenData = credential.identityToken,
               let token = String(data: tokenData, encoding: .utf8) else {
-            continuation?.resume(throwing: AppleLoginError.invalidIdentityToken)
+            continuation?.resume(throwing: SocialLoginError.appleLoginError(.invalidIdentityToken))
             continuation = nil
             return
         }
 
         guard let authorizationCode = credential.authorizationCode,
               let codeString = String(data: authorizationCode, encoding: .utf8) else {
-            continuation?.resume(throwing: AppleLoginError.invalidAuthorizationCode)
+            continuation?.resume(throwing: SocialLoginError.appleLoginError(.invalidAuthorizationCode))
             continuation = nil
             return
         }
