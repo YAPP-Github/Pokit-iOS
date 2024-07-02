@@ -15,21 +15,22 @@ public struct PokitTextArea<Value: Hashable>: View {
     
     private var focusState: FocusState<Value>.Binding
     
+    private let errorMessage: String?
     private let equals: Value
-    
     private let label: String
-    private let info: String
+    private let placeholder: String
+    private let info: String?
     private let maxLetter: Int
-    private let showInfo: Bool
     private let onSubmit: (() -> Void)?
     
     public init(
         text: Binding<String>,
         label: String,
         state: PokitInputStyle.State = .default,
-        info: String = "내용을 입력해주세요.",
+        errorMessage: String? = nil,
+        placeholder: String = "내용을 입력해주세요.",
+        info: String? = nil,
         maxLetter: Int = 100,
-        showInfo: Bool = false,
         focusState: FocusState<Value>.Binding,
         equals: Value,
         onSubmit: (() -> Void)? = nil
@@ -37,11 +38,12 @@ public struct PokitTextArea<Value: Hashable>: View {
         self._text = text
         self.label = label
         self.state = state
+        self.errorMessage = errorMessage
         self.focusState = focusState
         self.equals = equals
+        self.placeholder = placeholder
         self.info = info
         self.maxLetter = maxLetter
-        self.showInfo = showInfo
         self.onSubmit = onSubmit
     }
     
@@ -53,7 +55,7 @@ public struct PokitTextArea<Value: Hashable>: View {
             PokitPartTextArea(
                 text: $text,
                 state: state,
-                info: info,
+                placeholder: placeholder,
                 focusState: focusState,
                 equals: equals,
                 onSubmit: onSubmit
@@ -78,12 +80,20 @@ public struct PokitTextArea<Value: Hashable>: View {
     
     private var infoLabel: some View {
         HStack {
-            if isMaxLetters {
-                Text("최대 \(maxLetter)자까지 입력가능합니다.")
-                    .pokitFont(.detail1)
-                    .foregroundStyle(.pokit(.text(.error)))
-                    .pokitBlurReplaceTransition(.smooth)
+            Group {
+                if isMaxLetters {
+                    Text("최대 \(maxLetter)자까지 입력가능합니다.")
+                        .foregroundStyle(.pokit(.text(.error)))
+                } else if state == .error, let errorMessage {
+                    Text(errorMessage)
+                        .foregroundStyle(.pokit(.text(.error)))
+                } else if let info {
+                    Text(info)
+                        .foregroundStyle(.pokit(.text(.tertiary)))
+                }
             }
+            .pokitFont(.detail1)
+            .pokitBlurReplaceTransition(.smooth)
             
             Spacer()
             
@@ -95,6 +105,7 @@ public struct PokitTextArea<Value: Hashable>: View {
                 .contentTransition(.numericText())
                 .animation(.smooth, value: text)
         }
+        .padding(.top, 4)
     }
     
     private func onChangeOfText(_ newValue: String) {
@@ -105,7 +116,7 @@ public struct PokitTextArea<Value: Hashable>: View {
     }
     
     private func onChangeOfIsMaxLetters(_ newValue: Bool) {
-        if isMaxLetters {
+        if newValue {
             state = .error
         } else {
             state = .active
@@ -113,4 +124,3 @@ public struct PokitTextArea<Value: Hashable>: View {
     }
 }
 
-}

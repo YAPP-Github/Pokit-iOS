@@ -16,13 +16,13 @@ public struct PokitInput<Value: Hashable>: View {
     
     private let shape: PokitInputStyle.Shape
     private let equals: Value
-    private let info: String
+    private let placeholder: String
     private let onSubmit: (() -> Void)?
     
     public init(
         text: Binding<String>,
         state: PokitInputStyle.State = .default,
-        info: String = "내용을 입력해주세요.",
+        placeholder: String = "내용을 입력해주세요.",
         shape: PokitInputStyle.Shape,
         focusState: FocusState<Value>.Binding,
         equals: Value,
@@ -33,7 +33,7 @@ public struct PokitInput<Value: Hashable>: View {
         self.shape = shape
         self.focusState = focusState
         self.equals = equals
-        self.info = info
+        self.placeholder = placeholder
         self.onSubmit = onSubmit
     }
     
@@ -43,7 +43,7 @@ public struct PokitInput<Value: Hashable>: View {
     
     private var textField: some View {
         TextField(text: $text) {
-            placeholder
+            placeholderLabel
         }
         .autocorrectionDisabled()
         .textInputAutocapitalization(.never)
@@ -69,10 +69,8 @@ public struct PokitInput<Value: Hashable>: View {
         }
     }
     
-    private var placeholder: some View {
-        Text(info)
+    private var placeholderLabel: some View {
+        Text(placeholder)
             .foregroundStyle(self.state.infoColor)
-    }
-    
     }
 }

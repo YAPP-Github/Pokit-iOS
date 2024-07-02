@@ -15,13 +15,13 @@ public struct PokitPartTextArea<Value: Hashable>: View {
     private var focusState: FocusState<Value>.Binding
     
     private let equals: Value
-    private let info: String
+    private let placeholder: String
     private let onSubmit: (() -> Void)?
     
     public init(
         text: Binding<String>,
         state: PokitInputStyle.State = .default,
-        info: String = "내용을 입력해주세요.",
+        placeholder: String = "내용을 입력해주세요.",
         focusState: FocusState<Value>.Binding,
         equals: Value,
         onSubmit: (() -> Void)? = nil
@@ -30,7 +30,7 @@ public struct PokitPartTextArea<Value: Hashable>: View {
         self.state = state
         self.focusState = focusState
         self.equals = equals
-        self.info = info
+        self.placeholder = placeholder
         self.onSubmit = onSubmit
         
         UITextView.appearance().textContainerInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
@@ -59,7 +59,7 @@ public struct PokitPartTextArea<Value: Hashable>: View {
             }
             .background(alignment: .topLeading) {
                 if text.isEmpty {
-                    placeholder
+                    placeholderLabel
                 }
             }
             .pokitFont(.b3(.r))
@@ -67,8 +67,8 @@ public struct PokitPartTextArea<Value: Hashable>: View {
             .background(state: self.state, shape: .rectangle)
     }
     
-    private var placeholder: some View {
-        Text(info)
+    private var placeholderLabel: some View {
+        Text(placeholder)
             .pokitFont(.b3(.r))
             .foregroundStyle(.pokit(.text(.tertiary)))
             .padding(.leading, 4)
