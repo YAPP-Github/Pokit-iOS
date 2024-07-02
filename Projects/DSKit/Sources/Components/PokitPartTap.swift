@@ -76,5 +76,3 @@ public struct PokitPartTap<Selection: Equatable>: View {
             .animation(.smooth, value: self.selection)
     }
 }
-
-}
