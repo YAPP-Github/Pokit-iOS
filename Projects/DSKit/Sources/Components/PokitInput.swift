@@ -54,7 +54,7 @@ public struct PokitInput<Value: Hashable>: View {
         .onSubmit {
             onSubmit?()
         }
-        .padding(.vertical, 16)
+        .padding(.vertical, shape == .round ? 11 : 16)
         .padding(.horizontal, shape == .round ? 20 : 12)
         .background(
             state: self.state,

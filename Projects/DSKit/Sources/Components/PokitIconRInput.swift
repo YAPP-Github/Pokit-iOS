@@ -50,7 +50,7 @@ public struct PokitIconRInput<Value: Hashable>: View {
         .onChange(of: text) { newValue in
             state = text != "" ? .input : .default
         }
-        .padding(.vertical, 13)
+        .padding(.vertical, shape == .round ? 8 : 13)
         .padding(.leading, shape == .round ? 20 : 12)
         .padding(.trailing, 13)
         .background(
