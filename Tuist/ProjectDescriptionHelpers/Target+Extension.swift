@@ -19,7 +19,23 @@ public extension Target {
             destinations: .appDestinations,
             product: product,
             bundleId: .moduleBundleId(name: bundleName),
-            sources: ["\(name)/Sources/**"],
+            sources: ["\(name)/Sources"],
+            dependencies: dependencies
+        )
+    }
+    
+    static func makeChildTarget(
+        name: String,
+        product: Product,
+        bundleName: String,
+        dependencies: [TargetDependency]
+    ) -> Target {
+        return .target(
+            name: "\(name)",
+            destinations: .appDestinations,
+            product: product,
+            bundleId: .moduleBundleId(name: bundleName),
+            sources: ["Sources\(name)/Sources"],
             dependencies: dependencies
         )
     }
