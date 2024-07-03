@@ -42,10 +42,10 @@ public struct PokitTextButton: View {
             .padding(.horizontal, self.hPadding)
             .padding(.vertical, self.size.vPadding)
             .background {
-                RoundedRectangle(cornerRadius: shape.radius, style: /*@START_MENU_TOKEN@*/.continuous/*@END_MENU_TOKEN@*/)
+                RoundedRectangle(cornerRadius: shape.radius(size: self.size), style: .continuous)
                     .fill(self.state.backgroundColor)
                     .overlay {
-                        RoundedRectangle(cornerRadius: shape.radius, style: /*@START_MENU_TOKEN@*/.continuous/*@END_MENU_TOKEN@*/)
+                        RoundedRectangle(cornerRadius: shape.radius(size: self.size), style: .continuous)
                             .stroke(self.state.backgroundStrokeColor, lineWidth: 1)
                     }
             }

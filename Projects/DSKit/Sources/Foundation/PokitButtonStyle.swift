@@ -131,9 +131,9 @@ extension PokitButtonStyle.Size {
 }
 
 extension PokitButtonStyle.Shape {
-    var radius: CGFloat {
+    func radius(size: PokitButtonStyle.Size) -> CGFloat {
         switch self {
-        case .rectangle: return 8
+        case .rectangle: return size == .small ? 4 : 8
         case .round: return 9999
         }
     }

@@ -46,12 +46,18 @@ public struct PokitBottomButton: View {
             Spacer()
         }
         .background {
-            RoundedRectangle(cornerRadius: PokitButtonStyle.Shape.rectangle.radius, style: /*@START_MENU_TOKEN@*/.continuous/*@END_MENU_TOKEN@*/)
-                .fill(self.state.backgroundColor)
-                .overlay {
-                    RoundedRectangle(cornerRadius: PokitButtonStyle.Shape.rectangle.radius, style: /*@START_MENU_TOKEN@*/.continuous/*@END_MENU_TOKEN@*/)
-                        .stroke(self.state.backgroundStrokeColor, lineWidth: 1)
-                }
+            RoundedRectangle(
+                cornerRadius: PokitButtonStyle.Shape.rectangle.radius(size: self.size),
+                style: .continuous
+            )
+            .fill(self.state.backgroundColor)
+            .overlay {
+                RoundedRectangle(
+                    cornerRadius: PokitButtonStyle.Shape.rectangle.radius(size: self.size),
+                    style: .continuous
+                )
+                .stroke(self.state.backgroundStrokeColor, lineWidth: 1)
+            }
         }
         .animation(.smooth, value: self.state)
     }

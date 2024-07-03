@@ -25,7 +25,7 @@ struct PokitInputModifier: ViewModifier {
         
         content
             .background {
-                RoundedRectangle(cornerRadius: shape.radius, style: /*@START_MENU_TOKEN@*/.continuous/*@END_MENU_TOKEN@*/)
+                RoundedRectangle(cornerRadius: shape.radius, style: .continuous)
                     .fill(backgroundColor)
                     .overlay {
                         RoundedRectangle(cornerRadius: shape.radius, style: .continuous)
