@@ -8,23 +8,27 @@
 import ProjectDescription
 import ProjectDescriptionHelpers
 
+let targets = CoreKit.allCases.map { core in
+    return core.target
+}
+
+let coreKitDependencies: [TargetDependency] = targets.map { target in
+    return .target(target)
+}
+
+let coreKit: Target = .target(
+    name: "CoreKit",
+    destinations: .appDestinations,
+    // TODO: 프로젝트에 맞는 product로 변경해야 함
+    product: .staticLibrary,
+    bundleId: .moduleBundleId(name: "CoreKit"),
+    deploymentTargets: .appMinimunTarget,
+    infoPlist: .file(path: .relativeToRoot("Projects/App/Resources/Pokit-info.plist")),
+    sources: ["Sources/**"],
+    dependencies: coreKitDependencies
+)
+
 let project = Project(
     name: "CoreKit",
-    targets: [
-        .target(
-            name: "CoreKit",
-            destinations: .appDestinations,
-            // TODO: 프로젝트에 맞는 product로 변경해야 함
-            product: .staticLibrary,
-            bundleId: .moduleBundleId(name: "CoreKit"),
-            deploymentTargets: .appMinimunTarget,
-            infoPlist: .file(path: .relativeToRoot("Projects/App/Resources/Pokit-info.plist")),
-            sources: ["Sources/**"],
-            dependencies: [
-                // TODO: 의존성 추가
-                .project(target: "Util", path: .relativeToRoot("Projects/Util")),
-                .project(target: "ThirdPartyLib", path: .relativeToRoot("Projects/ThirdPartyLib")),
-            ]
-        )
-    ]
+    targets: [coreKit] + targets
 )
