@@ -19,7 +19,7 @@ public extension Target {
             destinations: .appDestinations,
             product: product,
             bundleId: .moduleBundleId(name: bundleName),
-            sources: ["\(name)/Sources"],
+            sources: ["\(name)/Sources/**"],
             dependencies: dependencies
         )
     }
