@@ -15,59 +15,59 @@ public enum PokitImage {
         case .icon(let name):
             switch name {
             case .arrowDown:
-                return .init(.iconArrowDown)
+                return DSKitAsset.iconArrowDown.swiftUIImage
             case .arrowLeft:
-                return .init(.iconArrowLeft)
+                return DSKitAsset.iconArrowLeft.swiftUIImage
             case .arrowRight:
-                return .init(.iconArrowRight)
+                return DSKitAsset.iconArrowRight.swiftUIImage
             case .arrowUp:
-                return .init(.iconArrowUp)
+                return DSKitAsset.iconArrowUp.swiftUIImage
             case .bell:
-                return .init(.iconBell)
+                return DSKitAsset.iconBell.swiftUIImage
             case .edit:
-                return .init(.iconEdit)
+                return DSKitAsset.iconEdit.swiftUIImage
             case .folder:
-                return .init(.iconFolder)
+                return DSKitAsset.iconFolder.swiftUIImage
             case .home:
-                return .init(.iconHome)
+                return DSKitAsset.iconHome.swiftUIImage
             case .kebab:
-                return .init(.iconKebab)
+                return DSKitAsset.iconKebab.swiftUIImage
             case .plus:
-                return .init(.iconPlus)
+                return DSKitAsset.iconPlus.swiftUIImage
             case .search:
-                return .init(.iconSearch)
+                return DSKitAsset.iconSearch.swiftUIImage
             case .setup:
-                return .init(.iconSetup)
+                return DSKitAsset.iconSetup.swiftUIImage
             case .share:
-                return .init(.iconShare)
+                return DSKitAsset.iconShare.swiftUIImage
             case .star:
-                return .init(.iconStar)
+                return DSKitAsset.iconStar.swiftUIImage
             case .trash:
-                return .init(.iconTrash)
+                return DSKitAsset.iconTrash.swiftUIImage
             case .plusR:
-                return .init(.iconPlusR)
+                return DSKitAsset.iconPlus.swiftUIImage
             case .reminder:
-                return .init(.iconReminder)
+                return DSKitAsset.iconReminder.swiftUIImage
             case .info:
-                return .init(.iconInfo)
+                return DSKitAsset.iconInfo.swiftUIImage
             case .link:
-                return .init(.iconLink)
+                return DSKitAsset.iconLink.swiftUIImage
             case .folderLine:
-                return .init(.iconFolderline)
+                return DSKitAsset.iconFolderline.swiftUIImage
             case .linkLine:
-                return .init(.iconLinkline)
+                return DSKitAsset.iconLinkline.swiftUIImage
             case .align:
-                return .init(.iconAlign)
+                return DSKitAsset.iconAlign.swiftUIImage
             case .dash:
-                return .init(.iconDash)
+                return DSKitAsset.iconDash.swiftUIImage
             case .dicover:
-                return .init(.iconDiscover)
+                return DSKitAsset.iconDiscover.swiftUIImage
             case .filter:
-                return .init(.iconFilter)
+                return DSKitAsset.iconFilter.swiftUIImage
             case .x:
-                return .init(.iconX)
+                return DSKitAsset.iconX.swiftUIImage
             case .check:
-                return .init(.iconCheck)
+                return DSKitAsset.iconCheck.swiftUIImage
             }
         }
     }
