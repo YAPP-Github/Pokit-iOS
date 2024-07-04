@@ -21,7 +21,8 @@ public enum CoreKit: String, CaseIterable {
         case .data:
             return [
                 .project(target: "Util", path: .relativeToRoot("Projects/Util")),
-                .project(target: "ThirdPartyLib", path: .relativeToRoot("Projects/ThirdPartyLib"))
+                .project(target: "ThirdPartyLib", path: .relativeToRoot("Projects/ThirdPartyLib")),
+                .target(name: "Core")
             ]
         case .network:
             return [
