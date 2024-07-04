@@ -19,6 +19,7 @@ public extension Target {
             destinations: .appDestinations,
             product: product,
             bundleId: .moduleBundleId(name: bundleName),
+            deploymentTargets: .appMinimunTarget,
             sources: ["\(name)/Sources/**"],
             dependencies: dependencies
         )
@@ -35,7 +36,8 @@ public extension Target {
             destinations: .appDestinations,
             product: product,
             bundleId: .moduleBundleId(name: bundleName),
-            sources: ["Sources\(name)/Sources"],
+            deploymentTargets: .appMinimunTarget,
+            sources: ["Sources/\(name)/Sources/**"],
             dependencies: dependencies
         )
     }

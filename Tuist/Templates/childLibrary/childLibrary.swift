@@ -18,7 +18,7 @@ let libraryTemplate = Template(
     ],
     items: [
         .file(
-            path: "Projects/\(libraryParentAttribute)/Sources/\(libraryChildAttribute)/Source.swift",
+            path: "Projects/\(libraryParentAttribute)/Sources/\(libraryChildAttribute)/Sources/Source.swift",
             templatePath: "Dummy.stencil")
     ]
 )
