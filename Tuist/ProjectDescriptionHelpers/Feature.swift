@@ -6,6 +6,10 @@
 //
 
 import ProjectDescription
+import Foundation
+
+let tuistRelease = ProcessInfo.processInfo.environment["TUIST_RELEASE"]
+let isRelease = tuistRelease == "Release"
 
 public enum Feature: String, CaseIterable {
     case myPage = "MyPage"
@@ -18,7 +22,7 @@ public enum Feature: String, CaseIterable {
     public var target: Target {
         return .makeTarget(
             name: "Feature\(self.rawValue)",
-            product: .framework,
+            product: isRelease ? .staticFramework : .framework,
             bundleName: "Feature.\(self.rawValue)",
             dependencies: [
                 .project(target: "DSKit", path: .relativeToRoot("Projects/DSKit")),
