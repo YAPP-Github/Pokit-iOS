@@ -15,7 +15,7 @@ let project = Project(
             name: "App",
             destinations: .appDestinations,
             product: .app,
-            bundleId: .moduleBundleId(name: "App"),
+            bundleId: "com.pokitmons.pokit",
             deploymentTargets: .appMinimunTarget,
             infoPlist: .file(path: .relativeToRoot("Projects/App/Resources/Pokit-info.plist")),
             sources: ["Sources/**"],
