@@ -7,6 +7,10 @@
 
 import ProjectDescription
 import ProjectDescriptionHelpers
+import Foundation
+
+let tuistRelease = ProcessInfo.processInfo.environment["TUIST_RELEASE"]
+let isRelease = tuistRelease == "Release"
 
 let project = Project(
     name: "DSKit",
@@ -15,7 +19,7 @@ let project = Project(
             name: "DSKit",
             destinations: .appDestinations,
             // TODO: 프로젝트에 맞는 product로 변경해야 함
-            product: .staticFramework,
+            product: isRelease ? .staticFramework : .framework,
             bundleId: .moduleBundleId(name: "DSKit"),
             deploymentTargets: .appMinimunTarget,
             infoPlist: .file(path: .relativeToRoot("Projects/App/Resources/Pokit-info.plist")),

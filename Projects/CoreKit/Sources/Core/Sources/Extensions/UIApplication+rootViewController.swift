@@ -8,7 +8,7 @@
 import UIKit
 /// 루트뷰가 있다면 구성
 extension UIApplication {
-    var rootViewController: UIViewController? {
+    public var rootViewController: UIViewController? {
         let scenes = UIApplication.shared.connectedScenes
         let windowScene = scenes.first as? UIWindowScene
         let keyWindow = windowScene?.windows.first(where: { $0.isKeyWindow } )
