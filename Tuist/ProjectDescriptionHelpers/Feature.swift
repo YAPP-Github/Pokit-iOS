@@ -18,6 +18,7 @@ public enum Feature: String, CaseIterable {
     case addLink = "AddLink"
     case addCategory = "AddCategory"
     case home = "Home"
+    case login = "Login"
     
     public var target: Target {
         return .makeTarget(
