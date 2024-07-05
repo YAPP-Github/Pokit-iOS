@@ -20,7 +20,7 @@ let coreKit: Target = .target(
     name: "CoreKit",
     destinations: .appDestinations,
     // TODO: 프로젝트에 맞는 product로 변경해야 함
-    product: .staticLibrary,
+    product: .staticFramework,
     bundleId: .moduleBundleId(name: "CoreKit"),
     deploymentTargets: .appMinimunTarget,
     infoPlist: .file(path: .relativeToRoot("Projects/App/Resources/Pokit-info.plist")),
