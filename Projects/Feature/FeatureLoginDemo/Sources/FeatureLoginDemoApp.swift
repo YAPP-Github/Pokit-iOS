@@ -13,6 +13,9 @@ struct FeatureLoginDemoApp: App {
     var body: some Scene {
         WindowGroup {
             // TODO: 루트 뷰 추가
+            LoginView(store: .init(initialState: .init(), reducer: {
+                LoginFeature()
+            }))
         }
     }
 }

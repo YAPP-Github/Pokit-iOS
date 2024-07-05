@@ -12,11 +12,14 @@ public struct LoginFeature {
     /// - Dependency
 
     /// - State
+    @ObservableState
     public struct State: Equatable {
         public init() {}
+        
+        var path = StackState<AgreeToTermsFeature.State>()
     }
     /// - Action
-    @ObservableState
+
     public enum Action: FeatureAction {
         case view(ViewAction)
         case inner(InnerAction)
