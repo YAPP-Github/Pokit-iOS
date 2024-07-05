@@ -10,10 +10,12 @@ import SwiftUI
 @main
 struct PokitApp: App {
     
-    @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     var body: some Scene {
         WindowGroup {
-            // TODO: 루트 뷰 추가
+            /// - appDelegate.store -> RootFeature
+            /// - 헷갈리지 않기
+            RootView(store: self.appDelegate.store)
         }
     }
 }
