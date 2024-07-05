@@ -6,25 +6,31 @@
 
 import ComposableArchitecture
 import CoreKit
+import SwiftUI
 
 @Reducer
 public struct RegisterNicknameFeature {
     /// - Dependency
 
     /// - State
+    @ObservableState
     public struct State: Equatable {
         public init() {}
+        
+        var nicknameText: String = ""
     }
     /// - Action
-    @ObservableState
-    public enum Action: FeatureAction {
+    public enum Action: FeatureAction, BindableAction {
         case view(ViewAction)
         case inner(InnerAction)
         case async(AsyncAction)
         case scope(ScopeAction)
         case delegate(DelegateAction)
+        case binding(BindingAction<State>)
         
-        public enum ViewAction: Equatable { case doNothing }
+        public enum ViewAction: Equatable {
+            case nicknameTextChanged(String)
+        }
         public enum InnerAction: Equatable { case doNothing }
         public enum AsyncAction: Equatable { case doNothing }
         public enum ScopeAction: Equatable { case doNothing }
@@ -50,6 +56,8 @@ public struct RegisterNicknameFeature {
             /// - Delegate
         case .delegate(let delegateAction):
             return handleDelegateAction(delegateAction, state: &state)
+        case .binding(let bindingAction):
+            return handleBindingAction(bindingAction, state: &state)
         }
     }
     /// - Reducer body
@@ -78,5 +86,14 @@ private extension RegisterNicknameFeature {
     /// - Delegate Effect
     func handleDelegateAction(_ action: Action.DelegateAction, state: inout State) -> Effect<Action> {
         return .none
+    }
+    
+    func handleBindingAction(_ action: BindingAction<State>, state: inout State) -> Effect<Action> {
+        switch action {
+        case \.nicknameText:
+            return .none
+        default:
+            return .none
+        }
     }
 }
