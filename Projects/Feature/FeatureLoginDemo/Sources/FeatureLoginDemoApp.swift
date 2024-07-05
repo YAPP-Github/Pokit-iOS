@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import FeatureLogin
 
 @main
 struct FeatureLoginDemoApp: App {
