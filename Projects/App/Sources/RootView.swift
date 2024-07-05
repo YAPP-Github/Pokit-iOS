@@ -2,7 +2,7 @@
 //  RootView.swift
 //  App
 //
-//  Created by DEV IOS on 7/5/24.
+//  Created by 김민호 on 7/5/24.
 //
 
 import SwiftUI
