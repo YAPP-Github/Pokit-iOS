@@ -68,6 +68,8 @@ public enum PokitImage {
                 return DSKitAsset.iconX.swiftUIImage
             case .check:
                 return DSKitAsset.iconCheck.swiftUIImage
+            case .google:
+                return DSKitAsset.iconGoogle.swiftUIImage
             }
         }
     }
@@ -102,5 +104,6 @@ public extension PokitImage {
         case filter
         case x
         case check
+        case google
     }
 }
