@@ -16,7 +16,7 @@ public struct PokitTextInput<Value: Hashable>: View {
     private var focusState: FocusState<Value>.Binding
     
     private let equals: Value
-    private let label: String
+    private let label: String?
     private let errorMessage: String?
     private let placeholder: String
     private let info: String?
@@ -25,7 +25,7 @@ public struct PokitTextInput<Value: Hashable>: View {
     
     public init(
         text: Binding<String>,
-        label: String,
+        label: String? = nil,
         state: PokitInputStyle.State = .default,
         errorMessage: String? = nil,
         placeholder: String = "내용을 입력해주세요.",
@@ -49,8 +49,10 @@ public struct PokitTextInput<Value: Hashable>: View {
     
     public var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            PokitLabel(text: label, size: .large)
-                .padding(.bottom, 8)
+            if let label {
+                PokitLabel(text: label, size: .large)
+                    .padding(.bottom, 8)
+            }
             
             textField
             
