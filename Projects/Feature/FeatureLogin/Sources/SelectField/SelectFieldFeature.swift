@@ -12,11 +12,13 @@ public struct SelectFieldFeature {
     /// - Dependency
 
     /// - State
+    @ObservableState
     public struct State: Equatable {
         public init() {}
+        
+        var fields: Set<String> = .init()
     }
     /// - Action
-    @ObservableState
     public enum Action: FeatureAction {
         case view(ViewAction)
         case inner(InnerAction)

@@ -6,6 +6,7 @@
 
 import ComposableArchitecture
 import SwiftUI
+import DSKit
 
 public struct SelectFieldView: View {
     /// - Properties
@@ -18,8 +19,32 @@ public struct SelectFieldView: View {
 //MARK: - View
 public extension SelectFieldView {
     var body: some View {
-        VStack {
-            Text("Hello World!")
+        VStack(alignment: .leading, spacing: 0) {
+            Group {
+                title
+            }
+            .padding(.horizontal, 20)
+            
+            Spacer()
+            
+            PokitBottomButton(
+                "다음",
+                state: store.fields.count == 0 ? .disable : .filled(.primary)
+            ) {
+                
+            }
+        }
+    }
+    
+    private var title: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("어떤 분야에 관심이 있으세요?")
+                .pokitFont(.title1)
+                .foregroundStyle(.pokit(.text(.primary)))
+            
+            Text("최대 3개를 골라주시면\n관련 콘텐츠를 추천해드릴게요!")
+                .pokitFont(.title3)
+                .foregroundStyle(.pokit(.text(.secondary)))
         }
     }
 }
