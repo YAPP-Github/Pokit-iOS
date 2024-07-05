@@ -12,11 +12,17 @@ public struct AgreeToTermsFeature {
     /// - Dependency
 
     /// - State
+    @ObservableState
     public struct State: Equatable {
         public init() {}
+        
+        var isAgreeAllTerms: Bool = false
+        var isPersonalAndUsageArgee: Bool = false
+        var isServiceAgree: Bool = false
+        var isMarketingAgree: Bool = false
+        
     }
     /// - Action
-    @ObservableState
     public enum Action: FeatureAction {
         case view(ViewAction)
         case inner(InnerAction)
@@ -24,8 +30,15 @@ public struct AgreeToTermsFeature {
         case scope(ScopeAction)
         case delegate(DelegateAction)
         
-        public enum ViewAction: Equatable { case doNothing }
-        public enum InnerAction: Equatable { case doNothing }
+        public enum ViewAction: Equatable {
+            case agreeAllTermsCheckBoxTapped
+        }
+        public enum InnerAction: Equatable {
+            case checkAgreements
+            case personalAndUsageAgreeSelected
+            case serviceAgreeSelected
+            case marketingAgreeSelected
+        }
         public enum AsyncAction: Equatable { case doNothing }
         public enum ScopeAction: Equatable { case doNothing }
         public enum DelegateAction: Equatable { case doNothing }
@@ -61,10 +74,42 @@ public struct AgreeToTermsFeature {
 private extension AgreeToTermsFeature {
     /// - View Effect
     func handleViewAction(_ action: Action.ViewAction, state: inout State) -> Effect<Action> {
-        return .none
+        switch action {
+        case .agreeAllTermsCheckBoxTapped:
+            state.isAgreeAllTerms.toggle()
+            
+            state.isAgreeAllTerms = state.isAgreeAllTerms
+            state.isPersonalAndUsageArgee = state.isAgreeAllTerms
+            state.isServiceAgree = state.isAgreeAllTerms
+            state.isMarketingAgree = state.isAgreeAllTerms
+            
+            return .none
+        }
     }
     /// - Inner Effect
     func handleInnerAction(_ action: Action.InnerAction, state: inout State) -> Effect<Action> {
+        switch action {
+        case .checkAgreements:
+            if state.isPersonalAndUsageArgee,
+               state.isServiceAgree,
+               state.isMarketingAgree {
+                state.isAgreeAllTerms = true
+            } else {
+                state.isAgreeAllTerms = false
+            }
+        case .personalAndUsageAgreeSelected:
+            state.isPersonalAndUsageArgee.toggle()
+            
+            return .send(.inner(.checkAgreements))
+        case .serviceAgreeSelected:
+            state.isServiceAgree.toggle()
+            
+            return .send(.inner(.checkAgreements))
+        case .marketingAgreeSelected:
+            state.isMarketingAgree.toggle()
+            
+            return .send(.inner(.checkAgreements))
+        }
         return .none
     }
     /// - Async Effect

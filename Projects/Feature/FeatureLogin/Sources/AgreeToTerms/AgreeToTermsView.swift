@@ -6,6 +6,7 @@
 
 import ComposableArchitecture
 import SwiftUI
+import DSKit
 
 public struct AgreeToTermsView: View {
     /// - Properties
@@ -18,8 +19,118 @@ public struct AgreeToTermsView: View {
 //MARK: - View
 public extension AgreeToTermsView {
     var body: some View {
-        VStack {
-            Text("Hello World!")
+        VStack(alignment: .leading) {
+            Group {
+                title
+                    .padding(.top, 16)
+                
+                agreeAllTerms
+                    .padding(.top, 28)
+                
+                termsList
+                    .padding(.top, 20)
+            }
+            .padding(.horizontal, 20)
+            
+            Spacer()
+            
+            PokitBottomButton(
+                "다음",
+                state: store.isPersonalAndUsageArgee && store.isServiceAgree ? .filled(.primary) : .disable
+            ) {
+                
+            }
+        }
+        .navigationTitle("")
+        .navigationBarTitleDisplayMode(.inline)
+    }
+    
+    private var title: some View {
+        Text("서비스 이용을 위해\n이용약관 동의가 필요합니다")
+            .pokitFont(.title1)
+            .foregroundStyle(.pokit(.text(.primary)))
+    }
+    
+    private var agreeAllTerms: some View {
+        HStack(spacing: 16) {
+            PokitCheckBox(
+                baseState: .default,
+                selectedState: .filled,
+                shape: .rectangle
+            ) {
+                store.send(.agreeAllTermsCheckBoxTapped)
+            }
+            
+            Text("약관 전체동의")
+                .pokitFont(.b1(.b))
+                .foregroundStyle(.pokit(.text(.primary)))
+            
+            Spacer()
+        }
+        .padding(.vertical, 20)
+        .padding(.horizontal, 16)
+        .background {
+            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .stroke(.pokit(.border(.brand)), lineWidth: 1)
+        }
+    }
+    
+    private var termsList: some View {
+        VStack(spacing: 12) {
+            termsButton(
+                "(필수)개인정보 수집 및 이용 동의",
+                isSelected: store.isPersonalAndUsageArgee
+            ) {
+
+            }
+            
+            termsButton(
+                "(필수)서비스 이용약관",
+                isSelected: store.isServiceAgree
+            ) {
+                
+            }
+            
+            termsButton(
+                "(선택)마케팅 정보 수신",
+                isSelected: store.isMarketingAgree
+            ) {
+                
+            }
+        }
+        .padding(.leading, 20)
+        .padding(.trailing, 12)
+    }
+    
+    @ViewBuilder
+    private func termsButton(
+        _ text: String,
+        isSelected: Bool,
+        action: @escaping () -> Void
+    ) -> some View {
+        HStack(spacing: 4) {
+            PokitCheckBox(
+                baseState: isSelected ? .iconOnly : .clear,
+                selectedState: .iconOnly,
+                shape: .rectangle
+            ) {
+                
+            }
+            
+            Button {
+                
+            } label: {
+                Text(text)
+                    .pokitFont(.b2(.m))
+                    .foregroundStyle(.pokit(.text(.secondary)))
+                
+                Spacer()
+                
+                Image(.icon(.arrowRight))
+                    .resizable()
+                    .frame(width: 20, height: 20)
+                    .foregroundStyle(.pokit(.icon(.primary)))
+            }
         }
     }
 }
@@ -29,12 +140,14 @@ extension AgreeToTermsView {
 }
 //MARK: - Preview
 #Preview {
-    AgreeToTermsView(
-        store: Store(
-            initialState: .init(),
-            reducer: { AgreeToTermsFeature() }
+    NavigationStack {
+        AgreeToTermsView(
+            store: Store(
+                initialState: .init(),
+                reducer: { AgreeToTermsFeature() }
+            )
         )
-    )
+    }
 }
 
 
