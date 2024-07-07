@@ -10,7 +10,7 @@ import CoreKit
 @Reducer
 public struct SignUpDoneFeature {
     /// - Dependency
-
+    @Dependency(\.dismiss) var dismiss
     /// - State
     public struct State: Equatable {
         public init() {}
@@ -24,11 +24,16 @@ public struct SignUpDoneFeature {
         case scope(ScopeAction)
         case delegate(DelegateAction)
         
-        public enum ViewAction: Equatable { case doNothing }
+        public enum ViewAction: Equatable {
+            case startButtonTapped
+            case backButtonTapped
+        }
         public enum InnerAction: Equatable { case doNothing }
         public enum AsyncAction: Equatable { case doNothing }
         public enum ScopeAction: Equatable { case doNothing }
-        public enum DelegateAction: Equatable { case doNothing }
+        public enum DelegateAction: Equatable {
+            case dismissLoginRootView
+        }
     }
     /// initiallizer
     public init() {}
@@ -61,7 +66,14 @@ public struct SignUpDoneFeature {
 private extension SignUpDoneFeature {
     /// - View Effect
     func handleViewAction(_ action: Action.ViewAction, state: inout State) -> Effect<Action> {
-        return .none
+        switch action {
+        case .startButtonTapped:
+            return .send(.delegate(.dismissLoginRootView))
+        case .backButtonTapped:
+            return .run { send in
+                await self.dismiss()
+            }
+        }
     }
     /// - Inner Effect
     func handleInnerAction(_ action: Action.InnerAction, state: inout State) -> Effect<Action> {
