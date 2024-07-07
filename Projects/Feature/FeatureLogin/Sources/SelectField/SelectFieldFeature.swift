@@ -16,7 +16,24 @@ public struct SelectFieldFeature {
     public struct State: Equatable {
         public init() {}
         
-        var fields: Set<String> = .init()
+        var fields: [String] = [
+            "스포츠/레저",
+            "문구/오피스",
+            "패션",
+            "여행",
+            "경제/시사",
+            "영화/드라마",
+            "맛집",
+            "인테리어",
+            "IT",
+            "디자인",
+            "자기계발",
+            "유머",
+            "음악",
+            "취업정보"
+        ]
+        
+        var selectedFields: Set<String> = .init()
     }
     /// - Action
     public enum Action: FeatureAction {
@@ -29,6 +46,7 @@ public struct SelectFieldFeature {
         public enum ViewAction: Equatable {
             case nextButtonTapped
             case backButtonTapped
+            case fieldChipTapped(Bool, String)
         }
         public enum InnerAction: Equatable { case doNothing }
         public enum AsyncAction: Equatable { case doNothing }
@@ -75,6 +93,13 @@ private extension SelectFieldFeature {
             return .run { send in
                 await self.dismiss()
             }
+        case .fieldChipTapped(let isSelected, let field):
+            if isSelected {
+                state.selectedFields.remove(field)
+            } else {
+                state.selectedFields.insert(field)
+            }
+            return .none
         }
     }
     /// - Inner Effect

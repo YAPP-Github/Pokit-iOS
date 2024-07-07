@@ -22,6 +22,10 @@ public extension SelectFieldView {
         VStack(alignment: .leading, spacing: 0) {
             Group {
                 title
+                    .padding(.top, 16)
+                
+                fieldsFlow
+                    .padding(.top, 36)
             }
             .padding(.horizontal, 20)
             
@@ -29,7 +33,7 @@ public extension SelectFieldView {
             
             PokitBottomButton(
                 "다음",
-                state: store.fields.count == 0 ? .disable : .filled(.primary)
+                state: store.selectedFields.count == 0 ? .disable : .filled(.primary)
             ) {
                 store.send(.nextButtonTapped)
             }
@@ -54,6 +58,22 @@ public extension SelectFieldView {
             Text("최대 3개를 골라주시면\n관련 콘텐츠를 추천해드릴게요!")
                 .pokitFont(.title3)
                 .foregroundStyle(.pokit(.text(.secondary)))
+        }
+    }
+    
+    private var fieldsFlow: some View {
+        PokitFlowLayout(rowSpacing: 12, colSpacing: 10) {
+            ForEach(store.fields, id: \.self) { field in
+                let isSelected = store.selectedFields.contains(field)
+                
+                PokitTextChip(
+                    field,
+                    state: isSelected ? .filled(.primary) : .default(.primary),
+                    size: .medium
+                ) {
+                    store.send(.fieldChipTapped(isSelected, field))
+                }
+            }
         }
     }
 }
