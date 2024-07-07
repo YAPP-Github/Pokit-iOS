@@ -44,7 +44,8 @@ public extension AgreeToTermsView {
             }
         }
         .background(.pokit(.bg(.base)))
-        .pokitNavigationBar(title: "") {
+        .pokitNavigationBar(title: "")
+        .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
                 PokitToolbarButton(.icon(.arrowLeft)) {
                     store.send(.backButtonTapped)
