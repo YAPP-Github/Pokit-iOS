@@ -44,8 +44,13 @@ public extension AgreeToTermsView {
             }
         }
         .background(.pokit(.bg(.base)))
-        .navigationTitle("")
-        .navigationBarTitleDisplayMode(.inline)
+        .pokitNavigationBar(title: "") {
+            ToolbarItem(placement: .navigationBarLeading) {
+                PokitToolbarButton(.icon(.arrowLeft)) {
+                    store.send(.backButtonTapped)
+                }
+            }
+        }
     }
     
     private var title: some View {
