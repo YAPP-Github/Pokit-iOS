@@ -8,7 +8,6 @@ import ComposableArchitecture
 import SwiftUI
 import Perception
 import DSKit
-import CoreKit
 
 public struct SignUpRootView: View {
     /// - Properties
@@ -67,5 +66,3 @@ extension SignUpRootView {
         )
     )
 }
-
-

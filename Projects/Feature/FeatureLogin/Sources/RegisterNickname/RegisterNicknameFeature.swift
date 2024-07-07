@@ -6,7 +6,6 @@
 
 import ComposableArchitecture
 import CoreKit
-import SwiftUI
 
 @Reducer
 public struct RegisterNicknameFeature {

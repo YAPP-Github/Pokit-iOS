@@ -8,6 +8,7 @@ import ComposableArchitecture
 import SwiftUI
 import DSKit
 import AuthenticationServices
+import Core
 
 public struct LoginView: View {
     @Environment(\.colorScheme) private var colorScheme
@@ -36,6 +37,7 @@ public extension LoginView {
         .background(.pokit(.bg(.base)))
         .navigationTitle("")
         .navigationBarTitleDisplayMode(.inline)
+        .navigationBarBackButtonHidden()
     }
     
     private var logo: some View {
@@ -138,5 +140,3 @@ extension LoginView {
         )
     )
 }
-
-
