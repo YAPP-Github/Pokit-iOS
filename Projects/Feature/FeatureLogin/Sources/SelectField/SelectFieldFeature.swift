@@ -10,7 +10,7 @@ import CoreKit
 @Reducer
 public struct SelectFieldFeature {
     /// - Dependency
-
+    @Dependency(\.dismiss) var dismiss
     /// - State
     @ObservableState
     public struct State: Equatable {
@@ -28,6 +28,7 @@ public struct SelectFieldFeature {
         
         public enum ViewAction: Equatable {
             case nextButtonTapped
+            case backButtonTapped
         }
         public enum InnerAction: Equatable { case doNothing }
         public enum AsyncAction: Equatable { case doNothing }
@@ -70,6 +71,10 @@ private extension SelectFieldFeature {
         switch action {
         case .nextButtonTapped:
             return .send(.delegate(.pushSignUpDoneView))
+        case .backButtonTapped:
+            return .run { send in
+                await self.dismiss()
+            }
         }
     }
     /// - Inner Effect

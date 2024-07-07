@@ -31,10 +31,18 @@ public extension SelectFieldView {
                 "다음",
                 state: store.fields.count == 0 ? .disable : .filled(.primary)
             ) {
-                
+                store.send(.nextButtonTapped)
             }
         }
         .background(.pokit(.bg(.base)))
+        .pokitNavigationBar(title: "")
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                PokitToolbarButton(.icon(.arrowLeft)) {
+                    store.send(.backButtonTapped)
+                }
+            }
+        }
     }
     
     private var title: some View {
@@ -55,12 +63,14 @@ extension SelectFieldView {
 }
 //MARK: - Preview
 #Preview {
-    SelectFieldView(
-        store: Store(
-            initialState: .init(),
-            reducer: { SelectFieldFeature() }
+    NavigationStack {
+        SelectFieldView(
+            store: Store(
+                initialState: .init(),
+                reducer: { SelectFieldFeature() }
+            )
         )
-    )
+    }
 }
 
 
