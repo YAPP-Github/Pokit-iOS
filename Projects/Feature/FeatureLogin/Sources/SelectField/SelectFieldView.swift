@@ -34,6 +34,7 @@ public extension SelectFieldView {
                 
             }
         }
+        .background(.pokit(.bg(.base)))
     }
     
     private var title: some View {
