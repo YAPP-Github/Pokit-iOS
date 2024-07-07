@@ -25,3 +25,18 @@ struct FeatureLoginDemoApp: App {
         SignUpRootFeature()
     }))
 }
+
+extension UINavigationController: UIGestureRecognizerDelegate {
+    override public func viewDidLoad() {
+        super.viewDidLoad()
+        interactivePopGestureRecognizer?.delegate = self
+    }
+    
+    public func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+        return viewControllers.count > 1
+    }
+    
+    public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldBeRequiredToFailBy otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        return gestureRecognizer.isEqual(self.interactivePopGestureRecognizer)
+    }
+}
