@@ -10,7 +10,7 @@ import CoreKit
 @Reducer
 public struct AgreeToTermsFeature {
     /// - Dependency
-
+    @Dependency(\.dismiss) var dismiss
     /// - State
     @ObservableState
     public struct State: Equatable {
@@ -32,6 +32,7 @@ public struct AgreeToTermsFeature {
         
         public enum ViewAction: Equatable {
             case nextButtonTapped
+            case backButtonTapped
         }
         public enum InnerAction: Equatable {
             case checkAgreements
@@ -84,6 +85,10 @@ private extension AgreeToTermsFeature {
         switch action {
         case .nextButtonTapped:
             return .send(.delegate(.pushRegisterNicknameView))
+        case .backButtonTapped:
+            return .run { _ in
+                await self.dismiss()
+            }
         }
     }
     /// - Inner Effect
