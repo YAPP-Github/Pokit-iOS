@@ -8,9 +8,9 @@ import ComposableArchitecture
 import CoreKit
 
 @Reducer
-public struct SignUpRootFeature {
+public struct LoginRootFeature {
     /// - Dependency
-
+    @Dependency(\.dismiss) var dismiss
     /// - State
     @ObservableState
     public struct State {
@@ -38,6 +38,7 @@ public struct SignUpRootFeature {
             case pushRegisterNicknameView
             case pushSelectFieldView
             case pushSignUpDoneView
+            case dismissLoginRootView
         }
         public enum AsyncAction: Equatable { case doNothing }
         public enum ScopeAction {
@@ -45,6 +46,7 @@ public struct SignUpRootFeature {
             case agreeToTerms(AgreeToTermsFeature.Action.DelegateAction)
             case registerNickname(RegisterNicknameFeature.Action.DelegateAction)
             case selectField(SelectFieldFeature.Action.DelegateAction)
+            case signUpDone(SignUpDoneFeature.Action.DelegateAction)
         }
         public enum DelegateAction: Equatable { case doNothing }
     }
@@ -76,6 +78,8 @@ public struct SignUpRootFeature {
             return .send(.scope(.registerNickname(delegate)))
         case .path(.element(id: _, action: .selecteField(.delegate(let delegate)))):
             return .send(.scope(.selectField(delegate)))
+        case .path(.element(id: _, action: .signUpDone(.delegate(let delegate)))):
+            return .send(.scope(.signUpDone(delegate)))
         default:
             return .none
         }
@@ -91,7 +95,7 @@ public struct SignUpRootFeature {
     }
 }
 //MARK: - FeatureAction Effect
-private extension SignUpRootFeature {
+private extension LoginRootFeature {
     /// - View Effect
     func handleViewAction(_ action: Action.ViewAction, state: inout State) -> Effect<Action> {
         return .none
@@ -111,6 +115,10 @@ private extension SignUpRootFeature {
         case .pushSignUpDoneView:
             state.path.append(.signUpDone(.init()))
             return .none
+        case .dismissLoginRootView:
+            return .run { send in
+                await self.dismiss()
+            }
         }
     }
     /// - Async Effect
@@ -141,6 +149,11 @@ private extension SignUpRootFeature {
             case .pushSignUpDoneView:
                 return .send(.inner(.pushSignUpDoneView))
             }
+        case .signUpDone(let delegate):
+            switch delegate {
+            case .dismissLoginRootView:
+                return .send(.inner(.dismissLoginRootView))
+            }
         }
     }
     /// - Delegate Effect
@@ -150,7 +163,7 @@ private extension SignUpRootFeature {
 }
 
 //MARK: - Path
-extension SignUpRootFeature {
+extension LoginRootFeature {
     @Reducer
     public enum Path {
         case agreeToTerms(AgreeToTermsFeature)

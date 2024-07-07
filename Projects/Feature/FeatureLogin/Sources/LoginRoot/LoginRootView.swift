@@ -9,12 +9,12 @@ import SwiftUI
 import Perception
 import DSKit
 
-public struct SignUpRootView: View {
+public struct LoginRootView: View {
     /// - Properties
     @Perception.Bindable
-    private var store: StoreOf<SignUpRootFeature>
+    private var store: StoreOf<LoginRootFeature>
     /// - Initializer
-    public init(store: StoreOf<SignUpRootFeature>) {
+    public init(store: StoreOf<LoginRootFeature>) {
         self.store = store
         
         let barAppearance = UINavigationBarAppearance()
@@ -35,7 +35,7 @@ public struct SignUpRootView: View {
     }
 }
 //MARK: - View
-public extension SignUpRootView {
+public extension LoginRootView {
     var body: some View {
         NavigationStack(path: $store.scope(state: \.path, action: \.path)) {
             LoginView(store: store.scope(state: \.login, action: \.login))
@@ -54,15 +54,15 @@ public extension SignUpRootView {
     }
 }
 //MARK: - Configure View
-extension SignUpRootView {
+extension LoginRootView {
     
 }
 //MARK: - Preview
 #Preview {
-    SignUpRootView(
+    LoginRootView(
         store: Store(
             initialState: .init(),
-            reducer: { SignUpRootFeature() }
+            reducer: { LoginRootFeature() }
         )
     )
 }
