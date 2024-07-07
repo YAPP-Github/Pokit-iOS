@@ -8,25 +8,19 @@
 import SwiftUI
 
 public struct PokitTextChip: View {
-    @State private var state: PokitButtonStyle.State
-    
     private let labelText: String
-    private let baseState: PokitButtonStyle.State
-    private let selectedState: PokitButtonStyle.State
+    private let state: PokitButtonStyle.State
     private let size: PokitButtonStyle.Size
-    private let action: () -> Void
+    private let action: (() -> Void)?
     
     public init(
         _ labelText: String,
-        baseState: PokitButtonStyle.State,
-        selectedState: PokitButtonStyle.State,
+        state: PokitButtonStyle.State,
         size: PokitButtonStyle.Size,
-        action: @escaping () -> Void
+        action: (() -> Void)? = nil
     ) {
-        self.state = baseState
-        self.baseState = baseState
-        self.selectedState = selectedState
         self.labelText = labelText
+        self.state = state
         self.size = size
         self.action = action
     }
@@ -38,13 +32,7 @@ public struct PokitTextChip: View {
             size: size, 
             shape: .round
         ) {
-            pokitTextButtonTapped()
-            
-            action()
+            action?()
         }
-    }
-    
-    private func pokitTextButtonTapped() {
-        state = state == baseState ? selectedState : baseState
     }
 }
