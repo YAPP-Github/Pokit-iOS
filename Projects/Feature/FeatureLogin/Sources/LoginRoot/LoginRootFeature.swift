@@ -17,6 +17,7 @@ public struct LoginRootFeature {
         var login: LoginFeature.State = .init()
         var agreeToTerms: AgreeToTermsFeature.State = .init()
         var registerNickname: RegisterNicknameFeature.State = .init()
+        var signUpDone: SignUpDoneFeature.State = .init()
         var path = StackState<Path.State>()
         
         public init() {}
