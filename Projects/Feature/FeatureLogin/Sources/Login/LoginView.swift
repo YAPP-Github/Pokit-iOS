@@ -45,7 +45,7 @@ public extension LoginView {
     
     private var appleLoginButton: some View {
         Button {
-            
+            store.send(.appleLoginButtonTapped)
         } label: {
             appleLoginButtonLabel
         }

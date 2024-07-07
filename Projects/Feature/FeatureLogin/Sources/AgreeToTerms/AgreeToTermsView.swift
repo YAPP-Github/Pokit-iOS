@@ -7,10 +7,12 @@
 import ComposableArchitecture
 import SwiftUI
 import DSKit
+import Perception
 
 public struct AgreeToTermsView: View {
     /// - Properties
-    private let store: StoreOf<AgreeToTermsFeature>
+    @Perception.Bindable
+    private var store: StoreOf<AgreeToTermsFeature>
     /// - Initializer
     public init(store: StoreOf<AgreeToTermsFeature>) {
         self.store = store
@@ -38,9 +40,10 @@ public extension AgreeToTermsView {
                 "다음",
                 state: store.isPersonalAndUsageArgee && store.isServiceAgree ? .filled(.primary) : .disable
             ) {
-                
+                store.send(.nextButtonTapped)
             }
         }
+        .background(.pokit(.bg(.base)))
         .navigationTitle("")
         .navigationBarTitleDisplayMode(.inline)
     }
@@ -56,10 +59,9 @@ public extension AgreeToTermsView {
             PokitCheckBox(
                 baseState: .default,
                 selectedState: .filled,
+                isSelected: $store.isAgreeAllTerms,
                 shape: .rectangle
-            ) {
-                store.send(.agreeAllTermsCheckBoxTapped)
-            }
+            )
             
             Text("약관 전체동의")
                 .pokitFont(.b1(.b))
@@ -79,21 +81,21 @@ public extension AgreeToTermsView {
         VStack(spacing: 12) {
             termsButton(
                 "(필수)개인정보 수집 및 이용 동의",
-                isSelected: store.isPersonalAndUsageArgee
+                isSelected: $store.isPersonalAndUsageArgee
             ) {
-
+                
             }
             
             termsButton(
                 "(필수)서비스 이용약관",
-                isSelected: store.isServiceAgree
+                isSelected: $store.isServiceAgree
             ) {
                 
             }
             
             termsButton(
                 "(선택)마케팅 정보 수신",
-                isSelected: store.isMarketingAgree
+                isSelected: $store.isMarketingAgree
             ) {
                 
             }
@@ -105,20 +107,19 @@ public extension AgreeToTermsView {
     @ViewBuilder
     private func termsButton(
         _ text: String,
-        isSelected: Bool,
+        isSelected: Binding<Bool>,
         action: @escaping () -> Void
     ) -> some View {
         HStack(spacing: 4) {
             PokitCheckBox(
-                baseState: isSelected ? .iconOnly : .clear,
+                baseState: .clear,
                 selectedState: .iconOnly,
+                isSelected: isSelected,
                 shape: .rectangle
-            ) {
-                
-            }
+            )
             
             Button {
-                
+                action()
             } label: {
                 Text(text)
                     .pokitFont(.b2(.m))

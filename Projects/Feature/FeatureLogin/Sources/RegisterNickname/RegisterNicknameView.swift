@@ -37,9 +37,9 @@ public extension RegisterNicknameView {
             
             PokitBottomButton(
                 "다음",
-                state: store.nicknameText == "" ? .disable : .filled(.primary)
+                state: store.nicknameText == "" || store.nicknameText.count > 10 ? .disable : .filled(.primary)
             ) {
-                
+                store.send(.nextButtonTapped)
             }
         }
     }

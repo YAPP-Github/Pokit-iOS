@@ -15,8 +15,6 @@ public struct LoginFeature {
     @ObservableState
     public struct State: Equatable {
         public init() {}
-        
-        var path = StackState<AgreeToTermsFeature.State>()
     }
     /// - Action
 
@@ -27,11 +25,15 @@ public struct LoginFeature {
         case scope(ScopeAction)
         case delegate(DelegateAction)
         
-        public enum ViewAction: Equatable { case doNothing }
+        public enum ViewAction: Equatable {
+            case appleLoginButtonTapped
+        }
         public enum InnerAction: Equatable { case doNothing }
         public enum AsyncAction: Equatable { case doNothing }
         public enum ScopeAction: Equatable { case doNothing }
-        public enum DelegateAction: Equatable { case doNothing }
+        public enum DelegateAction: Equatable {
+            case pushAgreeToTermsView
+        }
     }
     /// initiallizer
     public init() {}
@@ -64,7 +66,10 @@ public struct LoginFeature {
 private extension LoginFeature {
     /// - View Effect
     func handleViewAction(_ action: Action.ViewAction, state: inout State) -> Effect<Action> {
-        return .none
+        switch action {
+        case .appleLoginButtonTapped:
+            return .send(.delegate(.pushAgreeToTermsView))
+        }
     }
     /// - Inner Effect
     func handleInnerAction(_ action: Action.InnerAction, state: inout State) -> Effect<Action> {
@@ -83,3 +88,4 @@ private extension LoginFeature {
         return .none
     }
 }
+

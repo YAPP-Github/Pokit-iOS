@@ -26,11 +26,15 @@ public struct SelectFieldFeature {
         case scope(ScopeAction)
         case delegate(DelegateAction)
         
-        public enum ViewAction: Equatable { case doNothing }
+        public enum ViewAction: Equatable {
+            case nextButtonTapped
+        }
         public enum InnerAction: Equatable { case doNothing }
         public enum AsyncAction: Equatable { case doNothing }
         public enum ScopeAction: Equatable { case doNothing }
-        public enum DelegateAction: Equatable { case doNothing }
+        public enum DelegateAction: Equatable {
+            case pushSignUpDoneView
+        }
     }
     /// initiallizer
     public init() {}
@@ -63,7 +67,10 @@ public struct SelectFieldFeature {
 private extension SelectFieldFeature {
     /// - View Effect
     func handleViewAction(_ action: Action.ViewAction, state: inout State) -> Effect<Action> {
-        return .none
+        switch action {
+        case .nextButtonTapped:
+            return .send(.delegate(.pushSignUpDoneView))
+        }
     }
     /// - Inner Effect
     func handleInnerAction(_ action: Action.InnerAction, state: inout State) -> Effect<Action> {

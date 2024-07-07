@@ -20,28 +20,31 @@ public struct AgreeToTermsFeature {
         var isPersonalAndUsageArgee: Bool = false
         var isServiceAgree: Bool = false
         var isMarketingAgree: Bool = false
-        
     }
     /// - Action
-    public enum Action: FeatureAction {
+    public enum Action: FeatureAction, BindableAction {
         case view(ViewAction)
         case inner(InnerAction)
         case async(AsyncAction)
         case scope(ScopeAction)
         case delegate(DelegateAction)
+        case binding(BindingAction<State>)
         
         public enum ViewAction: Equatable {
-            case agreeAllTermsCheckBoxTapped
+            case nextButtonTapped
         }
         public enum InnerAction: Equatable {
             case checkAgreements
             case personalAndUsageAgreeSelected
             case serviceAgreeSelected
             case marketingAgreeSelected
+            case allAgreementSelected
         }
         public enum AsyncAction: Equatable { case doNothing }
         public enum ScopeAction: Equatable { case doNothing }
-        public enum DelegateAction: Equatable { case doNothing }
+        public enum DelegateAction: Equatable {
+            case pushRegisterNicknameView
+        }
     }
     /// initiallizer
     public init() {}
@@ -63,10 +66,14 @@ public struct AgreeToTermsFeature {
             /// - Delegate
         case .delegate(let delegateAction):
             return handleDelegateAction(delegateAction, state: &state)
+        case .binding(let bindingAction):
+            return handleBindingAction(bindingAction, state: &state)
         }
     }
     /// - Reducer body
     public var body: some ReducerOf<Self> {
+        BindingReducer()
+        
         Reduce(self.core)
     }
 }
@@ -75,15 +82,8 @@ private extension AgreeToTermsFeature {
     /// - View Effect
     func handleViewAction(_ action: Action.ViewAction, state: inout State) -> Effect<Action> {
         switch action {
-        case .agreeAllTermsCheckBoxTapped:
-            state.isAgreeAllTerms.toggle()
-            
-            state.isAgreeAllTerms = state.isAgreeAllTerms
-            state.isPersonalAndUsageArgee = state.isAgreeAllTerms
-            state.isServiceAgree = state.isAgreeAllTerms
-            state.isMarketingAgree = state.isAgreeAllTerms
-            
-            return .none
+        case .nextButtonTapped:
+            return .send(.delegate(.pushRegisterNicknameView))
         }
     }
     /// - Inner Effect
@@ -97,18 +97,17 @@ private extension AgreeToTermsFeature {
             } else {
                 state.isAgreeAllTerms = false
             }
+        
         case .personalAndUsageAgreeSelected:
-            state.isPersonalAndUsageArgee.toggle()
-            
             return .send(.inner(.checkAgreements))
         case .serviceAgreeSelected:
-            state.isServiceAgree.toggle()
-            
             return .send(.inner(.checkAgreements))
         case .marketingAgreeSelected:
-            state.isMarketingAgree.toggle()
-            
             return .send(.inner(.checkAgreements))
+        case .allAgreementSelected:
+            state.isPersonalAndUsageArgee = state.isAgreeAllTerms
+            state.isServiceAgree = state.isAgreeAllTerms
+            state.isMarketingAgree = state.isAgreeAllTerms
         }
         return .none
     }
@@ -123,5 +122,20 @@ private extension AgreeToTermsFeature {
     /// - Delegate Effect
     func handleDelegateAction(_ action: Action.DelegateAction, state: inout State) -> Effect<Action> {
         return .none
+    }
+    
+    func handleBindingAction(_ action: BindingAction<State>, state: inout State) -> Effect<Action> {
+        switch action {
+        case \.isAgreeAllTerms:
+            return .send(.inner(.allAgreementSelected))
+        case \.isPersonalAndUsageArgee:
+            return .send(.inner(.personalAndUsageAgreeSelected))
+        case \.isServiceAgree:
+            return .send(.inner(.serviceAgreeSelected))
+        case \.isMarketingAgree:
+            return .send(.inner(.marketingAgreeSelected))
+        default:
+            return .none
+        }
     }
 }

@@ -29,12 +29,14 @@ public struct RegisterNicknameFeature {
         case binding(BindingAction<State>)
         
         public enum ViewAction: Equatable {
-            case nicknameTextChanged(String)
+            case nextButtonTapped
         }
         public enum InnerAction: Equatable { case doNothing }
         public enum AsyncAction: Equatable { case doNothing }
         public enum ScopeAction: Equatable { case doNothing }
-        public enum DelegateAction: Equatable { case doNothing }
+        public enum DelegateAction: Equatable {
+            case pushSelectFieldView
+        }
     }
     /// initiallizer
     public init() {}
@@ -62,6 +64,8 @@ public struct RegisterNicknameFeature {
     }
     /// - Reducer body
     public var body: some ReducerOf<Self> {
+        BindingReducer()
+        
         Reduce(self.core)
     }
 }
@@ -69,7 +73,10 @@ public struct RegisterNicknameFeature {
 private extension RegisterNicknameFeature {
     /// - View Effect
     func handleViewAction(_ action: Action.ViewAction, state: inout State) -> Effect<Action> {
-        return .none
+        switch action {
+        case .nextButtonTapped:
+            return .send(.delegate(.pushSelectFieldView))
+        }
     }
     /// - Inner Effect
     func handleInnerAction(_ action: Action.InnerAction, state: inout State) -> Effect<Action> {
