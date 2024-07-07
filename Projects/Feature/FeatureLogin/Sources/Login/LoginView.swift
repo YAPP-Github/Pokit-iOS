@@ -35,9 +35,7 @@ public extension LoginView {
         }
         .padding(.horizontal, 20)
         .background(.pokit(.bg(.base)))
-        .navigationTitle("")
-        .navigationBarTitleDisplayMode(.inline)
-        .navigationBarBackButtonHidden()
+        .pokitNavigationBar(title: "")
     }
     
     private var logo: some View {
