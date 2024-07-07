@@ -8,7 +8,7 @@ import ComposableArchitecture
 import CoreKit
 
 @Reducer
-public struct SignUpNavigationStackFeature {
+public struct SignUpRootFeature {
     /// - Dependency
 
     /// - State
@@ -91,7 +91,7 @@ public struct SignUpNavigationStackFeature {
     }
 }
 //MARK: - FeatureAction Effect
-private extension SignUpNavigationStackFeature {
+private extension SignUpRootFeature {
     /// - View Effect
     func handleViewAction(_ action: Action.ViewAction, state: inout State) -> Effect<Action> {
         return .none
@@ -150,7 +150,7 @@ private extension SignUpNavigationStackFeature {
 }
 
 //MARK: - Path
-extension SignUpNavigationStackFeature {
+extension SignUpRootFeature {
     @Reducer
     public enum Path {
         case agreeToTerms(AgreeToTermsFeature)

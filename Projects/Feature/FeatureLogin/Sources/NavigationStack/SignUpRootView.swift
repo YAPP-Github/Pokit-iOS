@@ -8,17 +8,17 @@ import ComposableArchitecture
 import SwiftUI
 import Perception
 
-public struct SignUpNavigationStackView: View {
+public struct SignUpRootView: View {
     /// - Properties
     @Perception.Bindable
-    private var store: StoreOf<SignUpNavigationStackFeature>
+    private var store: StoreOf<SignUpRootFeature>
     /// - Initializer
-    public init(store: StoreOf<SignUpNavigationStackFeature>) {
+    public init(store: StoreOf<SignUpRootFeature>) {
         self.store = store
     }
 }
 //MARK: - View
-public extension SignUpNavigationStackView {
+public extension SignUpRootView {
     var body: some View {
         NavigationStack(path: $store.scope(state: \.path, action: \.path)) {
             LoginView(store: store.scope(state: \.login, action: \.login))
@@ -37,15 +37,15 @@ public extension SignUpNavigationStackView {
     }
 }
 //MARK: - Configure View
-extension SignUpNavigationStackView {
+extension SignUpRootView {
     
 }
 //MARK: - Preview
 #Preview {
-    SignUpNavigationStackView(
+    SignUpRootView(
         store: Store(
             initialState: .init(),
-            reducer: { SignUpNavigationStackFeature() }
+            reducer: { SignUpRootFeature() }
         )
     )
 }

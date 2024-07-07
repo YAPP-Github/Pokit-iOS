@@ -13,15 +13,15 @@ struct FeatureLoginDemoApp: App {
     var body: some Scene {
         WindowGroup {
             // TODO: 루트 뷰 추가
-            SignUpNavigationStackView(store: .init(initialState: .init(), reducer: {
-                SignUpNavigationStackFeature()
+            SignUpRootView(store: .init(initialState: .init(), reducer: {
+                SignUpRootFeature()
             }))
         }
     }
 }
 
 #Preview {
-    SignUpNavigationStackView(store: .init(initialState: .init(), reducer: {
-        SignUpNavigationStackFeature()
+    SignUpRootView(store: .init(initialState: .init(), reducer: {
+        SignUpRootFeature()
     }))
 }
