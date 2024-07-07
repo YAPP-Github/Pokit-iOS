@@ -42,6 +42,14 @@ public extension RegisterNicknameView {
                 store.send(.nextButtonTapped)
             }
         }
+        .pokitNavigationBar(title: "")
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                PokitToolbarButton(.icon(.arrowLeft)) {
+                    store.send(.backButtonTapped)
+                }
+            }
+        }
     }
     
     private var title: some View {
@@ -65,12 +73,14 @@ extension RegisterNicknameView {
 }
 //MARK: - Preview
 #Preview {
-    RegisterNicknameView(
-        store: Store(
-            initialState: .init(),
-            reducer: { RegisterNicknameFeature() }
+    NavigationStack {
+        RegisterNicknameView(
+            store: Store(
+                initialState: .init(),
+                reducer: { RegisterNicknameFeature() }
+            )
         )
-    )
+    }
 }
 
 
