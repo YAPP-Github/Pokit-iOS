@@ -47,9 +47,7 @@ public struct PokitIconRInput<Value: Hashable>: View {
             
             iconButton(icon: icon)
         }
-        .onChange(of: text) { newValue in
-            state = text != "" ? .input : .default
-        }
+        .onChange(of: text) { onChangedText($0) }
         .padding(.vertical, shape == .round ? 8 : 13)
         .padding(.leading, shape == .round ? 20 : 12)
         .padding(.trailing, 13)
@@ -72,13 +70,7 @@ public struct PokitIconRInput<Value: Hashable>: View {
         .onSubmit {
             onSubmit?()
         }
-        .onChange(of: focusState.wrappedValue) { newValue in
-            if newValue == equals {
-                self.state = .active
-            } else {
-                self.state = .default
-            }
-        }
+        .onChange(of: focusState.wrappedValue) { onChangedFocuseState($0) }
     }
     
     private var placeholderLabel: some View {
@@ -97,5 +89,13 @@ public struct PokitIconRInput<Value: Hashable>: View {
                 .foregroundStyle(state.iconColor)
                 .animation(.smooth, value: self.state)
         }
+    }
+    
+    private func onChangedText(_ newValue: String) {
+        state = newValue != "" ? .input : .default
+    }
+    
+    private func onChangedFocuseState(_ newValue: Value) {
+        state = newValue == equals ? .active : .default
     }
 }

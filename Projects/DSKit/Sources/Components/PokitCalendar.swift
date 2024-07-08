@@ -128,9 +128,7 @@ public struct PokitCalendar: View {
             }
         }
         .tabViewStyle(.page(indexDisplayMode: .never))
-        .onChange(of: page) { newValue in
-            onChangedPage(newValue)
-        }
+        .onChange(of: page) { onChangedPage($0) }
     }
     
     @ViewBuilder

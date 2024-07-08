@@ -60,22 +60,12 @@ public struct PokitTextArea<Value: Hashable>: View {
                 equals: equals,
                 onSubmit: onSubmit
             )
-            .onChange(of: focusState.wrappedValue) { newValue in
-                if newValue == equals {
-                    self.state = .active
-                } else {
-                    self.state = state == .error ? .error : .default
-                }
-            }
+            .onChange(of: focusState.wrappedValue) { onChangedFocuseState($0) }
             
             infoLabel
         }
-        .onChange(of: text) { newValue in
-            self.onChangeOfText(newValue)
-        }
-        .onChange(of: isMaxLetters) { newValue in
-            self.onChangeOfIsMaxLetters(newValue)
-        }
+        .onChange(of: text) { onChangedText($0) }
+        .onChange(of: isMaxLetters) { self.onChangedIsMaxLetters($0) }
     }
     
     private var infoLabel: some View {
@@ -108,19 +98,19 @@ public struct PokitTextArea<Value: Hashable>: View {
         .padding(.top, 4)
     }
     
-    private func onChangeOfText(_ newValue: String) {
+    private func onChangedText(_ newValue: String) {
         if isMaxLetters {
             self.text = String(newValue.prefix(maxLetter + 1))
         }
         isMaxLetters = text.count > maxLetter ? true : false
     }
     
-    private func onChangeOfIsMaxLetters(_ newValue: Bool) {
-        if newValue {
-            state = .error
-        } else {
-            state = .active
-        }
+    private func onChangedIsMaxLetters(_ newValue: Bool) {
+        state = newValue ? .error : .active
+    }
+    
+    private func onChangedFocuseState(_ newValue: Value) {
+        state = newValue == equals ? .active : state == .error ? .error : .default
     }
 }
 
