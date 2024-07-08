@@ -41,13 +41,7 @@ public struct PokitSelect<Item: PokitSelectItemProtocol>: View {
             
             partSelectButton
         }
-        .onChange(of: selectedItem) { newValue in
-            if newValue != nil {
-                state = .input
-            } else {
-                state = .default
-            }
-        }
+        .onChange(of: selectedItem) { onChangedSeletedItem($0) }
         .sheet(isPresented: $showSheet) {
             listSheet
                 .pokitPresentationCornerRadius()
@@ -58,7 +52,7 @@ public struct PokitSelect<Item: PokitSelectItemProtocol>: View {
     
     private var partSelectButton: some View {
         Button {
-            showSheet = true
+            partSelectButtonTapped()
         } label: {
             partSelectLabel
         }
@@ -100,10 +94,7 @@ public struct PokitSelect<Item: PokitSelectItemProtocol>: View {
         
         Button {
             action(item)
-            withAnimation(.smooth) {
-                self.selectedItem = item
-            }
-            showSheet = false
+            listCellTapped(item)
         } label: {
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
@@ -136,6 +127,21 @@ public struct PokitSelect<Item: PokitSelectItemProtocol>: View {
         }
         .padding(.top, 24)
         .padding(.bottom, 20)
+    }
+    
+    private func partSelectButtonTapped() {
+        showSheet = true
+    }
+    
+    private func listCellTapped(_ item: Item) {
+        withAnimation(.smooth) {
+            self.selectedItem = item
+        }
+        showSheet = false
+    }
+    
+    private func onChangedSeletedItem(_ newValue: Item?) {
+        state = newValue != nil ? .input : .default
     }
 }
 

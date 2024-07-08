@@ -48,9 +48,7 @@ public struct PokitCheckBox: View {
         .disabled(self.state == .iconOnly || self.state == .disable)
         .background(background)
         .frame(width: 24, height: 24)
-        .onChange(of: isSelected) { newValue in
-            onChangedIsSelected(newValue)
-        }
+        .onChange(of: isSelected) { onChangedIsSelected($0) }
     }
     
     private var background: some View {

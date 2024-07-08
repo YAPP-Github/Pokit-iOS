@@ -60,17 +60,15 @@ public struct PokitInput<Value: Hashable>: View {
             state: self.state,
             shape: shape
         )
-        .onChange(of: focusState.wrappedValue) { newValue in
-            if newValue == equals {
-                self.state = .active
-            } else {
-                self.state = state == .error ? .error : .default
-            }
-        }
+        .onChange(of: focusState.wrappedValue) { onChangedFocuseState($0) }
     }
     
     private var placeholderLabel: some View {
         Text(placeholder)
             .foregroundStyle(self.state.infoColor)
+    }
+    
+    private func onChangedFocuseState(_ newValue: Value) {
+        state = newValue == equals ? .active : state == .error ? .error : .default
     }
 }

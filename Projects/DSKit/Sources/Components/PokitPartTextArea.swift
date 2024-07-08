@@ -50,13 +50,7 @@ public struct PokitPartTextArea<Value: Hashable>: View {
             .onSubmit {
                 onSubmit?()
             }
-            .onChange(of: focusState.wrappedValue) { newValue in
-                if newValue == equals {
-                    self.state = .active
-                } else {
-                    self.state = state == .error ? .error : .default
-                }
-            }
+            .onChange(of: focusState.wrappedValue) { onChangedFocuseState($0) }
             .background(alignment: .topLeading) {
                 if text.isEmpty {
                     placeholderLabel
@@ -72,5 +66,9 @@ public struct PokitPartTextArea<Value: Hashable>: View {
             .pokitFont(.b3(.r))
             .foregroundStyle(.pokit(.text(.tertiary)))
             .padding(.leading, 4)
+    }
+    
+    private func onChangedFocuseState(_ newValue: Value) {
+        state = newValue == equals ? .active : state == .error ? .error : .default
     }
 }
