@@ -65,7 +65,6 @@ public struct RegisterNicknameFeature {
     /// - Reducer body
     public var body: some ReducerOf<Self> {
         BindingReducer()
-        
         Reduce(self.core)
     }
 }

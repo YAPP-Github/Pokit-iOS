@@ -74,7 +74,6 @@ public struct AgreeToTermsFeature {
     /// - Reducer body
     public var body: some ReducerOf<Self> {
         BindingReducer()
-        
         Reduce(self.core)
     }
 }
