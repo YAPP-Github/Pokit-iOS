@@ -6,7 +6,7 @@
 
 import ComposableArchitecture
 import SwiftUI
-import Perception
+
 import DSKit
 
 public struct RegisterNicknameView: View {

@@ -71,18 +71,10 @@ public struct LoginRootFeature {
             /// - Delegate
         case .delegate(let delegateAction):
             return handleDelegateAction(delegateAction, state: &state)
+        case .path(let pathAction):
+            return handlePathAction(pathAction, state: &state)
         case .login(let delegate):
             return .send(.scope(.login(delegate)))
-        case .path(.element(id: _, action: .agreeToTerms(.delegate(let delegate)))):
-            return .send(.scope(.agreeToTerms(delegate)))
-        case .path(.element(id: _, action: .registerNickname(.delegate(let delegate)))):
-            return .send(.scope(.registerNickname(delegate)))
-        case .path(.element(id: _, action: .selecteField(.delegate(let delegate)))):
-            return .send(.scope(.selectField(delegate)))
-        case .path(.element(id: _, action: .signUpDone(.delegate(let delegate)))):
-            return .send(.scope(.signUpDone(delegate)))
-        default:
-            return .none
         }
     }
     /// - Reducer body
@@ -117,9 +109,7 @@ private extension LoginRootFeature {
             state.path.append(.signUpDone(.init()))
             return .none
         case .dismissLoginRootView:
-            return .run { send in
-                await self.dismiss()
-            }
+            return .run { _ in await self.dismiss() }
         }
     }
     /// - Async Effect
@@ -160,6 +150,21 @@ private extension LoginRootFeature {
     /// - Delegate Effect
     func handleDelegateAction(_ action: Action.DelegateAction, state: inout State) -> Effect<Action> {
         return .none
+    }
+    
+    func handlePathAction(_ action: StackActionOf<Path>, state: inout State) -> Effect<Action> {
+        switch action {
+        case .element(id: _, action: .agreeToTerms(.delegate(let delegate))):
+            return .send(.scope(.agreeToTerms(delegate)))
+        case .element(id: _, action: .registerNickname(.delegate(let delegate))):
+            return .send(.scope(.registerNickname(delegate)))
+        case .element(id: _, action: .selecteField(.delegate(let delegate))):
+            return .send(.scope(.selectField(delegate)))
+        case .element(id: _, action: .signUpDone(.delegate(let delegate))):
+            return .send(.scope(.signUpDone(delegate)))
+        case .element, .popFrom, .push:
+            return .none
+        }
     }
 }
 

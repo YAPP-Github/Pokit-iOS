@@ -76,9 +76,7 @@ private extension RegisterNicknameFeature {
         case .nextButtonTapped:
             return .send(.delegate(.pushSelectFieldView))
         case .backButtonTapped:
-            return .run { send in
-                await self.dismiss()
-            }
+            return .run { _ in await self.dismiss() }
         }
     }
     /// - Inner Effect

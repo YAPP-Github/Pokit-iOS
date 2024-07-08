@@ -85,35 +85,28 @@ private extension AgreeToTermsFeature {
         case .nextButtonTapped:
             return .send(.delegate(.pushRegisterNicknameView))
         case .backButtonTapped:
-            return .run { _ in
-                await self.dismiss()
-            }
+            return .run { _ in await self.dismiss() }
         }
     }
     /// - Inner Effect
     func handleInnerAction(_ action: Action.InnerAction, state: inout State) -> Effect<Action> {
         switch action {
         case .checkAgreements:
-            if state.isPersonalAndUsageArgee,
-               state.isServiceAgree,
-               state.isMarketingAgree {
-                state.isAgreeAllTerms = true
-            } else {
-                state.isAgreeAllTerms = false
-            }
-        
-        case .personalAndUsageAgreeSelected:
-            return .send(.inner(.checkAgreements))
-        case .serviceAgreeSelected:
-            return .send(.inner(.checkAgreements))
-        case .marketingAgreeSelected:
+            let isAgreeAllterm = state.isPersonalAndUsageArgee
+            && state.isServiceAgree
+            && state.isMarketingAgree
+            state.isAgreeAllTerms = isAgreeAllterm
+            return .none
+        case .personalAndUsageAgreeSelected,
+                .serviceAgreeSelected,
+                .marketingAgreeSelected:
             return .send(.inner(.checkAgreements))
         case .allAgreementSelected:
             state.isPersonalAndUsageArgee = state.isAgreeAllTerms
-            state.isServiceAgree = state.isAgreeAllTerms
-            state.isMarketingAgree = state.isAgreeAllTerms
+            state.isServiceAgree          = state.isAgreeAllTerms
+            state.isMarketingAgree        = state.isAgreeAllTerms
+            return .none
         }
-        return .none
     }
     /// - Async Effect
     func handleAsyncAction(_ action: Action.AsyncAction, state: inout State) -> Effect<Action> {

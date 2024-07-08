@@ -70,9 +70,7 @@ private extension SignUpDoneFeature {
         case .startButtonTapped:
             return .send(.delegate(.dismissLoginRootView))
         case .backButtonTapped:
-            return .run { send in
-                await self.dismiss()
-            }
+            return .run { _ in await self.dismiss() }
         }
     }
     /// - Inner Effect

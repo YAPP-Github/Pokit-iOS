@@ -46,7 +46,7 @@ public struct SelectFieldFeature {
         public enum ViewAction: Equatable {
             case nextButtonTapped
             case backButtonTapped
-            case fieldChipTapped(Bool, String)
+            case fieldChipTapped(String)
         }
         public enum InnerAction: Equatable { case doNothing }
         public enum AsyncAction: Equatable { case doNothing }
@@ -90,15 +90,11 @@ private extension SelectFieldFeature {
         case .nextButtonTapped:
             return .send(.delegate(.pushSignUpDoneView))
         case .backButtonTapped:
-            return .run { send in
-                await self.dismiss()
-            }
-        case .fieldChipTapped(let isSelected, let field):
-            if isSelected {
-                state.selectedFields.remove(field)
-            } else {
-                state.selectedFields.insert(field)
-            }
+            return .run { _ in await self.dismiss() }
+        case .fieldChipTapped(let field):
+            let result = state.selectedFields.remove(field)
+            guard result == nil else { return .none }
+            state.selectedFields.insert(field)
             return .none
         }
     }

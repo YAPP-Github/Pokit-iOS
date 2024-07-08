@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+
 import FeatureLogin
 
 @main
@@ -13,17 +14,23 @@ struct FeatureLoginDemoApp: App {
     var body: some Scene {
         WindowGroup {
             // TODO: 루트 뷰 추가
-            LoginRootView(store: .init(initialState: .init(), reducer: {
-                LoginRootFeature()
-            }))
+            LoginRootView(
+                store: .init(
+                    initialState: .init(),
+                    reducer: { LoginRootFeature() }
+                )
+            )
         }
     }
 }
 
 #Preview {
-    LoginRootView(store: .init(initialState: .init(), reducer: {
-        LoginRootFeature()
-    }))
+    LoginRootView(
+        store: .init(
+            initialState: .init(),
+            reducer: { LoginRootFeature() }
+        )
+    )
 }
 
 extension UINavigationController: UIGestureRecognizerDelegate {

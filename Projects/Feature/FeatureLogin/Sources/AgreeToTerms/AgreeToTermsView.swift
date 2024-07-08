@@ -6,8 +6,8 @@
 
 import ComposableArchitecture
 import SwiftUI
+
 import DSKit
-import Perception
 
 public struct AgreeToTermsView: View {
     /// - Properties
