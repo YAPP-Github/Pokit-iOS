@@ -6,6 +6,7 @@
 
 import ComposableArchitecture
 import SwiftUI
+
 import DSKit
 
 public struct SelectFieldView: View {
@@ -69,13 +70,14 @@ extension SelectFieldView {
         PokitFlowLayout(rowSpacing: 12, colSpacing: 10) {
             ForEach(store.fields, id: \.self) { field in
                 let isSelected = store.selectedFields.contains(field)
+                let isMaxCount = store.selectedFields.count >= 3
                 
                 PokitTextChip(
                     field,
-                    state: isSelected ? .filled(.primary) : .default(.primary),
+                    state: isSelected ? .filled(.primary) : isMaxCount ? .disable : .default(.primary),
                     size: .medium
                 ) {
-                    store.send(.fieldChipTapped(isSelected, field))
+                    store.send(.fieldChipTapped(field), animation: .smooth)
                 }
             }
         }
