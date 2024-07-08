@@ -71,7 +71,7 @@ extension LoginView {
                     .frame(width: 24, height: 24)
                     .foregroundColor(.pokit(.icon(.inverseWh)))
                 
-                Text("Apple로 시작하기")
+                Text("Apple로 계속하기")
                     .pokitFont(.l1(.r))
                     .foregroundStyle(.pokit(.text(.inverseWh)))
                 
@@ -110,7 +110,7 @@ extension LoginView {
                     .resizable()
                     .frame(width: 24, height: 24)
                 
-                Text("Google로 시작하기")
+                Text("Google로 계속하기")
                     .pokitFont(.l1(.r))
                     .foregroundStyle(.pokit(.text(.primary)))
                 
