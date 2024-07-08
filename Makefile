@@ -1,6 +1,7 @@
 generate:
 	make clean
 	make templates
+	tuist clean
 	tuist install
 	tuist generate
 
