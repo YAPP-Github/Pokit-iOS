@@ -37,7 +37,9 @@ public extension LoginView {
         .background(.pokit(.bg(.base)))
         .pokitNavigationBar(title: "")
     }
-    
+}
+//MARK: - Configure View
+extension LoginView {
     private var logo: some View {
         Text("Pokit")
             .pokitFont(.title1)
@@ -124,10 +126,6 @@ public extension LoginView {
         }
         .frame(height: 50)
     }
-}
-//MARK: - Configure View
-extension LoginView {
-    
 }
 //MARK: - Preview
 #Preview {

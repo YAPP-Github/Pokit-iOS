@@ -46,7 +46,9 @@ public extension SignUpDoneView {
             }
         }
     }
-    
+}
+//MARK: - Configure View
+extension SignUpDoneView {
     private var logo: some View {
         HStack {
             Spacer()
@@ -70,10 +72,6 @@ public extension SignUpDoneView {
                 .multilineTextAlignment(.center)
         }
     }
-}
-//MARK: - Configure View
-extension SignUpDoneView {
-    
 }
 //MARK: - Preview
 #Preview {

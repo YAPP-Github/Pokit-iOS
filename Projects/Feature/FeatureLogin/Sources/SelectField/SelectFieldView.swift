@@ -48,7 +48,9 @@ public extension SelectFieldView {
             }
         }
     }
-    
+}
+//MARK: - Configure View
+extension SelectFieldView {
     private var title: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("어떤 분야에 관심이 있으세요?")
@@ -76,10 +78,6 @@ public extension SelectFieldView {
             }
         }
     }
-}
-//MARK: - Configure View
-extension SelectFieldView {
-    
 }
 //MARK: - Preview
 #Preview {

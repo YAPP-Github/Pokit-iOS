@@ -51,7 +51,9 @@ public extension RegisterNicknameView {
             }
         }
     }
-    
+}
+//MARK: - Configure View
+extension RegisterNicknameView {
     private var title: some View {
         Text("Pokit에서 사용할 닉네임을\n입력해주세요")
             .pokitFont(.title1)
@@ -66,10 +68,6 @@ public extension RegisterNicknameView {
             equals: true
         )
     }
-}
-//MARK: - Configure View
-extension RegisterNicknameView {
-    
 }
 //MARK: - Preview
 #Preview {

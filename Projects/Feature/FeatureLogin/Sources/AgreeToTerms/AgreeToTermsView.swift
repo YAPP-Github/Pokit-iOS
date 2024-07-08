@@ -53,7 +53,9 @@ public extension AgreeToTermsView {
             }
         }
     }
-    
+}
+//MARK: - Configure View
+extension AgreeToTermsView {
     private var title: some View {
         Text("서비스 이용을 위해\n이용약관 동의가 필요합니다")
             .pokitFont(.title1)
@@ -140,10 +142,6 @@ public extension AgreeToTermsView {
             }
         }
     }
-}
-//MARK: - Configure View
-extension AgreeToTermsView {
-    
 }
 //MARK: - Preview
 #Preview {
