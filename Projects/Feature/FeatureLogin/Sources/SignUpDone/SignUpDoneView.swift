@@ -19,29 +19,31 @@ public struct SignUpDoneView: View {
 //MARK: - View
 public extension SignUpDoneView {
     var body: some View {
-        VStack(spacing: 0) {
-            Spacer()
-            
-            Group {
-                logo
+        WithPerceptionTracking {
+            VStack(spacing: 0) {
+                Spacer()
                 
-                title
-                    .padding(.top, 28)
+                Group {
+                    logo
+                    
+                    title
+                        .padding(.top, 28)
+                }
+                .padding(.horizontal, 20)
+                
+                Spacer()
+                
+                PokitBottomButton("시작하기", state: .filled(.primary)) {
+                    store.send(.startButtonTapped)
+                }
             }
-            .padding(.horizontal, 20)
-            
-            Spacer()
-            
-            PokitBottomButton("시작하기", state: .filled(.primary)) {
-                store.send(.startButtonTapped)
-            }
-        }
-        .background(.pokit(.bg(.base)))
-        .pokitNavigationBar(title: "")
-        .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
-                PokitToolbarButton(.icon(.arrowLeft)) {
-                    store.send(.backButtonTapped)
+            .background(.pokit(.bg(.base)))
+            .pokitNavigationBar(title: "")
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    PokitToolbarButton(.icon(.arrowLeft)) {
+                        store.send(.backButtonTapped)
+                    }
                 }
             }
         }

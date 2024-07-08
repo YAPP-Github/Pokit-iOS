@@ -23,30 +23,32 @@ public struct RegisterNicknameView: View {
 //MARK: - View
 public extension RegisterNicknameView {
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            Group {
-                title
-                    .padding(.top, 16)
+        WithPerceptionTracking {
+            VStack(alignment: .leading, spacing: 0) {
+                Group {
+                    title
+                        .padding(.top, 16)
+                    
+                    textField
+                        .padding(.top, 28)
+                }
+                .padding(.horizontal, 20)
                 
-                textField
-                    .padding(.top, 28)
+                Spacer()
+                
+                PokitBottomButton(
+                    "다음",
+                    state: store.nicknameText == "" || store.nicknameText.count > 10 ? .disable : .filled(.primary)
+                ) {
+                    store.send(.nextButtonTapped)
+                }
             }
-            .padding(.horizontal, 20)
-            
-            Spacer()
-            
-            PokitBottomButton(
-                "다음",
-                state: store.nicknameText == "" || store.nicknameText.count > 10 ? .disable : .filled(.primary)
-            ) {
-                store.send(.nextButtonTapped)
-            }
-        }
-        .pokitNavigationBar(title: "")
-        .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
-                PokitToolbarButton(.icon(.arrowLeft)) {
-                    store.send(.backButtonTapped)
+            .pokitNavigationBar(title: "")
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    PokitToolbarButton(.icon(.arrowLeft)) {
+                        store.send(.backButtonTapped)
+                    }
                 }
             }
         }

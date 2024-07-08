@@ -22,20 +22,22 @@ public struct LoginView: View {
 //MARK: - View
 public extension LoginView {
     var body: some View {
-        VStack(spacing: 8) {
-            Spacer()
-            
-            logo
-            
-            Spacer()
-            
-            appleLoginButton
-            
-            googleLoginButton
+        WithPerceptionTracking {
+            VStack(spacing: 8) {
+                Spacer()
+                
+                logo
+                
+                Spacer()
+                
+                appleLoginButton
+                
+                googleLoginButton
+            }
+            .padding(.horizontal, 20)
+            .background(.pokit(.bg(.base)))
+            .pokitNavigationBar(title: "")
         }
-        .padding(.horizontal, 20)
-        .background(.pokit(.bg(.base)))
-        .pokitNavigationBar(title: "")
     }
 }
 //MARK: - Configure View

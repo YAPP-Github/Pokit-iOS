@@ -19,31 +19,33 @@ public struct SelectFieldView: View {
 //MARK: - View
 public extension SelectFieldView {
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            Group {
-                title
-                    .padding(.top, 16)
+        WithPerceptionTracking {
+            VStack(alignment: .leading, spacing: 0) {
+                Group {
+                    title
+                        .padding(.top, 16)
+                    
+                    fieldsFlow
+                        .padding(.top, 36)
+                }
+                .padding(.horizontal, 20)
                 
-                fieldsFlow
-                    .padding(.top, 36)
+                Spacer()
+                
+                PokitBottomButton(
+                    "다음",
+                    state: store.selectedFields.count == 0 ? .disable : .filled(.primary)
+                ) {
+                    store.send(.nextButtonTapped)
+                }
             }
-            .padding(.horizontal, 20)
-            
-            Spacer()
-            
-            PokitBottomButton(
-                "다음",
-                state: store.selectedFields.count == 0 ? .disable : .filled(.primary)
-            ) {
-                store.send(.nextButtonTapped)
-            }
-        }
-        .background(.pokit(.bg(.base)))
-        .pokitNavigationBar(title: "")
-        .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
-                PokitToolbarButton(.icon(.arrowLeft)) {
-                    store.send(.backButtonTapped)
+            .background(.pokit(.bg(.base)))
+            .pokitNavigationBar(title: "")
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    PokitToolbarButton(.icon(.arrowLeft)) {
+                        store.send(.backButtonTapped)
+                    }
                 }
             }
         }

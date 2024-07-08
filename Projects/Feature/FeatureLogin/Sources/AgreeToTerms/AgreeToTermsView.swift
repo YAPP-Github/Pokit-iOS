@@ -21,34 +21,36 @@ public struct AgreeToTermsView: View {
 //MARK: - View
 public extension AgreeToTermsView {
     var body: some View {
-        VStack(alignment: .leading) {
-            Group {
-                title
-                    .padding(.top, 16)
+        WithPerceptionTracking {
+            VStack(alignment: .leading) {
+                Group {
+                    title
+                        .padding(.top, 16)
+                    
+                    agreeAllTerms
+                        .padding(.top, 28)
+                    
+                    termsList
+                        .padding(.top, 20)
+                }
+                .padding(.horizontal, 20)
                 
-                agreeAllTerms
-                    .padding(.top, 28)
+                Spacer()
                 
-                termsList
-                    .padding(.top, 20)
+                PokitBottomButton(
+                    "다음",
+                    state: store.isPersonalAndUsageArgee && store.isServiceAgree ? .filled(.primary) : .disable
+                ) {
+                    store.send(.nextButtonTapped)
+                }
             }
-            .padding(.horizontal, 20)
-            
-            Spacer()
-            
-            PokitBottomButton(
-                "다음",
-                state: store.isPersonalAndUsageArgee && store.isServiceAgree ? .filled(.primary) : .disable
-            ) {
-                store.send(.nextButtonTapped)
-            }
-        }
-        .background(.pokit(.bg(.base)))
-        .pokitNavigationBar(title: "")
-        .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
-                PokitToolbarButton(.icon(.arrowLeft)) {
-                    store.send(.backButtonTapped)
+            .background(.pokit(.bg(.base)))
+            .pokitNavigationBar(title: "")
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    PokitToolbarButton(.icon(.arrowLeft)) {
+                        store.send(.backButtonTapped)
+                    }
                 }
             }
         }
