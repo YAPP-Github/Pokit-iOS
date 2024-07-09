@@ -26,6 +26,5 @@ let package = Package(
         .package(url: "https://github.com/google/GoogleSignIn-iOS", "7.0.0" ..< "7.1.0"),
         .package(url: "https://github.com/Moya/Moya", from: "15.0.0"),
         .package(url: "https://github.com/firebase/firebase-ios-sdk", "10.28.0" ..< "10.28.1")
-        
     ]
 )
