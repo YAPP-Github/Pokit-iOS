@@ -24,7 +24,8 @@ let project = Project(
                 // TODO: 의존성 추가
                 .external(name: "ComposableArchitecture"),
                 .external(name: "GoogleSignIn"),
-                .external(name: "Moya")
+                .external(name: "Moya"),
+                .external(name: "FirebaseMessaging")
             ]
         )
     ]
