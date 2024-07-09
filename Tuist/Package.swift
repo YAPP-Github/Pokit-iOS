@@ -11,8 +11,7 @@ import PackageDescription
         productTypes: [
             "ComposableArchitecture": .framework,
             "GoogleSignIn": .framework,
-            "Moya": .staticLibrary,
-            "firebase-ios-sdk": .staticLibrary
+            "Moya": .staticLibrary
         ]
     )
 #endif
