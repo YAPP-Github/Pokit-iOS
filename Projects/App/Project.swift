@@ -27,8 +27,7 @@ let project = Project(
                 .project(target: "FeatureAddLink", path: .relativeToRoot("Projects/Feature")),
                 .project(target: "FeatureLinkDetail", path: .relativeToRoot("Projects/Feature")),
                 .project(target: "FeatureMyFolder", path: .relativeToRoot("Projects/Feature")),
-                .project(target: "FeatureMyPage", path: .relativeToRoot("Projects/Feature")),
-                .external(name: "FirebaseMessaging")
+                .project(target: "FeatureMyPage", path: .relativeToRoot("Projects/Feature"))
             ]
         )
     ]
