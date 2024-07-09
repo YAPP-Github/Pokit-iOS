@@ -170,7 +170,7 @@ public extension Color {
         case .text(let text):
             switch text {
             case .brand:
-                return .pokitColor(.orange(._500))
+                return .pokitColor(.orange(._700))
             case .disable:
                 return .pokitColor(.grayScale(._500))
             case .error:
@@ -193,8 +193,6 @@ public extension Color {
         case .icon(let icon):
             switch icon {
             case .brand:
-                return .pokitColor(.orange(._500))
-            case .brandBold:
                 return .pokitColor(.orange(._700))
             case .disable:
                 return .pokitColor(.grayScale(._500))
@@ -222,7 +220,7 @@ public extension Color {
             case .baseIcon:
                 return DSKitAsset.Bg.baseIcon.swiftUIColor
             case .brand:
-                return .pokitColor(.orange(._500))
+                return .pokitColor(.orange(._700))
             case .disable:
                 return .pokitColor(.grayScale(._200))
             case .error:
@@ -243,7 +241,7 @@ public extension Color {
         case .border(let border):
             switch border {
             case .brand:
-                return .pokitColor(.orange(._500))
+                return .pokitColor(.orange(._700))
             case .disable:
                 return .pokitColor(.grayScale(._200))
             case .error:
