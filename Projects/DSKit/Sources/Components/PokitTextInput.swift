@@ -16,7 +16,7 @@ public struct PokitTextInput<Value: Hashable>: View {
     private var focusState: FocusState<Value>.Binding
     
     private let equals: Value
-    private let label: String
+    private let label: String?
     private let errorMessage: String?
     private let placeholder: String
     private let info: String?
@@ -25,7 +25,7 @@ public struct PokitTextInput<Value: Hashable>: View {
     
     public init(
         text: Binding<String>,
-        label: String,
+        label: String? = nil,
         state: PokitInputStyle.State = .default,
         errorMessage: String? = nil,
         placeholder: String = "내용을 입력해주세요.",
@@ -49,19 +49,17 @@ public struct PokitTextInput<Value: Hashable>: View {
     
     public var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            PokitLabel(text: label, size: .large)
-                .padding(.bottom, 8)
+            if let label {
+                PokitLabel(text: label, size: .large)
+                    .padding(.bottom, 8)
+            }
             
             textField
             
             infoLabel
         }
-        .onChange(of: text) { newValue in
-            self.onChangeOfText(newValue)
-        }
-        .onChange(of: isMaxLetters) { newValue in
-            self.onChangeOfIsMaxLetters(newValue)
-        }
+        .onChange(of: text) { onChangedText($0) }
+        .onChange(of: isMaxLetters) { onChangedIsMaxLetters($0) }
     }
     
     private var textField: some View {
@@ -83,13 +81,7 @@ public struct PokitTextInput<Value: Hashable>: View {
         .onSubmit {
             onSubmit?()
         }
-        .onChange(of: focusState.wrappedValue) { newValue in
-            if newValue == equals {
-                self.state = .active
-            } else {
-                self.state = state == .error ? .error : .default
-            }
-        }
+        .onChange(of: focusState.wrappedValue) { onChangedFocuseState($0) }
     }
     
     private var placeholderLabel: some View {
@@ -135,18 +127,22 @@ public struct PokitTextInput<Value: Hashable>: View {
         .padding(.top, 4)
     }
     
-    private func onChangeOfText(_ newValue: String) {
+    private func onChangedText(_ newValue: String) {
         if isMaxLetters {
             self.text = String(newValue.prefix(maxLetter + 1))
         }
         isMaxLetters = text.count > maxLetter ? true : false
     }
     
-    private func onChangeOfIsMaxLetters(_ newValue: Bool) {
+    private func onChangedIsMaxLetters(_ newValue: Bool) {
         if isMaxLetters {
             state = .error
         } else {
             state = .active
         }
+    }
+    
+    private func onChangedFocuseState(_ newValue: Value) {
+        state = newValue == equals ? .active : state == .error ? .error : .default
     }
 }

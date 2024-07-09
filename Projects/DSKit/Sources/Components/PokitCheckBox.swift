@@ -8,21 +8,25 @@
 import SwiftUI
 
 public struct PokitCheckBox: View {
+    @Binding private var isSelected: Bool
+    
     @State private var state: PokitCheckBox.CheckBoxState
     
     private let baseState: PokitCheckBox.CheckBoxState
     private let selectedState: PokitCheckBox.CheckBoxState
     private let shape: PokitCheckBox.Shape
-    private let action: () -> Void
+    private let action: (() -> Void)?
     
     public init(
         baseState: PokitCheckBox.CheckBoxState,
         selectedState: PokitCheckBox.CheckBoxState,
+        isSelected: Binding<Bool>,
         shape: PokitCheckBox.Shape,
-        action: @escaping () -> Void
+        action: (() -> Void)? = nil
     ) {
         self.state = baseState
         self.baseState = baseState
+        self._isSelected = isSelected
         self.selectedState = selectedState
         self.shape = shape
         self.action = action
@@ -44,6 +48,7 @@ public struct PokitCheckBox: View {
         .disabled(self.state == .iconOnly || self.state == .disable)
         .background(background)
         .frame(width: 24, height: 24)
+        .onChange(of: isSelected) { onChangedIsSelected($0) }
     }
     
     private var background: some View {
@@ -57,7 +62,12 @@ public struct PokitCheckBox: View {
     }
     
     private func buttonTapped() {
-        state = state == baseState ? selectedState : baseState
+        isSelected.toggle()
+        action?()
+    }
+    
+    private func onChangedIsSelected(_ newValue: Bool) {
+        state = newValue ? selectedState : baseState
     }
 }
 

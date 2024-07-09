@@ -17,7 +17,9 @@ public extension Target {
     static func makeTarget(
         name: String,
         product: Product,
-        bundleName: String, 
+        bundleName: String,
+        infoPlist: InfoPlist? = nil,
+        resources: ResourceFileElements? = nil,
         dependencies: [TargetDependency]
     ) -> Target {
         return .target(
@@ -26,7 +28,9 @@ public extension Target {
             product: product,
             bundleId: .moduleBundleId(name: bundleName),
             deploymentTargets: .appMinimunTarget,
+            infoPlist: infoPlist,
             sources: ["\(name)/Sources/**"],
+            resources: resources,
             dependencies: dependencies,
             settings: settings
         )

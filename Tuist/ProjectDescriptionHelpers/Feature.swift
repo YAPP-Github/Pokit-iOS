@@ -18,12 +18,14 @@ public enum Feature: String, CaseIterable {
     case addLink = "AddLink"
     case addCategory = "AddCategory"
     case home = "Home"
+    case login = "Login"
     
     public var target: Target {
         return .makeTarget(
             name: "Feature\(self.rawValue)",
             product: isRelease ? .staticFramework : .framework,
             bundleName: "Feature.\(self.rawValue)",
+            infoPlist: .file(path: .relativeToRoot("Projects/App/Resources/Pokit-info.plist")),
             dependencies: [
                 .project(target: "DSKit", path: .relativeToRoot("Projects/DSKit")),
                 .project(target: "Domain", path: .relativeToRoot("Projects/Domain"))
@@ -36,6 +38,8 @@ public enum Feature: String, CaseIterable {
             name: "Feature\(self.rawValue)Demo",
             product: .app,
             bundleName: "Feature.\(self.rawValue)Demo",
+            infoPlist: .file(path: .relativeToRoot("Projects/App/Resources/Pokit-info.plist")),
+            resources: ["Feature\(self.rawValue)Demo/Resources"],
             dependencies: [
                 .target(self.target)
             ]
