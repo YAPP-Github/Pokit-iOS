@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct PokitIconLTextLink: View {
+public struct PokitIconLTextLink: View {
     private let labelText: String
     private let icon: PokitImage
     private let action: () -> Void
