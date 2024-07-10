@@ -7,8 +7,7 @@
 
 import SwiftUI
 
-public protocol PokitCardItemProtocol: Identifiable {
-    var id: Int { get }
+public protocol PokitCardItemProtocol {
     var categoryType: String { get }
     var contentSize: Int { get }
     var thumbNail: String { get }
