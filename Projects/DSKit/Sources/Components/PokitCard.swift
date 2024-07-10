@@ -9,7 +9,7 @@ import SwiftUI
 
 public protocol PokitCardItemProtocol: Identifiable {
     var id: Int { get }
-    var categoryName: String { get }
+    var categoryType: String { get }
     var contentSize: Int { get }
     var thumbNail: String { get }
 }
@@ -70,7 +70,7 @@ public struct PokitCard<Item: PokitCardItemProtocol>: View {
     }
     
     private var title: some View {
-        Text(category.categoryName)
+        Text(category.categoryType)
             .pokitFont(.b1(.b))
             .foregroundStyle(.pokit(.text(.primary)))
     }
@@ -109,7 +109,7 @@ public struct PokitCard<Item: PokitCardItemProtocol>: View {
 fileprivate struct Category: PokitCardItemProtocol {
     var id: Int
     
-    var categoryName: String
+    var categoryType: String
     
     var contentSize: Int
     
@@ -117,7 +117,7 @@ fileprivate struct Category: PokitCardItemProtocol {
     
     init(id: Int, categoryName: String, contentSize: Int, thumbNail: String) {
         self.id = id
-        self.categoryName = categoryName
+        self.categoryType = categoryName
         self.contentSize = contentSize
         self.thumbNail = thumbNail
     }
