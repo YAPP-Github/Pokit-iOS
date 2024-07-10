@@ -58,7 +58,6 @@ public extension PokitColor {
 public extension PokitColor {
     enum Icon {
         case brand
-        case brandBold
         case disable
         case error
         case info
