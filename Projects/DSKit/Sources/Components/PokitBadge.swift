@@ -28,11 +28,11 @@ public struct PokitBadge: View {
             .padding(.horizontal, state == .small ? 4 : 8)
             .padding(.vertical, state == .small ? 2 : 4)
             .background {
-                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                RoundedRectangle(cornerRadius: 4, style: .continuous)
                     .fill(backgroundColor)
                     .overlay {
                         if state == .unRead {
-                            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                            RoundedRectangle(cornerRadius: 4, style: .continuous)
                                 .stroke(.pokit(.border(.tertiary)), lineWidth: 1)
                         }
                     }
