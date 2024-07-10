@@ -7,12 +7,12 @@
 
 import SwiftUI
 
-public protocol PokitSelectItemProtocol: Identifiable, Equatable {
+public protocol PokitSelectItem: Identifiable, Equatable {
     var categoryType: String { get }
     var contentSize: Int { get }
 }
 
-public struct PokitSelect<Item: PokitSelectItemProtocol>: View {
+public struct PokitSelect<Item: PokitSelectItem>: View {
     @State private var selectedItem: Item?
     @State private var state: PokitSelect.SelectState
     @State private var showSheet: Bool = false

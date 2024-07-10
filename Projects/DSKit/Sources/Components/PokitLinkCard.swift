@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-public protocol PokitLinkCardItemProtocol {
+public protocol PokitLinkCardItem {
     var title: String { get }
     var thumbNail: String { get }
     var createAt: Date { get }
@@ -16,7 +16,7 @@ public protocol PokitLinkCardItemProtocol {
     var domain: String { get }
 }
 
-public struct PokitLinkCard<Item: PokitLinkCardItemProtocol>: View {
+public struct PokitLinkCard<Item: PokitLinkCardItem>: View {
     private let link: Item
     private let action: () -> Void
     private let kebabAction: () -> Void
@@ -142,7 +142,7 @@ public struct PokitLinkCard<Item: PokitLinkCardItemProtocol>: View {
     }
 }
 
-fileprivate struct Link: PokitLinkCardItemProtocol {
+fileprivate struct Link: PokitLinkCardItem {
     var title: String
     
     var thumbNail: String

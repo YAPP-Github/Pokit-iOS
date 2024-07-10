@@ -7,13 +7,13 @@
 
 import SwiftUI
 
-public protocol PokitCardItemProtocol {
+public protocol PokitCardItem {
     var categoryType: String { get }
     var contentSize: Int { get }
     var thumbNail: String { get }
 }
 
-public struct PokitCard<Item: PokitCardItemProtocol>: View {
+public struct PokitCard<Item: PokitCardItem>: View {
     private let category: Item
     private let action: () -> Void
     private let kebabAction: () -> Void
@@ -105,7 +105,7 @@ public struct PokitCard<Item: PokitCardItemProtocol>: View {
     }
 }
 
-fileprivate struct Category: PokitCardItemProtocol {
+fileprivate struct Category: PokitCardItem {
     var id: Int
     
     var categoryType: String
