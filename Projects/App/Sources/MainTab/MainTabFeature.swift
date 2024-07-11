@@ -2,7 +2,7 @@
 //  MainTabFeature.swift
 //  App
 //
-//  Created by DEV IOS on 7/11/24.
+//  Created by 김민호 on 7/11/24.
 
 import ComposableArchitecture
 import CoreKit
