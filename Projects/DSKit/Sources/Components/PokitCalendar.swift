@@ -27,7 +27,7 @@ public struct PokitCalendar: View {
         
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy년 MM월"
-        self.page = formatter.string(from: .now)
+        self._page = State(initialValue: formatter.string(from: .now))
     }
     
     public var body: some View {
