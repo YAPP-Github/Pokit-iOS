@@ -7,12 +7,12 @@
 
 import SwiftUI
 
-public protocol PokitSelectItemProtocol: Identifiable, Equatable {
-    var title: String { get }
-    var description: String { get }
+public protocol PokitSelectItem: Identifiable, Equatable {
+    var categoryType: String { get }
+    var contentSize: Int { get }
 }
 
-public struct PokitSelect<Item: PokitSelectItemProtocol>: View {
+public struct PokitSelect<Item: PokitSelectItem>: View {
     @State private var selectedItem: Item?
     @State private var state: PokitSelect.SelectState
     @State private var showSheet: Bool = false
@@ -61,7 +61,7 @@ public struct PokitSelect<Item: PokitSelectItemProtocol>: View {
     
     private var partSelectLabel: some View {
         HStack {
-            Text(self.selectedItem?.title ?? "선택해주세요.")
+            Text(self.selectedItem?.categoryType ?? "선택해주세요.")
                 .pokitFont(.b3(.m))
                 .foregroundStyle(self.state.textColor)
                 .contentTransition(.numericText())
@@ -98,11 +98,11 @@ public struct PokitSelect<Item: PokitSelectItemProtocol>: View {
         } label: {
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(item.title)
+                    Text(item.categoryType)
                         .pokitFont(.b1(.b))
                         .foregroundStyle(.pokit(.text(.primary)))
                     
-                    Text(item.description)
+                    Text("링크 \(item.contentSize)개")
                         .pokitFont(.detail1)
                         .foregroundStyle(.pokit(.text(.tertiary)))
                 }
