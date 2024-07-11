@@ -7,14 +7,7 @@
 
 import SwiftUI
 
-public protocol PokitLinkCardItem {
-    var title: String { get }
-    var thumbNail: String { get }
-    var createAt: Date { get }
-    var categoryType: String { get }
-    var isRead: Bool { get }
-    var domain: String { get }
-}
+import Util
 
 public struct PokitLinkCard<Item: PokitLinkCardItem>: View {
     private let link: Item
