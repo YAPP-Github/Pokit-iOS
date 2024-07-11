@@ -46,6 +46,8 @@ public enum PokitImage {
                 return DSKitAsset.iconTrash.swiftUIImage
             case .plusR:
                 return DSKitAsset.iconPlus.swiftUIImage
+            case .remind:
+                return DSKitAsset.iconRemind.swiftUIImage
             case .reminder:
                 return DSKitAsset.iconReminder.swiftUIImage
             case .info:
@@ -93,6 +95,7 @@ public extension PokitImage {
         case star
         case trash
         case plusR
+        case remind
         case reminder
         case info
         case link
