@@ -8,6 +8,10 @@
 import ProjectDescription
 import ProjectDescriptionHelpers
 
+let features: [TargetDependency] = Feature.allCases.map { feature in
+        .project(target: "Feature\(feature.rawValue)", path: .relativeToRoot("Projects/Feature"))
+}
+
 let project = Project(
     name: "App",
     targets: [
