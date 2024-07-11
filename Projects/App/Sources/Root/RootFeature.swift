@@ -35,31 +35,25 @@ public struct RootFeature {
     }
     
     public init() {}
-    
+    /// - Reducer Core
+    private func core(into state: inout State, action: Action) -> Effect<Action> {
+        switch action {
+        case .intro(.delegate(.moveToTab)):
+            state.intro = nil
+            state.mainTab = MainTabFeature.State()
+            return .none
+        case .appDelegate, .intro, .mainTab:
+            return .none
+        }
+    }
+    /// - Reducer body
     public var body: some ReducerOf<Self> {
         Scope(state: \.appDelegate, action: \.appDelegate) {
             AppDelegateFeature()
         }
-        Reduce { state, action in
-            switch action {
-            case .appDelegate:
-                return .none
-            case .intro(.delegate(.moveToTab)):
-                state.intro = nil
-                state.mainTab = MainTabFeature.State()
-                return .none
-            case .intro:
-                return .none
-            case .mainTab:
-                return .none
-            }
-        }
-        .ifLet(\.intro, action: \.intro) {
-            IntroFeature()
-        }
-        .ifLet(\.mainTab, action: \.mainTab) {
-            MainTabFeature()
-        }
+        Reduce(self.core)
+        .ifLet(\.intro, action: \.intro) { IntroFeature() }
+        .ifLet(\.mainTab, action: \.mainTab) { MainTabFeature() }
         ._printChanges()
     }
 }
