@@ -7,11 +7,7 @@
 
 import SwiftUI
 
-public protocol PokitCardItem {
-    var categoryType: String { get }
-    var contentSize: Int { get }
-    var thumbNail: String { get }
-}
+import Util
 
 public struct PokitCard<Item: PokitCardItem>: View {
     private let category: Item
