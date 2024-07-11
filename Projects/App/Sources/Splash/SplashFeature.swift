@@ -12,11 +12,11 @@ public struct SplashFeature {
     /// - Dependency
     @Dependency(\.continuousClock) var clock
     /// - State
+    @ObservableState
     public struct State: Equatable {
         public init() {}
     }
     /// - Action
-    @ObservableState
     public enum Action: FeatureAction {
         case view(ViewAction)
         case inner(InnerAction)
