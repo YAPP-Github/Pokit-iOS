@@ -20,7 +20,17 @@ public struct RootView: View {
 //MARK: - View
 extension RootView {
     public var body: some View {
-        Text("Hello, World!")
+        WithPerceptionTracking {
+            Group {
+                if let store = store.scope(state: \.intro, action: \.intro) {
+                    IntroView(store: store)
+                }
+                
+                if let store = store.scope(state: \.mainTab, action: \.mainTab) {
+                    MainTabView(store: store)
+                }
+            }
+        }
     }
 }
 //MARK: - Configure View

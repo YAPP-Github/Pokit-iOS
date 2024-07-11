@@ -17,16 +17,21 @@ public struct RootFeature {
     }
     
     @ObservableState
-    public struct State: Equatable {
+    public struct State {
         public var appDelegate: AppDelegateFeature.State
+        public var intro: IntroFeature.State?
+        public var mainTab: MainTabFeature.State?
+        
         public init(appDelegate: AppDelegateFeature.State = AppDelegateFeature.State()) {
             self.appDelegate = appDelegate
+            self.intro = IntroFeature.State()
         }
     }
     
     public enum Action {
         case appDelegate(AppDelegateFeature.Action)
-        /// Todo: 인트로, 로그인 등등 추가
+        case intro(IntroFeature.Action)
+        case mainTab(MainTabFeature.Action)
     }
     
     public init() {}
@@ -39,7 +44,21 @@ public struct RootFeature {
             switch action {
             case .appDelegate:
                 return .none
+            case .intro(.delegate(.moveToTab)):
+                state.intro = nil
+                state.mainTab = MainTabFeature.State()
+                return .none
+            case .intro:
+                return .none
+            case .mainTab:
+                return .none
             }
+        }
+        .ifLet(\.intro, action: \.intro) {
+            IntroFeature()
+        }
+        .ifLet(\.mainTab, action: \.mainTab) {
+            MainTabFeature()
         }
         ._printChanges()
     }
