@@ -28,8 +28,8 @@ public struct PokitSelect<Item: PokitSelectItem>: View {
         list: [Item],
         action: @escaping (Item) -> Void
     ) {
-        self.selectedItem = selectedItem
-        self.state = state
+        self._selectedItem = State(initialValue: selectedItem)
+        self._state = State(initialValue: state)
         self.label = label
         self.list = list
         self.action = action

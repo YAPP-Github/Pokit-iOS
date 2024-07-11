@@ -37,7 +37,7 @@ public struct PokitTextInput<Value: Hashable>: View {
     ) {
         self._text = text
         self.label = label
-        self.state = state
+        self._state = State(initialValue: state)
         self.focusState = focusState
         self.equals = equals
         self.errorMessage = errorMessage

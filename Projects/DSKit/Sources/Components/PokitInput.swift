@@ -29,7 +29,7 @@ public struct PokitInput<Value: Hashable>: View {
         onSubmit: (() -> Void)? = nil
     ) {
         self._text = text
-        self.state = state
+        self._state = State(initialValue: state)
         self.shape = shape
         self.focusState = focusState
         self.equals = equals
