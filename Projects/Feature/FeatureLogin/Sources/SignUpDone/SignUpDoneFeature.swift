@@ -69,7 +69,7 @@ private extension SignUpDoneFeature {
     func handleViewAction(_ action: Action.ViewAction, state: inout State) -> Effect<Action> {
         switch action {
         case .startButtonTapped:
-            return .send(.delegate(.dismissLoginRootView))
+            return .send(.delegate(.dismissLoginRootView), animation: .spring)
         case .backButtonTapped:
             return .run { _ in await self.dismiss() }
         }
