@@ -39,7 +39,22 @@ public extension LoginRootView {
     var body: some View {
         WithPerceptionTracking {
             NavigationStack(path: $store.scope(state: \.path, action: \.path)) {
-                LoginView(store: store.scope(state: \.login, action: \.login))
+                WithPerceptionTracking {
+                    VStack(spacing: 8) {
+                        Spacer()
+                        
+                        logo
+                        
+                        Spacer()
+                        
+                        appleLoginButton
+                        
+                        googleLoginButton
+                    }
+                    .padding(.horizontal, 20)
+                    .background(.pokit(.bg(.base)))
+                    .pokitNavigationBar(title: "")
+                }
             } destination: { path in
                 switch path.case {
                 case .agreeToTerms(let store):
@@ -57,7 +72,92 @@ public extension LoginRootView {
 }
 //MARK: - Configure View
 extension LoginRootView {
+    private var logo: some View {
+        Text("Pokit")
+            .pokitFont(.title1)
+            .foregroundStyle(.pokit(.text(.brand)))
+            .frame(height: 171)
+    }
     
+    private var appleLoginButton: some View {
+        Button {
+            store.send(.appleLoginButtonTapped)
+        } label: {
+            appleLoginButtonLabel
+        }
+    }
+    
+    private var appleLoginButtonLabel: some View {
+        VStack {
+            Spacer()
+            
+            HStack(spacing: 12) {
+                Spacer()
+                
+                Image(systemName: "apple.logo")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 24, height: 24)
+                    .foregroundColor(.pokit(.icon(.inverseWh)))
+                
+                Text("Apple로 계속하기")
+                    .pokitFont(.l1(.r))
+                    .foregroundStyle(.pokit(.text(.inverseWh)))
+                
+                Spacer()
+            }
+            
+            Spacer()
+        }
+        .background {
+            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .fill(.black)
+                .overlay {
+                    RoundedRectangle(cornerRadius: 8, style: .continuous)
+                        .stroke(.pokit(.border(.secondary)), lineWidth: 1)
+                }
+        }
+        .frame(height: 50)
+    }
+    
+    private var googleLoginButton: some View {
+        Button {
+            
+        } label: {
+            googleLoginButtonLabel
+        }
+    }
+    
+    private var googleLoginButtonLabel: some View {
+        VStack {
+            Spacer()
+            
+            HStack(spacing: 12) {
+                Spacer()
+                
+                Image(.icon(.google))
+                    .resizable()
+                    .frame(width: 24, height: 24)
+                
+                Text("Google로 계속하기")
+                    .pokitFont(.l1(.r))
+                    .foregroundStyle(.pokit(.text(.primary)))
+                
+                Spacer()
+            }
+            
+            Spacer()
+        }
+        .background {
+            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .fill(.pokit(.bg(.base)))
+                .overlay {
+                    RoundedRectangle(cornerRadius: 8, style: .continuous)
+                        .stroke(.pokit(.border(.secondary)), lineWidth: 1)
+                }
+        }
+        .frame(height: 50)
+    }
 }
 //MARK: - Preview
 #Preview {
