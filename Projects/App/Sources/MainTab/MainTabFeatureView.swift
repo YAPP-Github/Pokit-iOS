@@ -23,9 +23,21 @@ public struct MainTabView: View {
 public extension MainTabView {
     var body: some View {
         WithPerceptionTracking {
-            VStack {
-                Text("Tabbar")
-            }
+//            NavigationStack(path: $store.scope(state: \.path, action: \.path)) {
+//                content
+//            } destination: { store in
+//                switch store.state {
+//                case .포킷:
+//                    if let store = store.scope(state: \.pokit, action: \.pokit) {
+//                        포킷뷰()
+//                    }
+//                case .리마인드:
+//                    if let store = store.scope(state: \.remind, action: \.remind) {
+//                        리마인드뷰()
+//                    }
+//                }
+//            }
+            content
         }
     }
 }

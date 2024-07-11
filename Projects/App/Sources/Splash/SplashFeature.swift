@@ -70,6 +70,7 @@ private extension SplashFeature {
         case .onAppear:
             return .run { send in
                 /// Todo: userdefault를 통해 로그인할 수 있다면 로그인하기
+                /// - if (로그인체크) {} else {}
                 try await self.clock.sleep(for: .milliseconds(2000))
                 await send(.delegate(.loginNeeded))
             }
