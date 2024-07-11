@@ -12,19 +12,25 @@ public struct MainTabFeature {
     /// - Dependency
 
     /// - State
+    @ObservableState
     public struct State: Equatable {
+        var selectedTab: MainTab = .pokit
+        var isBottomSheetPresented: Bool = false
+        
         public init() {}
     }
     /// - Action
-    @ObservableState
-    public enum Action: FeatureAction {
+    public enum Action: FeatureAction, BindableAction {
+        case binding(BindingAction<State>)
         case view(ViewAction)
         case inner(InnerAction)
         case async(AsyncAction)
         case scope(ScopeAction)
         case delegate(DelegateAction)
         
-        public enum ViewAction: Equatable { case doNothing }
+        public enum ViewAction: Equatable {
+            case addButtonTapped
+        }
         public enum InnerAction: Equatable { case doNothing }
         public enum AsyncAction: Equatable { case doNothing }
         public enum ScopeAction: Equatable { case doNothing }
@@ -35,6 +41,8 @@ public struct MainTabFeature {
     /// - Reducer Core
     private func core(into state: inout State, action: Action) -> Effect<Action> {
         switch action {
+        case .binding:
+            return .none
             /// - View
         case .view(let viewAction):
             return handleViewAction(viewAction, state: &state)
@@ -54,6 +62,7 @@ public struct MainTabFeature {
     }
     /// - Reducer body
     public var body: some ReducerOf<Self> {
+        BindingReducer()
         Reduce(self.core)
     }
 }
@@ -61,7 +70,11 @@ public struct MainTabFeature {
 private extension MainTabFeature {
     /// - View Effect
     func handleViewAction(_ action: Action.ViewAction, state: inout State) -> Effect<Action> {
-        return .none
+        switch action {
+        case .addButtonTapped:
+            state.isBottomSheetPresented.toggle()
+            return .none
+        }
     }
     /// - Inner Effect
     func handleInnerAction(_ action: Action.InnerAction, state: inout State) -> Effect<Action> {
