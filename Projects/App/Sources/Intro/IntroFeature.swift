@@ -38,10 +38,13 @@ public struct IntroFeature {
         case let ._sceneChange(newState):
             state = newState
             return .none
+            
         case .splash(let splashAction):
             return splashDelegate(splashAction, state: &state)
+            
         case .login(.scope(.signUpDone(.dismissLoginRootView))):
             return .run { send in await send(.delegate(.moveToTab)) }
+            
         case .delegate, .login:
             return .none
         }
@@ -68,6 +71,7 @@ private extension IntroFeature {
                 /// Todo: 원하는 애니메이션 넣어줘~
                 await send(._sceneChange(.login()), animation: .spring)
             }
+            
         default: return .none
         }
     }
