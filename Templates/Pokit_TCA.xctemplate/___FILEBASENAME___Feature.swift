@@ -11,19 +11,21 @@ public struct ___VARIABLE_sceneName___Feature {
     /// - Dependency
 
     /// - State
+    @ObservableState
     public struct State: Equatable {
         public init() {}
     }
     /// - Action
-    @ObservableState
-    public enum Action: FeatureAction {
-        case view(ViewAction)
+    public enum Action: FeatureAction, ViewAction {
+        case view(View)
         case inner(InnerAction)
         case async(AsyncAction)
         case scope(ScopeAction)
         case delegate(DelegateAction)
         
-        public enum ViewAction: Equatable { case doNothing }
+        @CasePathable
+        public enum View: Equatable { case doNothing }
+        
         public enum InnerAction: Equatable { case doNothing }
         public enum AsyncAction: Equatable { case doNothing }
         public enum ScopeAction: Equatable { case doNothing }
@@ -59,7 +61,7 @@ public struct ___VARIABLE_sceneName___Feature {
 //MARK: - FeatureAction Effect
 private extension ___VARIABLE_sceneName___Feature {
     /// - View Effect
-    func handleViewAction(_ action: Action.ViewAction, state: inout State) -> Effect<Action> {
+    func handleViewAction(_ action: Action.View, state: inout State) -> Effect<Action> {
         return .none
     }
     /// - Inner Effect

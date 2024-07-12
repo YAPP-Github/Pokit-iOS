@@ -7,9 +7,11 @@
 import ComposableArchitecture
 import SwiftUI
 
+@ViewAction(for: ___VARIABLE_sceneName___Feature.self)
 public struct ___VARIABLE_sceneName___View: View {
     /// - Properties
-    private let store: StoreOf<___VARIABLE_sceneName___Feature>
+    public var store: StoreOf<___VARIABLE_sceneName___Feature>
+    
     /// - Initializer
     public init(store: StoreOf<___VARIABLE_sceneName___Feature>) {
         self.store = store
@@ -18,13 +20,15 @@ public struct ___VARIABLE_sceneName___View: View {
 //MARK: - View
 public extension ___VARIABLE_sceneName___View {
     var body: some View {
-        VStack {
-            Text("Hello World!")
+        WithPerceptionTracking {
+            VStack {
+                Text("Hello World!")
+            }
         }
     }
 }
 //MARK: - Configure View
-extension ___VARIABLE_sceneName___View {
+private extension ___VARIABLE_sceneName___View {
     
 }
 //MARK: - Preview
