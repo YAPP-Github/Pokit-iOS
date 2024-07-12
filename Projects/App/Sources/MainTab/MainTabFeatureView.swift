@@ -23,21 +23,12 @@ public struct MainTabView: View {
 public extension MainTabView {
     var body: some View {
         WithPerceptionTracking {
-//            NavigationStack(path: $store.scope(state: \.path, action: \.path)) {
-//                content
-//            } destination: { store in
-//                switch store.state {
-//                case .포킷:
-//                    if let store = store.scope(state: \.pokit, action: \.pokit) {
-//                        포킷뷰()
-//                    }
-//                case .리마인드:
-//                    if let store = store.scope(state: \.remind, action: \.remind) {
-//                        리마인드뷰()
-//                    }
-//                }
-//            }
-            content
+            Group { content }
+            .sheet(isPresented: $store.isBottomSheetPresented) {
+                ///Todo: bottom sheet 추가
+                TestView2()
+            }
+            .ignoresSafeArea(edges: .bottom)
         }
     }
 }
@@ -48,17 +39,13 @@ private extension MainTabView {
             tabView
             bottomTabBar
         }
-        .sheet(isPresented: $store.isBottomSheetPresented) {
-            ///Todo: bottom sheet 추가
-            TestView2()
-        }
-        .ignoresSafeArea(edges: .bottom)
     }
     
     var tabView: some View {
         TabView(selection: $store.selectedTab) {
             switch store.selectedTab {
             case .pokit:
+//                포킷뷰(store: self.store.scope(state: \.포킷, action: \.포킷))
                 TestView1()
             case .remind:
                 TestView2()
