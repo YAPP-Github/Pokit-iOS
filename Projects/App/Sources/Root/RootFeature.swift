@@ -42,6 +42,7 @@ public struct RootFeature {
             state.intro = nil
             state.mainTab = MainTabFeature.State()
             return .none
+            
         case .appDelegate, .intro, .mainTab:
             return .none
         }
