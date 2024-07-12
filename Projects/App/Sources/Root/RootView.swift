@@ -30,6 +30,7 @@ extension RootView {
                     MainTabView(store: store)
                 }
             }
+            .animation(.spring, value: store.mainTab)
         }
     }
 }

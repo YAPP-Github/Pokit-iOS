@@ -63,7 +63,7 @@ private extension IntroFeature {
         switch action {
         case .delegate(.autoLoginSuccess):
             return .run { send in
-                await send(.delegate(.moveToTab), animation: .spring)
+                await send(.delegate(.moveToTab))
             }
             
         case .delegate(.loginNeeded):
