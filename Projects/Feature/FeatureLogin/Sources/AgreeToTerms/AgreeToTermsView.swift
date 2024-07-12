@@ -9,10 +9,11 @@ import SwiftUI
 
 import DSKit
 
+@ViewAction(for: AgreeToTermsFeature.self)
 public struct AgreeToTermsView: View {
     /// - Properties
     @Perception.Bindable
-    private var store: StoreOf<AgreeToTermsFeature>
+    public var store: StoreOf<AgreeToTermsFeature>
     /// - Initializer
     public init(store: StoreOf<AgreeToTermsFeature>) {
         self.store = store
@@ -41,7 +42,7 @@ public extension AgreeToTermsView {
                     "다음",
                     state: store.isPersonalAndUsageArgee && store.isServiceAgree ? .filled(.primary) : .disable
                 ) {
-                    store.send(.nextButtonTapped)
+                    send(.nextButtonTapped)
                 }
             }
             .background(.pokit(.bg(.base)))
@@ -49,7 +50,7 @@ public extension AgreeToTermsView {
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     PokitToolbarButton(.icon(.arrowLeft)) {
-                        store.send(.backButtonTapped)
+                        send(.backButtonTapped)
                     }
                 }
             }

@@ -36,14 +36,15 @@ public struct SelectFieldFeature {
         var selectedFields: Set<String> = .init()
     }
     /// - Action
-    public enum Action: FeatureAction {
-        case view(ViewAction)
+    public enum Action: FeatureAction, ViewAction {
+        case view(View)
         case inner(InnerAction)
         case async(AsyncAction)
         case scope(ScopeAction)
         case delegate(DelegateAction)
         
-        public enum ViewAction: Equatable {
+        @CasePathable
+        public enum View: Equatable {
             case nextButtonTapped
             case backButtonTapped
             case fieldChipTapped(String)

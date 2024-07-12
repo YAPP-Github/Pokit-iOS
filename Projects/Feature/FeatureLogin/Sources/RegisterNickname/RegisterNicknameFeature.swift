@@ -19,15 +19,15 @@ public struct RegisterNicknameFeature {
         var nicknameText: String = ""
     }
     /// - Action
-    public enum Action: FeatureAction, BindableAction {
-        case view(ViewAction)
+    public enum Action: FeatureAction, BindableAction, ViewAction {
+        case view(View)
         case inner(InnerAction)
         case async(AsyncAction)
         case scope(ScopeAction)
         case delegate(DelegateAction)
         case binding(BindingAction<State>)
         
-        public enum ViewAction: Equatable {
+        public enum View: Equatable {
             case nextButtonTapped
             case backButtonTapped
         }

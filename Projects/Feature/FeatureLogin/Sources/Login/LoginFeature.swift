@@ -18,14 +18,14 @@ public struct LoginFeature {
     }
     /// - Action
 
-    public enum Action: FeatureAction {
-        case view(ViewAction)
+    public enum Action: FeatureAction, ViewAction {
+        case view(View)
         case inner(InnerAction)
         case async(AsyncAction)
         case scope(ScopeAction)
         case delegate(DelegateAction)
         
-        public enum ViewAction: Equatable {
+        public enum View {
             case appleLoginButtonTapped
         }
         public enum InnerAction: Equatable { case doNothing }

@@ -9,9 +9,10 @@ import SwiftUI
 
 import DSKit
 
+@ViewAction(for: SignUpDoneFeature.self)
 public struct SignUpDoneView: View {
     /// - Properties
-    private let store: StoreOf<SignUpDoneFeature>
+    public var store: StoreOf<SignUpDoneFeature>
     /// - Initializer
     public init(store: StoreOf<SignUpDoneFeature>) {
         self.store = store
@@ -35,7 +36,7 @@ public extension SignUpDoneView {
                 Spacer()
                 
                 PokitBottomButton("시작하기", state: .filled(.primary)) {
-                    store.send(.startButtonTapped)
+                    send(.startButtonTapped)
                 }
             }
             .background(.pokit(.bg(.base)))
@@ -43,7 +44,7 @@ public extension SignUpDoneView {
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     PokitToolbarButton(.icon(.arrowLeft)) {
-                        store.send(.backButtonTapped)
+                        send(.backButtonTapped)
                     }
                 }
             }

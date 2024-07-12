@@ -9,10 +9,11 @@ import SwiftUI
 
 import DSKit
 
+@ViewAction(for: RegisterNicknameFeature.self)
 public struct RegisterNicknameView: View {
     /// - Properties
     @Perception.Bindable
-    private var store: StoreOf<RegisterNicknameFeature>
+    public var store: StoreOf<RegisterNicknameFeature>
     
     @FocusState private var isFocused: Bool
     /// - Initializer
@@ -40,14 +41,14 @@ public extension RegisterNicknameView {
                     "다음",
                     state: store.nicknameText == "" || store.nicknameText.count > 10 ? .disable : .filled(.primary)
                 ) {
-                    store.send(.nextButtonTapped)
+                    send(.nextButtonTapped)
                 }
             }
             .pokitNavigationBar(title: "")
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     PokitToolbarButton(.icon(.arrowLeft)) {
-                        store.send(.backButtonTapped)
+                        send(.backButtonTapped)
                     }
                 }
             }
