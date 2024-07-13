@@ -9,14 +9,14 @@ import Foundation
 
 import Util
 
-struct LinkMock: PokitLinkCardItem, Identifiable, Equatable {
-    let id: UUID
-    let title: String
-    let thumbNail: String
-    let createAt: Date
-    let categoryType: String
-    let isRead: Bool
-    let domain: String
+public struct LinkMock: PokitLinkCardItem, Identifiable, Equatable {
+    public let id: UUID
+    public let title: String
+    public let thumbNail: String
+    public let createAt: Date
+    public let categoryType: String
+    public let isRead: Bool
+    public let domain: String
     
     init(
         id: UUID = .init(),

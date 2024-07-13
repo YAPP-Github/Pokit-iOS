@@ -15,14 +15,35 @@ public struct RemindRootView: View {
     /// - Initializer
     public init(store: StoreOf<RemindRootFeature>) {
         self.store = store
+        
+        let barAppearance = UINavigationBarAppearance()
+        barAppearance.configureWithTransparentBackground()
+        barAppearance.backgroundColor = UIColor(.pokit(.bg(.base)))
+        barAppearance.largeTitleTextAttributes = [
+            .foregroundColor: UIColor(.pokit(.text(.primary))),
+            .font: DSKitFontFamily.Pretendard.medium.font(size: 18)
+        ]
+        barAppearance.titleTextAttributes = [
+            .foregroundColor: UIColor(.pokit(.text(.primary))),
+            .font: DSKitFontFamily.Pretendard.medium.font(size: 18)
+        ]
+        
+        UINavigationBar.appearance().standardAppearance = barAppearance
+        UINavigationBar.appearance().scrollEdgeAppearance = barAppearance
+        UINavigationBar.appearance().compactAppearance = barAppearance
     }
 }
 //MARK: - View
 public extension RemindRootView {
     var body: some View {
         WithPerceptionTracking {
-            VStack {
-                Text("Hello World!")
+            NavigationStack {
+                RemindView(
+                    store: .init(
+                        initialState: .init(),
+                        reducer: { RemindFeature() }
+                    )
+                )
             }
         }
     }

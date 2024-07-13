@@ -12,7 +12,8 @@ import Util
 
 public struct RemindView: View {
     /// - Properties
-    private let store: StoreOf<RemindFeature>
+    @Perception.Bindable
+    private var store: StoreOf<RemindFeature>
     private let formatter = DateFormatter()
     /// - Initializer
     public init(store: StoreOf<RemindFeature>) {
@@ -37,18 +38,23 @@ public extension RemindView {
                     
                     Spacer()
                 }
+                .padding(.top, 16)
             }
             .background(.pokit(.bg(.base)))
             .pokitNavigationBar(title: "")
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     logo
-                    
-                    PokitToolbarButton(.icon(.bell)) {
+                }
+                
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    PokitToolbarButton(.icon(.search)) {
                         
                     }
-                    
-                    PokitToolbarButton(.icon(.search)) {
+                }
+                
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    PokitToolbarButton(.icon(.bell)) {
                         
                     }
                 }
@@ -129,10 +135,16 @@ extension RemindView {
                     Spacer()
                     
                     kebabButton {
-                        
+                        store.send(.kebabButtonTapped)
                     }
                     .foregroundStyle(.pokit(.icon(.inverseWh)))
                     .zIndex(1)
+                    .sheet(isPresented: $store.showBottomSheet) {
+                        PokitBottomSheet(
+                            items: [.share, .edit, .delete],
+                            height: 224
+                        ) { store.send(.scope(.bottomSheet($0, link))) }
+                    }
                 }
                 .padding(.top, 4)
                 
@@ -184,7 +196,11 @@ extension RemindView {
             .padding(.bottom, 16)
             
             ForEach(store.unreadLinks) { link in
+                let isFirst = link == store.unreadLinks.first
+                let isLast = link == store.unreadLinks.last
+                
                 PokitLinkCard(link: link, action: {}, kebabAction: {})
+                    .divider(isFirst: isFirst, isLast: isLast)
             }
         }
     }
@@ -197,7 +213,11 @@ extension RemindView {
             .padding(.bottom, 16)
             
             ForEach(store.favoriteLinks) { link in
-//                PokitLinkCard(link: link, action: {}, kebabAction: {})
+                let isFirst = link == store.favoriteLinks.first
+                let isLast = link == store.favoriteLinks.last
+                
+                PokitLinkCard(link: link, action: {}, kebabAction: {})
+                    .divider(isFirst: isFirst, isLast: isLast)
             }
         }
     }
