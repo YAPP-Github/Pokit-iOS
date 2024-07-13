@@ -1,38 +1,38 @@
 //
-//  LoginFeature.swift
-//  Feature
+//  SplashFeature.swift
+//  App
 //
-//  Created by 김도형 on 7/5/24.
+//  Created by 김민호 on 7/11/24.
 
 import ComposableArchitecture
 import CoreKit
 
 @Reducer
-public struct LoginFeature {
+public struct SplashFeature {
     /// - Dependency
-
+    @Dependency(\.continuousClock) var clock
     /// - State
     @ObservableState
     public struct State: Equatable {
         public init() {}
     }
     /// - Action
-
-    public enum Action: FeatureAction, ViewAction {
-        case view(View)
+    public enum Action: FeatureAction {
+        case view(ViewAction)
         case inner(InnerAction)
         case async(AsyncAction)
         case scope(ScopeAction)
         case delegate(DelegateAction)
         
-        public enum View {
-            case appleLoginButtonTapped
+        public enum ViewAction: Equatable {
+            case onAppear
         }
         public enum InnerAction: Equatable { case doNothing }
         public enum AsyncAction: Equatable { case doNothing }
         public enum ScopeAction: Equatable { case doNothing }
         public enum DelegateAction: Equatable {
-            case pushAgreeToTermsView
+            case loginNeeded
+            case autoLoginSuccess
         }
     }
     /// initiallizer
@@ -63,12 +63,17 @@ public struct LoginFeature {
     }
 }
 //MARK: - FeatureAction Effect
-private extension LoginFeature {
+private extension SplashFeature {
     /// - View Effect
     func handleViewAction(_ action: Action.ViewAction, state: inout State) -> Effect<Action> {
         switch action {
-        case .appleLoginButtonTapped:
-            return .send(.delegate(.pushAgreeToTermsView))
+        case .onAppear:
+            return .run { send in
+                /// Todo: userdefault를 통해 로그인할 수 있다면 로그인하기
+                /// - if (로그인체크) {} else {}
+                try await self.clock.sleep(for: .milliseconds(2000))
+                await send(.delegate(.loginNeeded))
+            }
         }
     }
     /// - Inner Effect
@@ -88,4 +93,3 @@ private extension LoginFeature {
         return .none
     }
 }
-

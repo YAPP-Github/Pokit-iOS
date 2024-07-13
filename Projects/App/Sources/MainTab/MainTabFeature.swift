@@ -1,46 +1,48 @@
 //
-//  SignUpDoneFeature.swift
-//  Feature
+//  MainTabFeature.swift
+//  App
 //
-//  Created by 김도형 on 7/5/24.
+//  Created by 김민호 on 7/11/24.
 
 import ComposableArchitecture
 import CoreKit
 
 @Reducer
-public struct SignUpDoneFeature {
+public struct MainTabFeature {
     /// - Dependency
-    @Dependency(\.dismiss) var dismiss
+
     /// - State
     @ObservableState
     public struct State: Equatable {
+        var selectedTab: MainTab = .pokit
+        var isBottomSheetPresented: Bool = false
+        
         public init() {}
     }
     /// - Action
-    public enum Action: FeatureAction, ViewAction {
-        case view(View)
+    public enum Action: FeatureAction, BindableAction {
+        case binding(BindingAction<State>)
+        case view(ViewAction)
         case inner(InnerAction)
         case async(AsyncAction)
         case scope(ScopeAction)
         case delegate(DelegateAction)
         
-        @CasePathable
-        public enum View: Equatable {
-            case startButtonTapped
-            case backButtonTapped
+        public enum ViewAction: Equatable {
+            case addButtonTapped
         }
         public enum InnerAction: Equatable { case doNothing }
         public enum AsyncAction: Equatable { case doNothing }
         public enum ScopeAction: Equatable { case doNothing }
-        public enum DelegateAction: Equatable {
-            case dismissLoginRootView
-        }
+        public enum DelegateAction: Equatable { case doNothing }
     }
     /// initiallizer
     public init() {}
     /// - Reducer Core
     private func core(into state: inout State, action: Action) -> Effect<Action> {
         switch action {
+        case .binding:
+            return .none
             /// - View
         case .view(let viewAction):
             return handleViewAction(viewAction, state: &state)
@@ -60,18 +62,18 @@ public struct SignUpDoneFeature {
     }
     /// - Reducer body
     public var body: some ReducerOf<Self> {
+        BindingReducer()
         Reduce(self.core)
     }
 }
 //MARK: - FeatureAction Effect
-private extension SignUpDoneFeature {
+private extension MainTabFeature {
     /// - View Effect
     func handleViewAction(_ action: Action.ViewAction, state: inout State) -> Effect<Action> {
         switch action {
-        case .startButtonTapped:
-            return .send(.delegate(.dismissLoginRootView), animation: .spring)
-        case .backButtonTapped:
-            return .run { _ in await self.dismiss() }
+        case .addButtonTapped:
+            state.isBottomSheetPresented.toggle()
+            return .none
         }
     }
     /// - Inner Effect

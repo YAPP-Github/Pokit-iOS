@@ -14,10 +14,6 @@ public struct LoginRootFeature {
     /// - State
     @ObservableState
     public struct State {
-        var login: LoginFeature.State = .init()
-        var agreeToTerms: AgreeToTermsFeature.State = .init()
-        var registerNickname: RegisterNicknameFeature.State = .init()
-        var signUpDone: SignUpDoneFeature.State = .init()
         var path = StackState<Path.State>()
         
         public init() {}
@@ -30,10 +26,10 @@ public struct LoginRootFeature {
         case scope(ScopeAction)
         case delegate(DelegateAction)
         case path(StackActionOf<Path>)
-        case login(LoginFeature.Action)
         
-        
-        public enum ViewAction: Equatable { case doNothing }
+        public enum ViewAction: Equatable {
+            case appleLoginButtonTapped
+        }
         public enum InnerAction: Equatable {
             case pushAgreeToTermsView
             case pushRegisterNicknameView
@@ -43,7 +39,6 @@ public struct LoginRootFeature {
         }
         public enum AsyncAction: Equatable { case doNothing }
         public enum ScopeAction {
-            case login(LoginFeature.Action)
             case agreeToTerms(AgreeToTermsFeature.Action.DelegateAction)
             case registerNickname(RegisterNicknameFeature.Action.DelegateAction)
             case selectField(SelectFieldFeature.Action.DelegateAction)
@@ -73,16 +68,10 @@ public struct LoginRootFeature {
             return handleDelegateAction(delegateAction, state: &state)
         case .path(let pathAction):
             return handlePathAction(pathAction, state: &state)
-        case .login(let delegate):
-            return .send(.scope(.login(delegate)))
         }
     }
     /// - Reducer body
     public var body: some ReducerOf<Self> {
-        Scope(state: \.login, action: \.login) {
-            LoginFeature()
-        }
-        
         Reduce(self.core)
             .forEach(\.path, action: \.path)
     }
@@ -91,7 +80,10 @@ public struct LoginRootFeature {
 private extension LoginRootFeature {
     /// - View Effect
     func handleViewAction(_ action: Action.ViewAction, state: inout State) -> Effect<Action> {
-        return .none
+        switch action {
+        case .appleLoginButtonTapped:
+            return .send(.inner(.pushAgreeToTermsView))
+        }
     }
     /// - Inner Effect
     func handleInnerAction(_ action: Action.InnerAction, state: inout State) -> Effect<Action> {
@@ -119,12 +111,6 @@ private extension LoginRootFeature {
     /// - Scope Effect
     func handleScopeAction(_ action: Action.ScopeAction, state: inout State) -> Effect<Action> {
         switch action {
-        case .login(let delegate):
-            switch delegate {
-            case .delegate(.pushAgreeToTermsView):
-                return .send(.inner(.pushAgreeToTermsView))
-            default: return .none
-            }
         case .agreeToTerms(let delegate):
             switch delegate {
             case .pushRegisterNicknameView:

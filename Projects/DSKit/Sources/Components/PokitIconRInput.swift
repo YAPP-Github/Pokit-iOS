@@ -33,7 +33,7 @@ public struct PokitIconRInput<Value: Hashable>: View {
     ) {
         self._text = text
         self.icon = icon
-        self.state = state
+        self._state = State(initialValue: state)
         self.shape = shape
         self.focusState = focusState
         self.equals = equals

@@ -27,7 +27,7 @@ public struct PokitPartTextArea<Value: Hashable>: View {
         onSubmit: (() -> Void)? = nil
     ) {
         self._text = text
-        self.state = state
+        self._state = State(initialValue: state)
         self.focusState = focusState
         self.equals = equals
         self.placeholder = placeholder
