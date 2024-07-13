@@ -11,13 +11,13 @@ import ComposableArchitecture
 import Firebase
 import GoogleSignIn
 
-public final class AppDelegate: NSObject {
+final class AppDelegate: NSObject {
     let store = Store(initialState: RootFeature.State()) {
         RootFeature()
     }
 }
 //MARK: - UIApplicationDelegate
-public extension AppDelegate: UIApplicationDelegate {
+extension AppDelegate: UIApplicationDelegate {
     func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey: Any] = [:]) -> Bool {
         if GIDSignIn.sharedInstance.handle(url) { return true }
         return false

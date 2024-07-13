@@ -7,8 +7,6 @@
 
 import SwiftUI
 
-import FeatureRoot
-
 @main
 struct PokitApp: App {
     
