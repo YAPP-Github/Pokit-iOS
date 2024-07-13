@@ -25,7 +25,8 @@ let coreKit: Target = .target(
     deploymentTargets: .appMinimunTarget,
     infoPlist: .file(path: .relativeToRoot("Projects/App/Resources/Pokit-info.plist")),
     sources: ["Sources/**"],
-    dependencies: coreKitDependencies
+    dependencies: coreKitDependencies,
+    settings: .settings
 )
 
 let project = Project(

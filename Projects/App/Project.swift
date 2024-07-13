@@ -29,7 +29,8 @@ let project = Project(
                 .project(target: "FeatureMyFolder", path: .relativeToRoot("Projects/Feature")),
                 .project(target: "FeatureMyPage", path: .relativeToRoot("Projects/Feature")),
                 .project(target: "FeatureLogin", path: .relativeToRoot("Projects/Feature"))
-            ]
+            ],
+            settings: .settings
         )
     ]
 )

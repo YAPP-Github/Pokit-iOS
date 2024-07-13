@@ -26,7 +26,8 @@ let project = Project(
                 .external(name: "GoogleSignIn"),
                 .external(name: "Moya"),
                 .external(name: "FirebaseMessaging")
-            ]
+            ],
+            settings: .settings
         )
     ]
 )

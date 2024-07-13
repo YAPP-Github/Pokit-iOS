@@ -23,7 +23,8 @@ let project = Project(
             dependencies: [
                 // TODO: 의존성 추가
                 .project(target: "CoreKit", path: .relativeToRoot("Projects/CoreKit"))
-            ]
+            ],
+            settings: .settings
         )
     ]
 )

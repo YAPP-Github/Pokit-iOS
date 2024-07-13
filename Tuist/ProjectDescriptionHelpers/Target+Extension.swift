@@ -8,12 +8,6 @@
 import ProjectDescription
 
 public extension Target {
-    static var settings: Settings {
-        let base = SettingsDictionary().otherLinkerFlags(["-ObjC"])
-        
-        return .settings(base: base, configurations: [.debug(name: .debug), .release(name: .release)])
-    }
-    
     static func makeTarget(
         name: String,
         product: Product,
@@ -32,7 +26,7 @@ public extension Target {
             sources: ["\(name)/Sources/**"],
             resources: resources,
             dependencies: dependencies,
-            settings: settings
+            settings: .settings
         )
     }
     
@@ -49,7 +43,8 @@ public extension Target {
             bundleId: .moduleBundleId(name: bundleName),
             deploymentTargets: .appMinimunTarget,
             sources: ["Sources/\(name)/Sources/**"],
-            dependencies: dependencies
+            dependencies: dependencies,
+            settings: .settings
         )
     }
 }
