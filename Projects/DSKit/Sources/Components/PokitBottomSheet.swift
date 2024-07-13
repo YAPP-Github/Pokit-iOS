@@ -9,13 +9,16 @@ import SwiftUI
 
 public struct PokitBottomSheet: View {
     private let items: [Item]
+    private let height: CGFloat
     private let delegageSend: ((PokitBottomSheet.Delegate) -> Void)?
     
     public init(
         items: [Item],
+        height: CGFloat,
         delegageSend: ((PokitBottomSheet.Delegate) -> Void)?
     ) {
         self.items = items
+        self.height = height
         self.delegageSend = delegageSend
     }
     
@@ -23,7 +26,7 @@ public struct PokitBottomSheet: View {
         VStack(spacing: 0) {
             list()
         }
-        .presentationDetents([.medium])
+        .presentationDetents([.height(height)])
         .pokitPresentationCornerRadius()
         .pokitPresentationBackground()
     }
