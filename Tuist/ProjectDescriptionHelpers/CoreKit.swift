@@ -35,7 +35,7 @@ public enum CoreKit: String, CaseIterable {
     public var target: Target {
         .makeChildTarget(
             name: "\(self.rawValue)",
-            product: TuistRelease.isRelease ? .staticLibrary : .dynamicLibrary,
+            product: TuistRelease.isRelease ? .staticLibrary : .framework,
             bundleName: "CoreKit.\(self.rawValue)",
             dependencies: self.dependencies
         )
