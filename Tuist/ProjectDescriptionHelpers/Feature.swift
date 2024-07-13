@@ -36,7 +36,7 @@ public enum Feature: String, CaseIterable {
             product: .app,
             bundleName: "Feature.\(self.rawValue)Demo",
             infoPlist: .file(path: .relativeToRoot("Projects/App/Resources/Pokit-info.plist")),
-            resources: ["Feature\(self.rawValue)Demo/Resources"],
+            resources: ["Feature\(self.rawValue)Demo/Resources/**"],
             dependencies: [
                 .target(self.target)
             ]
