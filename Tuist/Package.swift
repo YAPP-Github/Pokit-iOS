@@ -1,9 +1,9 @@
 // swift-tools-version: 5.9
 import PackageDescription
-import ProjectDescriptionHelpers
 
 #if TUIST
     import ProjectDescription
+    import ProjectDescriptionHelpers
 
     let packageSettings = PackageSettings(
         // Customize the product types for specific package product
