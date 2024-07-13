@@ -1,5 +1,6 @@
 // swift-tools-version: 5.9
 import PackageDescription
+import ProjectDescriptionHelpers
 
 #if TUIST
     import ProjectDescription
@@ -9,9 +10,9 @@ import PackageDescription
         // Default is .staticFramework
         // productTypes: ["Alamofire": .framework,] 
         productTypes: [
-            "ComposableArchitecture": .framework,
-            "GoogleSignIn": .framework,
-            "Firebase": .framework,
+            "ComposableArchitecture": TuistRelease.isRelease ? .staticFramework : .framework,
+            "GoogleSignIn": TuistRelease.isRelease ? .staticFramework : .framework,
+            "Firebase": TuistRelease.isRelease ? .staticFramework : .framework,
             "Moya": .staticLibrary
         ]
     )

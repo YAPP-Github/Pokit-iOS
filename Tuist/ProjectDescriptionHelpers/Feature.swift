@@ -8,9 +8,6 @@
 import ProjectDescription
 import Foundation
 
-let tuistRelease = ProcessInfo.processInfo.environment["TUIST_RELEASE"]
-let isRelease = tuistRelease == "Release"
-
 public enum Feature: String, CaseIterable {
     case myPage = "MyPage"
     case myFolder = "MyFolder"
@@ -23,7 +20,7 @@ public enum Feature: String, CaseIterable {
     public var target: Target {
         return .makeTarget(
             name: "Feature\(self.rawValue)",
-            product: isRelease ? .staticFramework : .framework,
+            product: TuistRelease.isRelease ? .staticFramework : .framework,
             bundleName: "Feature.\(self.rawValue)",
             infoPlist: .file(path: .relativeToRoot("Projects/App/Resources/Pokit-info.plist")),
             dependencies: [
