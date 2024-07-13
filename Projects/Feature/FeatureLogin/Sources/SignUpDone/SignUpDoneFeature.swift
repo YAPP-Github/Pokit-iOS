@@ -12,19 +12,20 @@ public struct SignUpDoneFeature {
     /// - Dependency
     @Dependency(\.dismiss) var dismiss
     /// - State
+    @ObservableState
     public struct State: Equatable {
         public init() {}
     }
     /// - Action
-    @ObservableState
-    public enum Action: FeatureAction {
-        case view(ViewAction)
+    public enum Action: FeatureAction, ViewAction {
+        case view(View)
         case inner(InnerAction)
         case async(AsyncAction)
         case scope(ScopeAction)
         case delegate(DelegateAction)
         
-        public enum ViewAction: Equatable {
+        @CasePathable
+        public enum View: Equatable {
             case startButtonTapped
             case backButtonTapped
         }

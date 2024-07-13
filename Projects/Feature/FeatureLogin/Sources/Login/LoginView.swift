@@ -11,10 +11,12 @@ import SwiftUI
 import DSKit
 import Core
 
+@ViewAction(for: LoginFeature.self)
 public struct LoginView: View {
     @Environment(\.colorScheme) private var colorScheme
     /// - Properties
-    private let store: StoreOf<LoginFeature>
+    @Perception.Bindable
+    public var store: StoreOf<LoginFeature>
     /// - Initializer
     public init(store: StoreOf<LoginFeature>) {
         self.store = store
@@ -52,7 +54,7 @@ extension LoginView {
     
     private var appleLoginButton: some View {
         Button {
-            store.send(.appleLoginButtonTapped)
+            send(.appleLoginButtonTapped)
         } label: {
             appleLoginButtonLabel
         }

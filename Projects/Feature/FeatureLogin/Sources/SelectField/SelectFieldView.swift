@@ -9,9 +9,11 @@ import SwiftUI
 
 import DSKit
 
+@ViewAction(for: SelectFieldFeature.self)
 public struct SelectFieldView: View {
     /// - Properties
-    private let store: StoreOf<SelectFieldFeature>
+    @Perception.Bindable
+    public var store: StoreOf<SelectFieldFeature>
     /// - Initializer
     public init(store: StoreOf<SelectFieldFeature>) {
         self.store = store
@@ -37,7 +39,7 @@ public extension SelectFieldView {
                     "다음",
                     state: store.selectedFields.count == 0 ? .disable : .filled(.primary)
                 ) {
-                    store.send(.nextButtonTapped)
+                    send(.nextButtonTapped)
                 }
             }
             .background(.pokit(.bg(.base)))
@@ -45,7 +47,7 @@ public extension SelectFieldView {
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     PokitToolbarButton(.icon(.arrowLeft)) {
-                        store.send(.backButtonTapped)
+                        send(.backButtonTapped)
                     }
                 }
             }
@@ -77,7 +79,7 @@ extension SelectFieldView {
                     state: isSelected ? .filled(.primary) : isMaxCount ? .disable : .default(.primary),
                     size: .medium
                 ) {
-                    store.send(.fieldChipTapped(field), animation: .smooth)
+                    send(.fieldChipTapped(field), animation: .smooth)
                 }
             }
         }
