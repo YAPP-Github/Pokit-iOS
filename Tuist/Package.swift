@@ -11,6 +11,7 @@ import PackageDescription
         productTypes: [
             "ComposableArchitecture": .framework,
             "GoogleSignIn": .framework,
+            "Firebase": .framework,
             "Moya": .staticLibrary
         ]
     )
