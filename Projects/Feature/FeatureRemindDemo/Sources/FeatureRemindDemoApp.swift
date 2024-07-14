@@ -14,10 +14,10 @@ struct FeatureRemindDemoApp: App {
     var body: some Scene {
         WindowGroup {
             // TODO: 루트 뷰 추가
-            RemindRootView(
+            RemindView(
                 store: .init(
                     initialState: .init(),
-                    reducer: { RemindRootFeature() }
+                    reducer: { RemindFeature() }
                 )
             )
         }
