@@ -10,10 +10,11 @@ import SwiftUI
 import DSKit
 import Util
 
+@ViewAction(for: RemindFeature.self)
 public struct RemindView: View {
     /// - Properties
     @Perception.Bindable
-    private var store: StoreOf<RemindFeature>
+    public var store: StoreOf<RemindFeature>
     private let formatter = DateFormatter()
     /// - Initializer
     public init(store: StoreOf<RemindFeature>) {
@@ -135,7 +136,7 @@ extension RemindView {
                     Spacer()
                     
                     kebabButton {
-                        store.send(.kebabButtonTapped)
+                        send(.kebabButtonTapped)
                     }
                     .foregroundStyle(.pokit(.icon(.inverseWh)))
                     .zIndex(1)

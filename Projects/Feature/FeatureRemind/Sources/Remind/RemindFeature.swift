@@ -5,7 +5,7 @@
 //  Created by 김도형 on 7/12/24.
 
 import ComposableArchitecture
-import CoreKit
+import Util
 import DSKit
 
 @Reducer
@@ -23,15 +23,15 @@ public struct RemindFeature {
         var showBottomSheet = false
     }
     /// - Action
-    public enum Action: FeatureAction, BindableAction {
-        case view(ViewAction)
+    public enum Action: FeatureAction, BindableAction, ViewAction {
+        case view(View)
         case inner(InnerAction)
         case async(AsyncAction)
         case scope(ScopeAction)
         case delegate(DelegateAction)
         case binding(BindingAction<State>)
         
-        public enum ViewAction: Equatable {
+        public enum View: Equatable {
             case bellButtonTapped
             case searchButtonTapped
             case linkCardTapped(LinkMock)
@@ -79,7 +79,7 @@ public struct RemindFeature {
 //MARK: - FeatureAction Effect
 private extension RemindFeature {
     /// - View Effect
-    func handleViewAction(_ action: Action.ViewAction, state: inout State) -> Effect<Action> {
+    func handleViewAction(_ action: Action.View, state: inout State) -> Effect<Action> {
         switch action {
         case .bellButtonTapped:
             return .none

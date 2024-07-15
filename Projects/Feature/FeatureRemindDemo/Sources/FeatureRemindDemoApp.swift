@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import ComposableArchitecture
 
 import FeatureRemind
 
@@ -22,4 +23,13 @@ struct FeatureRemindDemoApp: App {
             )
         }
     }
+}
+
+#Preview {
+    RemindView(
+        store: .init(
+            initialState: .init(),
+            reducer: { RemindFeature() }
+        )
+    )
 }

@@ -5,7 +5,7 @@
 //  Created by 김민호 on 7/11/24.
 
 import ComposableArchitecture
-import CoreKit
+import Util
 
 @Reducer
 public struct MainTabFeature {
