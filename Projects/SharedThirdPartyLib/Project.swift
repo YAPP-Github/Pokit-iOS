@@ -7,25 +7,24 @@
 
 import ProjectDescription
 import ProjectDescriptionHelpers
-import Foundation
 
 let project = Project(
-    name: "DSKit",
+    name: "SharedThirdPartyLib",
     targets: [
         .target(
-            name: "DSKit",
+            name: "SharedThirdPartyLib",
             destinations: .appDestinations,
             // TODO: 프로젝트에 맞는 product로 변경해야 함
             product: .framework,
-            bundleId: .moduleBundleId(name: "DSKit"),
+            bundleId: .moduleBundleId(name: "SharedThirdPartyLib"),
             deploymentTargets: .appMinimunTarget,
             infoPlist: .file(path: .relativeToRoot("Projects/App/Resources/Pokit-info.plist")),
             sources: ["Sources/**"],
-            resources: ["Resources/**"],
             dependencies: [
                 // TODO: 의존성 추가
-                .project(target: "Util", path: .relativeToRoot("Projects/Util"))
-            ]
+                .external(name: "ComposableArchitecture")
+            ],
+            settings: .settings
         )
     ]
 )

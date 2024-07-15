@@ -26,7 +26,7 @@ let project = Project(
             resources: ["Resources/**"],
             dependencies: [
                 // TODO: 의존성 추가
-                .project(target: "FeatureHome", path: .relativeToRoot("Projects/Feature")),
+                .project(target: "FeatureRemind", path: .relativeToRoot("Projects/Feature")),
                 .project(target: "FeatureAddCategory", path: .relativeToRoot("Projects/Feature")),
                 .project(target: "FeatureAddLink", path: .relativeToRoot("Projects/Feature")),
                 .project(target: "FeatureLinkDetail", path: .relativeToRoot("Projects/Feature")),
@@ -34,6 +34,7 @@ let project = Project(
                 .project(target: "FeatureMyPage", path: .relativeToRoot("Projects/Feature")),
                 .project(target: "FeatureLogin", path: .relativeToRoot("Projects/Feature")),
                 .project(target: "FeatureRoot", path: .relativeToRoot("Projects/Feature"))
+                .project(target: "Data", path: .relativeToRoot("Projects/Data"))
             ],
             settings: .settings
         )

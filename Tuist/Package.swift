@@ -8,12 +8,10 @@ import PackageDescription
     let packageSettings = PackageSettings(
         // Customize the product types for specific package product
         // Default is .staticFramework
-        // productTypes: ["Alamofire": .framework,] 
+        // productTypes: ["Alamofire": .framework,]
         productTypes: [
-            "ComposableArchitecture": TuistRelease.isRelease ? .staticFramework : .framework,
-            "GoogleSignIn": TuistRelease.isRelease ? .staticFramework : .framework,
-            "Firebase": TuistRelease.isRelease ? .staticFramework : .framework,
-            "Moya": .staticLibrary
+            "GoogleSignIn": .framework,
+            "ComposableArchitecture": .framework
         ]
     )
 #endif
