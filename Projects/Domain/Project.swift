@@ -22,7 +22,8 @@ let project = Project(
             sources: ["Sources/**"],
             dependencies: [
                 // TODO: 의존성 추가
-                .project(target: "Util", path: .relativeToRoot("Projects/Util"))
+                .project(target: "Util", path: .relativeToRoot("Projects/Util")),
+                .project(target: "SharedThirdPartyLib", path: .relativeToRoot("Projects/SharedThirdPartyLib"))
             ],
             settings: .settings
         )

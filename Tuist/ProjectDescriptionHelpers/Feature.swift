@@ -23,6 +23,7 @@ public enum Feature: String, CaseIterable {
             product: TuistRelease.isRelease ? .staticFramework : .framework,
             bundleName: "Feature.\(self.rawValue)",
             infoPlist: .file(path: .relativeToRoot("Projects/App/Resources/Pokit-info.plist")),
+            resources: ["Feature\(self.rawValue)/Resources/**"],
             dependencies: [
                 .project(target: "DSKit", path: .relativeToRoot("Projects/DSKit")),
                 .project(target: "Domain", path: .relativeToRoot("Projects/Domain"))

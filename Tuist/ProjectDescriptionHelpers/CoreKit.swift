@@ -15,11 +15,13 @@ public enum CoreKit: String, CaseIterable {
         switch self {
         case .core :
             return [
-                .project(target: "Util", path: .relativeToRoot("Projects/Util"))
+                .project(target: "Util", path: .relativeToRoot("Projects/Util")),
+                .project(target: "SharedThirdPartyLib", path: .relativeToRoot("Projects/SharedThirdPartyLib"))
             ]
         case .coreNetwork:
             return [
                 .project(target: "Util", path: .relativeToRoot("Projects/Util")),
+                .project(target: "SharedThirdPartyLib", path: .relativeToRoot("Projects/SharedThirdPartyLib")),
                 .external(name: "Moya")
             ]
         }
