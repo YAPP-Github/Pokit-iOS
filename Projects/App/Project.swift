@@ -33,7 +33,6 @@ let project = Project(
                 .project(target: "FeatureMyFolder", path: .relativeToRoot("Projects/Feature")),
                 .project(target: "FeatureMyPage", path: .relativeToRoot("Projects/Feature")),
                 .project(target: "FeatureLogin", path: .relativeToRoot("Projects/Feature")),
-                .project(target: "FeatureRoot", path: .relativeToRoot("Projects/Feature"))
                 .project(target: "Data", path: .relativeToRoot("Projects/Data"))
             ],
             settings: .settings
