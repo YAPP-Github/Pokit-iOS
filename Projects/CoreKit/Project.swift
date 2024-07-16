@@ -20,13 +20,12 @@ let coreKit: Target = .target(
     name: "CoreKit",
     destinations: .appDestinations,
     // TODO: 프로젝트에 맞는 product로 변경해야 함
-    product: .staticFramework,
+    product: .framework,
     bundleId: .moduleBundleId(name: "CoreKit"),
     deploymentTargets: .appMinimunTarget,
     infoPlist: .file(path: .relativeToRoot("Projects/App/Resources/Pokit-info.plist")),
     sources: ["Sources/**"],
     dependencies: coreKitDependencies + [
-        .external(name: "FirebaseMessaging"),
         .external(name: "GoogleSignIn")
     ],
     settings: .settings
