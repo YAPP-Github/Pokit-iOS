@@ -12,7 +12,12 @@ import DSKit
 @ViewAction(for: PokitRootFeature.self)
 public struct PokitRootView: View {
     /// - Properties
+    @Perception.Bindable
     public var store: StoreOf<PokitRootFeature>
+    private let column = [
+        GridItem(.flexible(), spacing: 0),
+        GridItem(.flexible(), spacing: 0)
+    ]
     
     /// - Initializer
     public init(store: StoreOf<PokitRootFeature>) {
@@ -25,15 +30,25 @@ public extension PokitRootView {
         WithPerceptionTracking {
             NavigationStack {
                 VStack(spacing: 0) {
-                    filterHeader
-                    
-                    ScrollView {
-                    }
+                    self.filterHeader
+                    self.cardScrollView
                 }
                 .padding(.horizontal, 20)
                 .padding(.vertical, 16)
-                .scrollIndicators(.hidden)
                 .toolbar { self.navigationBar }
+                .sheet(isPresented: $store.isKebobSheetPresented) {
+                    PokitBottomSheet(
+                        items: [.share, .edit, .delete],
+                        height: 224,
+                        delegateSend: { store.send(.scope(.bottomSheet($0))) }
+                    )
+                }
+                .sheet(isPresented: $store.isPokitDeleteSheetPresented) {
+                    PokitDeleteBottomSheet(
+                        type: .포킷삭제,
+                        delegateSend: { store.send(.scope(.deleteBottomSheet($0))) }
+                    )
+                }
             }
         }
     }
@@ -106,15 +121,35 @@ private extension PokitRootView {
         }
         .animation(.snappy(duration: 0.7), value: store.folderType)
     }
+    
+    var cardScrollView: some View {
+        ScrollView {
+            LazyVGrid(columns: column, spacing: 12) {
+                ForEach(store.mock, id: \.id) { item in
+                    PokitCard(
+                        category: item,
+                        action: {},
+                        kebabAction: { send(.kebobButtonTapped(item)) }
+                    )
+                }
+            }
+        }
+        .padding(.top, 20)
+        .scrollIndicators(.hidden)
+        .animation(.interactiveSpring(duration: 0.27), value: store.mock)
+    }
 }
+
 //MARK: - Preview
 #Preview {
-    PokitRootView(
-        store: Store(
-            initialState: .init(),
-            reducer: { PokitRootFeature() }
+    Group {
+        PokitRootView(
+            store: Store(
+                initialState: .init(mock: PokitRootCardMock.mock),
+                reducer: { PokitRootFeature() }
+            )
         )
-    )
+    }
 }
 
 
