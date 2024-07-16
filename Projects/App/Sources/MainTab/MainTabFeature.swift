@@ -16,7 +16,7 @@ public struct MainTabFeature {
     public struct State: Equatable {
         var selectedTab: MainTab = .pokit
         var isBottomSheetPresented: Bool = false
-        
+
         public init() {}
     }
     /// - Action
@@ -27,7 +27,7 @@ public struct MainTabFeature {
         case async(AsyncAction)
         case scope(ScopeAction)
         case delegate(DelegateAction)
-        
+
         @CasePathable
         public enum View: Equatable {
             case addButtonTapped

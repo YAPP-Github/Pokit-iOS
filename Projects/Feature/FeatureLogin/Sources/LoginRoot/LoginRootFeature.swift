@@ -15,7 +15,7 @@ public struct LoginRootFeature {
     @ObservableState
     public struct State {
         var path = StackState<Path.State>()
-        
+
         public init() {}
     }
     /// - Action
@@ -26,7 +26,7 @@ public struct LoginRootFeature {
         case scope(ScopeAction)
         case delegate(DelegateAction)
         case path(StackActionOf<Path>)
-        
+
         @CasePathable
         public enum View: Equatable {
             case appleLoginButtonTapped
@@ -138,7 +138,7 @@ private extension LoginRootFeature {
     func handleDelegateAction(_ action: Action.DelegateAction, state: inout State) -> Effect<Action> {
         return .none
     }
-    
+
     func handlePathAction(_ action: StackActionOf<Path>, state: inout State) -> Effect<Action> {
         switch action {
         case .element(id: _, action: .agreeToTerms(.delegate(let delegate))):

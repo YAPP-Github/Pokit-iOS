@@ -6,7 +6,6 @@
 
 import ComposableArchitecture
 import CoreKit
-import Util
 
 @Reducer
 public struct SplashFeature {
@@ -24,7 +23,7 @@ public struct SplashFeature {
         case async(AsyncAction)
         case scope(ScopeAction)
         case delegate(DelegateAction)
-        
+
         @CasePathable
         public enum View: Equatable {
             case onAppear
