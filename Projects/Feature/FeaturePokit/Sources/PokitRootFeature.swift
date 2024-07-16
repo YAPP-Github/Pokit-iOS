@@ -26,7 +26,13 @@ public struct PokitRootFeature {
         case delegate(DelegateAction)
         
         @CasePathable
-        public enum View: Equatable { case doNothing }
+        public enum View: Equatable {
+            /// - Navigaiton Bar
+            case searchButtonTapped
+            case alertButtonTapped
+            case settingButtonTapped
+
+        }
         
         public enum InnerAction: Equatable { case doNothing }
         
@@ -74,7 +80,15 @@ public struct PokitRootFeature {
 private extension PokitRootFeature {
     /// - View Effect
     func handleViewAction(_ action: Action.View, state: inout State) -> Effect<Action> {
-        return .none
+        switch action {
+        /// - Navigation Bar Tapped Action
+        case .searchButtonTapped:
+            return .none
+        case .alertButtonTapped:
+            return .none
+        case .settingButtonTapped:
+            return .none
+        }
     }
     
     /// - Inner Effect
