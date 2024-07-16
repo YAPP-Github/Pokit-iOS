@@ -14,6 +14,8 @@ public struct PokitRootFeature {
     /// - State
     @ObservableState
     public struct State: Equatable {
+        var folderType: PokitRootFilterType = .folder(.포킷)
+        var sortType: PokitRootFilterType = .sort(.최신순)
         public init() {}
     }
     
@@ -31,6 +33,10 @@ public struct PokitRootFeature {
             case searchButtonTapped
             case alertButtonTapped
             case settingButtonTapped
+            /// - Filter
+            case filterButtonTapped(PokitRootFilterType.Folder)
+            case sortButtonTapped
+            
 
         }
         
@@ -87,6 +93,15 @@ private extension PokitRootFeature {
         case .alertButtonTapped:
             return .none
         case .settingButtonTapped:
+            return .none
+        /// - Filter Action
+        /// 포킷 / 미분류 버튼 눌렀을 때
+        case .filterButtonTapped(let selectedFolderType):
+            state.folderType = .folder(selectedFolderType)
+            return .none
+        /// 최신순 / 이름순 버튼 눌렀을 때
+        case .sortButtonTapped:
+            state.sortType = .sort(state.sortType == .sort(.이름순) ? .최신순 : .이름순)
             return .none
         }
     }

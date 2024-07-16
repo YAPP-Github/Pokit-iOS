@@ -24,9 +24,15 @@ public extension PokitRootView {
     var body: some View {
         WithPerceptionTracking {
             NavigationStack {
-                VStack {
-                    Text("hello")
+                VStack(spacing: 0) {
+                    filterHeader
+                    
+                    ScrollView {
+                    }
                 }
+                .padding(.horizontal, 20)
+                .padding(.vertical, 16)
+                .scrollIndicators(.hidden)
                 .toolbar { self.navigationBar }
             }
         }
@@ -58,6 +64,47 @@ private extension PokitRootView {
                 )
             }
         }
+    }
+    
+    var filterHeader: some View {
+        HStack(spacing: 8) {
+            PokitIconLButton(
+                "포킷",
+                .icon(.folderLine),
+                state: store.folderType == .folder(.포킷)
+                ? .filled(.primary)
+                : .default(.secondary),
+                size: .small,
+                shape: .round,
+                action: { send(.filterButtonTapped(.포킷)) }
+            )
+            
+            PokitIconLButton(
+                "미분류",
+                .icon(.info),
+                state: store.folderType == .folder(.미분류)
+                ? .filled(.primary)
+                : .default(.secondary),
+                size: .small,
+                shape: .round,
+                action: { send(.filterButtonTapped(.미분류)) }
+            )
+            
+            Spacer()
+            
+            Button(action: { send(.sortButtonTapped) }) {
+                HStack(spacing: 2) {
+                    Image(.icon(.align))
+                        .resizable()
+                        .frame(width: 18, height: 18)
+                    Text(store.sortType == .sort(.최신순) ? "최신순" : "이름순")
+                        .pokitFont(.b3(.m))
+                        .foregroundStyle(.pokit(.text(.secondary)))
+                }
+            }
+            .buttonStyle(.plain)
+        }
+        .animation(.snappy(duration: 0.7), value: store.folderType)
     }
 }
 //MARK: - Preview
