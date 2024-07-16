@@ -24,7 +24,8 @@ let project = Project(
             dependencies: [
                 // TODO: 의존성 추가
                 .project(target: "CoreKit", path: .relativeToRoot("Projects/CoreKit")),
-                .project(target: "Domain", path: .relativeToRoot("Projects/Domain"))
+                .project(target: "Domain", path: .relativeToRoot("Projects/Domain")),
+                .external(name: "FirebaseMessaging")
             ],
             settings: .settings
         )
