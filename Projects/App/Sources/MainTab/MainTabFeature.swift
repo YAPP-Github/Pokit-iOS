@@ -20,15 +20,15 @@ public struct MainTabFeature {
         public init() {}
     }
     /// - Action
-    public enum Action: FeatureAction, BindableAction {
+    public enum Action: FeatureAction, BindableAction, ViewAction {
         case binding(BindingAction<State>)
-        case view(ViewAction)
+        case view(View)
         case inner(InnerAction)
         case async(AsyncAction)
         case scope(ScopeAction)
         case delegate(DelegateAction)
         
-        public enum ViewAction: Equatable {
+        public enum View: Equatable {
             case addButtonTapped
         }
         public enum InnerAction: Equatable { case doNothing }
@@ -69,7 +69,7 @@ public struct MainTabFeature {
 //MARK: - FeatureAction Effect
 private extension MainTabFeature {
     /// - View Effect
-    func handleViewAction(_ action: Action.ViewAction, state: inout State) -> Effect<Action> {
+    func handleViewAction(_ action: Action.View, state: inout State) -> Effect<Action> {
         switch action {
         case .addButtonTapped:
             state.isBottomSheetPresented.toggle()

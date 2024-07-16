@@ -8,9 +8,10 @@ import SwiftUI
 
 import ComposableArchitecture
 
+@ViewAction(for: SplashFeature.self)
 public struct SplashView: View {
     /// - Properties
-    private let store: StoreOf<SplashFeature>
+    public let store: StoreOf<SplashFeature>
     /// - Initializer
     public init(store: StoreOf<SplashFeature>) {
         self.store = store
@@ -24,7 +25,7 @@ public extension SplashView {
                 Text("Splash")
                     .font(.largeTitle)
             }
-            .onAppear { store.send(.onAppear) }
+            .onAppear { send(.onAppear) }
         }
     }
 }

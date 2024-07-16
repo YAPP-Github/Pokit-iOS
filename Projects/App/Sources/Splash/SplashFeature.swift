@@ -5,7 +5,7 @@
 //  Created by 김민호 on 7/11/24.
 
 import ComposableArchitecture
-import CoreKit
+import Util
 
 @Reducer
 public struct SplashFeature {
@@ -17,14 +17,14 @@ public struct SplashFeature {
         public init() {}
     }
     /// - Action
-    public enum Action: FeatureAction {
-        case view(ViewAction)
+    public enum Action: FeatureAction, ViewAction {
+        case view(View)
         case inner(InnerAction)
         case async(AsyncAction)
         case scope(ScopeAction)
         case delegate(DelegateAction)
         
-        public enum ViewAction: Equatable {
+        public enum View: Equatable {
             case onAppear
         }
         public enum InnerAction: Equatable { case doNothing }
@@ -65,7 +65,7 @@ public struct SplashFeature {
 //MARK: - FeatureAction Effect
 private extension SplashFeature {
     /// - View Effect
-    func handleViewAction(_ action: Action.ViewAction, state: inout State) -> Effect<Action> {
+    func handleViewAction(_ action: Action.View, state: inout State) -> Effect<Action> {
         switch action {
         case .onAppear:
             return .run { send in

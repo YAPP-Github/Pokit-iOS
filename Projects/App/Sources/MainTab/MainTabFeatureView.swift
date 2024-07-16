@@ -9,10 +9,11 @@ import SwiftUI
 import ComposableArchitecture
 import DSKit
 
+@ViewAction(for: MainTabFeature.self)
 public struct MainTabView: View {
     /// - Properties
     @Perception.Bindable
-    private var store: StoreOf<MainTabFeature>
+    public var store: StoreOf<MainTabFeature>
     /// - Initializer
     public init(store: StoreOf<MainTabFeature>) {
         self.store = store
@@ -96,7 +97,7 @@ private extension MainTabView {
                 )
         }
         .overlay(alignment: .top) {
-            Button(action: { store.send(.addButtonTapped) }) {
+            Button(action: { send(.addButtonTapped) }) {
                 Circle()
                     .foregroundStyle(.pokit(.bg(.brand)))
                     .overlay {
