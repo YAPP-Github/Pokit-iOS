@@ -9,10 +9,11 @@ import SwiftUI
 
 import DSKit
 
+@ViewAction(for: LoginRootFeature.self)
 public struct LoginRootView: View {
     /// - Properties
     @Perception.Bindable
-    private var store: StoreOf<LoginRootFeature>
+    public var store: StoreOf<LoginRootFeature>
     /// - Initializer
     public init(store: StoreOf<LoginRootFeature>) {
         self.store = store
@@ -81,7 +82,7 @@ extension LoginRootView {
     
     private var appleLoginButton: some View {
         Button {
-            store.send(.appleLoginButtonTapped)
+            send(.appleLoginButtonTapped)
         } label: {
             appleLoginButtonLabel
         }
