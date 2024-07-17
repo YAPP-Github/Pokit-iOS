@@ -60,6 +60,19 @@ public extension RemindView {
                     }
                 }
             }
+            .sheet(item: $store.bottomSheetItem) { link in
+                PokitBottomSheet(
+                    items: [.share, .edit, .delete],
+                    height: 224
+                ) { send(.bottomSheetButtonTapped(delegate: $0, link: link)) }
+            }
+            .sheet(item: $store.alertItem) { link in
+                PokitAlert(
+                    "링크를 정말 삭제하시겠습니까?",
+                    message: "함께 저장한 모든 정보가 삭제되며, \n복구하실 수 없습니다.",
+                    confirmText: "삭제"
+                ) { send(.deleteAlertConfirmTapped(link: link)) }
+            }
         }
     }
 }
@@ -78,10 +91,11 @@ extension RemindView {
                 .foregroundStyle(.pokit(.text(.primary)))
                 .padding(.horizontal, 20)
             
-            ScrollView(.horizontal) {
+            ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 12) {
                     ForEach(store.recommendedLinks) { link in
                         recommendedLinkCell(link: link)
+                        
                     }
                 }
                 .padding(.horizontal, 20)
@@ -94,6 +108,7 @@ extension RemindView {
         Button(action: {}) {
             recommendedLinkCellLabel(link: link)
         }
+        
     }
     
     @ViewBuilder
@@ -119,8 +134,8 @@ extension RemindView {
                         location: 1.00
                     ),
                 ],
-                startPoint: .center,
-                endPoint: .center
+                startPoint: .top,
+                endPoint: .bottom
             )
             
             VStack(alignment: .leading, spacing: 0) {
@@ -136,16 +151,11 @@ extension RemindView {
                     Spacer()
                     
                     kebabButton {
-                        send(.kebabButtonTapped)
+                        send(.kebabButtonTapped(link: link))
                     }
                     .foregroundStyle(.pokit(.icon(.inverseWh)))
                     .zIndex(1)
-                    .sheet(isPresented: $store.showBottomSheet) {
-                        PokitBottomSheet(
-                            items: [.share, .edit, .delete],
-                            height: 224
-                        ) { store.send(.scope(.bottomSheet($0, link))) }
-                    }
+                    
                 }
                 .padding(.top, 4)
                 
@@ -200,8 +210,12 @@ extension RemindView {
                 let isFirst = link == store.unreadLinks.first
                 let isLast = link == store.unreadLinks.last
                 
-                PokitLinkCard(link: link, action: {}, kebabAction: {})
-                    .divider(isFirst: isFirst, isLast: isLast)
+                PokitLinkCard(
+                    link: link,
+                    action: { },
+                    kebabAction: { send(.kebabButtonTapped(link: link)) }
+                )
+                .divider(isFirst: isFirst, isLast: isLast)
             }
         }
     }
@@ -217,8 +231,12 @@ extension RemindView {
                 let isFirst = link == store.favoriteLinks.first
                 let isLast = link == store.favoriteLinks.last
                 
-                PokitLinkCard(link: link, action: {}, kebabAction: {})
-                    .divider(isFirst: isFirst, isLast: isLast)
+                PokitLinkCard(
+                    link: link,
+                    action: {},
+                    kebabAction: {}
+                )
+                .divider(isFirst: isFirst, isLast: isLast)
             }
         }
     }
