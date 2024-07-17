@@ -4,9 +4,7 @@
 //
 //  Created by 김도형 on 7/17/24.
 
-import Foundation
-import LinkPresentation
-import UniformTypeIdentifiers
+import UIKit
 
 import ComposableArchitecture
 import Util
@@ -18,12 +16,18 @@ public struct PreviewLinkFeature {
     /// - State
     @ObservableState
     public struct State: Equatable {
-        public init(url urlText: String) {
-            self.urlText = urlText
+        public init(
+            title: String,
+            image: UIImage,
+            url: String
+        ) {
+            self.title = title
+            self.image = image
+            self.url = url
         }
-        var title: String? = nil
-        var image: UIImage? = nil
-        var urlText: String
+        var title: String
+        var image: UIImage
+        var url: String
     }
     
     /// - Action
@@ -35,14 +39,9 @@ public struct PreviewLinkFeature {
         case delegate(DelegateAction)
         
         @CasePathable
-        public enum View: Equatable {
-            case previewLinkOnAppeared
-        }
+        public enum View: Equatable { case doNothing }
         
-        public enum InnerAction: Equatable {
-            case fetchMetadata(url: URL)
-            case parsingInfo(title: String?, image: UIImage?)
-        }
+        public enum InnerAction: Equatable { case doNothing }
         
         public enum AsyncAction: Equatable { case doNothing }
         
@@ -88,47 +87,12 @@ public struct PreviewLinkFeature {
 private extension PreviewLinkFeature {
     /// - View Effect
     func handleViewAction(_ action: Action.View, state: inout State) -> Effect<Action> {
-        switch action {
-        case .previewLinkOnAppeared:
-            guard let url = URL(string: state.urlText) else { return .none }
-            return .send(.inner(.fetchMetadata(url: url)))
-        }
+        return .none
     }
     
     /// - Inner Effect
     func handleInnerAction(_ action: Action.InnerAction, state: inout State) -> Effect<Action> {
-        switch action {
-        case .fetchMetadata(url: let url):
-            return .run { send in
-                let provider = LPMetadataProvider()
-                let metadata = try? await provider.startFetchingMetadata(for: url)
-                let title = metadata?.title
-                var image: UIImage?
-                let item = try? await metadata?.imageProvider?.loadItem(forTypeIdentifier: String(describing: UTType.image))
-                if item is UIImage {
-                    image = item as? UIImage
-                }
-                
-                if item is URL {
-                    guard let url = item as? URL,
-                          let data = try? Data(contentsOf: url) else { return }
-                    
-                    image = UIImage(data: data)
-                }
-                
-                if item is Data {
-                    guard let data = item as? Data else { return }
-                    
-                    image = UIImage(data: data)
-                }
-                
-                await send(.inner(.parsingInfo(title: title, image: image)))
-            }
-        case .parsingInfo(title: let title, image: let image):
-            state.title = title
-            state.image = image
-            return .none
-        }
+        return .none
     }
     
     /// - Async Effect
