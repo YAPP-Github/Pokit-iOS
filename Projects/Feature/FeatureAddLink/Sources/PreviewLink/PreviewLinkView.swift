@@ -24,9 +24,6 @@ public extension PreviewLinkView {
     var body: some View {
         WithPerceptionTracking {
             content
-                .onAppear {
-                    send(.previewLinkOnAppeared)
-                }
         }
     }
 }
@@ -34,17 +31,13 @@ public extension PreviewLinkView {
 private extension PreviewLinkView {
     var content: some View {
         HStack(spacing: 16) {
-            if let uiImage = store.image {
-                Image(uiImage: uiImage)
-                    .resizable()
-                    .frame(width: 124, height: 108)
-                    .pokitBlurReplaceTransition(.smooth)
-            }
+            Image(uiImage: store.image)
+                .resizable()
+                .frame(width: 124, height: 108)
             
-            if let title = store.title {
-                info(title: title)
-                    .pokitBlurReplaceTransition(.smooth)
-            }
+            info(title: store.title)
+            
+            Spacer()
         }
         .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
         .background {
@@ -67,7 +60,7 @@ private extension PreviewLinkView {
                 .multilineTextAlignment(.leading)
                 .lineLimit(2)
             
-            Text(store.urlText)
+            Text(store.url)
                 .pokitFont(.detail2)
                 .foregroundStyle(.pokit(.text(.tertiary)))
                 .multilineTextAlignment(.leading)
@@ -79,12 +72,12 @@ private extension PreviewLinkView {
 }
 //MARK: - Preview
 #Preview {
-    PreviewLinkView(
-        store: Store(
-            initialState: .init(url: "https://www.youtube.com/watch?v=xSTwqKUyM8k"),
-            reducer: { PreviewLinkFeature()._printChanges() }
-        )
-    )
+//    PreviewLinkView(
+//        store: Store(
+//            initialState: .init(title: "네이버", image: UIImage),
+//            reducer: { PreviewLinkFeature()._printChanges() }
+//        )
+//    )
 }
 
 
