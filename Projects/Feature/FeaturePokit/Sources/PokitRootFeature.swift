@@ -8,6 +8,8 @@ import ComposableArchitecture
 import DSKit
 import Util
 
+/// `unclassified`: 미분류 키워드
+
 @Reducer
 public struct PokitRootFeature {
     /// - Dependency
@@ -17,13 +19,22 @@ public struct PokitRootFeature {
     public struct State: Equatable {
         var folderType: PokitRootFilterType = .folder(.포킷)
         var sortType: PokitRootFilterType = .sort(.최신순)
+        
         var mock: IdentifiedArrayOf<PokitRootCardMock> = []
+        var unclassifiedMock: IdentifiedArrayOf<LinkMock> = []
+        
         var selectedKebobItem: PokitRootCardMock?
+        var selectedUnclassifiedItem: LinkMock?
+        
         var isKebobSheetPresented: Bool = false
         var isPokitDeleteSheetPresented: Bool = false
         
-        public init(mock: [PokitRootCardMock]) {
+        public init(
+            mock: [PokitRootCardMock],
+            unclassifiedMock: [LinkMock]
+        ) {
             mock.forEach { self.mock.append($0) }
+            unclassifiedMock.forEach { self.unclassifiedMock.append($0) }
         }
     }
     
@@ -48,6 +59,7 @@ public struct PokitRootFeature {
             case sortButtonTapped
             /// - Kebob
             case kebobButtonTapped(PokitRootCardMock)
+            case unclassifiedKebobButtonTapped(LinkMock)
 
         }
         
@@ -120,19 +132,35 @@ private extension PokitRootFeature {
             /// 최신순 / 이름순 버튼 눌렀을 때
         case .sortButtonTapped:
             state.sortType = .sort(state.sortType == .sort(.이름순) ? .최신순 : .이름순)
+            
             switch state.sortType {
             case .sort(.이름순):
-                state.mock.sort { $0.categoryType < $1.categoryType }
+                /// `포킷`의 이름순 정렬일 때
+                state.folderType == .folder(.포킷)
+                ? state.mock.sort { $0.categoryType < $1.categoryType }
+                : state.unclassifiedMock.sort { $0.title < $1.title }
+                
             case .sort(.최신순):
-                state.mock.sort { $0.createAt < $1.createAt }
+                /// `포킷`의 최신순 정렬일 때
+                state.folderType == .folder(.포킷)
+                ? state.mock.sort { $0.createAt < $1.createAt }
+                : state.unclassifiedMock.sort { $0.createAt < $1.createAt }
             default: return .none
             }
             
             return .none
+        /// - 케밥버튼 눌렀을 때
+            /// 분류된 아이템의 케밥버튼
         case .kebobButtonTapped(let selectedItem):
             state.selectedKebobItem = selectedItem
             state.isKebobSheetPresented.toggle()
             return .none
+            /// 미분류 아이템의 케밥버튼
+        case .unclassifiedKebobButtonTapped(let selectedItem):
+            state.selectedUnclassifiedItem = selectedItem
+            state.isKebobSheetPresented.toggle()
+            return .none
+            
         }
     }
     
@@ -152,13 +180,41 @@ private extension PokitRootFeature {
         /// - Kebob BottomSheet Delegate
         case .bottomSheet(.shareCellButtonTapped):
             /// Todo: 공유하기
-            guard let selectedItem = state.selectedKebobItem else { return .none }
-            return .none
+            switch state.folderType {
+            case .folder(.미분류):
+                guard let selectedItem = state.selectedUnclassifiedItem else {
+                    /// 🚨 Error Case [1]: 항목을 공유하려는데 항목이 없을 때
+                    return .none
+                }
+                return .none
+            case .folder(.포킷):
+                guard let selectedItem = state.selectedKebobItem else {
+                    /// 🚨 Error Case [1]: 항목을 공유하려는데 항목이 없을 때
+                    return .none
+                }
+                return .none
+                
+            default: return .none
+            }
             
         case .bottomSheet(.editCellButtonTapped):
             /// Todo: 수정하기
-            guard let selectedItem = state.selectedKebobItem else { return .none }
-            return .none
+            switch state.folderType {
+            case .folder(.미분류):
+                guard let selectedItem = state.selectedUnclassifiedItem else {
+                    /// 🚨 Error Case [1]: 항목을 수정하려는데 항목이 없을 때
+                    return .none
+                }
+                return .none
+                
+            case .folder(.포킷):
+                guard let selectedItem = state.selectedKebobItem else {
+                    /// 🚨 Error Case [1]: 항목을 수정하려는데 항목이 없을 때
+                    return .none
+                }
+                return .none
+            default: return .none
+            }
             
         case .bottomSheet(.deleteCellButtonTapped):
             state.isKebobSheetPresented = false
@@ -169,12 +225,29 @@ private extension PokitRootFeature {
         case .deleteBottomSheet(.cancelButtonTapped):
             state.isPokitDeleteSheetPresented = false
             return .none
+            
         case .deleteBottomSheet(.deleteButtonTapped):
             /// Todo: 삭제하기
-            guard let selectedItem = state.selectedKebobItem else { return .none }
-            state.mock.remove(id: selectedItem.id)
-            state.isPokitDeleteSheetPresented = false
-            return .none
+            switch state.folderType {
+            case .folder(.미분류):
+                guard let selectedItem = state.selectedUnclassifiedItem else {
+                    /// 🚨 Error Case [1]: 항목을 삭제하려는데 항목이 없을 때
+                    return .none
+                }
+                state.unclassifiedMock.remove(id: selectedItem.id)
+                state.isPokitDeleteSheetPresented = false
+                return .none
+                
+            case .folder(.포킷):
+                guard let selectedItem = state.selectedKebobItem else {
+                    /// 🚨 Error Case [1]: 항목을 삭제하려는데 항목이 없을 때
+                    return .none
+                }
+                state.mock.remove(id: selectedItem.id)
+                state.isPokitDeleteSheetPresented = false
+                return .none
+            default: return .none
+            }
         default: return .none
         }
     }

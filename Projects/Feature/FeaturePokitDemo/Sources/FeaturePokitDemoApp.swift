@@ -17,7 +17,10 @@ struct FeaturePokitDemoApp: App {
             // TODO: 루트 뷰 추가
             PokitRootView(
                 store: Store(
-                    initialState: .init(mock: PokitRootCardMock.mock),
+                    initialState: .init(
+                        mock: PokitRootCardMock.mock,
+                        unclassifiedMock: LinkMock.recommendedMock
+                    ),
                     reducer: { PokitRootFeature() }
                 )
             )
