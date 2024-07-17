@@ -124,19 +124,44 @@ private extension PokitRootView {
     
     var cardScrollView: some View {
         ScrollView {
-            LazyVGrid(columns: column, spacing: 12) {
-                ForEach(store.mock, id: \.id) { item in
-                    PokitCard(
-                        category: item,
-                        action: {},
-                        kebabAction: { send(.kebobButtonTapped(item)) }
-                    )
-                }
+            if store.folderType == .folder(.포킷) {
+                pokitView
+            } else {
+                unclassifiedView
             }
         }
         .padding(.top, 20)
         .scrollIndicators(.hidden)
-        .animation(.interactiveSpring(duration: 0.27), value: store.mock)
+        .animation(.smooth, value: store.mock)
+        .animation(.smooth, value: store.unclassifiedMock)
+        .animation(.spring, value: store.folderType)
+    }
+    
+    var pokitView: some View {
+        LazyVGrid(columns: column, spacing: 12) {
+            ForEach(store.mock, id: \.id) { item in
+                PokitCard(
+                    category: item,
+                    action: {},
+                    kebabAction: { send(.kebobButtonTapped(item)) }
+                )
+            }
+        }
+    }
+    var unclassifiedView: some View {
+        VStack(spacing: 0) {
+            ForEach(store.unclassifiedMock) { link in
+                let isFirst = link == store.unclassifiedMock.first
+                let isLast = link == store.unclassifiedMock.last
+                
+                PokitLinkCard(
+                    link: link,
+                    action: {}, 
+                    kebabAction: { send(.unclassifiedKebobButtonTapped(link)) }
+                )
+                .divider(isFirst: isFirst, isLast: isLast)
+            }
+        }
     }
 }
 
@@ -145,7 +170,10 @@ private extension PokitRootView {
     Group {
         PokitRootView(
             store: Store(
-                initialState: .init(mock: PokitRootCardMock.mock),
+                initialState: .init(
+                    mock: PokitRootCardMock.mock, 
+                    unclassifiedMock: LinkMock.recommendedMock
+                ),
                 reducer: { PokitRootFeature() }
             )
         )
