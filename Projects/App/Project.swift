@@ -34,6 +34,7 @@ let project = Project(
                 .project(target: "FeatureMyPage", path: .relativeToRoot("Projects/Feature")),
                 .project(target: "FeatureLogin", path: .relativeToRoot("Projects/Feature")),
                 .project(target: "FeaturePokit", path: .relativeToRoot("Projects/Feature")),
+                .project(target: "FeatureCategoryDetail", path: .relativeToRoot("Projects/Feature")),
                 .project(target: "Data", path: .relativeToRoot("Projects/Data"))
             ],
             settings: .settings
