@@ -45,7 +45,9 @@ public extension PokitRootView {
                 }
                 .sheet(isPresented: $store.isPokitDeleteSheetPresented) {
                     PokitDeleteBottomSheet(
-                        type: .포킷삭제,
+                        type: store.folderType == .folder(.포킷) 
+                        ? .포킷삭제
+                        : .링크삭제,
                         delegateSend: { store.send(.scope(.deleteBottomSheet($0))) }
                     )
                 }
