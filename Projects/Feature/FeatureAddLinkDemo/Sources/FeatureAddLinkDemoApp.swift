@@ -7,11 +7,20 @@
 
 import SwiftUI
 
+import FeatureAddLink
+
 @main
 struct FeatureAddLinkDemoApp: App {
     var body: some Scene {
         WindowGroup {
-            // TODO: 루트 뷰 추가
+            NavigationStack {
+                AddLinkView(
+                    store: .init(
+                        initialState: .init(),
+                        reducer: { AddLinkFeature()._printChanges() }
+                    )
+                )
+            }
         }
     }
 }
