@@ -54,6 +54,7 @@ public struct AddLinkFeature {
             case pokitSelectButtonTapped
             case pokitSelectItemButtonTapped(pokit: PokitMock)
             case addLinkViewOnAppeared
+            case saveBottomButtonTapped
         }
         
         public enum InnerAction: Equatable {
@@ -132,6 +133,16 @@ private extension AddLinkFeature {
             } else {
                 state.previewLink = nil
             }
+            return .none
+        case .saveBottomButtonTapped:
+            state.link = .init(
+                title: state.title,
+                urlText: state.urlText,
+                createAt: .now,
+                memo: state.memo,
+                isRemind: state.isRemind,
+                pokit: state.selectedPokit
+            )
             return .none
         }
     }
