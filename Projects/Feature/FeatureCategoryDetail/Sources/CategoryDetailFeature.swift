@@ -16,6 +16,11 @@ public struct CategoryDetailFeature {
     @ObservableState
     public struct State: Equatable {
         var mock: IdentifiedArrayOf<DetailItemMock> = []
+        /// sheet Presented
+        var isCategorySheetPresented: Bool = false
+        var isCategorySelectSheetPresented: Bool = false
+        var isPokitDeleteSheetPresented: Bool = false
+        var isFilterSheetPresented: Bool = false
         
         public init(mock: [DetailItemMock]) {
             mock.forEach { self.mock.append($0) }
@@ -31,13 +36,26 @@ public struct CategoryDetailFeature {
         case delegate(DelegateAction)
         
         @CasePathable
-        public enum View: Equatable { case doNothing }
+        public enum View: BindableAction, Equatable {
+            /// - Binding
+            case binding(BindingAction<State>)
+            /// - Button Tapped
+            case categoryKebobButtonTapped
+            case categorySelectButtonTapped
+            case filterButtonTapped
+        }
         
-        public enum InnerAction: Equatable { case doNothing }
+        public enum InnerAction: Equatable {
+            case pokitCategorySheetPresented(Bool)
+            case pokitDeleteSheetPresented(Bool)
+        }
         
         public enum AsyncAction: Equatable { case doNothing }
         
-        public enum ScopeAction: Equatable { case doNothing }
+        public enum ScopeAction: Equatable {
+            case categoryBottomSheet(PokitBottomSheet.Delegate)
+            case categoryDeleteBottomSheet(PokitDeleteBottomSheet.Delegate)
+        }
         
         public enum DelegateAction: Equatable { case doNothing }
     }
@@ -72,6 +90,7 @@ public struct CategoryDetailFeature {
     
     /// - Reducer body
     public var body: some ReducerOf<Self> {
+        BindingReducer(action: \.view)
         Reduce(self.core)
     }
 }
@@ -79,12 +98,32 @@ public struct CategoryDetailFeature {
 private extension CategoryDetailFeature {
     /// - View Effect
     func handleViewAction(_ action: Action.View, state: inout State) -> Effect<Action> {
-        return .none
+        switch action {
+        case .binding:
+            return .none
+            
+        case .categoryKebobButtonTapped:
+            return .run { send in await send(.inner(.pokitCategorySheetPresented(true))) }
+        
+        case .categorySelectButtonTapped:
+            return .none
+            
+        case .filterButtonTapped:
+            return .none
+        }
     }
     
     /// - Inner Effect
     func handleInnerAction(_ action: Action.InnerAction, state: inout State) -> Effect<Action> {
-        return .none
+        switch action {
+        case let .pokitCategorySheetPresented(presented):
+            state.isCategorySheetPresented = presented
+            return .none
+        
+        case let .pokitDeleteSheetPresented(presented):
+            state.isPokitDeleteSheetPresented = presented
+            return .none
+        }
     }
     
     /// - Async Effect
@@ -94,7 +133,34 @@ private extension CategoryDetailFeature {
     
     /// - Scope Effect
     func handleScopeAction(_ action: Action.ScopeAction, state: inout State) -> Effect<Action> {
-        return .none
+        switch action {
+        /// - 카테고리에 대한 `공유` / `수정` / `삭제` Delegate
+        case .categoryBottomSheet(let delegateAction):
+            switch delegateAction {
+            case .shareCellButtonTapped:
+                return .none
+                
+            case .editCellButtonTapped:
+                return .none
+                
+            case .deleteCellButtonTapped:
+                return .run { send in
+                    await send(.inner(.pokitCategorySheetPresented(false)))
+                    await send(.inner(.pokitDeleteSheetPresented(true)))
+                }
+                
+            default: return .none
+            }
+        /// - 카테고리의 `삭제`를 눌렀을 때 Sheet Delegate
+        case .categoryDeleteBottomSheet(let delegateAction):
+            switch delegateAction {
+            case .cancelButtonTapped:
+                return .run { send in await send(.inner(.pokitDeleteSheetPresented(false))) }
+                
+            case .deleteButtonTapped:
+                return .none
+            }
+        }
     }
     
     /// - Delegate Effect
