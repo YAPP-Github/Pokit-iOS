@@ -15,7 +15,7 @@ public struct PokitMock: PokitSelectItem, Identifiable {
     
     public var id: UUID = .init()
     
-    init(
+    public init(
         categoryType: String,
         contentSize: Int
     ) {

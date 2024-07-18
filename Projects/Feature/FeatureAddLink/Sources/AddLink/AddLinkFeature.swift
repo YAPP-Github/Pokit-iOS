@@ -18,20 +18,25 @@ public struct AddLinkFeature {
     /// - State
     @ObservableState
     public struct State: Equatable {
-        public init() {
+        public init(link: AddLinkMock? = nil) {
             let pokitList = PokitMock.addLinkMock
             self.pokitList = pokitList
-            self.selectedPokit = pokitList.first ?? .init(categoryType: "미분류", contentSize: 15)
+            self.selectedPokit = link?.pokit ?? pokitList.first!
+            self.link = link
+            self.urlText = link?.urlText ?? ""
+            self.title = link?.title ?? ""
+            self.memo = link?.memo ?? ""
+            self.isRemind = link?.isRemind ?? false
         }
         
-        var urlText = ""
-        var title = ""
-        var memo = ""
+        var urlText: String
+        var title: String
+        var memo: String
+        var isRemind: Bool
         var pokitList: [PokitMock]
         var selectedPokit: PokitMock
-        var isRemind = false
-        var showPreviewLink = false
         var previewLink: PreviewLinkFeature.State?
+        var link: AddLinkMock?
     }
     
     /// - Action
@@ -48,7 +53,7 @@ public struct AddLinkFeature {
             case binding(BindingAction<State>)
             case pokitSelectButtonTapped
             case pokitSelectItemButtonTapped(pokit: PokitMock)
-            case linkTextFieldOnSubmitted
+            case addLinkViewOnAppeared
         }
         
         public enum InnerAction: Equatable {
@@ -121,9 +126,9 @@ private extension AddLinkFeature {
         case .pokitSelectItemButtonTapped(pokit: let pokit):
             state.selectedPokit = pokit
             return .none
-        case .linkTextFieldOnSubmitted:
+        case .addLinkViewOnAppeared:
             if let url = URL(string: state.urlText) {
-                return .send(.inner(.fetchMetadata(url: url)))
+                return .send(.inner(.fetchMetadata(url: url)), animation: .smooth)
             } else {
                 state.previewLink = nil
             }
