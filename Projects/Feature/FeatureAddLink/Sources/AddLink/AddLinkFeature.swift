@@ -140,25 +140,11 @@ private extension AddLinkFeature {
                 let metadata = try? await provider.startFetchingMetadata(for: url)
                 let title = metadata?.title
                 var image: UIImage?
-                let item = try? await metadata?.imageProvider?.loadItem(forTypeIdentifier: String(describing: UTType.image))
-                if item is UIImage {
-                    image = item as? UIImage
-                }
+                let item = try? await metadata?.imageProvider?.loadItem(
+                    forTypeIdentifier: String(describing: UTType.image)
+                )
                 
-                if item is URL {
-                    guard let url = item as? URL,
-                          let data = try? Data(contentsOf: url)
-                    else { return }
-                    
-                    image = UIImage(data: data)
-                }
-                
-                if item is Data {
-                    guard let data = item as? Data
-                    else { return }
-                    
-                    image = UIImage(data: data)
-                }
+                convertImage(item, image: &image)
                 
                 await send(
                     .inner(.parsingInfo(
@@ -200,5 +186,29 @@ private extension AddLinkFeature {
     /// - Delegate Effect
     func handleDelegateAction(_ action: Action.DelegateAction, state: inout State) -> Effect<Action> {
         return .none
+    }
+    
+    
+    private func convertImage(_ item: (any NSSecureCoding)?, image: inout UIImage?) {
+        if item is UIImage {
+            image = item as? UIImage
+        }
+        
+        if item is URL {
+            guard let url = item as? URL,
+                  let data = try? Data(contentsOf: url)
+            else { return }
+            
+            image = UIImage(data: data)
+        }
+        
+        if item is Data {
+            guard let data = item as? Data
+            else { return }
+            
+            image = UIImage(data: data)
+        }
+        
+        return
     }
 }
