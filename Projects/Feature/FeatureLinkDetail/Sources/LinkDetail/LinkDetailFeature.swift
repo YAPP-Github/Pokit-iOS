@@ -13,7 +13,10 @@ import Util
 @Reducer
 public struct LinkDetailFeature {
     /// - Dependency
-    @Dependency(\.linkPresentation) var linkPresentation
+    @Dependency(\.linkPresentation)
+    private var linkPresentation
+    @Dependency(\.dismiss)
+    private var dismiss
     /// - State
     @ObservableState
     public struct State: Equatable {
@@ -24,6 +27,7 @@ public struct LinkDetailFeature {
         let link: LinkDetailMock
         var linkTitle: String? = nil
         var linkImage: UIImage? = nil
+        var showAlert: Bool = false
     }
     
     /// - Action
@@ -35,21 +39,29 @@ public struct LinkDetailFeature {
         case delegate(DelegateAction)
         
         @CasePathable
-        public enum View: Equatable {
+        public enum View: Equatable, BindableAction {
             case linkDetailViewOnAppeared
+            case sharedButtonTapped
+            case editButtonTapped
+            case deleteButtonTapped
+            case deleteAlertConfirmTapped
+            case binding(BindingAction<State>)
         }
         
         public enum InnerAction: Equatable {
             case fetchMetadata(url: URL)
             case parsingInfo(title: String?, image: UIImage?)
             case parsingURL
+            case dismissAlert
         }
         
         public enum AsyncAction: Equatable { case doNothing }
         
         public enum ScopeAction: Equatable { case doNothing }
         
-        public enum DelegateAction: Equatable { case doNothing }
+        public enum DelegateAction: Equatable {
+            case pushLinkAddView(link: LinkDetailMock)
+        }
     }
     
     /// - Initiallizer
@@ -89,7 +101,28 @@ public struct LinkDetailFeature {
 private extension LinkDetailFeature {
     /// - View Effect
     func handleViewAction(_ action: Action.View, state: inout State) -> Effect<Action> {
-        return .none
+        switch action {
+        case .linkDetailViewOnAppeared:
+            return .send(.inner(.parsingURL))
+        case .sharedButtonTapped:
+            return .none
+        case .editButtonTapped:
+            return .run { [link = state.link] send in
+                await dismiss()
+                await send(.delegate(.pushLinkAddView(link: link)))
+            }
+        case .deleteButtonTapped:
+            state.showAlert = true
+            return .none
+        case .deleteAlertConfirmTapped:
+            return .run { send in
+                //TODO: 링크 삭제
+                await send(.inner(.dismissAlert))
+                await dismiss()
+            }
+        case .binding:
+            return .none
+        }
     }
     
     /// - Inner Effect
@@ -115,6 +148,9 @@ private extension LinkDetailFeature {
                 return .none
             }
             return .send(.inner(.fetchMetadata(url: url)), animation: .smooth)
+        case .dismissAlert:
+            state.showAlert = false
+            return .none
         }
     }
     
