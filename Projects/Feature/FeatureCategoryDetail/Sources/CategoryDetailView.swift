@@ -31,15 +31,7 @@ public extension CategoryDetailView {
             .padding(.top, 12)
             .padding(.horizontal, 20)
             .navigationBarBackButtonHidden()
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    PokitToolbarButton(.icon(.arrowLeft), action: {})
-                }
-                
-                ToolbarItem(placement: .topBarTrailing) {
-                    PokitToolbarButton(.icon(.kebab), action: { send(.categoryKebobButtonTapped) })
-                }
-            }
+            .toolbar { self.navigationBar }
             .sheet(isPresented: $store.isCategorySheetPresented) {
                 PokitBottomSheet(
                     items: [.share, .edit, .delete],
@@ -49,8 +41,13 @@ public extension CategoryDetailView {
             }
             .sheet(isPresented: $store.isPokitDeleteSheetPresented) {
                 PokitDeleteBottomSheet(
-                    type: .포킷삭제,
+                    type: store.kebobSelectedType ?? .포킷삭제,
                     delegateSend: { store.send(.scope(.categoryDeleteBottomSheet($0))) }
+                )
+            }
+            .sheet(isPresented: $store.isFilterSheetPresented) {
+                CategoryFilterSheet(
+                    delegateSend: { store.send(.scope(.filterBottomSheet($0))) }
                 )
             }
         }
@@ -58,6 +55,17 @@ public extension CategoryDetailView {
 }
 //MARK: - Configure View
 private extension CategoryDetailView {
+    @ToolbarContentBuilder
+    var navigationBar: some ToolbarContent {
+        ToolbarItem(placement: .topBarLeading) {
+            PokitToolbarButton(.icon(.arrowLeft), action: {})
+        }
+        
+        ToolbarItem(placement: .topBarTrailing) {
+            PokitToolbarButton(.icon(.kebab), action: { send(.categoryKebobButtonTapped(.포킷삭제, selectedItem: nil)) })
+        }
+    }
+    
     var header: some View {
         VStack(spacing: 4) {
             HStack(spacing: 8) {
@@ -82,21 +90,27 @@ private extension CategoryDetailView {
                     state: .filled(.primary),
                     size: .small,
                     shape: .round,
-                    action: {}
+                    action: { send(.filterButtonTapped) }
                 )
             }
         }
     }
+    
     var linkScrollView: some View {
         ScrollView(showsIndicators: false) {
             ForEach(store.mock) { link in
                 let isFirst = link == store.mock.first
                 let isLast = link == store.mock.last
                 
-                PokitLinkCard(link: link, action: {}, kebabAction: {})
-                    .divider(isFirst: isFirst, isLast: isLast)
+                PokitLinkCard(
+                    link: link,
+                    action: {}, 
+                    kebabAction: { send(.categoryKebobButtonTapped(.링크삭제, selectedItem: link)) }
+                )
+                .divider(isFirst: isFirst, isLast: isLast)
             }
         }
+        .animation(.spring, value: store.mock)
     }
 }
 //MARK: - Preview

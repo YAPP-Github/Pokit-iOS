@@ -16,6 +16,8 @@ public struct CategoryDetailFeature {
     @ObservableState
     public struct State: Equatable {
         var mock: IdentifiedArrayOf<DetailItemMock> = []
+        var kebobSelectedType: PokitDeleteBottomSheet.SheetType?
+        var selectedLinkItem: DetailItemMock?
         /// sheet Presented
         var isCategorySheetPresented: Bool = false
         var isCategorySelectSheetPresented: Bool = false
@@ -40,7 +42,7 @@ public struct CategoryDetailFeature {
             /// - Binding
             case binding(BindingAction<State>)
             /// - Button Tapped
-            case categoryKebobButtonTapped
+            case categoryKebobButtonTapped(PokitDeleteBottomSheet.SheetType, selectedItem: DetailItemMock?)
             case categorySelectButtonTapped
             case filterButtonTapped
         }
@@ -55,6 +57,7 @@ public struct CategoryDetailFeature {
         public enum ScopeAction: Equatable {
             case categoryBottomSheet(PokitBottomSheet.Delegate)
             case categoryDeleteBottomSheet(PokitDeleteBottomSheet.Delegate)
+            case filterBottomSheet(CategoryFilterSheet.Delegate)
         }
         
         public enum DelegateAction: Equatable { case doNothing }
@@ -102,13 +105,16 @@ private extension CategoryDetailFeature {
         case .binding:
             return .none
             
-        case .categoryKebobButtonTapped:
+        case let .categoryKebobButtonTapped(selectedType, selectedItem):
+            state.kebobSelectedType = selectedType
+            state.selectedLinkItem = selectedItem
             return .run { send in await send(.inner(.pokitCategorySheetPresented(true))) }
         
         case .categorySelectButtonTapped:
             return .none
             
         case .filterButtonTapped:
+            state.isFilterSheetPresented.toggle()
             return .none
         }
     }
@@ -158,6 +164,38 @@ private extension CategoryDetailFeature {
                 return .run { send in await send(.inner(.pokitDeleteSheetPresented(false))) }
                 
             case .deleteButtonTapped:
+                guard let selectedType = state.kebobSelectedType else {
+                    /// 🚨 Error Case [1]: 해당 타입의 항목을 삭제하려는데 선택한 `타입`이 없을 때
+                    state.isPokitDeleteSheetPresented = false
+                    return .none
+                }
+                switch selectedType {
+                case .링크삭제:
+                    guard let selectedItem = state.selectedLinkItem else {
+                    /// 🚨 Error Case [1]: 링크 타입의 항목을 삭제하려는데 선택한 `링크항목`이 없을 때
+                        state.isPokitDeleteSheetPresented = false
+                        return .none
+                    }
+                    state.mock.remove(id: selectedItem.id)
+                    state.isPokitDeleteSheetPresented = false
+                    state.kebobSelectedType = nil
+                    return .none
+                    
+                case .포킷삭제:
+                    state.isPokitDeleteSheetPresented = false
+                    state.kebobSelectedType = nil
+                    return .none
+                }
+            }
+        /// - 필터 버튼을 눌렀을 때
+        case .filterBottomSheet(let delegateAction):
+            switch delegateAction {
+            case .dismissButtonTapped:
+                state.isFilterSheetPresented.toggle()
+                return .none
+                
+            case let .okButtonTapped(type, bookMarkSelected, unReadSelected):
+                state.isFilterSheetPresented.toggle()
                 return .none
             }
         }
