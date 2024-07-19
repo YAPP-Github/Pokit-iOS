@@ -35,7 +35,7 @@ public extension AddLinkView {
                     
                     HStack(alignment: .bottom, spacing: 8) {
                         pokitSelectButton
-                        
+                         
                         addPokitButton
                     }
                     
@@ -54,11 +54,19 @@ public extension AddLinkView {
                 PokitBottomButton(
                     "저장하기",
                     state: isDisable ? .disable : .filled(.primary),
-                    action: {}
+                    action: { }
                 )
             }
             .pokitNavigationBar(title: store.link == nil ? "링크 추가" : "링크 수정")
             .onAppear { send(.addLinkViewOnAppeared) }
+            .sheet(
+                item: $store.scope(
+                    state: \.addPokitSheet,
+                    action: \.addPokitSheet
+                )
+            ) { addPokitSheetFeature in
+                AddPokitSheetView(store: addPokitSheetFeature)
+            }
         }
     }
 }
@@ -94,7 +102,9 @@ private extension AddLinkView {
         PokitSelect(
             selectedItem: store.selectedPokit,
             label: "포킷",
-            list: store.pokitList) { send(.pokitSelectItemButtonTapped(pokit: $0)) }
+            list: store.pokitList,
+            action: { send(.pokitSelectItemButtonTapped(pokit: $0)) }
+        )
     }
     
     var addPokitButton: some View {
@@ -102,7 +112,7 @@ private extension AddLinkView {
             .icon(.plusR),
             state: .filled(.primary),
             size: .large,
-            shape: .rectangle) { }
+            shape: .rectangle) { send(.addPokitButtonTapped) }
     }
     
     var memoTextArea: some View {

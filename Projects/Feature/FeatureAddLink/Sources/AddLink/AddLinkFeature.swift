@@ -37,6 +37,7 @@ public struct AddLinkFeature {
         var selectedPokit: PokitMock
         var previewLink: PreviewLinkFeature.State?
         var link: AddLinkMock?
+        @Presents var addPokitSheet: AddPokitSheetFeature.State?
     }
     
     /// - Action
@@ -47,6 +48,7 @@ public struct AddLinkFeature {
         case scope(ScopeAction)
         case delegate(DelegateAction)
         case previewLink(PreviewLinkFeature.Action)
+        case addPokitSheet(PresentationAction<AddPokitSheetFeature.Action>)
         
         @CasePathable
         public enum View: Equatable, BindableAction {
@@ -55,6 +57,7 @@ public struct AddLinkFeature {
             case pokitSelectItemButtonTapped(pokit: PokitMock)
             case addLinkViewOnAppeared
             case saveBottomButtonTapped
+            case addPokitButtonTapped
         }
         
         public enum InnerAction: Equatable {
@@ -64,7 +67,9 @@ public struct AddLinkFeature {
         
         public enum AsyncAction: Equatable { case doNothing }
         
-        public enum ScopeAction: Equatable { case doNothing }
+        public enum ScopeAction: Equatable {
+            case addPokitSheet(AddPokitSheetFeature.Action.DelegateAction)
+        }
         
         public enum DelegateAction: Equatable { case doNothing }
     }
@@ -96,6 +101,10 @@ public struct AddLinkFeature {
             return handleDelegateAction(delegateAction, state: &state)
         case .previewLink:
             return .none
+        case .addPokitSheet(.presented(.delegate(let delegate))):
+            return .send(.scope(.addPokitSheet(delegate)))
+        case .addPokitSheet:
+            return .none
         }
     }
     
@@ -105,6 +114,9 @@ public struct AddLinkFeature {
         Reduce(self.core)
             .ifLet(\.previewLink, action: \.previewLink) {
                 PreviewLinkFeature()
+            }
+            .ifLet(\.$addPokitSheet, action: \.addPokitSheet) {
+                AddPokitSheetFeature()
             }
     }
 }
@@ -143,6 +155,9 @@ private extension AddLinkFeature {
                 isRemind: state.isRemind,
                 pokit: state.selectedPokit
             )
+            return .none
+        case .addPokitButtonTapped:
+            state.addPokitSheet = AddPokitSheetFeature.State()
             return .none
         }
     }
@@ -196,7 +211,11 @@ private extension AddLinkFeature {
     
     /// - Scope Effect
     func handleScopeAction(_ action: Action.ScopeAction, state: inout State) -> Effect<Action> {
-        return .none
+        switch action {
+        case .addPokitSheet(.addPokit(pokit: let pokit)):
+            state.pokitList.append(pokit)
+            return .none
+        }
     }
     
     /// - Delegate Effect
