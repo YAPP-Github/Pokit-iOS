@@ -63,7 +63,10 @@ public struct PokitRootFeature {
 
         }
         
-        public enum InnerAction: Equatable { case doNothing }
+        public enum InnerAction: Equatable {
+            case pokitCategorySheetPresented(Bool)
+            case pokitDeleteSheetPresented(Bool)
+        }
         
         public enum AsyncAction: Equatable { case doNothing }
         
@@ -153,12 +156,11 @@ private extension PokitRootFeature {
             /// 분류된 아이템의 케밥버튼
         case .kebobButtonTapped(let selectedItem):
             state.selectedKebobItem = selectedItem
-            state.isKebobSheetPresented.toggle()
-            return .none
+            return .run { send in await send(.inner(.pokitCategorySheetPresented(true))) }
             /// 미분류 아이템의 케밥버튼
         case .unclassifiedKebobButtonTapped(let selectedItem):
             state.selectedUnclassifiedItem = selectedItem
-            state.isKebobSheetPresented.toggle()
+            return .run { send in await send(.inner(.pokitCategorySheetPresented(true))) }
             return .none
             
         }
@@ -166,7 +168,14 @@ private extension PokitRootFeature {
     
     /// - Inner Effect
     func handleInnerAction(_ action: Action.InnerAction, state: inout State) -> Effect<Action> {
-        return .none
+        switch action {
+        case let .pokitCategorySheetPresented(presented):
+            state.isKebobSheetPresented = presented
+            return .none
+        case let .pokitDeleteSheetPresented(presented):
+            state.isPokitDeleteSheetPresented = presented
+            return .none
+        }
     }
     
     /// - Async Effect
@@ -217,9 +226,10 @@ private extension PokitRootFeature {
             }
             
         case .bottomSheet(.deleteCellButtonTapped):
-            state.isKebobSheetPresented = false
-            state.isPokitDeleteSheetPresented = true
-            return .none
+            return .run { send in
+                await send(.inner(.pokitCategorySheetPresented(false)))
+                await send(.inner(.pokitDeleteSheetPresented(true)))
+            }
             
         /// - Pokit Delete BottomSheet Delegate
         case .deleteBottomSheet(.cancelButtonTapped):
