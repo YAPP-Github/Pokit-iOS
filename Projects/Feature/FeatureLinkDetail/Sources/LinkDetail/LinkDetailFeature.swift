@@ -1,8 +1,8 @@
 //
-//  AddLinkFeature.swift
+//  LinkDetailFeature.swift
 //  Feature
 //
-//  Created by 김도형 on 7/17/24.
+//  Created by 김도형 on 7/19/24.
 
 import UIKit
 
@@ -11,33 +11,19 @@ import CoreLinkPresentation
 import Util
 
 @Reducer
-public struct AddLinkFeature {
+public struct LinkDetailFeature {
     /// - Dependency
-    @Dependency(\.linkPresentation) private var linkPresentation
+    @Dependency(\.linkPresentation) var linkPresentation
     /// - State
     @ObservableState
     public struct State: Equatable {
-        public init(link: AddLinkMock? = nil) {
-            let pokitList = PokitMock.addLinkMock
-            self.pokitList = pokitList
-            self.selectedPokit = link?.pokit ?? pokitList.first!
+        public init(link: LinkDetailMock) {
             self.link = link
-            self.urlText = link?.urlText ?? ""
-            self.title = link?.title ?? ""
-            self.memo = link?.memo ?? ""
-            self.isRemind = link?.isRemind ?? false
         }
         
-        var urlText: String
-        var title: String
-        var memo: String
-        var isRemind: Bool
-        var pokitList: [PokitMock]
-        var selectedPokit: PokitMock
-        var link: AddLinkMock?
+        let link: LinkDetailMock
         var linkTitle: String? = nil
         var linkImage: UIImage? = nil
-        @Presents var addPokitSheet: AddPokitSheetFeature.State?
     }
     
     /// - Action
@@ -47,16 +33,10 @@ public struct AddLinkFeature {
         case async(AsyncAction)
         case scope(ScopeAction)
         case delegate(DelegateAction)
-        case addPokitSheet(PresentationAction<AddPokitSheetFeature.Action>)
         
         @CasePathable
-        public enum View: Equatable, BindableAction {
-            case binding(BindingAction<State>)
-            case pokitSelectButtonTapped
-            case pokitSelectItemButtonTapped(pokit: PokitMock)
-            case addLinkViewOnAppeared
-            case saveBottomButtonTapped
-            case addPokitButtonTapped
+        public enum View: Equatable {
+            case linkDetailViewOnAppeared
         }
         
         public enum InnerAction: Equatable {
@@ -67,9 +47,7 @@ public struct AddLinkFeature {
         
         public enum AsyncAction: Equatable { case doNothing }
         
-        public enum ScopeAction: Equatable {
-            case addPokitSheet(AddPokitSheetFeature.Action.DelegateAction)
-        }
+        public enum ScopeAction: Equatable { case doNothing }
         
         public enum DelegateAction: Equatable { case doNothing }
     }
@@ -99,52 +77,19 @@ public struct AddLinkFeature {
             /// - Delegate
         case .delegate(let delegateAction):
             return handleDelegateAction(delegateAction, state: &state)
-        case .addPokitSheet(.presented(.delegate(let delegate))):
-            return .send(.scope(.addPokitSheet(delegate)))
-        case .addPokitSheet:
-            return .none
         }
     }
     
     /// - Reducer body
     public var body: some ReducerOf<Self> {
-        BindingReducer(action: \.view)
         Reduce(self.core)
-            .ifLet(\.$addPokitSheet, action: \.addPokitSheet) {
-                AddPokitSheetFeature()
-            }
     }
 }
 //MARK: - FeatureAction Effect
-private extension AddLinkFeature {
+private extension LinkDetailFeature {
     /// - View Effect
     func handleViewAction(_ action: Action.View, state: inout State) -> Effect<Action> {
-        switch action {
-        case .binding(\.urlText):
-            return .send(.inner(.parsingURL))
-        case .binding:
-            return .none
-        case .pokitSelectButtonTapped:
-            return .none
-        case .pokitSelectItemButtonTapped(pokit: let pokit):
-            state.selectedPokit = pokit
-            return .none
-        case .addLinkViewOnAppeared:
-            return .send(.inner(.parsingURL))
-        case .saveBottomButtonTapped:
-            state.link = .init(
-                title: state.title,
-                urlText: state.urlText,
-                createAt: .now,
-                memo: state.memo,
-                isRemind: state.isRemind,
-                pokit: state.selectedPokit
-            )
-            return .none
-        case .addPokitButtonTapped:
-            state.addPokitSheet = AddPokitSheetFeature.State()
-            return .none
-        }
+        return .none
     }
     
     /// - Inner Effect
@@ -164,7 +109,7 @@ private extension AddLinkFeature {
             state.linkImage = image
             return .none
         case .parsingURL:
-            guard let url = URL(string: state.urlText) else {
+            guard let url = URL(string: state.link.url) else {
                 state.linkTitle = nil
                 state.linkImage = nil
                 return .none
@@ -180,11 +125,7 @@ private extension AddLinkFeature {
     
     /// - Scope Effect
     func handleScopeAction(_ action: Action.ScopeAction, state: inout State) -> Effect<Action> {
-        switch action {
-        case .addPokitSheet(.addPokit(pokit: let pokit)):
-            state.pokitList.append(pokit)
-            return .none
-        }
+        return .none
     }
     
     /// - Delegate Effect
