@@ -10,6 +10,7 @@ import ProjectDescription
 public enum CoreKit: String, CaseIterable {
     case core = "Core"
     case coreNetwork = "CoreNetwork"
+    case coreLinkPresentation = "CoreLinkPresentation"
     
     private var dependencies: [TargetDependency] {
         switch self {
@@ -23,6 +24,11 @@ public enum CoreKit: String, CaseIterable {
                 .project(target: "Util", path: .relativeToRoot("Projects/Util")),
                 .project(target: "SharedThirdPartyLib", path: .relativeToRoot("Projects/SharedThirdPartyLib")),
                 .external(name: "Moya")
+            ]
+        case .coreLinkPresentation:
+            return [
+                .project(target: "Util", path: .relativeToRoot("Projects/Util")),
+                .project(target: "SharedThirdPartyLib", path: .relativeToRoot("Projects/SharedThirdPartyLib"))
             ]
         }
     }
