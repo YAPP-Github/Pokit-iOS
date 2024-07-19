@@ -15,12 +15,14 @@ struct FeatureCategoryDetailDemoApp: App {
     var body: some Scene {
         WindowGroup {
             // TODO: 루트 뷰 추가
-            CategoryDetailView(
-                store: Store(
-                    initialState: .init(mock: DetailItemMock.recommendedMock),
-                    reducer: { CategoryDetailFeature() }
+            NavigationStack {
+                CategoryDetailView(
+                    store: Store(
+                        initialState: .init(mock: DetailItemMock.recommendedMock),
+                        reducer: { CategoryDetailFeature() }
+                    )
                 )
-            )
+            }
         }
     }
 }
