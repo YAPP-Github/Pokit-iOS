@@ -35,8 +35,9 @@ public struct AddLinkFeature {
         var isRemind: Bool
         var pokitList: [PokitMock]
         var selectedPokit: PokitMock
-        var previewLink: PreviewLinkFeature.State?
         var link: AddLinkMock?
+        var linkTitle: String? = nil
+        var linkImage: UIImage? = nil
         @Presents var addPokitSheet: AddPokitSheetFeature.State?
     }
     
@@ -47,7 +48,6 @@ public struct AddLinkFeature {
         case async(AsyncAction)
         case scope(ScopeAction)
         case delegate(DelegateAction)
-        case previewLink(PreviewLinkFeature.Action)
         case addPokitSheet(PresentationAction<AddPokitSheetFeature.Action>)
         
         @CasePathable
@@ -63,6 +63,7 @@ public struct AddLinkFeature {
         public enum InnerAction: Equatable {
             case fetchMetadata(url: URL)
             case parsingInfo(title: String?, image: UIImage?, url: String)
+            case bindURL
         }
         
         public enum AsyncAction: Equatable { case doNothing }
@@ -99,8 +100,6 @@ public struct AddLinkFeature {
             /// - Delegate
         case .delegate(let delegateAction):
             return handleDelegateAction(delegateAction, state: &state)
-        case .previewLink:
-            return .none
         case .addPokitSheet(.presented(.delegate(let delegate))):
             return .send(.scope(.addPokitSheet(delegate)))
         case .addPokitSheet:
@@ -112,9 +111,6 @@ public struct AddLinkFeature {
     public var body: some ReducerOf<Self> {
         BindingReducer(action: \.view)
         Reduce(self.core)
-            .ifLet(\.previewLink, action: \.previewLink) {
-                PreviewLinkFeature()
-            }
             .ifLet(\.$addPokitSheet, action: \.addPokitSheet) {
                 AddPokitSheetFeature()
             }
@@ -125,14 +121,9 @@ private extension AddLinkFeature {
     /// - View Effect
     func handleViewAction(_ action: Action.View, state: inout State) -> Effect<Action> {
         switch action {
-        case .binding:
-            if let url = URL(string: state.urlText) {
-                return .send(.inner(.fetchMetadata(url: url)), animation: .smooth)
-            } else {
-                state.previewLink = nil
-            }
-            return .none
         case .binding(\.urlText):
+            return .send(.inner(.bindURL))
+        case .binding:
             return .none
         case .pokitSelectButtonTapped:
             return .none
@@ -140,12 +131,7 @@ private extension AddLinkFeature {
             state.selectedPokit = pokit
             return .none
         case .addLinkViewOnAppeared:
-            if let url = URL(string: state.urlText) {
-                return .send(.inner(.fetchMetadata(url: url)), animation: .smooth)
-            } else {
-                state.previewLink = nil
-            }
-            return .none
+            return .send(.inner(.bindURL))
         case .saveBottomButtonTapped:
             state.link = .init(
                 title: state.title,
@@ -192,13 +178,19 @@ private extension AddLinkFeature {
             url: let url
         ):
             if let title, let image {
-                state.previewLink = PreviewLinkFeature.State(
-                    title: title,
-                    image: image,
-                    url: url
-                )
+                state.linkTitle = title
+                state.linkImage = image
             } else {
-                state.previewLink = nil
+                state.linkTitle = nil
+                state.linkImage = nil
+            }
+            return .none
+        case .bindURL:
+            if let url = URL(string: state.urlText) {
+                return .send(.inner(.fetchMetadata(url: url)), animation: .smooth)
+            } else {
+                state.linkTitle = nil
+                state.linkImage = nil
             }
             return .none
         }

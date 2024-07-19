@@ -74,9 +74,14 @@ public extension AddLinkView {
 private extension AddLinkView {
     var linkTextField: some View {
         VStack(spacing: 16) {
-            if let store = store.scope(state: \.previewLink, action: \.previewLink) {
-                PreviewLinkView(store: store)
-                    .pokitBlurReplaceTransition(.smooth)
+            if let title = store.linkTitle,
+               let image = store.linkImage {
+                PokitLinkPreview(
+                    title: title,
+                    url: store.urlText,
+                    image: image
+                )
+                .pokitBlurReplaceTransition(.smooth)
             }
             
             PokitTextInput(

@@ -1,41 +1,34 @@
 //
-//  PreviewLinkView.swift
-//  Feature
+//  PokitLinkPreview.swift
+//  DSKit
 //
-//  Created by 김도형 on 7/17/24.
+//  Created by 김도형 on 7/19/24.
+//
 
-import ComposableArchitecture
 import SwiftUI
 
-import DSKit
-
-@ViewAction(for: PreviewLinkFeature.self)
-public struct PreviewLinkView: View {
-    /// - Properties
-    public var store: StoreOf<PreviewLinkFeature>
+public struct PokitLinkPreview: View {
+    private let title: String
+    private let url: String
+    private let image: UIImage
     
-    /// - Initializer
-    public init(store: StoreOf<PreviewLinkFeature>) {
-        self.store = store
+    public init(
+        title: String,
+        url: String,
+        image: UIImage
+    ) {
+        self.title = title
+        self.url = url
+        self.image = image
     }
-}
-//MARK: - View
-public extension PreviewLinkView {
-    var body: some View {
-        WithPerceptionTracking {
-            content
-        }
-    }
-}
-//MARK: - Configure View
-private extension PreviewLinkView {
-    var content: some View {
+    
+    public var body: some View {
         HStack(spacing: 16) {
-            Image(uiImage: store.image)
+            Image(uiImage: image)
                 .resizable()
                 .frame(width: 124, height: 108)
             
-            info(title: store.title)
+            info(title: title)
             
             Spacer()
         }
@@ -60,7 +53,7 @@ private extension PreviewLinkView {
                 .multilineTextAlignment(.leading)
                 .lineLimit(2)
             
-            Text(store.url)
+            Text(url)
                 .pokitFont(.detail2)
                 .foregroundStyle(.pokit(.text(.tertiary)))
                 .multilineTextAlignment(.leading)
@@ -70,14 +63,3 @@ private extension PreviewLinkView {
         .padding(.trailing, 20)
     }
 }
-//MARK: - Preview
-#Preview {
-//    PreviewLinkView(
-//        store: Store(
-//            initialState: .init(title: "네이버", image: UIImage),
-//            reducer: { PreviewLinkFeature()._printChanges() }
-//        )
-//    )
-}
-
-
