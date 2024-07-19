@@ -55,7 +55,10 @@ public struct RemindFeature {
                 link: LinkMock
             )
         }
-        public enum DelegateAction: Equatable { case doNothing }
+        public enum DelegateAction: Equatable {
+            case showLinkDetailView(link: LinkMock)
+            case pushAddLinkView(link: LinkMock)
+        }
     }
     /// initiallizer
     public init() {}
@@ -104,7 +107,7 @@ private extension RemindFeature {
             state.bottomSheetItem = link
             return .none
         case .linkCardTapped(let link):
-            return .none
+            return .send(.delegate(.pushAddLinkView(link: link)))
         case .bottomSheetButtonTapped(let delegate, let link):
             return .run { send in
                 await send(.inner(.dismissBottomSheet))
@@ -136,7 +139,7 @@ private extension RemindFeature {
                 state.alertItem = link
                 return .none
             case .editCellButtonTapped:
-                return .none
+                return .send(.delegate(.pushAddLinkView(link: link)))
             case .favoriteCellButtonTapped:
                 return .none
             case .shareCellButtonTapped:
