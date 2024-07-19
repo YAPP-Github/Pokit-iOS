@@ -62,7 +62,7 @@ public struct AddLinkFeature {
         
         public enum InnerAction: Equatable {
             case fetchMetadata(url: URL)
-            case parsingInfo(title: String?, image: UIImage?, url: String)
+            case parsingInfo(title: String?, image: UIImage?)
             case bindURL
         }
         
@@ -153,30 +153,16 @@ private extension AddLinkFeature {
         switch action {
         case .fetchMetadata(url: let url):
             return .run { send in
-                let provider = LPMetadataProvider()
-                let metadata = try? await provider.startFetchingMetadata(for: url)
+                let (metadata, item) = await provideMetadata(url)
                 let title = metadata?.title
-                var image: UIImage?
-                let item = try? await metadata?.imageProvider?.loadItem(
-                    forTypeIdentifier: String(describing: UTType.image)
-                )
-                
-                convertImage(item, image: &image)
+                let image = convertImage(item)
                 
                 await send(
-                    .inner(.parsingInfo(
-                        title: title,
-                        image: image,
-                        url: url.description
-                    )),
+                    .inner(.parsingInfo(title: title,image: image)),
                     animation: .smooth
                 )
             }
-        case .parsingInfo(
-            title: let title,
-            image: let image,
-            url: let url
-        ):
+        case .parsingInfo(title: let title, image: let image):
             if let title, let image {
                 state.linkTitle = title
                 state.linkImage = image
@@ -216,7 +202,9 @@ private extension AddLinkFeature {
     }
     
     
-    private func convertImage(_ item: (any NSSecureCoding)?, image: inout UIImage?) {
+    private func convertImage(_ item: (any NSSecureCoding)?) -> UIImage? {
+        var image: UIImage?
+        
         if item is UIImage {
             image = item as? UIImage
         }
@@ -224,18 +212,28 @@ private extension AddLinkFeature {
         if item is URL {
             guard let url = item as? URL,
                   let data = try? Data(contentsOf: url)
-            else { return }
+            else { return image }
             
             image = UIImage(data: data)
         }
         
         if item is Data {
             guard let data = item as? Data
-            else { return }
+            else { return image }
             
             image = UIImage(data: data)
         }
         
-        return
+        return image
+    }
+    
+    private func provideMetadata(_ url: URL) async -> (LPLinkMetadata?, (any NSSecureCoding)?) {
+        let provider = LPMetadataProvider()
+        let metadata = try? await provider.startFetchingMetadata(for: url)
+        let item = try? await metadata?.imageProvider?.loadItem(
+            forTypeIdentifier: String(describing: UTType.image)
+        )
+        
+        return (metadata, item)
     }
 }
