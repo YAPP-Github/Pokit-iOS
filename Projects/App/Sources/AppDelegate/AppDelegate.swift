@@ -8,7 +8,7 @@
 import SwiftUI
 
 import ComposableArchitecture
-import Firebase
+import FirebaseMessaging
 import GoogleSignIn
 
 final class AppDelegate: NSObject {

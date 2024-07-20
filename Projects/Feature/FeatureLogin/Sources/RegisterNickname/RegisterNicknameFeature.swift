@@ -5,7 +5,7 @@
 //  Created by 김도형 on 7/5/24.
 
 import ComposableArchitecture
-import CoreKit
+import Util
 
 @Reducer
 public struct RegisterNicknameFeature {

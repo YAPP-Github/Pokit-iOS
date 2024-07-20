@@ -49,6 +49,7 @@ public struct PokitCheckBox: View {
         .background(background)
         .frame(width: 24, height: 24)
         .onChange(of: isSelected) { onChangedIsSelected($0) }
+        .onAppear { onChangedIsSelected(isSelected) }
     }
     
     private var background: some View {

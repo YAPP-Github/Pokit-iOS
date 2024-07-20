@@ -70,7 +70,7 @@ extension PokitButtonStyle.State {
     
     var textColor: Color {
         switch self {
-        case .default: return .pokit(.text(.secondary))
+        case .default: return .pokit(.text(.tertiary))
         case .stroke(_): return .pokit(.text(.primary))
         case .filled(_): return .pokit(.text(.inverseWh))
         case .disable: return .pokit(.text(.disable))

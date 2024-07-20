@@ -8,7 +8,7 @@
 import Foundation
 
 import ComposableArchitecture
-import CoreKit
+import Data
 
 @Reducer
 public struct AppDelegateFeature {

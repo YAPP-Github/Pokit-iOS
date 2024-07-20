@@ -10,16 +10,16 @@ import SwiftUI
 public struct PokitBottomSheet: View {
     private let items: [Item]
     private let height: CGFloat
-    private let delegageSend: ((PokitBottomSheet.Delegate) -> Void)?
+    private let delegateSend: ((PokitBottomSheet.Delegate) -> Void)?
     
     public init(
         items: [Item],
         height: CGFloat,
-        delegageSend: ((PokitBottomSheet.Delegate) -> Void)?
+        delegateSend: ((PokitBottomSheet.Delegate) -> Void)?
     ) {
         self.items = items
         self.height = height
-        self.delegageSend = delegageSend
+        self.delegateSend = delegateSend
     }
     
     public var body: some View {
@@ -70,16 +70,16 @@ public struct PokitBottomSheet: View {
     private func listCellButtonTapped(_ item: PokitBottomSheet.Item) {
         switch item {
         case .favorite:
-            delegageSend?(.favoriteCellButtonTapped)
+            delegateSend?(.favoriteCellButtonTapped)
             return
         case .share:
-            delegageSend?(.shareCellButtonTapped)
+            delegateSend?(.shareCellButtonTapped)
             return
         case .edit:
-            delegageSend?(.editCellButtonTapped)
+            delegateSend?(.editCellButtonTapped)
             return
         case .delete:
-            delegageSend?(.deleteCellButtonTapped)
+            delegateSend?(.deleteCellButtonTapped)
             return
         }
     }

@@ -5,7 +5,7 @@
 //  Created by 김도형 on 7/7/24.
 
 import ComposableArchitecture
-import CoreKit
+import Util
 
 @Reducer
 public struct LoginRootFeature {
@@ -19,15 +19,16 @@ public struct LoginRootFeature {
         public init() {}
     }
     /// - Action
-    public enum Action: FeatureAction {
-        case view(ViewAction)
+    public enum Action: FeatureAction, ViewAction {
+        case view(View)
         case inner(InnerAction)
         case async(AsyncAction)
         case scope(ScopeAction)
         case delegate(DelegateAction)
         case path(StackActionOf<Path>)
         
-        public enum ViewAction: Equatable {
+        @CasePathable
+        public enum View: Equatable {
             case appleLoginButtonTapped
         }
         public enum InnerAction: Equatable {
@@ -79,7 +80,7 @@ public struct LoginRootFeature {
 //MARK: - FeatureAction Effect
 private extension LoginRootFeature {
     /// - View Effect
-    func handleViewAction(_ action: Action.ViewAction, state: inout State) -> Effect<Action> {
+    func handleViewAction(_ action: Action.View, state: inout State) -> Effect<Action> {
         switch action {
         case .appleLoginButtonTapped:
             return .send(.inner(.pushAgreeToTermsView))

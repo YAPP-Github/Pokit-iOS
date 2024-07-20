@@ -20,16 +20,20 @@ let coreKit: Target = .target(
     name: "CoreKit",
     destinations: .appDestinations,
     // TODO: 프로젝트에 맞는 product로 변경해야 함
-    product: TuistRelease.isRelease ? .staticFramework : .framework,
+    product: .staticFramework,
     bundleId: .moduleBundleId(name: "CoreKit"),
     deploymentTargets: .appMinimunTarget,
     infoPlist: .file(path: .relativeToRoot("Projects/App/Resources/Pokit-info.plist")),
     sources: ["Sources/**"],
-    dependencies: coreKitDependencies,
+    dependencies: coreKitDependencies + [
+        .external(name: "FirebaseMessaging"),
+        .external(name: "GoogleSignIn")
+    ],
     settings: .settings
 )
 
 let project = Project(
     name: "CoreKit",
+    settings: .settings,
     targets: [coreKit] + targets
 )
