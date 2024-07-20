@@ -121,7 +121,15 @@ private extension AddLinkFeature {
     func handleViewAction(_ action: Action.View, state: inout State) -> Effect<Action> {
         switch action {
         case .binding(\.urlText):
-            return .send(.inner(.parsingURL))
+            enum CancelID { case urlTextChanged }
+            return .run { send in
+                await send(.inner(.parsingURL))
+            }
+            .throttle(
+                id: CancelID.urlTextChanged,
+                for: 1, scheduler: DispatchQueue.main,
+                latest: true
+            )
         case .binding:
             return .none
         case .pokitSelectButtonTapped:
