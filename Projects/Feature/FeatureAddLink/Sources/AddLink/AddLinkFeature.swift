@@ -127,7 +127,8 @@ private extension AddLinkFeature {
             }
             .throttle(
                 id: CancelID.urlTextChanged,
-                for: 1, scheduler: DispatchQueue.main,
+                for: 1,
+                scheduler: DispatchQueue.main,
                 latest: true
             )
         case .binding:
