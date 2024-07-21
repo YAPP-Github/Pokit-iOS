@@ -49,7 +49,7 @@ public extension AddLinkView {
                 .padding(.vertical, 16)
             }
             .overlay(alignment: .bottom) {
-                let isDisable = store.state.urlText == "" || store.state.title == ""
+                let isDisable = store.state.urlText.isEmpty || store.state.title.isEmpty
                 
                 PokitBottomButton(
                     "저장하기",
