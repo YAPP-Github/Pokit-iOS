@@ -26,7 +26,7 @@ public struct LoginRootFeature {
         case scope(ScopeAction)
         case delegate(DelegateAction)
         case path(StackActionOf<Path>)
-
+        
         @CasePathable
         public enum View: Equatable {
             case appleLoginButtonTapped
