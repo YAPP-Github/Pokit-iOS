@@ -37,7 +37,7 @@ public extension AddPokitSheetView {
                 PokitBottomButton(
                     "추가하기",
                     state: store.pokit.categoryType == "" ? .disable : .filled(.primary),
-                    action: { send(.addBottomButtonTapped) }
+                    action: { send(.addButtonTapped) }
                 )
             }
             .pokitPresentationBackground()

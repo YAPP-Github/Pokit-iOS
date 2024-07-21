@@ -32,7 +32,7 @@ public struct AddPokitSheetFeature {
         @CasePathable
         public enum View: Equatable, BindableAction {
             case binding(BindingAction<State>)
-            case addBottomButtonTapped
+            case addButtonTapped
         }
         
         public enum InnerAction: Equatable { case doNothing }
@@ -87,7 +87,7 @@ private extension AddPokitSheetFeature {
         switch action {
         case .binding:
             return .none
-        case .addBottomButtonTapped:
+        case .addButtonTapped:
             return .send(.delegate(.addPokit(pokit: state.pokit)))
         }
     }
