@@ -20,7 +20,7 @@ public struct AddLinkFeature {
         public init(link: AddLinkMock? = nil) {
             let pokitList = PokitMock.addLinkMock
             self.pokitList = pokitList
-            self.selectedPokit = link?.pokit ?? pokitList.first!
+            self.selectedPokit = link?.pokit ?? .init(categoryType: "미분류", contentSize: 15)
             self.link = link
             self.urlText = link?.urlText ?? ""
             self.title = link?.title ?? ""
