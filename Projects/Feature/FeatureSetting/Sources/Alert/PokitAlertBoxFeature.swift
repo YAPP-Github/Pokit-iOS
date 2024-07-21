@@ -10,11 +10,14 @@ import Util
 @Reducer
 public struct PokitAlertBoxFeature {
     /// - Dependency
-
+    @Dependency(\.dismiss) var dismiss
     /// - State
     @ObservableState
     public struct State: Equatable {
-        public init() {}
+        var mock: IdentifiedArrayOf<AlertMock> = []
+        public init(alertItems: [AlertMock]) {
+            alertItems.forEach { self.mock.append($0) }
+        }
     }
     
     /// - Action
@@ -26,7 +29,11 @@ public struct PokitAlertBoxFeature {
         case delegate(DelegateAction)
         
         @CasePathable
-        public enum View: Equatable { case doNothing }
+        public enum View: Equatable {
+            case deleteSwiped(item: AlertMock)
+            case itemSelected(item: AlertMock)
+            case dismiss
+        }
         
         public enum InnerAction: Equatable { case doNothing }
         
@@ -34,7 +41,9 @@ public struct PokitAlertBoxFeature {
         
         public enum ScopeAction: Equatable { case doNothing }
         
-        public enum DelegateAction: Equatable { case doNothing }
+        public enum DelegateAction: Equatable {
+            case moveToLinkEdit(item: AlertMock)
+        }
     }
     
     /// - Initiallizer
@@ -74,7 +83,17 @@ public struct PokitAlertBoxFeature {
 private extension PokitAlertBoxFeature {
     /// - View Effect
     func handleViewAction(_ action: Action.View, state: inout State) -> Effect<Action> {
-        return .none
+        switch action {
+        /// - 스와이프를 통해 아이템 삭제를 눌렀을 때
+        case .deleteSwiped(let item):
+            state.mock.remove(id: item.id)
+            return .none
+        /// - 선택한 항목을 `링크수정`화면으로 이동해 수정
+        case .itemSelected(let item):
+            return .run { send in await send(.delegate(.moveToLinkEdit(item: item))) }
+        case .dismiss:
+            return .run { _ in await dismiss() }
+        }
     }
     
     /// - Inner Effect
