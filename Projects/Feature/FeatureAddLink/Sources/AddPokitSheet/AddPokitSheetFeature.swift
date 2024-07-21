@@ -111,7 +111,7 @@ private extension AddPokitSheetFeature {
     func handleDelegateAction(_ action: Action.DelegateAction, state: inout State) -> Effect<Action> {
         switch action {
         case .addPokit:
-            return .run { send in
+            return .run { _ in
                 await dismiss()
             }
         }
