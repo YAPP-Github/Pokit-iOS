@@ -8,6 +8,7 @@
 import Foundation
 
 public struct LinkDetailMock: Equatable {
+    public let id: UUID
     public let title: String
     public let url: String
     public let createdAt: Date
@@ -15,9 +16,9 @@ public struct LinkDetailMock: Equatable {
     public let pokit: String
     public let isRemind: Bool
     public let isFavorite: Bool
-    public let id: UUID = .init()
     
     public init(
+        id: UUID = .init(),
         title: String,
         url: String,
         createdAt: Date,
@@ -26,6 +27,7 @@ public struct LinkDetailMock: Equatable {
         isRemind: Bool,
         isFavorite: Bool
     ) {
+        self.id = id
         self.title = title
         self.url = url
         self.createdAt = createdAt
