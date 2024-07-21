@@ -10,17 +10,25 @@ import ProjectDescription
 public enum CoreKit: String, CaseIterable {
     case core = "Core"
     case coreNetwork = "CoreNetwork"
+    case coreLinkPresentation = "CoreLinkPresentation"
     
     private var dependencies: [TargetDependency] {
         switch self {
         case .core :
             return [
-                .project(target: "Util", path: .relativeToRoot("Projects/Util"))
+                .project(target: "Util", path: .relativeToRoot("Projects/Util")),
+                .project(target: "SharedThirdPartyLib", path: .relativeToRoot("Projects/SharedThirdPartyLib"))
             ]
         case .coreNetwork:
             return [
                 .project(target: "Util", path: .relativeToRoot("Projects/Util")),
+                .project(target: "SharedThirdPartyLib", path: .relativeToRoot("Projects/SharedThirdPartyLib")),
                 .external(name: "Moya")
+            ]
+        case .coreLinkPresentation:
+            return [
+                .project(target: "Util", path: .relativeToRoot("Projects/Util")),
+                .project(target: "SharedThirdPartyLib", path: .relativeToRoot("Projects/SharedThirdPartyLib"))
             ]
         }
     }
@@ -28,7 +36,7 @@ public enum CoreKit: String, CaseIterable {
     public var target: Target {
         .makeChildTarget(
             name: "\(self.rawValue)",
-            product: .staticLibrary,
+            product: .framework,
             bundleName: "CoreKit.\(self.rawValue)",
             dependencies: self.dependencies
         )

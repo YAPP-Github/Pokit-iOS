@@ -20,7 +20,8 @@ public struct RemindFeature {
         var recommendedLinks = LinkMock.recommendedMock
         var unreadLinks = LinkMock.unreadMock
         var favoriteLinks = LinkMock.favoriteMock
-        var showBottomSheet = false
+        var bottomSheetItem: LinkMock? = nil
+        var alertItem: LinkMock? = nil
     }
     /// - Action
     public enum Action: FeatureAction, BindableAction, ViewAction {
@@ -34,17 +35,30 @@ public struct RemindFeature {
         public enum View: Equatable {
             case bellButtonTapped
             case searchButtonTapped
-            case linkCardTapped(LinkMock)
-            case kebabButtonTapped
+            case linkCardTapped(link: LinkMock)
+            case kebabButtonTapped(link: LinkMock)
             case unreadNavigationLinkTapped
             case favoriteNavigationLinkTapped
+            case bottomSheetButtonTapped(
+                delegate: PokitBottomSheet.Delegate,
+                link: LinkMock
+            )
+            case deleteAlertConfirmTapped(link: LinkMock)
         }
-        public enum InnerAction: Equatable { case doNothing }
+        public enum InnerAction: Equatable {
+            case dismissBottomSheet
+        }
         public enum AsyncAction: Equatable { case doNothing }
         public enum ScopeAction: Equatable {
-            case bottomSheet(PokitBottomSheet.Delegate, LinkMock)
+            case bottomSheet(
+                delegate: PokitBottomSheet.Delegate,
+                link: LinkMock
+            )
         }
-        public enum DelegateAction: Equatable { case doNothing }
+        public enum DelegateAction: Equatable {
+            case showLinkDetailView(link: LinkMock)
+            case pushAddLinkView(link: LinkMock)
+        }
     }
     /// initiallizer
     public init() {}
@@ -89,16 +103,28 @@ private extension RemindFeature {
             return .none
         case .unreadNavigationLinkTapped:
             return .none
-        case .kebabButtonTapped:
-            state.showBottomSheet = true
+        case .kebabButtonTapped(let link):
+            state.bottomSheetItem = link
             return .none
         case .linkCardTapped(let link):
+            return .send(.delegate(.pushAddLinkView(link: link)))
+        case .bottomSheetButtonTapped(let delegate, let link):
+            return .run { send in
+                await send(.inner(.dismissBottomSheet))
+                await send(.scope(.bottomSheet(delegate: delegate, link: link)))
+            }
+        case .deleteAlertConfirmTapped:
+            state.alertItem = nil
             return .none
         }
     }
     /// - Inner Effect
     func handleInnerAction(_ action: Action.InnerAction, state: inout State) -> Effect<Action> {
-        return .none
+        switch action {
+        case .dismissBottomSheet:
+            state.bottomSheetItem = nil
+            return .none
+        }
     }
     /// - Async Effect
     func handleAsyncAction(_ action: Action.AsyncAction, state: inout State) -> Effect<Action> {
@@ -110,13 +136,13 @@ private extension RemindFeature {
         case .bottomSheet(let delegate, let link):
             switch delegate {
             case .deleteCellButtonTapped:
+                state.alertItem = link
                 return .none
             case .editCellButtonTapped:
-                return .none
+                return .send(.delegate(.pushAddLinkView(link: link)))
             case .favoriteCellButtonTapped:
                 return .none
             case .shareCellButtonTapped:
-                print(link)
                 return .none
             }
         }
@@ -127,11 +153,6 @@ private extension RemindFeature {
     }
     
     func handleBindingAction(_ action: BindingAction<State>, state: inout State) -> Effect<Action> {
-        switch action {
-        case \.showBottomSheet:
-            return .none
-        default:
-            return .none
-        }
+        return .none
     }
 }
