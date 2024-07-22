@@ -29,6 +29,7 @@ public extension AddPokitSheetView {
             VStack(spacing: 12) {
                 PokitTextInput(
                     text: $store.pokit.categoryType,
+                    maxLetter: 10,
                     focusState: $focused,
                     equals: true
                 )
