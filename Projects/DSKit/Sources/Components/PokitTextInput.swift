@@ -20,7 +20,7 @@ public struct PokitTextInput<Value: Hashable>: View {
     private let errorMessage: String?
     private let placeholder: String
     private let info: String?
-    private let maxLetter: Int
+    private let maxLetter: Int?
     private let onSubmit: (() -> Void)?
     
     public init(
@@ -30,7 +30,7 @@ public struct PokitTextInput<Value: Hashable>: View {
         errorMessage: String? = nil,
         placeholder: String = "내용을 입력해주세요.",
         info: String? = nil,
-        maxLetter: Int = 10,
+        maxLetter: Int? = nil,
         focusState: FocusState<Value>.Binding,
         equals: Value,
         onSubmit: (() -> Void)? = nil
@@ -100,7 +100,7 @@ public struct PokitTextInput<Value: Hashable>: View {
             }
             
             Group {
-                if isMaxLetters {
+                if let maxLetter, isMaxLetters {
                     Text("최대 \(maxLetter)자까지 입력가능합니다.")
                         .foregroundStyle(.pokit(.text(.error)))
                 } else if state == .error, let errorMessage {
@@ -116,18 +116,22 @@ public struct PokitTextInput<Value: Hashable>: View {
             
             Spacer()
             
-            Text("\(text.count > maxLetter ? maxLetter : text.count)/\(maxLetter)")
-                .pokitFont(.detail1)
-                .foregroundStyle(
-                    state == .error ? .pokit(.text(.error)) : .pokit(.text(.tertiary))
-                )
-                .contentTransition(.numericText())
-                .animation(.smooth, value: text)
+            if let maxLetter {
+                Text("\(text.count > maxLetter ? maxLetter : text.count)/\(maxLetter)")
+                    .pokitFont(.detail1)
+                    .foregroundStyle(
+                        state == .error ? .pokit(.text(.error)) : .pokit(.text(.tertiary))
+                    )
+                    .contentTransition(.numericText())
+                    .animation(.smooth, value: text)
+            }
         }
         .padding(.top, 4)
     }
     
     private func onChangedText(_ newValue: String) {
+        guard let maxLetter else { return }
+        
         if isMaxLetters {
             self.text = String(newValue.prefix(maxLetter + 1))
         }
