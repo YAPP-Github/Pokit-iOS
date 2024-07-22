@@ -9,15 +9,15 @@ import SwiftUI
 
 public struct PokitAlert: View {
     @Environment(\.dismiss) private var dismiss
-    
+    @State private var height: CGFloat = 0
     private let titleKey: String
-    private let message: String
+    private let message: String?
     private let confirmText: String
     private let action: () -> Void
     
     public init(
         _ titleKey: String,
-        message: String,
+        message: String? = nil,
         confirmText: String,
         action: @escaping () -> Void
     ) {
@@ -32,7 +32,9 @@ public struct PokitAlert: View {
             VStack(spacing: 8) {
                 title
                 
-                messageLabel
+                if message != nil {
+                    messageLabel
+                }
             }
             .padding(.top, 36)
             .padding(.bottom, 20)
@@ -58,9 +60,16 @@ public struct PokitAlert: View {
                 .background()
             }
         }
-        .presentationDetents([.height(238)])
         .pokitPresentationBackground()
         .pokitPresentationCornerRadius()
+        .presentationDragIndicator(.visible)
+        .readHeight()
+        .onPreferenceChange(HeightPreferenceKey.self) { height in
+            if let height {
+                self.height = height
+            }
+        }
+        .presentationDetents([.height(self.height)])
     }
     
     private var title: some View {
@@ -71,10 +80,11 @@ public struct PokitAlert: View {
     }
     
     private var messageLabel: some View {
-        Text(message)
+        Text(message ?? "")
             .pokitFont(.b2(.m))
             .foregroundStyle(.pokit(.text(.secondary)))
             .multilineTextAlignment(.center)
+            .fixedSize(horizontal: false, vertical: true)
     }
 }
 

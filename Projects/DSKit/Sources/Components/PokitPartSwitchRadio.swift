@@ -57,7 +57,7 @@ public struct PokitPartSwitchRadio<Selection: Equatable>: View {
             
             Text(labelText)
                 .foregroundStyle(state.textColor)
-                .pokitFont(.b2(.m))
+                .pokitFont(.l1(.b))
             
             Spacer()
         }
