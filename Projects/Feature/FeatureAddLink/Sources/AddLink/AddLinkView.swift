@@ -51,12 +51,22 @@ public extension AddLinkView {
             .overlay(alignment: .bottom) {
                 let isDisable = store.state.urlText.isEmpty || store.state.title.isEmpty
                 
-                PokitBottomButton(
-                    "저장하기",
-                    state: isDisable ? .disable : .filled(.primary),
-                    action: { }
-                )
-                .background()
+                VStack(spacing: 0) {
+                    if store.state.showPopup {
+                        PokitLinkPopup(
+                            "최대 30개의 포킷을 생성할 수 있습니다. \n포킷을 삭제한 뒤에 추가해주세요.",
+                            isPresented: $store.showPopup,
+                            type: .text
+                        )
+                    }
+                    
+                    PokitBottomButton(
+                        "저장하기",
+                        state: isDisable ? .disable : .filled(.primary),
+                        action: { }
+                    )
+                    .background()
+                }
             }
             .pokitNavigationBar(title: store.link == nil ? "링크 추가" : "링크 수정")
             .onAppear { send(.addLinkViewOnAppeared) }
@@ -117,7 +127,7 @@ private extension AddLinkView {
             .icon(.plusR),
             state: .filled(.primary),
             size: .large,
-            shape: .rectangle) { send(.addPokitButtonTapped) }
+            shape: .rectangle) { send(.addPokitButtonTapped, animation: .pokitSpring) }
     }
     
     var memoTextArea: some View {
