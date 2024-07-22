@@ -8,7 +8,8 @@
 import SwiftUI
 
 public enum PokitImage {
-    case icon(Self.Name)
+    case icon(Self.Icon)
+    case logo(Self.Logo)
     
     public var image: Image {
         switch self {
@@ -75,12 +76,17 @@ public enum PokitImage {
             case .google:
                 return DSKitAsset.iconGoogle.swiftUIImage
             }
+        case .logo(let name):
+            switch name {
+            case .pokit:
+                return DSKitAsset.logoPokit.swiftUIImage
+            }
         }
     }
 }
 
 public extension PokitImage {
-    enum Name {
+    enum Icon {
         case arrowDown
         case arrowLeft
         case arrowRight
@@ -111,5 +117,9 @@ public extension PokitImage {
         case x
         case check
         case google
+    }
+    
+    enum Logo {
+        case pokit
     }
 }
