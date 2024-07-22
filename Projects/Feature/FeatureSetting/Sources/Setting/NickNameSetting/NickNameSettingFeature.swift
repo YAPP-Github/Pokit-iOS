@@ -5,15 +5,19 @@
 //  Created by 김민호 on 7/22/24.
 
 import ComposableArchitecture
+import DSKit
 import Util
 
 @Reducer
 public struct NickNameSettingFeature {
     /// - Dependency
-
+    @Dependency(\.dismiss) var dismiss
     /// - State
     @ObservableState
     public struct State: Equatable {
+        var text: String = ""
+        var buttonState: PokitButtonStyle.State = .disable
+        
         public init() {}
     }
     
@@ -26,7 +30,11 @@ public struct NickNameSettingFeature {
         case delegate(DelegateAction)
         
         @CasePathable
-        public enum View: Equatable { case doNothing }
+        public enum View: BindableAction, Equatable {
+            case binding(BindingAction<State>)
+            case dismiss
+            case saveButtonTapped
+        }
         
         public enum InnerAction: Equatable { case doNothing }
         
@@ -67,6 +75,7 @@ public struct NickNameSettingFeature {
     
     /// - Reducer body
     public var body: some ReducerOf<Self> {
+        BindingReducer(action: \.view)
         Reduce(self.core)
     }
 }
@@ -74,7 +83,16 @@ public struct NickNameSettingFeature {
 private extension NickNameSettingFeature {
     /// - View Effect
     func handleViewAction(_ action: Action.View, state: inout State) -> Effect<Action> {
-        return .none
+        switch action {
+        case .binding:
+            return .none
+            
+        case .dismiss:
+            return .run { _ in await dismiss() }
+            
+        case .saveButtonTapped:
+            return .none
+        }
     }
     
     /// - Inner Effect
