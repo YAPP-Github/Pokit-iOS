@@ -26,10 +26,10 @@ public enum PokitImage {
                 return DSKitAsset.iconBell.swiftUIImage
             case .edit:
                 return DSKitAsset.iconEdit.swiftUIImage
-            case .folder:
-                return DSKitAsset.iconFolder.swiftUIImage
-            case .home:
-                return DSKitAsset.iconHome.swiftUIImage
+            case .folderFill:
+                return DSKitAsset.iconFolderFill.swiftUIImage
+            case .homeFill:
+                return DSKitAsset.iconHomeFill.swiftUIImage
             case .kebab:
                 return DSKitAsset.iconKebab.swiftUIImage
             case .plus:
@@ -42,6 +42,8 @@ public enum PokitImage {
                 return DSKitAsset.iconShare.swiftUIImage
             case .star:
                 return DSKitAsset.iconStar.swiftUIImage
+            case .starFill:
+                return DSKitAsset.iconStarFill.swiftUIImage
             case .trash:
                 return DSKitAsset.iconTrash.swiftUIImage
             case .plusR:
@@ -85,14 +87,15 @@ public extension PokitImage {
         case arrowUp
         case bell
         case edit
-        case folder
-        case home
+        case folderFill
+        case homeFill
         case kebab
         case plus
         case search
         case setup
         case share
         case star
+        case starFill
         case trash
         case plusR
         case remind
