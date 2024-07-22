@@ -56,6 +56,7 @@ public extension AddLinkView {
                     state: isDisable ? .disable : .filled(.primary),
                     action: { }
                 )
+                .background()
             }
             .pokitNavigationBar(title: store.link == nil ? "링크 추가" : "링크 수정")
             .onAppear { send(.addLinkViewOnAppeared) }
@@ -87,7 +88,6 @@ private extension AddLinkView {
             PokitTextInput(
                 text: $store.urlText,
                 label: "링크",
-                maxLetter: 50,
                 focusState: $focusedType,
                 equals: .link
             )

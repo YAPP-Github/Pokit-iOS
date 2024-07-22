@@ -39,6 +39,7 @@ public extension AddPokitSheetView {
                     state: store.pokit.categoryType == "" ? .disable : .filled(.primary),
                     action: { send(.addButtonTapped) }
                 )
+                .background()
             }
             .pokitPresentationBackground()
             .pokitPresentationCornerRadius()
