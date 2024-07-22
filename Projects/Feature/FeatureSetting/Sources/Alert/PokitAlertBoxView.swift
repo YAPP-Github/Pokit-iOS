@@ -38,6 +38,7 @@ public extension PokitAlertBoxView {
             }
             .padding(.top, 16)
             .pokitNavigationBar(title: "알림함")
+            .navigationBarBackButtonHidden()
             .toolbar { navigationBar }
         }
     }
