@@ -26,7 +26,11 @@ public struct PokitSelect<Item: PokitSelectItem>: View {
         action: @escaping (Item) -> Void
     ) {
         self._selectedItem = State(initialValue: selectedItem)
-        self._state = State(initialValue: state)
+        if selectedItem != nil {
+            self.state = .input
+        } else {
+            self._state = State(initialValue: state)
+        }
         self.label = label
         self.list = list
         self.action = action

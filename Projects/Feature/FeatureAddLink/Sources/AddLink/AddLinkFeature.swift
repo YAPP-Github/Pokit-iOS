@@ -8,6 +8,7 @@ import UIKit
 
 import ComposableArchitecture
 import CoreLinkPresentation
+import DSKit
 import Util
 
 @Reducer
@@ -37,6 +38,7 @@ public struct AddLinkFeature {
         var link: AddLinkMock?
         var linkTitle: String? = nil
         var linkImage: UIImage? = nil
+        var showPopup: Bool = false
         @Presents var addPokitSheet: AddPokitSheetFeature.State?
     }
     
@@ -63,6 +65,7 @@ public struct AddLinkFeature {
             case fetchMetadata(url: URL)
             case parsingInfo(title: String?, image: UIImage?)
             case parsingURL
+            case showPopup
         }
         
         public enum AsyncAction: Equatable { case doNothing }
@@ -151,6 +154,9 @@ private extension AddLinkFeature {
             )
             return .none
         case .addPokitButtonTapped:
+            guard state.pokitList.count < 30 else {
+                return .send(.inner(.showPopup), animation: .pokitSpring)
+            }
             state.addPokitSheet = AddPokitSheetFeature.State()
             return .none
         }
@@ -179,6 +185,9 @@ private extension AddLinkFeature {
                 return .none
             }
             return .send(.inner(.fetchMetadata(url: url)), animation: .smooth)
+        case .showPopup:
+            state.showPopup = true
+            return .none
         }
     }
     

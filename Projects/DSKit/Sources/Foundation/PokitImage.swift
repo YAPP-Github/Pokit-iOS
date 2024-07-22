@@ -8,7 +8,8 @@
 import SwiftUI
 
 public enum PokitImage {
-    case icon(Self.Name)
+    case icon(Self.Icon)
+    case logo(Self.Logo)
     
     public var image: Image {
         switch self {
@@ -26,10 +27,10 @@ public enum PokitImage {
                 return DSKitAsset.iconBell.swiftUIImage
             case .edit:
                 return DSKitAsset.iconEdit.swiftUIImage
-            case .folder:
-                return DSKitAsset.iconFolder.swiftUIImage
-            case .home:
-                return DSKitAsset.iconHome.swiftUIImage
+            case .folderFill:
+                return DSKitAsset.iconFolderFill.swiftUIImage
+            case .homeFill:
+                return DSKitAsset.iconHomeFill.swiftUIImage
             case .kebab:
                 return DSKitAsset.iconKebab.swiftUIImage
             case .plus:
@@ -42,6 +43,8 @@ public enum PokitImage {
                 return DSKitAsset.iconShare.swiftUIImage
             case .star:
                 return DSKitAsset.iconStar.swiftUIImage
+            case .starFill:
+                return DSKitAsset.iconStarFill.swiftUIImage
             case .trash:
                 return DSKitAsset.iconTrash.swiftUIImage
             case .plusR:
@@ -73,26 +76,32 @@ public enum PokitImage {
             case .google:
                 return DSKitAsset.iconGoogle.swiftUIImage
             }
+        case .logo(let name):
+            switch name {
+            case .pokit:
+                return DSKitAsset.logoPokit.swiftUIImage
+            }
         }
     }
 }
 
 public extension PokitImage {
-    enum Name {
+    enum Icon {
         case arrowDown
         case arrowLeft
         case arrowRight
         case arrowUp
         case bell
         case edit
-        case folder
-        case home
+        case folderFill
+        case homeFill
         case kebab
         case plus
         case search
         case setup
         case share
         case star
+        case starFill
         case trash
         case plusR
         case remind
@@ -108,5 +117,9 @@ public extension PokitImage {
         case x
         case check
         case google
+    }
+    
+    enum Logo {
+        case pokit
     }
 }

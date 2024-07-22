@@ -47,7 +47,7 @@ public struct PokitCalendar: View {
                 .pokitFont(.b1(.b))
                 .foregroundStyle(.pokit(.text(.primary)))
                 .contentTransition(.numericText())
-                .animation(.spring(bounce: 0.3), value: self.page)
+                .animation(.pokitSpring, value: self.page)
             
             Spacer()
             

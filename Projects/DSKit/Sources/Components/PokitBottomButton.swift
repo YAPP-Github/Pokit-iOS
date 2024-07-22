@@ -30,7 +30,6 @@ public struct PokitBottomButton: View {
         .disabled(state == .disable)
         .padding(.top, 16)
         .padding(.bottom, 28)
-        .background(.pokit(.bg(.base)))
     }
     
     private var label: some View {
@@ -44,7 +43,6 @@ public struct PokitBottomButton: View {
             
             Spacer()
         }
-        .padding(.horizontal, 20)
         .background {
             RoundedRectangle(
                 cornerRadius: PokitButtonStyle.Shape.rectangle.radius(size: self.size),
@@ -60,6 +58,12 @@ public struct PokitBottomButton: View {
             }
         }
         .animation(.smooth, value: self.state)
+    }
+    
+    public func background() -> some View {
+        self
+            .padding(.horizontal, 20)
+            .background(.pokit(.bg(.base)))
     }
 }
 

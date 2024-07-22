@@ -17,7 +17,7 @@ public enum MainTab: String, CaseIterable {
     
     var icon: PokitImage {
         switch self {
-        case .pokit:  return .icon(.folder)
+        case .pokit:  return .icon(.folderFill)
         case .remind: return .icon(.remind)
         }
     }

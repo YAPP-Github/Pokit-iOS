@@ -29,6 +29,7 @@ public extension AddPokitSheetView {
             VStack(spacing: 12) {
                 PokitTextInput(
                     text: $store.pokit.categoryType,
+                    maxLetter: 10,
                     focusState: $focused,
                     equals: true
                 )
@@ -39,6 +40,7 @@ public extension AddPokitSheetView {
                     state: store.pokit.categoryType == "" ? .disable : .filled(.primary),
                     action: { send(.addButtonTapped) }
                 )
+                .background()
             }
             .pokitPresentationBackground()
             .pokitPresentationCornerRadius()
