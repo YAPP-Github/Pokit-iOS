@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Combine
 
 public struct PokitLinkPopup: View {
     @Binding private var isPresented: Bool
@@ -13,6 +14,7 @@ public struct PokitLinkPopup: View {
     @State private var second: Int = 0
     private let titleKey: String
     private let type: PokitLinkPopup.PopupType
+    private let action: (() -> Void)?
     private let timer = Timer.publish(
         every: 1,
         on: .main,
@@ -22,11 +24,13 @@ public struct PokitLinkPopup: View {
     public init(
         _ titleKey: String,
         isPresented: Binding<Bool>,
-        type: PokitLinkPopup.PopupType
+        type: PokitLinkPopup.PopupType,
+        action: (() -> Void)? = nil
     ) {
         self.titleKey = titleKey
         self._isPresented = isPresented
         self.type = type
+        self.action = action
     }
     
     public var body: some View {
@@ -46,7 +50,7 @@ public struct PokitLinkPopup: View {
         .frame(width: 335, height: 60)
         .transition(.move(edge: .bottom).combined(with: .opacity))
         .onReceive(timer) { _ in
-            guard second <= 3 else {
+            guard second < 2 && isPresented else {
                 closedPopup()
                 return
             }
@@ -57,19 +61,24 @@ public struct PokitLinkPopup: View {
     @ViewBuilder
     private func linkPopup(_ url: String) -> some View {
         HStack {
-            VStack(alignment: .leading, spacing: 0) {
-                Text(titleKey)
-                    .lineLimit(1)
-                    .pokitFont(.b2(.b))
-                    .foregroundStyle(.pokit(.text(.inverseWh)))
+            Button {
+                action?()
+            } label: {
+                VStack(alignment: .leading, spacing: 0) {
+                    Text(titleKey)
+                        .lineLimit(1)
+                        .pokitFont(.b2(.b))
+                        .multilineTextAlignment(.leading)
+                        .foregroundStyle(.pokit(.text(.inverseWh)))
+                    
+                    Text(url)
+                        .lineLimit(1)
+                        .pokitFont(.detail2)
+                        .foregroundStyle(.pokit(.text(.inverseWh)))
+                }
                 
-                Text(url)
-                    .lineLimit(1)
-                    .pokitFont(.detail2)
-                    .foregroundStyle(.pokit(.text(.inverseWh)))
+                Spacer(minLength: 72)
             }
-            
-            Spacer(minLength: 72)
             
             closeButton
         }
@@ -77,12 +86,17 @@ public struct PokitLinkPopup: View {
     
     private var textPopup: some View {
         HStack {
-            Text(titleKey)
-                .lineLimit(2)
-                .pokitFont(.b3(.b))
-                .foregroundStyle(.pokit(.text(.inverseWh)))
-            
-            Spacer(minLength: 54)
+            Button {
+                action?()
+            } label: {
+                Text(titleKey)
+                    .lineLimit(2)
+                    .pokitFont(.b3(.b))
+                    .multilineTextAlignment(.leading)
+                    .foregroundStyle(.pokit(.text(.inverseWh)))
+                
+                Spacer(minLength: 54)
+            }
             
             closeButton
         }
@@ -104,6 +118,7 @@ public struct PokitLinkPopup: View {
     
     private func closedPopup() {
         withAnimation(.pokitSpring) {
+            second = 0
             isPresented = false
         }
     }
