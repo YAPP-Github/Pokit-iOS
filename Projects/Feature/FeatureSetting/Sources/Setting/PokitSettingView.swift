@@ -12,6 +12,7 @@ import DSKit
 @ViewAction(for: PokitSettingFeature.self)
 public struct PokitSettingView: View {
     /// - Properties
+    @Perception.Bindable
     public var store: StoreOf<PokitSettingFeature>
     
     /// - Initializer
@@ -33,6 +34,29 @@ public extension PokitSettingView {
             .navigationBarBackButtonHidden()
             .pokitNavigationBar(title: "설정")
             .toolbar { navigationBar }
+            .sheet(isPresented: $store.isLogoutPresented) {
+                PokitAlert(
+                    "로그아웃 하시겠습니까?",
+                    confirmText: "로그아웃",
+                    action: { send(.로그아웃수행) }
+                )
+            }
+            .sheet(isPresented: $store.isWithdrawPresented) {
+                PokitAlert(
+                    "회원 탈퇴하시겠습니까?",
+                    message: "함께 저장한 모든 정보가 삭제되며,\n복구하실 수 없습니다.",
+                    confirmText: "탈퇴하기",
+                    action: { send(.회원탈퇴수행) }
+                )
+            }
+            .navigationDestination(
+                item: $store.scope(
+                    state: \.nickNameSettingState,
+                    action: \.nickNameSettingAction
+                )
+            ) { store in
+                NickNameSettingView(store: store)
+            }
         }
     }
 }
@@ -43,62 +67,66 @@ private extension PokitSettingView {
         Section {
             SettingItem(
                 title: "닉네임 설정",
-                action: { }
+                action: { send(.닉네임설정) }
             )
             
             SettingItem(
                 title: "알림 설정",
-                action: { }
+                action: { send(.알림설정) }
             )
         }
         PokitDivider()
             .padding(.vertical, 16)
     }
+    
     @ViewBuilder
     var section2: some View {
         Section {
             SettingItem(
                 title: "공지사항",
-                action: { }
+                action: { send(.공지사항) }
             )
             
             SettingItem(
                 title: "서비스 이용약관",
-                action: { }
+                action: { send(.서비스_이용약관) }
             )
             
             SettingItem(
                 title: "개인정보 처리방침",
-                action: { }
+                action: { send(.개인정보_처리방침) }
             )
             
             SettingItem(
                 title: "고객문의",
-                action: { }
+                action: { send(.고객문의) }
             )
         }
         PokitDivider()
             .padding(.vertical, 16)
     }
+    
     var section3: some View {
         Section {
             SettingItem(
                 title: "로그아웃",
-                action: { }
+                action: { send(.로그아웃) }
             )
             
             SettingItem(
                 title: "회원 탈퇴",
-                action: { }
+                action: { send(.회원탈퇴) }
             )
         }
     }
+    
     @ToolbarContentBuilder
     var navigationBar: some ToolbarContent {
         ToolbarItem(placement: .topBarLeading) {
-            PokitToolbarButton(.icon(.arrowLeft)) {
-                
-            }
+            PokitToolbarButton(
+                .icon(.arrowLeft), 
+                action: { send(.dismiss) }
+            )
         }
     }
     
