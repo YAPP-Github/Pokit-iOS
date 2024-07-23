@@ -17,7 +17,7 @@ jobs:
     - name: Set up Xcode
       uses: maxim-lobanov/setup-xcode@v1
       with:
-        xcode-version: '15.0'
+        xcode-version: '15.4'
 
     - name: initial mise
       run: |
@@ -57,4 +57,4 @@ jobs:
         GITHUB_ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
         APP_STORE_CONNECT_TEAM_ID: ${{ secrets.APP_STORE_CONNECT_TEAM_ID }}
         DEVELOPMENT_TEAM: ${{ secrets.DEVELOPMENT_TEAM }}
-      run: fastlane testflight
+      run: fastlane beta
