@@ -9,7 +9,7 @@ import Foundation
 import ProjectDescription
 import ProjectDescriptionHelpers
 
-let developmentTeam = ProcessInfo.processInfo.environment["DEVELOPMENT_TEAM"]
+let developmentTeam = ProcessInfo.processInfo.environment["TUIST_DEVELOPMENT_TEAM"]
 
 let features: [TargetDependency] = Feature.allCases.map { feature in
         .project(target: "Feature\(feature.rawValue)", path: .relativeToRoot("Projects/Feature"))
@@ -47,7 +47,7 @@ let project = Project(
                     "CODE_SIGN_IDENTITY": "iPhone Distribution",
                     "PROVISIONING_PROFILE_SPECIFIER": "match AppStore com.pokitmons.pokit 1721720816",
                     "PROVISIONING_PROFILE": "match AppStore com.pokitmons.pokit 1721720816",
-                    "DEVELOPMENT_TEAM": SettingValue(stringLiteral: developmentTeam ?? "")
+                    "DEVELOPMENT_TEAM": "\(developmentTeam ?? "")"
                 ]
             )
         )
