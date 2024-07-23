@@ -1,0 +1,47 @@
++# This file contains the fastlane.tools configuration
+# You can find the documentation at https://docs.fastlane.tools
+#
+# For a list of all available actions, check out
+#
+#     https://docs.fastlane.tools/actions
+#
+# For a list of all available plugins, check out
+#
+#     https://docs.fastlane.tools/plugins/available-plugins
+#
+
+# Uncomment the line if you want fastlane to automatically update itself
+# update_fastlane
+
+
+platform :ios do
+  desc "Push a new beta build to TestFlight"
+  lane :testflight do
+    match(type: "appstore", app_identifier:["com.pokitmons.pokit"], readonly: true)
+    Dir.chdir("../") do
+      sh("tuist generate")
+    end
+    build_app(
+    workspace: "Pokit.xcworkspace",
+    scheme: "App",
+    export_method: "app-store",
+    export_options: {
+      method: "app-store",
+      signingStyle: "manual",
+      provisioningProfiles: {
+        "com.pokitmons.pokit" => "match AppStore com.pokitmons.pokit 1721720816"
+      }
+    }
+  )
+  api_key = app_store_connect_api_key(
+  key_id: ENV['APP_STORE_CONNECT_KEY_ID'],
+  issuer_id: ENV['APP_STORE_CONNECT_ISSUER_ID'],
+  key_conent: ENV['APP_STORE_CONNECT_KEY_ID']
+  )
+  upload_to_testflight(
+  api_key: api_key,
+  distribute_external: false,
+  changelog: ""
+  )
+  end
+end
