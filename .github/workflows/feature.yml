@@ -32,7 +32,7 @@ jobs:
       env:
         MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
         MATCH_URL: ${{ secrets.MATCH_URL }}
-      run: bundle exec fastlane match appstore --readonly
+      run: fastlane match appstore --readonly
 
     - name: generate project
       env:
@@ -48,4 +48,4 @@ jobs:
         APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
         APP_STORE_CONNECT_TEAM_ID: ${{ secrets.APP_STORE_CONNECT_TEAM_ID }}
         DEVELOPMENT_TEAM: ${{ secrets.DEVELOPMENT_TEAM }}
-      run: bundle exec fastlane testflight
+      run: fastlane testflight
