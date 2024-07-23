@@ -81,3 +81,6 @@ fastlane/key.json
 ### Archive App
 *.ipa
 *.app.dSYM.zip
+
+### fastlane environment
+fastlane/.env
