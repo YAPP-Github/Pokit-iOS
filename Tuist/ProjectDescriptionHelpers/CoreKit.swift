@@ -33,7 +33,7 @@ public enum CoreKit: String, CaseIterable {
             ]
         case .data:
             return [
-                .external(name: "GoogleSignInSwift"),
+                .external(name: "GoogleSignIn"),
                 .project(target: "Core", path: .relativeToRoot("Projects/CoreKit"))
             ]
         }
