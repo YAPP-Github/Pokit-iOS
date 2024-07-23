@@ -10,8 +10,8 @@ import PackageDescription
         // Default is .staticFramework
         // productTypes: ["Alamofire": .framework,]
         productTypes: [
-            "GoogleSignIn": .framework,
-            "ComposableArchitecture": .framework
+            "GoogleSignInSwift": .framework,
+            "ComposableArchitecture": TuistRelease.isRelease ? .staticFramework : .framework
         ]
     )
 #endif

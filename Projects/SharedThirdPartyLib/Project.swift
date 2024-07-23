@@ -15,7 +15,7 @@ let project = Project(
             name: "SharedThirdPartyLib",
             destinations: .appDestinations,
             // TODO: 프로젝트에 맞는 product로 변경해야 함
-            product: .framework,
+            product: TuistRelease.isRelease ? .staticFramework : .framework,
             bundleId: .moduleBundleId(name: "SharedThirdPartyLib"),
             deploymentTargets: .appMinimunTarget,
             infoPlist: .file(path: .relativeToRoot("Projects/App/Resources/Pokit-info.plist")),
