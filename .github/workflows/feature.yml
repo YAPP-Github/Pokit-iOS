@@ -29,10 +29,12 @@ jobs:
       run: mise install tuist
 
     - name: generate project
+      env:
+        DEVELOPMENT_TEAM: ${{ secrets.DEVELOPMENT_TEAM }}
       run: make release
 
+
     - name: Release TestFlight
-      run: fastlane testflight
       env:
         MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
         GITHUB_ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
@@ -41,3 +43,4 @@ jobs:
         APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
         APP_STORE_CONNECT_TEAM_ID: ${{ secrets.APP_STORE_CONNECT_TEAM_ID }}
         DEVELOPMENT_TEAM: ${{ secrets.DEVELOPMENT_TEAM }}
+      run: fastlane testflight
