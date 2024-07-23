@@ -28,6 +28,17 @@ jobs:
     - name: initial tuist
       run: mise install tuist
 
+    - name: Create key.json
+      run: |
+        mkdir -p fastlane
+        echo '{
+          "key_id": "${{ secrets.APP_STORE_CONNECT_KEY_ID }}",
+          "issuer_id": "${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}",
+          "key": "${{ secrets.APP_STORE_CONNECT_API_KEY }}",
+          "duration": 1200,
+          "in_house": false
+        }' > fastlane/key.json
+
     - name: Match Fastlane
       env:
         MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}

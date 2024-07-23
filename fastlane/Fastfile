@@ -18,7 +18,7 @@ default_platform(:ios)
 platform :ios do
   desc "Push a new beta build to TestFlight"
   lane :testflight do
-    # match(type: "appstore", app_identifier:["com.pokitmons.pokit"], readonly: true)
+    match(type: "appstore", app_identifier:["com.pokitmons.pokit"], readonly: true)
     build_app(
     workspace: "Pokit.xcworkspace",
     scheme: "App",
@@ -31,13 +31,10 @@ platform :ios do
       }
     }
     )
-  upload_to_testflight(
-    api_key: {
-      key_id: ENV['APP_STORE_CONNECT_KEY_ID'],
-      issuer_id: ENV['APP_STORE_CONNECT_ISSUER_ID'],
-      key_content: ENV['APP_STORE_CONNECT_API_KEY'],
-    },
-    distribute_external: false
-  )
+    upload_to_testflight(
+    api_key_path: "fastlane/key.json",
+    distribute_external: false,
+    changelog: ""
+    )
   end
 end
