@@ -34,7 +34,7 @@ jobs:
         echo '{
           "key_id": "${{ secrets.APP_STORE_CONNECT_KEY_ID }}",
           "issuer_id": "${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}",
-          "key": "${{ secrets.APP_STORE_CONNECT_API_KEY }}",
+          "key": "${{ secrets.APP_STORE_CONNECT_API }}",
           "duration": 1200,
           "in_house": false
         }' > fastlane/key.json
@@ -53,10 +53,8 @@ jobs:
     - name: Release TestFlight
       env:
         MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+        MATCH_URL: ${{ secrets.MATCH_URL }}
         GITHUB_ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
-        APP_STORE_CONNECT_API_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY }}
-        APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
-        APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
         APP_STORE_CONNECT_TEAM_ID: ${{ secrets.APP_STORE_CONNECT_TEAM_ID }}
         DEVELOPMENT_TEAM: ${{ secrets.DEVELOPMENT_TEAM }}
       run: fastlane testflight
