@@ -74,3 +74,10 @@ Tuist/.build
 
 ### xcconfig ###
 *.xcconfig
+
+### appstore connect api key
+fastlane/key.json
+
+### Archive App
+*.ipa
+*.app.dSYM.zip
