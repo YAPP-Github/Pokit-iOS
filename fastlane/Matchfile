@@ -1,4 +1,4 @@
-git_url(ENV['MATCH_URL'])
+git_url("https://github.com/stealmh/Pokit_iOS_Private")
 
 storage_mode("git")
 
