@@ -18,10 +18,10 @@ default_platform(:ios)
 platform :ios do
   desc "Push a new beta build to TestFlight"
   lane :beta do
-    # match(type: "appstore", app_identifier:["com.pokitmons.pokit"], readonly: true)
     Dir.chdir("../") do
       sh("make release")
     end
+    setup_ci
     build_app(
     workspace: "Pokit.xcworkspace",
     scheme: "App",
