@@ -44,7 +44,7 @@ let project = Project(
             settings: .settings(
                 base: [
                     "OTHER_LDFLAGS": "$(inherited) -ObjC",
-                    "CODE_SIGN_IDENTITY": "iOS Distribution",
+                    "CODE_SIGN_IDENTITY": "Apple Distribution",
                     "PROVISIONING_PROFILE_SPECIFIER": "match AppStore com.pokitmons.pokit 1721720816",
                     "PROVISIONING_PROFILE": "match AppStore com.pokitmons.pokit 1721720816",
                     "DEVELOPMENT_TEAM": "\(developmentTeam ?? "")"
