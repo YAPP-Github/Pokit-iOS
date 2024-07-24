@@ -1,4 +1,4 @@
-git_url("https://github.com/stealmh/Pokit_iOS_Private")
+git_url("https://github.com/stealmh/Pokit_iOS_Private.git")
 
 storage_mode("git")
 
