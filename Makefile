@@ -9,7 +9,7 @@ generate:
 release:
 	tuist clean
 	tuist install
-	TUIST_DEVELOPMENT_TEAM=$(DEVELOPMENT_TEAM) tuist cache
+	tuist cache
 	TUIST_DEVELOPMENT_TEAM=$(DEVELOPMENT_TEAM) tuist generate App
 
 # 1) 템플릿을 다운받음

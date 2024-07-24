@@ -45,10 +45,10 @@ jobs:
         MATCH_URL: ${{ secrets.MATCH_URL }}
       run: fastlane match appstore --readonly
 
-    - name: generate project
-      env:
-        DEVELOPMENT_TEAM: ${{ secrets.DEVELOPMENT_TEAM }}
-      run: make release
+    # - name: generate project
+    #   env:
+        # DEVELOPMENT_TEAM: ${{ secrets.DEVELOPMENT_TEAM }}
+    #   run: make release
 
     - name: Release TestFlight
       env:
