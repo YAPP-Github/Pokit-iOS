@@ -44,10 +44,10 @@ jobs:
           "in_house": false
         }' > fastlane/key.json
 
-    - name: Match Fastlane
-      env:
-        MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
-      run: fastlane match appstore --readonly
+    # - name: Match Fastlane
+    #   env:
+    #     MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+    #   run: fastlane match appstore --readonly
 
     - name: Release TestFlight
       env:
