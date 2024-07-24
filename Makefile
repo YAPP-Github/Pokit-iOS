@@ -10,7 +10,6 @@ release:
 	tuist clean
 	tuist install
 	TUIST_DEVELOPMENT_TEAM=$(DEVELOPMENT_TEAM) tuist generate
-	TUIST_DEVELOPMENT_TEAM=$(DEVELOPMENT_TEAM) tuist cache
 
 # 1) 템플릿을 다운받음
 # 2) Private repository로부터 파일 다운로드
