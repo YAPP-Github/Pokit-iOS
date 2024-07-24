@@ -33,16 +33,16 @@ jobs:
     - name: initial tuist
       run: mise install tuist
 
-    - name: Create key.json
-      run: |
-        mkdir -p fastlane
-        echo '{
-          "key_id": "${{ secrets.APP_STORE_CONNECT_KEY_ID }}",
-          "issuer_id": "${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}",
-          "key": "${{ secrets.APP_STORE_CONNECT_API }}",
-          "duration": 1200,
-          "in_house": false
-        }' > fastlane/key.json
+    # - name: Create key.json
+    #   run: |
+    #     mkdir -p fastlane
+    #     echo '{
+    #       "key_id": "${{ secrets.APP_STORE_CONNECT_KEY_ID }}",
+    #       "issuer_id": "${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}",
+    #       "key": "${{ secrets.APP_STORE_CONNECT_API }}",
+    #       "duration": 1200,
+    #       "in_house": false
+    #     }' > fastlane/key.json
 
     # - name: Match Fastlane
     #   env:
@@ -56,4 +56,7 @@ jobs:
         GITHUB_ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
         APP_STORE_CONNECT_TEAM_ID: ${{ secrets.APP_STORE_CONNECT_TEAM_ID }}
         DEVELOPMENT_TEAM: ${{ secrets.DEVELOPMENT_TEAM }}
+        APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+        APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+        APP_STORE_CONNECT_API: ${{ secrets.APP_STORE_CONNECT_API }}
       run: fastlane beta
