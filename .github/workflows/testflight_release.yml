@@ -1,11 +1,11 @@
 # This workflow will build a Swift project
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-swift
 
-name: feature-test
+name: testflight_release
 
 on:
   push:
-    branches: [ "feature/*" ]
+    branches: [ "develop" ]
 
 jobs:
   build:
@@ -19,10 +19,10 @@ jobs:
       with:
         xcode-version: '15.4'
 
-    - uses: shimataro/ssh-key-action@v2
-      with:
-        key: ${{ secrets.SSH_KEY }}
-        known_hosts: ${{ secrets.KNOWN_HOSTS }}
+    # - uses: shimataro/ssh-key-action@v2
+    #   with:
+    #     key: ${{ secrets.SSH_KEY }}
+    #     known_hosts: ${{ secrets.KNOWN_HOSTS }}
 
     - name: initial mise
       run: |
@@ -33,30 +33,24 @@ jobs:
     - name: initial tuist
       run: mise install tuist
 
-    # - name: Create key.json
-    #   run: |
-    #     mkdir -p fastlane
-    #     echo '{
-    #       "key_id": "${{ secrets.APP_STORE_CONNECT_KEY_ID }}",
-    #       "issuer_id": "${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}",
-    #       "key": "${{ secrets.APP_STORE_CONNECT_API }}",
-    #       "duration": 1200,
-    #       "in_house": false
-    #     }' > fastlane/key.json
-
-    # - name: Match Fastlane
-    #   env:
-    #     MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
-    #   run: fastlane match appstore --readonly
-
-    - name: Release TestFlight
+    - name: Generate Project
       env:
         MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
         MATCH_URL: ${{ secrets.MATCH_URL }}
-        GITHUB_ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
         APP_STORE_CONNECT_TEAM_ID: ${{ secrets.APP_STORE_CONNECT_TEAM_ID }}
         DEVELOPMENT_TEAM: ${{ secrets.DEVELOPMENT_TEAM }}
+      run: fastlane generate
+
+    - name: Build Archive
+      env:
         APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
         APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
         APP_STORE_CONNECT_API: ${{ secrets.APP_STORE_CONNECT_API }}
-      run: fastlane beta
+      run: fastlane build archive
+
+    - name: Beta Release
+      env:
+        APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+        APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+        APP_STORE_CONNECT_API: ${{ secrets.APP_STORE_CONNECT_API }}
+      run: fastlane beta release

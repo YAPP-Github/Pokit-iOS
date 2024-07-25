@@ -17,7 +17,7 @@ default_platform(:ios)
 
 platform :ios do
   desc "Push a new beta build to TestFlight"
-  lane :beta do
+  lane: release generate do
     setup_ci
 
     match(
@@ -29,7 +29,38 @@ platform :ios do
     Dir.chdir("../") do
       sh("make release")
     end
+  end
 
+  lane: test generate do
+    setup_ci
+
+    match(
+    type: "appstore",
+    app_identifier:["com.pokitmons.pokit"],
+    readonly: true
+    )
+
+    Dir.chdir("../") do
+      sh("make test")
+    end
+  end
+
+  lane: build test do
+    build_app(
+    workspace: "Pokit.xcworkspace",
+    scheme: "App",
+    export_method: "app-store",
+    export_options: {
+      method: "app-store",
+      signingStyle: "manual",
+      provisioningProfiles: {
+        "com.pokitmons.pokit" => "match AppStore com.pokitmons.pokit 1721720816"
+      }
+    }
+    )
+  end
+
+  lane: build archive do
     api_key = app_store_connect_api_key(
     key_id: ENV['APP_STORE_CONNECT_KEY_ID'],
     issuer_id: ENV['APP_STORE_CONNECT_ISSUER_ID'],
@@ -57,6 +88,14 @@ platform :ios do
         "com.pokitmons.pokit" => "match AppStore com.pokitmons.pokit 1721720816"
       }
     }
+    )
+  end
+
+  lane: beta release do
+    api_key = app_store_connect_api_key(
+    key_id: ENV['APP_STORE_CONNECT_KEY_ID'],
+    issuer_id: ENV['APP_STORE_CONNECT_ISSUER_ID'],
+    key_content: ENV['APP_STORE_CONNECT_API']
     )
 
     upload_to_testflight(
