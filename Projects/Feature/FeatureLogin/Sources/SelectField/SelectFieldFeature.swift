@@ -95,6 +95,7 @@ private extension SelectFieldFeature {
         case .fieldChipTapped(let field):
             let result = state.selectedFields.remove(field)
             guard result == nil else { return .none }
+            /// - 해당 분야가 `selectedFields`에 없어 삭제를 하지 못한 경우
             state.selectedFields.insert(field)
             return .none
         }

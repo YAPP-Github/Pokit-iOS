@@ -29,6 +29,7 @@ public struct LoginRootFeature {
         
         @CasePathable
         public enum View: Equatable {
+            /// - Button Tapped
             case appleLoginButtonTapped
         }
         public enum InnerAction: Equatable {
