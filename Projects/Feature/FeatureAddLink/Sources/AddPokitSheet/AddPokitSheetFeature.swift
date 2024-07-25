@@ -31,7 +31,9 @@ public struct AddPokitSheetFeature {
         
         @CasePathable
         public enum View: Equatable, BindableAction {
+            /// - Binding
             case binding(BindingAction<State>)
+            /// - Button Tapped
             case addButtonTapped
         }
         
