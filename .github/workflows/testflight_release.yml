@@ -46,11 +46,11 @@ jobs:
         APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
         APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
         APP_STORE_CONNECT_API: ${{ secrets.APP_STORE_CONNECT_API }}
-      run: fastlane build archive
+      run: fastlane archive
 
     - name: Beta Release
       env:
         APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
         APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
         APP_STORE_CONNECT_API: ${{ secrets.APP_STORE_CONNECT_API }}
-      run: fastlane beta release
+      run: fastlane release
