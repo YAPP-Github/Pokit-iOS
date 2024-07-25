@@ -5,7 +5,7 @@ name: workflow_test
 
 on:
   push:
-    branches: [ "feature/*" ]
+    branches: [ "workflow/*" ]
 
 jobs:
   build:
