@@ -13,7 +13,7 @@ public enum Feature: String, CaseIterable {
     case myFolder = "MyFolder"
     case linkDetail = "LinkDetail"
     case addLink = "AddLink"
-    case addCategory = "AddCategory"
+    case categorySetting = "CategorySetting"
     case remind = "Remind"
     case login = "Login"
     case pokit = "Pokit"

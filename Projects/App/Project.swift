@@ -27,7 +27,7 @@ let project = Project(
             dependencies: [
                 // TODO: 의존성 추가
                 .project(target: "FeatureRemind", path: .relativeToRoot("Projects/Feature")),
-                .project(target: "FeatureAddCategory", path: .relativeToRoot("Projects/Feature")),
+                .project(target: "FeatureCategorySetting", path: .relativeToRoot("Projects/Feature")),
                 .project(target: "FeatureAddLink", path: .relativeToRoot("Projects/Feature")),
                 .project(target: "FeatureLinkDetail", path: .relativeToRoot("Projects/Feature")),
                 .project(target: "FeatureMyFolder", path: .relativeToRoot("Projects/Feature")),
