@@ -30,9 +30,20 @@ platform :ios do
       sh("make release")
     end
 
+    api_key = app_store_connect_api_key(
+    key_id: ENV['APP_STORE_CONNECT_KEY_ID'],
+    issuer_id: ENV['APP_STORE_CONNECT_ISSUER_ID'],
+    key_content: ENV['APP_STORE_CONNECT_API']
+    )
+
+    latest_build_number = latest_testflight_build_number(
+    api_key: api_key,
+    app_identifier: "com.pokitmons.pokit"
+    )
+
     increment_build_number(
     xcodeproj: "Projects/App/App.xcodeproj",
-    build_number: (latest_testflight_build_number + 1).to_s # 최신 TestFlight 빌드 번호보다 1 증가
+    build_number: (latest_build_number + 1).to_s
     )
 
     build_app(
@@ -48,16 +59,10 @@ platform :ios do
     }
     )
 
-  api_key = app_store_connect_api_key(
-  key_id: ENV['APP_STORE_CONNECT_KEY_ID'],
-  issuer_id: ENV['APP_STORE_CONNECT_ISSUER_ID'],
-  key_content: ENV['APP_STORE_CONNECT_API']
-  )
-
-  upload_to_testflight(
-  api_key: api_key,
-  distribute_external: false,
-  changelog: ""
-  )
+    upload_to_testflight(
+    api_key: api_key,
+    distribute_external: false,
+    changelog: ""
+    )
   end
 end
