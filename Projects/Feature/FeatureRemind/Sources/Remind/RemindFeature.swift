@@ -20,19 +20,21 @@ public struct RemindFeature {
         var recommendedLinks = LinkMock.recommendedMock
         var unreadLinks = LinkMock.unreadMock
         var favoriteLinks = LinkMock.favoriteMock
+        /// sheet item
         var bottomSheetItem: LinkMock? = nil
         var alertItem: LinkMock? = nil
     }
     /// - Action
-    public enum Action: FeatureAction, BindableAction, ViewAction {
+    public enum Action: FeatureAction, ViewAction {
         case view(View)
         case inner(InnerAction)
         case async(AsyncAction)
         case scope(ScopeAction)
         case delegate(DelegateAction)
-        case binding(BindingAction<State>)
         
-        public enum View: Equatable {
+        public enum View: Equatable, BindableAction {
+            case binding(BindingAction<State>)
+            /// - Button Tapped
             case bellButtonTapped
             case searchButtonTapped
             case linkCardTapped(link: LinkMock)
@@ -80,13 +82,11 @@ public struct RemindFeature {
             /// - Delegate
         case .delegate(let delegateAction):
             return handleDelegateAction(delegateAction, state: &state)
-        case .binding(let bindingAction):
-            return handleBindingAction(bindingAction, state: &state)
         }
     }
     /// - Reducer body
     public var body: some ReducerOf<Self> {
-        BindingReducer()
+        BindingReducer(action: \.view)
         Reduce(self.core)
     }
 }
@@ -116,6 +116,8 @@ private extension RemindFeature {
         case .deleteAlertConfirmTapped:
             state.alertItem = nil
             return .none
+        case .binding:
+            return .none
         }
     }
     /// - Inner Effect
@@ -132,6 +134,7 @@ private extension RemindFeature {
     }
     /// - Scope Effect
     func handleScopeAction(_ action: Action.ScopeAction, state: inout State) -> Effect<Action> {
+        /// - 링크에 대한 `공유` /  `수정` / `삭제` delegate
         switch action {
         case .bottomSheet(let delegate, let link):
             switch delegate {
@@ -149,10 +152,6 @@ private extension RemindFeature {
     }
     /// - Delegate Effect
     func handleDelegateAction(_ action: Action.DelegateAction, state: inout State) -> Effect<Action> {
-        return .none
-    }
-    
-    func handleBindingAction(_ action: BindingAction<State>, state: inout State) -> Effect<Action> {
         return .none
     }
 }
