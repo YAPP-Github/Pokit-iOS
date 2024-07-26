@@ -22,16 +22,18 @@ public struct AgreeToTermsFeature {
         var isMarketingAgree: Bool = false
     }
     /// - Action
-    public enum Action: FeatureAction, BindableAction, ViewAction {
+    public enum Action: FeatureAction, ViewAction {
         case view(View)
         case inner(InnerAction)
         case async(AsyncAction)
         case scope(ScopeAction)
         case delegate(DelegateAction)
-        case binding(BindingAction<State>)
         
         @CasePathable
-        public enum View: Equatable {
+        public enum View: Equatable, BindableAction {
+            /// - Binding
+            case binding(BindingAction<State>)
+            /// - Button Tapped
             case nextButtonTapped
             case backButtonTapped
         }
@@ -68,13 +70,11 @@ public struct AgreeToTermsFeature {
             /// - Delegate
         case .delegate(let delegateAction):
             return handleDelegateAction(delegateAction, state: &state)
-        case .binding(let bindingAction):
-            return handleBindingAction(bindingAction, state: &state)
         }
     }
     /// - Reducer body
     public var body: some ReducerOf<Self> {
-        BindingReducer()
+        BindingReducer(action: \.view)
         Reduce(self.core)
     }
 }
@@ -87,21 +87,34 @@ private extension AgreeToTermsFeature {
             return .send(.delegate(.pushRegisterNicknameView))
         case .backButtonTapped:
             return .run { _ in await self.dismiss() }
+        case .binding(\.isAgreeAllTerms):
+            return .send(.inner(.allAgreementSelected))
+        case .binding(\.isPersonalAndUsageArgee):
+            return .send(.inner(.personalAndUsageAgreeSelected))
+        case .binding(\.isServiceAgree):
+            return .send(.inner(.serviceAgreeSelected))
+        case .binding(\.isMarketingAgree):
+            return .send(.inner(.marketingAgreeSelected))
+        case .binding:
+            return .none
         }
     }
     /// - Inner Effect
     func handleInnerAction(_ action: Action.InnerAction, state: inout State) -> Effect<Action> {
         switch action {
+        /// - 개별 동의 체크 박스를 확인 하여 전체 동의 체크 여부 결정
         case .checkAgreements:
             let isAgreeAllterm = state.isPersonalAndUsageArgee
             && state.isServiceAgree
             && state.isMarketingAgree
             state.isAgreeAllTerms = isAgreeAllterm
             return .none
+        /// - 각각의 개별 동의 체크박스가 선택 되었을 때
         case .personalAndUsageAgreeSelected,
                 .serviceAgreeSelected,
                 .marketingAgreeSelected:
             return .send(.inner(.checkAgreements))
+        /// - 전체 동의 체크박으가 선택 되었을 때
         case .allAgreementSelected:
             state.isPersonalAndUsageArgee = state.isAgreeAllTerms
             state.isServiceAgree          = state.isAgreeAllTerms
@@ -120,20 +133,5 @@ private extension AgreeToTermsFeature {
     /// - Delegate Effect
     func handleDelegateAction(_ action: Action.DelegateAction, state: inout State) -> Effect<Action> {
         return .none
-    }
-    
-    func handleBindingAction(_ action: BindingAction<State>, state: inout State) -> Effect<Action> {
-        switch action {
-        case \.isAgreeAllTerms:
-            return .send(.inner(.allAgreementSelected))
-        case \.isPersonalAndUsageArgee:
-            return .send(.inner(.personalAndUsageAgreeSelected))
-        case \.isServiceAgree:
-            return .send(.inner(.serviceAgreeSelected))
-        case \.isMarketingAgree:
-            return .send(.inner(.marketingAgreeSelected))
-        default:
-            return .none
-        }
     }
 }

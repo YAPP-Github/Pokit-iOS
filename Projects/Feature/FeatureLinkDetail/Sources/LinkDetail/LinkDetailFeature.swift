@@ -40,12 +40,15 @@ public struct LinkDetailFeature {
         
         @CasePathable
         public enum View: Equatable, BindableAction {
+            /// - Binding
+            case binding(BindingAction<State>)
+            /// - View OnAppeared
             case linkDetailViewOnAppeared
+            /// - Button Tapped
             case sharedButtonTapped
             case editButtonTapped
             case deleteButtonTapped
             case deleteAlertConfirmTapped
-            case binding(BindingAction<State>)
         }
         
         public enum InnerAction: Equatable {
@@ -130,7 +133,9 @@ private extension LinkDetailFeature {
         switch action {
         case .fetchMetadata(url: let url):
             return .run { send in
+                /// - 링크에 대한 메타데이터의 제목 및 썸네일 항목 파싱
                 let (title, item) = await linkPresentation.provideMetadata(url)
+                /// - 썸네일을 `UIImage`로 변환
                 let image = linkPresentation.convertImage(item)
                 await send(
                     .inner(.parsingInfo(title: title, image: image)),
@@ -143,6 +148,7 @@ private extension LinkDetailFeature {
             return .none
         case .parsingURL:
             guard let url = URL(string: state.link.url) else {
+                /// 🚨 Error Case [1]: 올바른 링크가 아닐 때
                 state.linkTitle = nil
                 state.linkImage = nil
                 return .none

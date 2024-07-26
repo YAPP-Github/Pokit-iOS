@@ -26,6 +26,7 @@ public struct SignUpDoneFeature {
         
         @CasePathable
         public enum View: Equatable {
+            /// - Button Tapped
             case startButtonTapped
             case backButtonTapped
         }
