@@ -10,7 +10,9 @@ import ProjectDescription
 public extension Settings {
     static var settings: Settings {
         return .settings(
-            base: ["OTHER_LDFLAGS": "$(inherited) -ObjC"]
+            base: [
+                "OTHER_LDFLAGS": "$(inherited) -ObjC",
+            ]
         )
     }
 }
