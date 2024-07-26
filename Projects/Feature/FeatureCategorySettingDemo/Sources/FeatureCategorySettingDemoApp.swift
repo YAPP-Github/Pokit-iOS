@@ -7,11 +7,25 @@
 
 import SwiftUI
 
+import ComposableArchitecture
+import FeatureCategorySetting
+
 @main
 struct FeatureCategorySettingDemoApp: App {
     var body: some Scene {
         WindowGroup {
-            // TODO: 루트 뷰 추가
+            NavigationStack {
+                PokitCategorySettingView(
+                    store: Store(
+                        initialState: .init(
+                            type: .수정,
+                            text: "맛집리스트",
+                            itemList: CategoryItemMock.mock
+                        ),
+                        reducer: { PokitCategorySettingFeature() }
+                    )
+                )
+            }
         }
     }
 }
