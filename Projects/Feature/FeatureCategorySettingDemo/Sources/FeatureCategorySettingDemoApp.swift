@@ -9,6 +9,7 @@ import SwiftUI
 
 import ComposableArchitecture
 import FeatureCategorySetting
+import Util
 
 @main
 struct FeatureCategorySettingDemoApp: App {
@@ -19,6 +20,7 @@ struct FeatureCategorySettingDemoApp: App {
                     store: Store(
                         initialState: .init(
                             type: .수정,
+                            selectedProfile: CategorySettingImageMock(imageId: 22, imageUrl: Constants.mockImageUrl),
                             text: "맛집리스트",
                             itemList: CategoryItemMock.mock
                         ),

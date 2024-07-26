@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Util
 
 public struct CategorySettingMock: Equatable {
     let categoryId: Int
@@ -17,6 +18,11 @@ public struct CategorySettingMock: Equatable {
 public struct CategorySettingImageMock: Equatable {
     let imageId: Int
     let imageUrl: String
+    
+    public init(imageId: Int, imageUrl: String) {
+        self.imageId = imageId
+        self.imageUrl = imageUrl
+    }
 }
 
 extension CategorySettingMock {
@@ -25,7 +31,7 @@ extension CategorySettingMock {
         categoryName: "대충 포킷명",
         categoryImage: CategorySettingImageMock(
             imageId: 1,
-            imageUrl: "https://picsum.photos/seed/picsum/200/300"
+            imageUrl: Constants.mockImageUrl
         )
     )
 }
@@ -34,47 +40,47 @@ extension CategorySettingImageMock {
     static var mock: [Self] = [
         Self(
             imageId: 0,
-            imageUrl: "https://picsum.photos/seed/picsum/200/300"
+            imageUrl: Constants.mockImageUrl
         ),
         Self(
             imageId: 1,
-            imageUrl: "https://picsum.photos/seed/picsum/200/300"
+            imageUrl: Constants.mockImageUrl
         ),
         Self(
             imageId: 2,
-            imageUrl: "https://picsum.photos/seed/picsum/200/300"
+            imageUrl: Constants.mockImageUrl
         ),
         Self(
             imageId: 3,
-            imageUrl: "https://picsum.photos/seed/picsum/200/300"
+            imageUrl: Constants.mockImageUrl
         ),
         Self(
             imageId: 4,
-            imageUrl: "https://picsum.photos/seed/picsum/200/300"
+            imageUrl: Constants.mockImageUrl
         ),
         Self(
             imageId: 5,
-            imageUrl: "https://picsum.photos/seed/picsum/200/300"
+            imageUrl: Constants.mockImageUrl
         ),
         Self(
             imageId: 6,
-            imageUrl: "https://picsum.photos/seed/picsum/200/300"
+            imageUrl: Constants.mockImageUrl
         ),
         Self(
             imageId: 7,
-            imageUrl: "https://picsum.photos/seed/picsum/200/300"
+            imageUrl: Constants.mockImageUrl
         ),
         Self(
             imageId: 8,
-            imageUrl: "https://picsum.photos/seed/picsum/200/300"
+            imageUrl: Constants.mockImageUrl
         ),
         Self(
             imageId: 9,
-            imageUrl: "https://picsum.photos/seed/picsum/200/300"
+            imageUrl: Constants.mockImageUrl
         ),
         Self(
             imageId: 10,
-            imageUrl: "https://picsum.photos/seed/picsum/200/300"
+            imageUrl: Constants.mockImageUrl
         ),
     ]
 }
