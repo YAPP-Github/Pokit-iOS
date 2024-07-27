@@ -7,36 +7,60 @@
 
 import SwiftUI
 
-public struct PokitList<Content: View>: View {
-    @ViewBuilder private var label: Content
-    
-    private let title: String
-    private let action: () -> Void
+import Util
+
+public struct PokitList<Item: PokitSelectItem>: View {
+    private let selectedItem: Item?
+    private let list: [Item]
+    private let action: (Item) -> Void
     
     public init(
-        title: String,
-        action: @escaping () -> Void,
-        @ViewBuilder label: @escaping () -> Content
+        selectedItem: Item?,
+        list: [Item],
+        action: @escaping (Item) -> Void
     ) {
-        self.title = title
+        self.selectedItem = selectedItem
+        self.list = list
         self.action = action
-        self.label = label()
     }
     
     public var body: some View {
-        Button(action: action) {
+        ScrollView {
+            LazyVStack(spacing: 0) {
+                ForEach(self.list) { item in
+                    listCell(item)
+                }
+            }
+        }
+        .padding(.top, 24)
+        .padding(.bottom, 20)
+    }
+    
+    @ViewBuilder
+    private func listCell(_ item: Item) -> some View {
+        let isSelected = self.selectedItem == item
+        
+        Button {
+            action(item)
+        } label: {
             HStack {
-                Text(title)
-                    .pokitFont(.b1(.b))
-                    .foregroundStyle(.pokit(.text(.primary)))
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(item.categoryType)
+                        .pokitFont(.b1(.b))
+                        .foregroundStyle(.pokit(.text(.primary)))
+                    
+                    Text("링크 \(item.contentSize)개")
+                        .pokitFont(.detail1)
+                        .foregroundStyle(.pokit(.text(.tertiary)))
+                }
                 
                 Spacer()
-                
-                label
             }
-            .padding(.vertical, 20)
-            .padding(.horizontal, 16)
+            .padding(.leading, 28)
+            .padding(.trailing, 20)
+            .padding(.vertical, 18)
+            .background(isSelected ? .pokit(.bg(.primary)) : .clear)
         }
+        .animation(.smooth, value: isSelected)
     }
 }
-
