@@ -10,6 +10,9 @@ import SwiftUI
 import Util
 
 public struct PokitList<Item: PokitSelectItem>: View {
+    @Namespace
+    private var heroEffect
+    
     private let selectedItem: Item?
     private let list: [Item]
     private let action: (Item) -> Void
@@ -32,8 +35,6 @@ public struct PokitList<Item: PokitSelectItem>: View {
                 }
             }
         }
-        .padding(.top, 24)
-        .padding(.bottom, 20)
     }
     
     @ViewBuilder
@@ -59,7 +60,12 @@ public struct PokitList<Item: PokitSelectItem>: View {
             .padding(.leading, 28)
             .padding(.trailing, 20)
             .padding(.vertical, 18)
-            .background(isSelected ? .pokit(.bg(.primary)) : .clear)
+            .background {
+                if isSelected {
+                    Color.pokit(.bg(.primary))
+                        .matchedGeometryEffect(id: "SELECT", in: heroEffect)
+                }
+            }
         }
         .animation(.smooth, value: isSelected)
     }

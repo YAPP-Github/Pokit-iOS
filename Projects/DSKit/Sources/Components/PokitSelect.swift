@@ -97,6 +97,8 @@ public struct PokitSelect<Item: PokitSelectItem>: View {
             action(item)
             listCellTapped(item)
         }
+        .padding(.top, 24)
+        .padding(.bottom, 20)
     }
     
     private func partSelectButtonTapped() {
