@@ -49,6 +49,7 @@ public struct PokitIconRChip: View {
                     .frame(width: self.iconSize.width, height: self.iconSize.height)
                     .foregroundStyle(self.state.iconColor)
             }
+            .disabled(iconTappedAction == nil)
         }
         .padding(.leading, self.lPadding)
         .padding(.trailing, self.tPadding)

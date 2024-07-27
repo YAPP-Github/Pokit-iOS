@@ -29,9 +29,10 @@ public struct PokitList<Item: PokitSelectItem>: View {
     
     public var body: some View {
         ScrollView {
-            LazyVStack(spacing: 0) {
+            VStack(spacing: 0) {
                 ForEach(self.list) { item in
                     listCell(item)
+                        .pokitScrollTransition(.opacity)
                 }
             }
         }

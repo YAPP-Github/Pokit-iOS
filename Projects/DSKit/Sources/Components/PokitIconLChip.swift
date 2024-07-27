@@ -45,6 +45,7 @@ public struct PokitIconLChip: View {
                     .frame(width: self.iconSize.width, height: self.iconSize.height)
                     .foregroundStyle(self.state.iconColor)
             }
+            .disabled(iconTappedAction == nil)
             
             Text(self.labelText)
                 .pokitFont(self.font)
