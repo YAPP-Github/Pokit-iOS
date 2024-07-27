@@ -89,45 +89,14 @@ public struct PokitSelect<Item: PokitSelectItem>: View {
             .animation(.smooth, value: self.state)
     }
     
-    @ViewBuilder
-    private func listCell(_ item: Item) -> some View {
-        let isSelected = self.selectedItem == item
-        
-        Button {
+    private var listSheet: some View {
+        PokitList(
+            selectedItem: selectedItem,
+            list: list
+        ) { item in
             action(item)
             listCellTapped(item)
-        } label: {
-            HStack {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(item.categoryType)
-                        .pokitFont(.b1(.b))
-                        .foregroundStyle(.pokit(.text(.primary)))
-                    
-                    Text("링크 \(item.contentSize)개")
-                        .pokitFont(.detail1)
-                        .foregroundStyle(.pokit(.text(.tertiary)))
-                }
-                
-                Spacer()
-            }
-            .padding(.leading, 28)
-            .padding(.trailing, 20)
-            .padding(.vertical, 18)
-            .background(isSelected ? .pokit(.bg(.primary)) : .clear)
         }
-        .animation(.smooth, value: isSelected)
-    }
-    
-    private var listSheet: some View {
-        ScrollView {
-            LazyVStack(spacing: 0) {
-                ForEach(self.list) { item in
-                    listCell(item)
-                }
-            }
-        }
-        .padding(.top, 24)
-        .padding(.bottom, 20)
     }
     
     private func partSelectButtonTapped() {
@@ -191,4 +160,3 @@ public extension PokitSelect {
         }
     }
 }
-

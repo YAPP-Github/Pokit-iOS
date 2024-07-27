@@ -12,17 +12,20 @@ public struct PokitIconLChip: View {
     private let state: PokitButtonStyle.State
     private let size: PokitChipStyle.Size
     private let action: (() -> Void)?
+    private let iconTappedAction: (() -> Void)?
     
     public init(
         _ labelText: String,
         state: PokitButtonStyle.State,
         size: PokitChipStyle.Size,
-        action: (() -> Void)? = nil
+        action: (() -> Void)? = nil,
+        iconTappedAction: (() -> Void)? = nil
     ) {
         self.labelText = labelText
         self.state = state
         self.size = size
         self.action = action
+        self.iconTappedAction = iconTappedAction
     }
     
     public var body: some View {
@@ -34,10 +37,14 @@ public struct PokitIconLChip: View {
     
     private var label: some View {
         HStack(spacing: self.spacing) {
-            Image(.icon(.x))
-                .resizable()
-                .frame(width: self.iconSize.width, height: self.iconSize.height)
-                .foregroundStyle(self.state.iconColor)
+            Button {
+                iconTappedAction?()
+            } label: {
+                Image(.icon(.x))
+                    .resizable()
+                    .frame(width: self.iconSize.width, height: self.iconSize.height)
+                    .foregroundStyle(self.state.iconColor)
+            }
             
             Text(self.labelText)
                 .pokitFont(self.font)
@@ -105,14 +112,5 @@ public struct PokitIconLChip: View {
         case .medium:
             return .init(width: 22, height: 22)
         }
-    }
-}
-
-#Preview {
-    VStack {
-        PokitIconLChip("텍스트", state: .filled(.primary), size: .medium)
-        
-        
-        PokitIconLChip("텍스트", state: .filled(.primary), size: .small)
     }
 }
