@@ -101,7 +101,7 @@ public struct PokitPartSwitchRadio<Selection: Equatable>: View {
                     self.background(.default(self.style))
                 }
             }
-            .animation(.spring(bounce: 0.3), value: self.selection)
+            .animation(.pokitSpring, value: self.selection)
     }
 }
 

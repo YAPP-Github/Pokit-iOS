@@ -1,7 +1,7 @@
 {
   "images" : [
     {
-      "filename" : "icon_24_folder.svg",
+      "filename" : "icon_24_home_fill.svg",
       "idiom" : "universal",
       "scale" : "1x"
     },
@@ -19,6 +19,6 @@
     "version" : 1
   },
   "properties" : {
-    "template-rendering-intent" : "template"
+    "preserves-vector-representation" : true
   }
 }

@@ -8,6 +8,7 @@ import UIKit
 
 import ComposableArchitecture
 import CoreLinkPresentation
+import DSKit
 import Util
 
 @Reducer
@@ -37,6 +38,7 @@ public struct AddLinkFeature {
         var link: AddLinkMock?
         var linkTitle: String? = nil
         var linkImage: UIImage? = nil
+        var showPopup: Bool = false
         @Presents var addPokitSheet: AddPokitSheetFeature.State?
     }
     
@@ -51,7 +53,9 @@ public struct AddLinkFeature {
         
         @CasePathable
         public enum View: Equatable, BindableAction {
+            /// - Binding
             case binding(BindingAction<State>)
+            /// - Button Tapped
             case pokitSelectButtonTapped
             case pokitSelectItemButtonTapped(pokit: PokitMock)
             case addLinkViewOnAppeared
@@ -63,6 +67,7 @@ public struct AddLinkFeature {
             case fetchMetadata(url: URL)
             case parsingInfo(title: String?, image: UIImage?)
             case parsingURL
+            case showPopup
         }
         
         public enum AsyncAction: Equatable { case doNothing }
@@ -125,6 +130,7 @@ private extension AddLinkFeature {
             return .run { send in
                 await send(.inner(.parsingURL))
             }
+            /// - 1초마다 `urlText`변화의 마지막을 감지하여 이벤트 방출
             .throttle(
                 id: CancelID.urlTextChanged,
                 for: 1,
@@ -151,6 +157,10 @@ private extension AddLinkFeature {
             )
             return .none
         case .addPokitButtonTapped:
+            guard state.pokitList.count < 30 else {
+                /// 🚨 Error Case [1]: 포킷 갯수가 30개 이상일 경우
+                return .send(.inner(.showPopup), animation: .pokitSpring)
+            }
             state.addPokitSheet = AddPokitSheetFeature.State()
             return .none
         }
@@ -161,7 +171,9 @@ private extension AddLinkFeature {
         switch action {
         case .fetchMetadata(url: let url):
             return .run { send in
+                /// - 링크에 대한 메타데이터의 제목 및 썸네일 항목 파싱
                 let (title, item) = await linkPresentation.provideMetadata(url)
+                /// - 썸네일을 `UIImage`로 변환
                 let image = linkPresentation.convertImage(item)
                 await send(
                     .inner(.parsingInfo(title: title, image: image)),
@@ -174,11 +186,15 @@ private extension AddLinkFeature {
             return .none
         case .parsingURL:
             guard let url = URL(string: state.urlText) else {
+                /// 🚨 Error Case [1]: 올바른 링크가 아닐 때
                 state.linkTitle = nil
                 state.linkImage = nil
                 return .none
             }
             return .send(.inner(.fetchMetadata(url: url)), animation: .smooth)
+        case .showPopup:
+            state.showPopup = true
+            return .none
         }
     }
     

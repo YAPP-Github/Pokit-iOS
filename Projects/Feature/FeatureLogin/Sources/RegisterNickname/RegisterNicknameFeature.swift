@@ -19,15 +19,17 @@ public struct RegisterNicknameFeature {
         var nicknameText: String = ""
     }
     /// - Action
-    public enum Action: FeatureAction, BindableAction, ViewAction {
+    public enum Action: FeatureAction, ViewAction {
         case view(View)
         case inner(InnerAction)
         case async(AsyncAction)
         case scope(ScopeAction)
         case delegate(DelegateAction)
-        case binding(BindingAction<State>)
         
-        public enum View: Equatable {
+        public enum View: Equatable, BindableAction {
+            /// - Binding
+            case binding(BindingAction<State>)
+            /// - Button Tapped
             case nextButtonTapped
             case backButtonTapped
         }
@@ -58,13 +60,11 @@ public struct RegisterNicknameFeature {
             /// - Delegate
         case .delegate(let delegateAction):
             return handleDelegateAction(delegateAction, state: &state)
-        case .binding(let bindingAction):
-            return handleBindingAction(bindingAction, state: &state)
         }
     }
     /// - Reducer body
     public var body: some ReducerOf<Self> {
-        BindingReducer()
+        BindingReducer(action: \.view)
         Reduce(self.core)
     }
 }
@@ -77,6 +77,8 @@ private extension RegisterNicknameFeature {
             return .send(.delegate(.pushSelectFieldView))
         case .backButtonTapped:
             return .run { _ in await self.dismiss() }
+        case .binding:
+            return .none
         }
     }
     /// - Inner Effect
@@ -94,14 +96,5 @@ private extension RegisterNicknameFeature {
     /// - Delegate Effect
     func handleDelegateAction(_ action: Action.DelegateAction, state: inout State) -> Effect<Action> {
         return .none
-    }
-    
-    func handleBindingAction(_ action: BindingAction<State>, state: inout State) -> Effect<Action> {
-        switch action {
-        case \.nicknameText:
-            return .none
-        default:
-            return .none
-        }
     }
 }

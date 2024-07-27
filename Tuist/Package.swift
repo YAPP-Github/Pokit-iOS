@@ -11,7 +11,7 @@ import PackageDescription
         // productTypes: ["Alamofire": .framework,]
         productTypes: [
             "GoogleSignIn": .framework,
-            "ComposableArchitecture": .framework
+            "ComposableArchitecture": TuistRelease.isRelease ? .staticFramework : .framework
         ]
     )
 #endif
