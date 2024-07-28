@@ -45,7 +45,7 @@ extension SearchMock {
                 thumbNail: "https://picsum.photos/seed/picsum/200/300",
                 createAt: .now,
                 categoryType: "텍스트",
-                isRead: false,
+                isRead: true,
                 domain: "youtube"
             ),
             .init(
@@ -61,7 +61,7 @@ extension SearchMock {
                 thumbNail: "https://picsum.photos/seed/picsum/200/300",
                 createAt: .now,
                 categoryType: "텍스트",
-                isRead: false,
+                isRead: true,
                 domain: "youtube"
             )
         ]
