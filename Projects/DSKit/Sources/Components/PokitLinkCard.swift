@@ -38,7 +38,7 @@ public struct PokitLinkCard<Item: PokitLinkCardItem>: View {
                 HStack {
                     title
                     
-                    Spacer()
+                    Spacer(minLength: 24)
                 }
                 
                 HStack {
