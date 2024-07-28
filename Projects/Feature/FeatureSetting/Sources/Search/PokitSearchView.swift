@@ -26,7 +26,7 @@ public struct PokitSearchView: View {
 public extension PokitSearchView {
     var body: some View {
         WithPerceptionTracking {
-            VStack {
+            VStack(spacing: 0) {
                 navigationBar
                 
                 recentSearch
@@ -34,6 +34,10 @@ public extension PokitSearchView {
                 
                 PokitDivider()
                     .padding(.top, 28)
+                
+                if !store.resultMock.isEmpty {
+                    resultList
+                }
                 
                 Spacer()
             }
@@ -44,6 +48,19 @@ public extension PokitSearchView {
                 )
             ) { store in
                 FilterBottomSheet(store: store)
+            }
+            .sheet(item: $store.bottomSheetItem) { link in
+                PokitBottomSheet(
+                    items: [.share, .edit, .delete],
+                    height: 224
+                ) { send(.bottomSheetButtonTapped(delegate: $0, link: link)) }
+            }
+            .sheet(item: $store.alertItem) { link in
+                PokitAlert(
+                    "링크를 정말 삭제하시겠습니까?",
+                    message: "함께 저장한 모든 정보가 삭제되며, \n복구하실 수 없습니다.",
+                    confirmText: "삭제"
+                ) { send(.deleteAlertConfirmTapped(link: link)) }
             }
         }
     }
@@ -176,7 +193,7 @@ private extension PokitSearchView {
         PokitIconLButton(
             "필터",
             .icon(.filter),
-            state: .stroke(.secondary),
+            state: store.isFiltered ? .filled(.primary) : .stroke(.secondary),
             size: .small,
             shape: .round,
             action: { send(.filterButtonTapped) }
@@ -214,6 +231,36 @@ private extension PokitSearchView {
             shape: .round,
             action: { send(.dateFilterButtonTapped) }
         )
+    }
+    
+    var resultList: some View {
+        VStack(alignment: .leading, spacing: 20) {
+            PokitIconLTextLink(
+                store.isResultAscending ? "최신순" : "오래된순",
+                icon: .icon(.align),
+                action: { send(.sortTextLinkTapped, animation: .smooth) }
+            )
+            .contentTransition(.numericText())
+            .padding(.horizontal, 20)
+            
+            ScrollView {
+                LazyVStack {
+                    ForEach(store.resultMock) { link in
+                        let isFirst = link == store.resultMock.first
+                        let isLast = link == store.resultMock.last
+                        
+                        PokitLinkCard(
+                            link: link,
+                            action: { send(.linkCardTapped(link: link)) },
+                            kebabAction: { send(.kebabButtonTapped(link: link)) }
+                        )
+                        .divider(isFirst: isFirst, isLast: isLast)
+                    }
+                }
+                .padding(.horizontal, 20)
+            }
+        }
+        .padding(.vertical, 24)
     }
 }
 //MARK: - Preview
