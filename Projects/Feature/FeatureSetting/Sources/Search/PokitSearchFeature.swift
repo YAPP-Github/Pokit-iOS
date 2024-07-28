@@ -40,7 +40,7 @@ public struct PokitSearchFeature {
         var pokitFilter: SearchPokitMock? = nil
         var favoriteFilter: Bool = false
         var unreadFilter: Bool = false
-        var linkTypeString = "모아보기"
+        var linkTypeText = "모아보기"
         var startDateFilter: Date? = nil
         var endDateFilter: Date? = nil
         @Presents var filterBottomSheet: FilterBottomFeature.State?
@@ -284,15 +284,15 @@ private extension PokitSearchFeature {
             
             if favoriteFilter && unreadFilter {
                 /// - 즐겨찾기, 안읽음 모두 선택
-                state.linkTypeString = "즐겨찾기, 안읽음"
+                state.linkTypeText = "즐겨찾기, 안읽음"
             } else if favoriteFilter {
                 /// - 즐겨찾기만 선택
-                state.linkTypeString = "즐겨찾기"
+                state.linkTypeText = "즐겨찾기"
             } else if unreadFilter {
                 /// - 안읽음만 선택
-                state.linkTypeString = "안읽음"
+                state.linkTypeText = "안읽음"
             } else {
-                state.linkTypeString = "모아보기"
+                state.linkTypeText = "모아보기"
             }
             return .none
         case .dismissBottomSheet:

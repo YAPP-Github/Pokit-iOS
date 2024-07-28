@@ -213,7 +213,7 @@ private extension PokitSearchView {
     
     var linkTypeFilterButton: some View {
         PokitIconRButton(
-            store.linkTypeString,
+            store.linkTypeText,
             .icon(.arrowDown),
             state: store.favoriteFilter || store.unreadFilter ? .stroke(.primary) : .default(.primary),
             size: .small,
