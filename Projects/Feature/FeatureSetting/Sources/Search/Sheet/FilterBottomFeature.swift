@@ -16,17 +16,31 @@ public struct FilterBottomFeature {
     /// - State
     @ObservableState
     public struct State: Equatable {
-        public init() {
-            SearchPokitMock.addLinkMock.forEach { self.pokitList.append($0) }
+        public init(
+            filterType currentType: FilterType,
+            pokitFilter selectedPokit: SearchPokitMock?,
+            favoriteFilter isFavorite: Bool,
+            unreadFilter isUnread: Bool,
+            startDateFilter startDate: Date?,
+            endDateFilter endDate: Date?
+        ) {
+            self.currentType = currentType
+            self.selectedPokit = selectedPokit
+            self.isFavorite = isFavorite
+            self.isUnread = isUnread
+            self.dateSelected = startDate != nil || endDate != nil
+            self.startDate = startDate ?? .now
+            self.endDate = endDate ?? .now
         }
         
-        var pokitList: IdentifiedArrayOf<SearchPokitMock> = .init()
-        var selectedPokit: SearchPokitMock? = nil
-        var isFavorite: Bool = false
-        var isUnread: Bool = false
-        var dateSelected: Bool = false
-        var startDate: Date = .now
-        var endDate: Date = .now
+        var currentType: FilterType
+        var pokitList = SearchPokitMock.addLinkMock
+        var selectedPokit: SearchPokitMock?
+        var isFavorite: Bool
+        var isUnread: Bool
+        var dateSelected: Bool
+        var startDate: Date
+        var endDate: Date
         var startDateText: String {
             let fomatter = DateFormatter()
             fomatter.dateFormat = "yy.MM.dd"
@@ -58,6 +72,8 @@ public struct FilterBottomFeature {
             case favoriteChipTapped
             case unreadChipTapped
             case dateChipTapped
+            case favoriteButtonTapped
+            case unreadButtonTapped
         }
         
         public enum InnerAction: Equatable { case doNothing }
@@ -159,6 +175,12 @@ private extension FilterBottomFeature {
             state.endDate = .now
             state.dateSelected = false
             return .none
+        case .favoriteButtonTapped:
+            state.isFavorite.toggle()
+            return .none
+        case .unreadButtonTapped:
+            state.isUnread.toggle()
+            return .none
         }
     }
     
@@ -180,5 +202,13 @@ private extension FilterBottomFeature {
     /// - Delegate Effect
     func handleDelegateAction(_ action: Action.DelegateAction, state: inout State) -> Effect<Action> {
         return .none
+    }
+}
+
+public extension FilterBottomFeature {
+    enum FilterType {
+        case pokit
+        case linkType
+        case date
     }
 }

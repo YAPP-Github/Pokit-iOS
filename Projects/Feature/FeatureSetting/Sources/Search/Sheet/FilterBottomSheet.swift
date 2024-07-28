@@ -16,8 +16,6 @@ public struct FilterBottomSheet: View {
     public var store: StoreOf<FilterBottomFeature>
     @Namespace
     private var heroEffect
-    @State
-    private var currentTab: Tab = .pokit
     
     /// - Initializer
     public init(store: StoreOf<FilterBottomFeature>) {
@@ -31,12 +29,13 @@ public extension FilterBottomSheet {
             VStack(spacing: 4) {
                 tabs
                     .padding(.horizontal, 20)
+                    .padding(.top, 36)
                 
-                switch currentTab {
+                switch store.currentType {
                 case .pokit:
                     PokitList(
                         selectedItem: store.selectedPokit,
-                        list: store.pokitList.elements,
+                        list: store.pokitList,
                         action: { send(.pokitListCellTapped(pokit: $0), animation: .pokitSpring) }
                     )
                 case .linkType:
@@ -56,7 +55,7 @@ public extension FilterBottomSheet {
                     PokitBottomButton(
                         "검색하기",
                         state: .filled(.primary),
-                        action: {}
+                        action: { send(.searchButtonTapped, animation: .pokitSpring) }
                     )
                     .background()
                 }
@@ -74,21 +73,21 @@ private extension FilterBottomSheet {
         HStack(spacing: 4) {
             PokitPartTap(
                 "포킷",
-                selection: $currentTab,
+                selection: $store.currentType,
                 to: .pokit
             )
             .matchedGeometryEffectBackground(id: heroEffect)
             
             PokitPartTap(
                 "모아보기",
-                selection: $currentTab,
+                selection: $store.currentType,
                 to: .linkType
             )
             .matchedGeometryEffectBackground(id: heroEffect)
             
             PokitPartTap(
                 "기간",
-                selection: $currentTab,
+                selection: $store.currentType,
                 to: .date
             )
             .matchedGeometryEffectBackground(id: heroEffect)
@@ -100,13 +99,13 @@ private extension FilterBottomSheet {
             linkTypeButton(
                 "즐겨찾기",
                 isSelected: $store.isFavorite,
-                action: {}
+                action: { send(.favoriteButtonTapped, animation: .pokitSpring) }
             )
             
             linkTypeButton(
                 "안읽음",
                 isSelected: $store.isUnread,
-                action: {}
+                action: { send(.unreadButtonTapped, animation: .pokitSpring) }
             )
             
             Spacer()
@@ -174,7 +173,7 @@ private extension FilterBottomSheet {
                 if store.dateSelected {
                     let sameDate = store.startDate == store.endDate
                     PokitIconRChip(
-                        sameDate ? "\(store.startDateText)" : "\(store.startDateText) ~ \(store.endDateText)",
+                        sameDate ? "\(store.startDateText)" : "\(store.startDateText)~\(store.endDateText)",
                         state: .stroke(.primary),
                         size: .small,
                         action: { send(.dateChipTapped, animation: .pokitSpring) }
@@ -196,19 +195,18 @@ private extension FilterBottomSheet {
     }
 }
 
-private extension FilterBottomSheet {
-    enum Tab {
-        case pokit
-        case linkType
-        case date
-    }
-}
-
 //MARK: - Preview
 #Preview {
     FilterBottomSheet(
         store: Store(
-            initialState: .init(),
+            initialState: .init(
+                filterType: .pokit,
+                pokitFilter: nil,
+                favoriteFilter: false,
+                unreadFilter: false,
+                startDateFilter: nil,
+                endDateFilter: nil
+            ),
             reducer: { FilterBottomFeature() }
         )
     )
