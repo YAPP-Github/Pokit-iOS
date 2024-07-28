@@ -41,6 +41,7 @@ public extension PokitSearchView {
                 
                 Spacer()
             }
+            .navigationBarBackButtonHidden(true)
             .sheet(
                 item: $store.scope(
                     state: \.filterBottomSheet,
@@ -71,7 +72,7 @@ private extension PokitSearchView {
         HStack(spacing: 8) {
             PokitToolbarButton(
                 .icon(.arrowLeft),
-                action: {}
+                action: { send(.backButtonTapped) }
             )
             
             PokitIconRInput(

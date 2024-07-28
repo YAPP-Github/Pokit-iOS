@@ -13,7 +13,7 @@ import Util
 @Reducer
 public struct PokitSearchFeature {
     /// - Dependency
-
+    @Dependency(\.dismiss) var dismiss
     /// - State
     @ObservableState
     public struct State: Equatable {
@@ -82,6 +82,7 @@ public struct PokitSearchFeature {
             )
             case deleteAlertConfirmTapped(link: SearchMock)
             case sortTextLinkTapped
+            case backButtonTapped
             /// - TextInput OnSubmitted
             case searchTextInputOnSubmitted
             
@@ -233,6 +234,10 @@ private extension PokitSearchFeature {
                 SearchMock.resultMock.reversed().forEach{ state.resultMock.append($0) }
             }
             return .none
+        case .backButtonTapped:
+            return .run { _ in
+                await dismiss()
+            }
         }
     }
     
