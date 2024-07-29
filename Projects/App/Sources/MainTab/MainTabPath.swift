@@ -7,7 +7,7 @@
 
 import ComposableArchitecture
 import FeatureSetting
-import FeatureCategoryDetail
+import FeatureCategorySetting
 
 @Reducer
 public struct MainTabPath {
@@ -15,14 +15,17 @@ public struct MainTabPath {
     public enum State: Equatable {
         case alert(PokitAlertBoxFeature.State)
         case setting(PokitSettingFeature.State)
+        case 포킷추가및수정(PokitCategorySettingFeature.State)
     }
     public enum Action {
         case alert(PokitAlertBoxFeature.Action)
         case setting(PokitSettingFeature.Action)
+        case 포킷추가및수정(PokitCategorySettingFeature.Action)
     }
     public var body: some Reducer<State, Action> {
         Scope(state: \.alert, action: \.alert) { PokitAlertBoxFeature() }
         Scope(state: \.setting, action: \.setting) { PokitSettingFeature() }
+        Scope(state: \.포킷추가및수정, action: \.포킷추가및수정) { PokitCategorySettingFeature() }
     }
 }
 
@@ -42,6 +45,15 @@ public extension MainTabFeature {
             /// - 네비게이션 바 `설정`버튼 눌렀을 때
             case .pokit(.delegate(.settingButtonTapped)):
                 state.path.append(.setting(PokitSettingFeature.State()))
+                return .none
+            /// - 포킷 `추가` or `수정`버튼 눌렀을 때
+            case .pokit(.delegate(.수정하기(let selectedItem))):
+                state.path.append(.포킷추가및수정(PokitCategorySettingFeature.State(type: .수정, itemList: CategoryItemMock.mock)))
+                return .none
+            
+            case let .path(.element(_, action: .포킷추가및수정(.delegate(.settingSuccess(item))))):
+                
+                state.path.removeLast()
                 return .none
             case let .path:
                 return .none

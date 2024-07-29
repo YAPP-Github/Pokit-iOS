@@ -11,7 +11,7 @@ import DSKit
 import FeaturePokit
 import FeatureRemind
 import FeatureSetting
-import FeatureCategoryDetail
+import FeatureCategorySetting
 
 
 @ViewAction(for: MainTabFeature.self)
@@ -41,6 +41,10 @@ public extension MainTabView {
                 case .setting:
                     if let store = store.scope(state: \.setting, action: \.setting) {
                         PokitSettingView(store: store)
+                    }
+                case .포킷추가및수정:
+                    if let store = store.scope(state: \.포킷추가및수정, action: \.포킷추가및수정) {
+                        PokitCategorySettingView(store: store)
                     }
                 }
             }

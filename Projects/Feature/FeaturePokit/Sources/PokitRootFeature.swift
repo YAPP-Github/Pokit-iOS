@@ -85,6 +85,8 @@ public struct PokitRootFeature {
             case searchButtonTapped
             case alertButtonTapped
             case settingButtonTapped
+            
+            case 수정하기(PokitRootCardMock)
         }
     }
     
@@ -233,6 +235,7 @@ private extension PokitRootFeature {
                     /// 🚨 Error Case [1]: 항목을 수정하려는데 항목이 없을 때
                     return .none
                 }
+                ///Todo: 링크수정으로 이동
                 return .none
                 
             case .folder(.포킷):
@@ -240,7 +243,13 @@ private extension PokitRootFeature {
                     /// 🚨 Error Case [1]: 항목을 수정하려는데 항목이 없을 때
                     return .none
                 }
-                return .none
+                /// [1] 케밥을 종료
+                state.isKebobSheetPresented = false
+                /// [2] 수정하기로 이동
+                return .run { [item = state.selectedKebobItem] send in
+                    guard let item else { return }
+                    await send(.delegate(.수정하기(item)))
+                }
             default: return .none
             }
             
