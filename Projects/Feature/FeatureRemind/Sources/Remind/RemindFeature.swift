@@ -60,6 +60,8 @@ public struct RemindFeature {
         public enum DelegateAction: Equatable {
             case showLinkDetailView(link: LinkMock)
             case pushAddLinkView(link: LinkMock)
+            case bellButtonTapped
+            case searchButtonTapped
         }
     }
     /// initiallizer
@@ -96,9 +98,9 @@ private extension RemindFeature {
     func handleViewAction(_ action: Action.View, state: inout State) -> Effect<Action> {
         switch action {
         case .bellButtonTapped:
-            return .none
+            return .run { send in await send(.delegate(.bellButtonTapped)) }
         case .searchButtonTapped:
-            return .none
+            return .run { send in await send(.delegate(.searchButtonTapped)) }
         case .favoriteNavigationLinkTapped:
             return .none
         case .unreadNavigationLinkTapped:

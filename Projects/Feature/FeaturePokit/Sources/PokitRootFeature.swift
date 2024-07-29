@@ -75,7 +75,11 @@ public struct PokitRootFeature {
             case deleteBottomSheet(PokitDeleteBottomSheet.Delegate)
         }
         
-        public enum DelegateAction: Equatable { case doNothing }
+        public enum DelegateAction: Equatable {
+            case searchButtonTapped
+            case alertButtonTapped
+            case settingButtonTapped
+        }
     }
     
     /// - Initiallizer
@@ -122,11 +126,11 @@ private extension PokitRootFeature {
             return .none
         /// - Navigation Bar Tapped Action
         case .searchButtonTapped:
-            return .none
+            return .run { send in await send(.delegate(.searchButtonTapped)) }
         case .alertButtonTapped:
-            return .none
+            return .run { send in await send(.delegate(.alertButtonTapped)) }
         case .settingButtonTapped:
-            return .none
+            return .run { send in await send(.delegate(.settingButtonTapped)) }
         /// - Filter Action
             /// 포킷 / 미분류 버튼 눌렀을 때
         case .filterButtonTapped(let selectedFolderType):
