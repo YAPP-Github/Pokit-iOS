@@ -8,6 +8,8 @@ import SwiftUI
 
 import ComposableArchitecture
 import DSKit
+import FeaturePokit
+import FeatureRemind
 
 @ViewAction(for: MainTabFeature.self)
 public struct MainTabView: View {
@@ -46,10 +48,9 @@ private extension MainTabView {
         TabView(selection: $store.selectedTab) {
             switch store.selectedTab {
             case .pokit:
-//                포킷뷰(store: self.store.scope(state: \.포킷, action: \.포킷))
-                TestView1()
+                PokitRootView(store: store.scope(state: \.pokit, action: \.pokit))
             case .remind:
-                TestView2()
+                RemindView(store: store.scope(state: \.remind, action: \.remind))
             }
         }
         .toolbar(.hidden, for: .tabBar)

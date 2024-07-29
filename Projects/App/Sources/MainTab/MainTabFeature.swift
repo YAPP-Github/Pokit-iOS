@@ -5,6 +5,8 @@
 //  Created by 김민호 on 7/11/24.
 
 import ComposableArchitecture
+import FeaturePokit
+import FeatureRemind
 import Util
 
 @Reducer
@@ -16,8 +18,12 @@ public struct MainTabFeature {
     public struct State: Equatable {
         var selectedTab: MainTab = .pokit
         var isBottomSheetPresented: Bool = false
-
-        public init() {}
+        var pokit: PokitRootFeature.State
+        var remind: RemindFeature.State = .init()
+        
+        public init() {
+            self.pokit = .init(mock: PokitRootCardMock.mock, unclassifiedMock: LinkMock.recommendedMock)
+        }
     }
     /// - Action
     public enum Action: FeatureAction, BindableAction, ViewAction {
@@ -27,6 +33,9 @@ public struct MainTabFeature {
         case async(AsyncAction)
         case scope(ScopeAction)
         case delegate(DelegateAction)
+        /// Todo: scope로 이동
+        case pokit(PokitRootFeature.Action)
+        case remind(RemindFeature.Action)
 
         @CasePathable
         public enum View: Equatable {
@@ -59,10 +68,18 @@ public struct MainTabFeature {
             /// - Delegate
         case .delegate(let delegateAction):
             return handleDelegateAction(delegateAction, state: &state)
+            
+        case .pokit:
+            return .none
+        case .remind:
+            return .none
         }
     }
     /// - Reducer body
     public var body: some ReducerOf<Self> {
+        Scope(state: \.pokit, action: \.pokit) { PokitRootFeature() }
+        Scope(state: \.remind, action: \.remind) { RemindFeature() }
+        
         BindingReducer()
         Reduce(self.core)
     }
