@@ -7,6 +7,7 @@
 import ComposableArchitecture
 import FeaturePokit
 import FeatureRemind
+import FeatureLinkDetail
 import Util
 
 @Reducer
@@ -22,6 +23,7 @@ public struct MainTabFeature {
         var path: StackState<MainTabPath.State> = .init()
         var pokit: PokitRootFeature.State
         var remind: RemindFeature.State = .init()
+        @Presents var linkDetail: LinkDetailFeature.State?
         
         public init() {
             self.pokit = .init(mock: PokitRootCardMock.mock, unclassifiedMock: LinkMock.recommendedMock)
@@ -39,6 +41,7 @@ public struct MainTabFeature {
         case path(StackAction<MainTabPath.State, MainTabPath.Action>)
         case pokit(PokitRootFeature.Action)
         case remind(RemindFeature.Action)
+        case linkDetail(PresentationAction<LinkDetailFeature.Action>)
 
         @CasePathable
         public enum View: Equatable {
@@ -78,6 +81,8 @@ public struct MainTabFeature {
             return .none
         case .remind:
             return .none
+        case .linkDetail:
+            return .none
         }
     }
     /// - Reducer body
@@ -88,6 +93,9 @@ public struct MainTabFeature {
         BindingReducer()
         navigationReducer
         Reduce(self.core)
+            .ifLet(\.$linkDetail, action: \.linkDetail) {
+                LinkDetailFeature()
+            }
     }
 }
 //MARK: - FeatureAction Effect

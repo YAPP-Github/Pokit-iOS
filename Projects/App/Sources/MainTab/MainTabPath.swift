@@ -5,9 +5,12 @@
 //  Created by 김민호 on 7/29/24.
 //
 
+import Foundation
+
 import ComposableArchitecture
 import FeatureSetting
 import FeatureCategorySetting
+import FeatureLinkDetail
 
 @Reducer
 public struct MainTabPath {
@@ -55,6 +58,23 @@ public extension MainTabFeature {
                 
                 state.path.removeLast()
                 return .none
+            /// - 링크 상세
+            case let .pokit(.categoryDetail(.presented(.delegate(.linkItemTapped)))),
+                 let .pokit(.delegate(.linkDetailTapped)):
+                state.linkDetail = LinkDetailFeature.State(
+                    link: LinkDetailMock(
+                        id: UUID(),
+                        title: "",
+                        url: "",
+                        createdAt: Date.now,
+                        memo: "",
+                        pokit: "",
+                        isRemind: false,
+                        isFavorite: false
+                    )
+                )
+                return .none
+                
             case let .path:
                 return .none
             case let .delegate(delegateAction):

@@ -66,6 +66,7 @@ public struct PokitRootFeature {
             case unclassifiedKebobButtonTapped(LinkMock)
             
             case categoryTapped
+            case linkItemTapped(LinkMock)
 
         }
         
@@ -87,6 +88,7 @@ public struct PokitRootFeature {
             case settingButtonTapped
             
             case 수정하기(PokitRootCardMock)
+            case linkDetailTapped(LinkMock)
         }
     }
     
@@ -184,6 +186,10 @@ private extension PokitRootFeature {
         case .categoryTapped:
             state.categoryDetail = CategoryDetailFeature.State(mock: DetailItemMock.recommendedMock)
             return .none
+        
+        /// - 링크 아이템을 눌렀을 때
+        case .linkItemTapped(let selectedItem):
+            return .run { send in await send(.delegate(.linkDetailTapped(selectedItem))) }
         }
     }
     

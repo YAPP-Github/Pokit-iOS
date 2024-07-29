@@ -12,6 +12,7 @@ import FeaturePokit
 import FeatureRemind
 import FeatureSetting
 import FeatureCategorySetting
+import FeatureLinkDetail
 
 
 @ViewAction(for: MainTabFeature.self)
@@ -61,6 +62,14 @@ private extension MainTabView {
         .sheet(isPresented: $store.isBottomSheetPresented) {
             ///Todo: bottom sheet 추가
             TestView2()
+        }
+        .sheet(
+            item: $store.scope(
+                state: \.linkDetail,
+                action: \.linkDetail
+            )
+        ) { store in
+            LinkDetailView(store: store)
         }
         .navigationBarBackButtonHidden()
         .ignoresSafeArea(edges: .bottom)

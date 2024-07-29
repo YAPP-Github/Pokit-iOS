@@ -45,6 +45,7 @@ public struct CategoryDetailFeature {
             case categoryKebobButtonTapped(PokitDeleteBottomSheet.SheetType, selectedItem: DetailItemMock?)
             case categorySelectButtonTapped
             case filterButtonTapped
+            case linkItemTapped(DetailItemMock)
             case dismiss
         }
         
@@ -61,7 +62,9 @@ public struct CategoryDetailFeature {
             case filterBottomSheet(CategoryFilterSheet.Delegate)
         }
         
-        public enum DelegateAction: Equatable { case doNothing }
+        public enum DelegateAction: Equatable {
+            case linkItemTapped(DetailItemMock)
+        }
     }
     
     /// - Initiallizer
@@ -117,6 +120,9 @@ private extension CategoryDetailFeature {
         case .filterButtonTapped:
             state.isFilterSheetPresented.toggle()
             return .none
+            
+        case .linkItemTapped(let selectedItem):
+            return .run { send in await send(.delegate(.linkItemTapped(selectedItem))) }
             
         case .dismiss:
             return .run { _ in await dismiss() }

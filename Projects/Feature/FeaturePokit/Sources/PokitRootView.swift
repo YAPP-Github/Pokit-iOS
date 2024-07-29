@@ -138,7 +138,7 @@ private extension PokitRootView {
                 
                 PokitLinkCard(
                     link: link,
-                    action: {}, 
+                    action: { send(.linkItemTapped(link)) },
                     kebabAction: { send(.unclassifiedKebobButtonTapped(link)) }
                 )
                 .divider(isFirst: isFirst, isLast: isLast)

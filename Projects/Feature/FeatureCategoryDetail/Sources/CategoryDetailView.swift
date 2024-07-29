@@ -107,7 +107,7 @@ private extension CategoryDetailView {
                 
                 PokitLinkCard(
                     link: link,
-                    action: {}, 
+                    action: { send(.linkItemTapped(link)) }, 
                     kebabAction: { send(.categoryKebobButtonTapped(.링크삭제, selectedItem: link)) }
                 )
                 .divider(isFirst: isFirst, isLast: isLast)
