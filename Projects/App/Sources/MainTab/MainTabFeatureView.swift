@@ -13,6 +13,7 @@ import FeatureRemind
 import FeatureSetting
 import FeatureCategorySetting
 import FeatureLinkDetail
+import FeatureCategoryDetail
 
 
 @ViewAction(for: MainTabFeature.self)
@@ -46,6 +47,10 @@ public extension MainTabView {
                 case .포킷추가및수정:
                     if let store = store.scope(state: \.포킷추가및수정, action: \.포킷추가및수정) {
                         PokitCategorySettingView(store: store)
+                    }
+                case .카테고리상세:
+                    if let store = store.scope(state: \.카테고리상세, action: \.카테고리상세) {
+                        CategoryDetailView(store: store)
                     }
                 }
             }

@@ -19,16 +19,19 @@ public struct MainTabPath {
         case alert(PokitAlertBoxFeature.State)
         case setting(PokitSettingFeature.State)
         case 포킷추가및수정(PokitCategorySettingFeature.State)
+        case 카테고리상세(CategoryDetailFeature.State)
     }
     public enum Action {
         case alert(PokitAlertBoxFeature.Action)
         case setting(PokitSettingFeature.Action)
         case 포킷추가및수정(PokitCategorySettingFeature.Action)
+        case 카테고리상세(CategoryDetailFeature.Action)
     }
     public var body: some Reducer<State, Action> {
         Scope(state: \.alert, action: \.alert) { PokitAlertBoxFeature() }
         Scope(state: \.setting, action: \.setting) { PokitSettingFeature() }
         Scope(state: \.포킷추가및수정, action: \.포킷추가및수정) { PokitCategorySettingFeature() }
+        Scope(state: \.카테고리상세, action: \.카테고리상세) { CategoryDetailFeature() }
     }
 }
 
@@ -57,6 +60,10 @@ public extension MainTabFeature {
             case let .path(.element(_, action: .포킷추가및수정(.delegate(.settingSuccess(item))))):
                 
                 state.path.removeLast()
+                return .none
+            /// - 포킷 카테고리 아이템 눌렀을 때
+            case let .pokit(.delegate(.categoryTapped)):
+                state.path.append(.카테고리상세(CategoryDetailFeature.State(mock: DetailItemMock.recommendedMock)))
                 return .none
             /// - 링크 상세
             case let .pokit(.categoryDetail(.presented(.delegate(.linkItemTapped)))),

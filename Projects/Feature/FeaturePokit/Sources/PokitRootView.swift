@@ -50,14 +50,6 @@ public extension PokitRootView {
                         delegateSend: { store.send(.scope(.deleteBottomSheet($0))) }
                     )
                 }
-                .navigationDestination(
-                    item: $store.scope(
-                        state: \.categoryDetail,
-                        action: \.categoryDetail
-                    )
-                ) { store in
-                    CategoryDetailView(store: store)
-                }
         }
     }
 }

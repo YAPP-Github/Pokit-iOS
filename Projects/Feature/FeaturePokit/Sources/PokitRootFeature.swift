@@ -30,8 +30,6 @@ public struct PokitRootFeature {
         var isKebobSheetPresented: Bool = false
         var isPokitDeleteSheetPresented: Bool = false
         
-        @Presents var categoryDetail: CategoryDetailFeature.State?
-        
         public init(
             mock: [PokitRootCardMock],
             unclassifiedMock: [LinkMock]
@@ -87,6 +85,7 @@ public struct PokitRootFeature {
             case alertButtonTapped
             case settingButtonTapped
             
+            case categoryTapped
             case 수정하기(PokitRootCardMock)
             case linkDetailTapped(LinkMock)
         }
@@ -117,9 +116,6 @@ public struct PokitRootFeature {
             /// - Delegate
         case .delegate(let delegateAction):
             return handleDelegateAction(delegateAction, state: &state)
-        
-        case .categoryDetail:
-            return .none
         }
     }
     
@@ -127,9 +123,6 @@ public struct PokitRootFeature {
     public var body: some ReducerOf<Self> {
         BindingReducer(action: \.view)
         Reduce(self.core)
-            .ifLet(\.$categoryDetail, action: \.categoryDetail) {
-                CategoryDetailFeature()
-            }
     }
 }
 //MARK: - FeatureAction Effect
@@ -184,8 +177,7 @@ private extension PokitRootFeature {
             
         /// - 카테고리 항목을 눌렀을 때
         case .categoryTapped:
-            state.categoryDetail = CategoryDetailFeature.State(mock: DetailItemMock.recommendedMock)
-            return .none
+            return .run { send in await send(.delegate(.categoryTapped)) }
         
         /// - 링크 아이템을 눌렀을 때
         case .linkItemTapped(let selectedItem):
