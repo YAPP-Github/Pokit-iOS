@@ -67,12 +67,14 @@ public extension MainTabFeature {
                 return .none
                 
             /// - 포킷 `수정`버튼 눌렀을 때
-            case .pokit(.delegate(.수정하기(let selectedItem))):
+            case .pokit(.delegate(.수정하기)),
+                 .path(.element(_, action: .카테고리상세(.delegate(.포킷수정)))):
                 state.path.append(.포킷추가및수정(PokitCategorySettingFeature.State(type: .수정, itemList: CategoryItemMock.mock)))
                 return .none
             
             /// - 포킷 `추가` 버튼 눌렀을 때
-            case .delegate(.포킷추가하기):
+            case .delegate(.포킷추가하기),
+                 .path(.element(_, action: .링크추가및수정(.delegate(.포킷추가하기)))):
                 state.path.append(.포킷추가및수정(PokitCategorySettingFeature.State(type: .추가, itemList: CategoryItemMock.mock)))
                 return .none
                 
@@ -84,6 +86,11 @@ public extension MainTabFeature {
             /// - 포킷 카테고리 아이템 눌렀을 때
             case let .pokit(.delegate(.categoryTapped)):
                 state.path.append(.카테고리상세(CategoryDetailFeature.State(mock: DetailItemMock.recommendedMock)))
+                return .none
+                
+            case .path(.element(_, action: .카테고리상세(.delegate(.포킷삭제)))):
+                /// Todo: id값을 받아와 삭제API 보내기
+                state.path.removeLast()
                 return .none
                 
             /// - 링크 상세

@@ -5,7 +5,7 @@
 //  Created by 김민호 on 7/30/24.
 //
 
-import Foundation
+import SwiftUI
 
 public enum TabAddSheetType: String, CaseIterable {
     case 링크추가

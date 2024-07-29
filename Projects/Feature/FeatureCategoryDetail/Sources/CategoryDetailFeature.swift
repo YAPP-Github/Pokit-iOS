@@ -64,6 +64,9 @@ public struct CategoryDetailFeature {
         
         public enum DelegateAction: Equatable {
             case linkItemTapped(DetailItemMock)
+            case 포킷삭제
+            case 포킷수정
+            case 포킷공유
         }
     }
     
@@ -157,7 +160,20 @@ private extension CategoryDetailFeature {
                 return .none
                 
             case .editCellButtonTapped:
-                return .none
+                return .run { [
+                    link = state.selectedLinkItem,
+                    type = state.kebobSelectedType
+                ] send in
+                    guard let type else { return }
+                    switch type {
+                    case .링크삭제:
+                        guard let link else { return }
+                        await send(.delegate(.linkItemTapped(link)))
+                    case .포킷삭제:
+                        await send(.inner(.pokitCategorySheetPresented(false)))
+                        await send(.delegate(.포킷수정))
+                    }
+                }
                 
             case .deleteCellButtonTapped:
                 return .run { send in
@@ -194,7 +210,7 @@ private extension CategoryDetailFeature {
                 case .포킷삭제:
                     state.isPokitDeleteSheetPresented = false
                     state.kebobSelectedType = nil
-                    return .none
+                    return .send(.delegate(.포킷삭제))
                 }
             }
         /// - 필터 버튼을 눌렀을 때
