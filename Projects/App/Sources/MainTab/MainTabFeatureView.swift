@@ -166,6 +166,7 @@ private extension MainTabView {
                 
                 VStack(spacing: 4) {
                     Image(tab.icon)
+                        .renderingMode(.template)
                         .foregroundStyle(
                             isSelected
                             ? .pokit(.icon(.primary))
