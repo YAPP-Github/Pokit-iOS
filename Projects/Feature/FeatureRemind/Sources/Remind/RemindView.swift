@@ -82,7 +82,7 @@ extension RemindView {
     
     @ViewBuilder
     private func recommendedLinkCell(link: LinkMock) -> some View {
-        Button(action: {}) {
+        Button(action: { send(.linkCardTapped(link: link)) }) {
             recommendedLinkCellLabel(link: link)
         }
         
@@ -189,7 +189,7 @@ extension RemindView {
                 
                 PokitLinkCard(
                     link: link,
-                    action: { },
+                    action: { send(.linkCardTapped(link: link)) },
                     kebabAction: { send(.kebabButtonTapped(link: link)) }
                 )
                 .divider(isFirst: isFirst, isLast: isLast)
@@ -210,8 +210,8 @@ extension RemindView {
                 
                 PokitLinkCard(
                     link: link,
-                    action: {},
-                    kebabAction: {}
+                    action: { send(.linkCardTapped(link: link)) },
+                    kebabAction: { send(.kebabButtonTapped(link: link)) }
                 )
                 .divider(isFirst: isFirst, isLast: isLast)
             }

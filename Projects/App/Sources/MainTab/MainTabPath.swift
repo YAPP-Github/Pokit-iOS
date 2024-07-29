@@ -71,7 +71,8 @@ public extension MainTabFeature {
                 return .none
             /// - 링크 상세
             case let .path(.element(_, action: .카테고리상세(.delegate(.linkItemTapped)))),
-                 let .pokit(.delegate(.linkDetailTapped)):
+                 let .pokit(.delegate(.linkDetailTapped)),
+                 let .remind(.delegate(.pushAddLinkView)):
                 // TODO: 링크상세 모델과 링크수정 모델 일치시키기
                 state.linkDetail = LinkDetailFeature.State(
                     link: LinkDetailMock(
@@ -88,7 +89,8 @@ public extension MainTabFeature {
                 return .none
             /// 링크상세 바텀시트에서 링크수정으로 이동
             case let .linkDetail(.presented(.delegate(.pushLinkAddView))),
-                 let .pokit(.delegate(.링크수정하기)):
+                 let .pokit(.delegate(.링크수정하기)),
+                 let .remind(.delegate(.링크수정)):
                 // TODO: 링크상세 모델과 링크수정 모델 일치시키기
                 state.path.append(.링크추가및수정(AddLinkFeature.State(link: AddLinkMock.init(title: "", urlText: "", createAt: Date.now, memo: "", isRemind: false, pokit: PokitMock(categoryType: "", contentSize: 4)))))
                 state.linkDetail = nil
@@ -97,7 +99,6 @@ public extension MainTabFeature {
             case .path(.element(_, action: .링크추가및수정(.delegate(.저장하기_네트워크이후)))):
                 state.path.removeLast()
                 return .none
-            
             case let .path:
                 return .none
             case let .delegate(delegateAction):

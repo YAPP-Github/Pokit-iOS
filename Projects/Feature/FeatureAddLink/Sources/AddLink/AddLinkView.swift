@@ -133,7 +133,8 @@ private extension AddLinkView {
             .icon(.plusR),
             state: .filled(.primary),
             size: .large,
-            shape: .rectangle) { send(.addPokitButtonTapped, animation: .pokitSpring) }
+            shape: .rectangle
+        ) { send(.addPokitButtonTapped, animation: .pokitSpring) }
     }
     
     var memoTextArea: some View {
