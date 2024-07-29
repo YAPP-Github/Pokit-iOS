@@ -34,7 +34,9 @@ public struct PokitPartTap<Selection: Equatable>: View {
     
     private var tapButton: some View {
         Button {
-            selection = current
+            withAnimation(.smooth) {
+                selection = current
+            }
             action?()
         } label: {
             buttonLabel

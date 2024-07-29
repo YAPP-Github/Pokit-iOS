@@ -63,7 +63,9 @@ public struct PokitCheckBox: View {
     }
     
     private func buttonTapped() {
-        isSelected.toggle()
+        withAnimation(.pokitSpring) {
+            isSelected.toggle()
+        }
         action?()
     }
     

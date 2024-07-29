@@ -12,17 +12,20 @@ public struct PokitIconRChip: View {
     private let state: PokitButtonStyle.State
     private let size: PokitChipStyle.Size
     private let action: (() -> Void)?
+    private let iconTappedAction: (() -> Void)?
     
     public init(
         _ labelText: String,
         state: PokitButtonStyle.State,
         size: PokitChipStyle.Size,
-        action: (() -> Void)? = nil
+        action: (() -> Void)? = nil,
+        iconTappedAction: (() -> Void)? = nil
     ) {
         self.labelText = labelText
         self.state = state
         self.size = size
         self.action = action
+        self.iconTappedAction = iconTappedAction
     }
     
     public var body: some View {
@@ -38,11 +41,15 @@ public struct PokitIconRChip: View {
                 .pokitFont(self.font)
                 .foregroundStyle(self.state.textColor)
             
-            
-            Image(.icon(.x))
-                .resizable()
-                .frame(width: self.iconSize.width, height: self.iconSize.height)
-                .foregroundStyle(self.state.iconColor)
+            Button {
+                iconTappedAction?()
+            } label: {
+                Image(.icon(.x))
+                    .resizable()
+                    .frame(width: self.iconSize.width, height: self.iconSize.height)
+                    .foregroundStyle(self.state.iconColor)
+            }
+            .disabled(iconTappedAction == nil)
         }
         .padding(.leading, self.lPadding)
         .padding(.trailing, self.tPadding)

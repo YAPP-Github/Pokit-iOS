@@ -20,6 +20,7 @@ public struct PokitIconLInput<Value: Hashable>: View {
     private let equals: Value
     private let placeholder: String
     private let onSubmit: (() -> Void)?
+    private let iconTappedAction: (() -> Void)?
     
     public init(
         text: Binding<String>,
@@ -29,7 +30,8 @@ public struct PokitIconLInput<Value: Hashable>: View {
         shape: PokitInputStyle.Shape,
         focusState: FocusState<Value>.Binding,
         equals: Value,
-        onSubmit: (() -> Void)? = nil
+        onSubmit: (() -> Void)? = nil,
+        iconTappedAction: (() -> Void)? = nil
     ) {
         self._text = text
         self.icon = icon
@@ -39,6 +41,7 @@ public struct PokitIconLInput<Value: Hashable>: View {
         self.equals = equals
         self.placeholder = placeholder
         self.onSubmit = onSubmit
+        self.iconTappedAction = iconTappedAction
     }
     
     public var body: some View {
@@ -81,7 +84,11 @@ public struct PokitIconLInput<Value: Hashable>: View {
     @ViewBuilder
     private func iconButton(icon: PokitImage) -> some View {
         Button {
-            onSubmit?()
+            if let iconTappedAction {
+                iconTappedAction()
+            } else {
+                onSubmit?()
+            }
         } label: {
             Image(icon)
                 .resizable()
