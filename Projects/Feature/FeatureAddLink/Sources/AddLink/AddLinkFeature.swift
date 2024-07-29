@@ -83,6 +83,7 @@ public struct AddLinkFeature {
         
         public enum DelegateAction: Equatable {
             case 저장하기_네트워크이후
+            case 포킷추가하기
         }
     }
     
@@ -168,8 +169,8 @@ private extension AddLinkFeature {
                 /// 🚨 Error Case [1]: 포킷 갯수가 30개 이상일 경우
                 return .send(.inner(.showPopup), animation: .pokitSpring)
             }
-            state.addPokitSheet = AddPokitSheetFeature.State()
-            return .none
+//            state.addPokitSheet = AddPokitSheetFeature.State()
+            return .send(.delegate(.포킷추가하기))
             
         case .dismiss:
             return .run { _ in await dismiss() }
