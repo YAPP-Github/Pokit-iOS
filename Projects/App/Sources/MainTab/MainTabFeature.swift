@@ -18,6 +18,8 @@ public struct MainTabFeature {
     public struct State: Equatable {
         var selectedTab: MainTab = .pokit
         var isBottomSheetPresented: Bool = false
+        
+        var path: StackState<MainTabPath.State> = .init()
         var pokit: PokitRootFeature.State
         var remind: RemindFeature.State = .init()
         
@@ -34,6 +36,7 @@ public struct MainTabFeature {
         case scope(ScopeAction)
         case delegate(DelegateAction)
         /// Todo: scope로 이동
+        case path(StackAction<MainTabPath.State, MainTabPath.Action>)
         case pokit(PokitRootFeature.Action)
         case remind(RemindFeature.Action)
 
@@ -69,6 +72,8 @@ public struct MainTabFeature {
         case .delegate(let delegateAction):
             return handleDelegateAction(delegateAction, state: &state)
             
+        case .path:
+            return .none
         case .pokit:
             return .none
         case .remind:
@@ -81,6 +86,7 @@ public struct MainTabFeature {
         Scope(state: \.remind, action: \.remind) { RemindFeature() }
         
         BindingReducer()
+        navigationReducer
         Reduce(self.core)
     }
 }
