@@ -46,7 +46,6 @@ public struct PokitRootFeature {
         case async(AsyncAction)
         case scope(ScopeAction)
         case delegate(DelegateAction)
-        case categoryDetail(PresentationAction<CategoryDetailFeature.Action>)
         
         @CasePathable
         public enum View: BindableAction, Equatable {
@@ -87,6 +86,8 @@ public struct PokitRootFeature {
             
             case categoryTapped
             case 수정하기(PokitRootCardMock)
+            case 링크수정하기(LinkMock)
+            /// 링크상세로 이동
             case linkDetailTapped(LinkMock)
         }
     }
@@ -234,7 +235,11 @@ private extension PokitRootFeature {
                     return .none
                 }
                 ///Todo: 링크수정으로 이동
-                return .none
+                state.isKebobSheetPresented = false
+                return .run { [item = state.selectedUnclassifiedItem] send in
+                    guard let item else { return }
+                    await send(.delegate(.링크수정하기(item)))
+                }
                 
             case .folder(.포킷):
                 guard let selectedItem = state.selectedKebobItem else {

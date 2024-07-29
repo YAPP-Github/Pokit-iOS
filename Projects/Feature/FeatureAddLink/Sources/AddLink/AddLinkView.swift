@@ -63,12 +63,13 @@ public extension AddLinkView {
                     PokitBottomButton(
                         "저장하기",
                         state: isDisable ? .disable : .filled(.primary),
-                        action: { }
+                        action: { send(.saveBottomButtonTapped) }
                     )
                     .background()
                 }
             }
             .pokitNavigationBar(title: store.link == nil ? "링크 추가" : "링크 수정")
+            .toolbar { navigationBar }
             .onAppear { send(.addLinkViewOnAppeared) }
             .sheet(
                 item: $store.scope(
@@ -83,6 +84,11 @@ public extension AddLinkView {
 }
 //MARK: - Configure View
 private extension AddLinkView {
+    var navigationBar: some ToolbarContent {
+        ToolbarItem(placement: .topBarLeading) {
+            PokitToolbarButton(.icon(.arrowLeft), action: { send(.dismiss) })
+        }
+    }
     var linkTextField: some View {
         VStack(spacing: 16) {
             if let title = store.linkTitle,
