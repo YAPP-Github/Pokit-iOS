@@ -66,9 +66,14 @@ public extension MainTabFeature {
                 state.path.append(.설정(PokitSettingFeature.State()))
                 return .none
                 
-            /// - 포킷 `추가` or `수정`버튼 눌렀을 때
+            /// - 포킷 `수정`버튼 눌렀을 때
             case .pokit(.delegate(.수정하기(let selectedItem))):
                 state.path.append(.포킷추가및수정(PokitCategorySettingFeature.State(type: .수정, itemList: CategoryItemMock.mock)))
+                return .none
+            
+            /// - 포킷 `추가` 버튼 눌렀을 때
+            case .delegate(.포킷추가하기):
+                state.path.append(.포킷추가및수정(PokitCategorySettingFeature.State(type: .추가, itemList: CategoryItemMock.mock)))
                 return .none
                 
             /// - 포킷 `추가` or `수정`이 성공적으로 `완료`되었을 때
@@ -100,13 +105,18 @@ public extension MainTabFeature {
                 )
                 return .none
                 
-            /// 링크상세 바텀시트에서 링크수정으로 이동
+            /// - 링크상세 바텀시트에서 링크수정으로 이동
             case let .linkDetail(.presented(.delegate(.pushLinkAddView))),
                  let .pokit(.delegate(.링크수정하기)),
                  let .remind(.delegate(.링크수정)):
                 // TODO: 링크상세 모델과 링크수정 모델 일치시키기
                 state.path.append(.링크추가및수정(AddLinkFeature.State(link: AddLinkMock.init(title: "", urlText: "", createAt: Date.now, memo: "", isRemind: false, pokit: PokitMock(categoryType: "", contentSize: 4)))))
                 state.linkDetail = nil
+                return .none
+                
+            /// - 링크 추가하기
+            case .delegate(.링크추가하기):
+                state.path.append(.링크추가및수정(AddLinkFeature.State(link: nil)))
                 return .none
                 
             /// 링크추가 및 수정에서 저장하기 눌렀을 때

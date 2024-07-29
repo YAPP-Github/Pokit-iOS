@@ -46,11 +46,15 @@ public struct MainTabFeature {
         @CasePathable
         public enum View: Equatable {
             case addButtonTapped
+            case addSheetTypeSelected(TabAddSheetType)
         }
         public enum InnerAction: Equatable { case doNothing }
         public enum AsyncAction: Equatable { case doNothing }
         public enum ScopeAction: Equatable { case doNothing }
-        public enum DelegateAction: Equatable { case doNothing }
+        public enum DelegateAction: Equatable {
+            case 링크추가하기
+            case 포킷추가하기
+        }
     }
     /// initiallizer
     public init() {}
@@ -106,6 +110,13 @@ private extension MainTabFeature {
         case .addButtonTapped:
             state.isBottomSheetPresented.toggle()
             return .none
+            
+        case .addSheetTypeSelected(let type):
+            state.isBottomSheetPresented = false
+            switch type {
+            case .링크추가: return .send(.delegate(.링크추가하기))
+            case .포킷추가: return .send(.delegate(.포킷추가하기))   
+            }
         }
     }
     /// - Inner Effect

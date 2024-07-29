@@ -16,7 +16,6 @@ import FeatureLinkDetail
 import FeatureAddLink
 import FeatureCategoryDetail
 
-
 @ViewAction(for: MainTabFeature.self)
 public struct MainTabView: View {
     /// - Properties
@@ -74,7 +73,7 @@ private extension MainTabView {
         }
         .sheet(isPresented: $store.isBottomSheetPresented) {
             ///Todo: bottom sheet 추가
-            TestView2()
+            AddSheet(action: { send(.addSheetTypeSelected($0)) })
         }
         .sheet(
             item: $store.scope(
@@ -217,6 +216,52 @@ private extension MainTabView {
             }
         }
         .animation(.spring, value: store.selectedTab)
+    }
+    struct AddSheet: View {
+        @State private var height: CGFloat = 0
+        var action: (TabAddSheetType) -> Void
+        
+        var body: some View {
+            HStack(spacing: 20) {
+                ForEach(TabAddSheetType.allCases, id: \.self) { type in
+                    Button(action: { action(type) }) {
+                        VStack(spacing: 4) {
+                            type.icon
+                                .renderingMode(.template)
+                                .resizable()
+                                .frame(width: 24, height: 24)
+                                .foregroundStyle(.pokit(.text(.inverseWh)))
+                                .padding(3.2)
+                                .padding(.horizontal, 8)
+                            Text(type.title)
+                                .pokitFont(.b3(.m))
+                                .foregroundStyle(.pokit(.text(.inverseWh)))
+                        }
+                        .padding(.vertical, 21)
+                        .padding(.horizontal, 24)
+                        .background {
+                            RoundedRectangle(cornerRadius: 12)
+                                .foregroundStyle(.pokit(.bg(.brand)))
+                        }
+                    }
+                }
+            }
+            .padding(.top)
+            .padding(.top, 24)
+            .padding(.bottom, 12)
+            .background(.white)
+            .pokitPresentationCornerRadius()
+            .pokitPresentationBackground()
+            .presentationDragIndicator(.visible)
+            .readHeight()
+            .onPreferenceChange(HeightPreferenceKey.self) { height in
+                if let height {
+                    self.height = height
+                }
+            }
+            .presentationDetents([.height(self.height)])
+            
+        }
     }
 }
 //MARK: - Preview
