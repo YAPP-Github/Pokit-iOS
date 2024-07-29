@@ -10,6 +10,7 @@ import ComposableArchitecture
 import DSKit
 import FeaturePokit
 import FeatureRemind
+import FeatureSetting
 
 @ViewAction(for: MainTabFeature.self)
 public struct MainTabView: View {
@@ -26,12 +27,21 @@ public struct MainTabView: View {
 public extension MainTabView {
     var body: some View {
         WithPerceptionTracking {
-            Group { content }
-            .sheet(isPresented: $store.isBottomSheetPresented) {
-                ///Todo: bottom sheet 추가
-                TestView2()
+//            Group { content }
+            NavigationStack(path: $store.scope(state: \.path, action: \.path)) {
+                content
+            } destination: { store in
+                switch store.state {
+                case .alert:
+                    if let store = store.scope(state: \.alert, action: \.alert) {
+                        PokitAlertBoxView(store: store)
+                    }
+                case .setting:
+                    if let store = store.scope(state: \.setting, action: \.setting) {
+                        PokitSettingView(store: store)
+                    }
+                }
             }
-            .ignoresSafeArea(edges: .bottom)
         }
     }
 }
@@ -42,6 +52,13 @@ private extension MainTabView {
             tabView
             bottomTabBar
         }
+        .sheet(isPresented: $store.isBottomSheetPresented) {
+            ///Todo: bottom sheet 추가
+            TestView2()
+        }
+        .navigationBarBackButtonHidden()
+        .ignoresSafeArea(edges: .bottom)
+        .toolbar { navigationBar }
     }
     
     var tabView: some View {
@@ -53,7 +70,66 @@ private extension MainTabView {
                 RemindView(store: store.scope(state: \.remind, action: \.remind))
             }
         }
-        .toolbar(.hidden, for: .tabBar)
+    }
+    
+    @ToolbarContentBuilder
+    var pokitNavigationBar: some ToolbarContent {
+        ToolbarItem(placement: .topBarLeading) {
+            Text("Pokit")
+                .font(.system(size: 36, weight: .heavy))
+                .foregroundStyle(.pokit(.text(.brand)))
+        }
+        
+        ToolbarItem(placement: .topBarTrailing) {
+            HStack(spacing: 12) {
+                PokitToolbarButton(
+                    .icon(.search),
+                    action: { store.send(.pokit(.view(.searchButtonTapped))) }
+                )
+                PokitToolbarButton(
+                    .icon(.bell),
+                    action: { store.send(.pokit(.view(.alertButtonTapped))) }
+                )
+                PokitToolbarButton(
+                    .icon(.setup),
+                    action: { store.send(.pokit(.view(.settingButtonTapped))) }
+                )
+            }
+        }
+    }
+    
+    @ToolbarContentBuilder
+    var remindNavigationBar: some ToolbarContent {
+        
+        ToolbarItem(placement: .navigationBarLeading) {
+            Text("Remind")
+                .font(.system(size: 32, weight: .heavy))
+                .foregroundStyle(.pokit(.text(.brand)))
+        }
+        
+        ToolbarItem(placement: .navigationBarTrailing) {
+            PokitToolbarButton(
+                .icon(.search),
+                action: { store.send(.remind(.view(.searchButtonTapped))) }
+            )
+        }
+        
+        ToolbarItem(placement: .navigationBarTrailing) {
+            PokitToolbarButton(
+                .icon(.bell),
+                action: { store.send(.remind(.view(.bellButtonTapped))) }
+            )
+        }
+        
+    }
+    
+    @ToolbarContentBuilder
+    var navigationBar: some ToolbarContent {
+        if store.selectedTab == .pokit {
+            pokitNavigationBar
+        } else {
+            remindNavigationBar
+        }
     }
     
     var bottomTabBar: some View {
