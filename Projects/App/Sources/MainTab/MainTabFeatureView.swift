@@ -32,17 +32,20 @@ public struct MainTabView: View {
 public extension MainTabView {
     var body: some View {
         WithPerceptionTracking {
-//            Group { content }
             NavigationStack(path: $store.scope(state: \.path, action: \.path)) {
                 content
             } destination: { store in
                 switch store.state {
-                case .alert:
-                    if let store = store.scope(state: \.alert, action: \.alert) {
+                case .알림함:
+                    if let store = store.scope(state: \.알림함, action: \.알림함) {
                         PokitAlertBoxView(store: store)
                     }
-                case .setting:
-                    if let store = store.scope(state: \.setting, action: \.setting) {
+                case .검색:
+                    if let store = store.scope(state: \.검색, action: \.검색) {
+                        PokitSearchView(store: store)
+                    }
+                case .설정:
+                    if let store = store.scope(state: \.설정, action: \.설정) {
                         PokitSettingView(store: store)
                     }
                 case .포킷추가및수정:
@@ -150,10 +153,9 @@ private extension MainTabView {
     
     @ToolbarContentBuilder
     var navigationBar: some ToolbarContent {
-        if store.selectedTab == .pokit {
-            pokitNavigationBar
-        } else {
-            remindNavigationBar
+        switch store.selectedTab {
+        case .pokit:  pokitNavigationBar
+        case .remind: remindNavigationBar
         }
     }
     
