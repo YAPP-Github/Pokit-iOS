@@ -7,6 +7,7 @@
 
 import ComposableArchitecture
 import FeatureSetting
+import FeatureCategoryDetail
 
 @Reducer
 public struct MainTabPath {

@@ -7,6 +7,7 @@
 import ComposableArchitecture
 import DSKit
 import Util
+import FeatureCategoryDetail
 
 /// `unclassified`: 미분류 키워드
 
@@ -29,6 +30,8 @@ public struct PokitRootFeature {
         var isKebobSheetPresented: Bool = false
         var isPokitDeleteSheetPresented: Bool = false
         
+        @Presents var categoryDetail: CategoryDetailFeature.State?
+        
         public init(
             mock: [PokitRootCardMock],
             unclassifiedMock: [LinkMock]
@@ -45,6 +48,7 @@ public struct PokitRootFeature {
         case async(AsyncAction)
         case scope(ScopeAction)
         case delegate(DelegateAction)
+        case categoryDetail(PresentationAction<CategoryDetailFeature.Action>)
         
         @CasePathable
         public enum View: BindableAction, Equatable {
@@ -60,6 +64,8 @@ public struct PokitRootFeature {
             /// - Kebob
             case kebobButtonTapped(PokitRootCardMock)
             case unclassifiedKebobButtonTapped(LinkMock)
+            
+            case categoryTapped
 
         }
         
@@ -107,6 +113,9 @@ public struct PokitRootFeature {
             /// - Delegate
         case .delegate(let delegateAction):
             return handleDelegateAction(delegateAction, state: &state)
+        
+        case .categoryDetail:
+            return .none
         }
     }
     
@@ -114,6 +123,9 @@ public struct PokitRootFeature {
     public var body: some ReducerOf<Self> {
         BindingReducer(action: \.view)
         Reduce(self.core)
+            .ifLet(\.$categoryDetail, action: \.categoryDetail) {
+                CategoryDetailFeature()
+            }
     }
 }
 //MARK: - FeatureAction Effect
@@ -165,8 +177,11 @@ private extension PokitRootFeature {
         case .unclassifiedKebobButtonTapped(let selectedItem):
             state.selectedUnclassifiedItem = selectedItem
             return .run { send in await send(.inner(.pokitCategorySheetPresented(true))) }
-            return .none
             
+        /// - 카테고리 항목을 눌렀을 때
+        case .categoryTapped:
+            state.categoryDetail = CategoryDetailFeature.State(mock: DetailItemMock.recommendedMock)
+            return .none
         }
     }
     

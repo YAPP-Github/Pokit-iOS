@@ -11,6 +11,8 @@ import DSKit
 import FeaturePokit
 import FeatureRemind
 import FeatureSetting
+import FeatureCategoryDetail
+
 
 @ViewAction(for: MainTabFeature.self)
 public struct MainTabView: View {

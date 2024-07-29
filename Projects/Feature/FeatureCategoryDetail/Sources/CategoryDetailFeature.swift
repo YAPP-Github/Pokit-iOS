@@ -11,7 +11,7 @@ import Util
 @Reducer
 public struct CategoryDetailFeature {
     /// - Dependency
-
+    @Dependency(\.dismiss) var dismiss
     /// - State
     @ObservableState
     public struct State: Equatable {
@@ -45,6 +45,7 @@ public struct CategoryDetailFeature {
             case categoryKebobButtonTapped(PokitDeleteBottomSheet.SheetType, selectedItem: DetailItemMock?)
             case categorySelectButtonTapped
             case filterButtonTapped
+            case dismiss
         }
         
         public enum InnerAction: Equatable {
@@ -116,6 +117,9 @@ private extension CategoryDetailFeature {
         case .filterButtonTapped:
             state.isFilterSheetPresented.toggle()
             return .none
+            
+        case .dismiss:
+            return .run { _ in await dismiss() }
         }
     }
     

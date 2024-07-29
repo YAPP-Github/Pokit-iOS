@@ -58,7 +58,10 @@ private extension CategoryDetailView {
     @ToolbarContentBuilder
     var navigationBar: some ToolbarContent {
         ToolbarItem(placement: .topBarLeading) {
-            PokitToolbarButton(.icon(.arrowLeft), action: {})
+            PokitToolbarButton(
+                .icon(.arrowLeft),
+                action: { send(.dismiss) }
+            )
         }
         
         ToolbarItem(placement: .topBarTrailing) {

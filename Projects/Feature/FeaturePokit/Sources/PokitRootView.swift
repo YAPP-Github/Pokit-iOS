@@ -8,6 +8,7 @@ import SwiftUI
 
 import ComposableArchitecture
 import DSKit
+import FeatureCategoryDetail
 
 @ViewAction(for: PokitRootFeature.self)
 public struct PokitRootView: View {
@@ -48,6 +49,14 @@ public extension PokitRootView {
                         : .링크삭제,
                         delegateSend: { store.send(.scope(.deleteBottomSheet($0))) }
                     )
+                }
+                .navigationDestination(
+                    item: $store.scope(
+                        state: \.categoryDetail,
+                        action: \.categoryDetail
+                    )
+                ) { store in
+                    CategoryDetailView(store: store)
                 }
         }
     }
@@ -115,7 +124,7 @@ private extension PokitRootView {
             ForEach(store.mock, id: \.id) { item in
                 PokitCard(
                     category: item,
-                    action: {},
+                    action: { send(.categoryTapped) },
                     kebabAction: { send(.kebobButtonTapped(item)) }
                 )
             }
