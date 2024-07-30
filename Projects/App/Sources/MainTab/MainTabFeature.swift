@@ -5,6 +5,9 @@
 //  Created by 김민호 on 7/11/24.
 
 import ComposableArchitecture
+import FeaturePokit
+import FeatureRemind
+import FeatureLinkDetail
 import Util
 
 @Reducer
@@ -16,8 +19,15 @@ public struct MainTabFeature {
     public struct State: Equatable {
         var selectedTab: MainTab = .pokit
         var isBottomSheetPresented: Bool = false
-
-        public init() {}
+        
+        var path: StackState<MainTabPath.State> = .init()
+        var pokit: PokitRootFeature.State
+        var remind: RemindFeature.State = .init()
+        @Presents var linkDetail: LinkDetailFeature.State?
+        
+        public init() {
+            self.pokit = .init(mock: PokitRootCardMock.mock, unclassifiedMock: LinkMock.recommendedMock)
+        }
     }
     /// - Action
     public enum Action: FeatureAction, BindableAction, ViewAction {
@@ -27,15 +37,26 @@ public struct MainTabFeature {
         case async(AsyncAction)
         case scope(ScopeAction)
         case delegate(DelegateAction)
+        /// Todo: scope로 이동
+        case path(StackAction<MainTabPath.State, MainTabPath.Action>)
+        case pokit(PokitRootFeature.Action)
+        case remind(RemindFeature.Action)
+        case linkDetail(PresentationAction<LinkDetailFeature.Action>)
 
         @CasePathable
         public enum View: Equatable {
             case addButtonTapped
+            case addSheetTypeSelected(TabAddSheetType)
         }
-        public enum InnerAction: Equatable { case doNothing }
+        public enum InnerAction: Equatable {
+            case 링크추가및수정이동
+        }
         public enum AsyncAction: Equatable { case doNothing }
         public enum ScopeAction: Equatable { case doNothing }
-        public enum DelegateAction: Equatable { case doNothing }
+        public enum DelegateAction: Equatable {
+            case 링크추가하기
+            case 포킷추가하기
+        }
     }
     /// initiallizer
     public init() {}
@@ -59,12 +80,28 @@ public struct MainTabFeature {
             /// - Delegate
         case .delegate(let delegateAction):
             return handleDelegateAction(delegateAction, state: &state)
+            
+        case .path:
+            return .none
+        case .pokit:
+            return .none
+        case .remind:
+            return .none
+        case .linkDetail:
+            return .none
         }
     }
     /// - Reducer body
     public var body: some ReducerOf<Self> {
+        Scope(state: \.pokit, action: \.pokit) { PokitRootFeature() }
+        Scope(state: \.remind, action: \.remind) { RemindFeature() }
+        
         BindingReducer()
+        navigationReducer
         Reduce(self.core)
+            .ifLet(\.$linkDetail, action: \.linkDetail) {
+                LinkDetailFeature()
+            }
     }
 }
 //MARK: - FeatureAction Effect
@@ -75,6 +112,13 @@ private extension MainTabFeature {
         case .addButtonTapped:
             state.isBottomSheetPresented.toggle()
             return .none
+            
+        case .addSheetTypeSelected(let type):
+            state.isBottomSheetPresented = false
+            switch type {
+            case .링크추가: return .send(.delegate(.링크추가하기))
+            case .포킷추가: return .send(.delegate(.포킷추가하기))   
+            }
         }
     }
     /// - Inner Effect

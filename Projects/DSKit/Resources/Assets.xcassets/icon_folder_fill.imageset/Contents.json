@@ -1,7 +1,7 @@
 {
   "images" : [
     {
-      "filename" : "icon_24_folder_fill.svg",
+      "filename" : "icon_folder_fill.svg",
       "idiom" : "universal",
       "scale" : "1x"
     },
@@ -17,8 +17,5 @@
   "info" : {
     "author" : "xcode",
     "version" : 1
-  },
-  "properties" : {
-    "preserves-vector-representation" : true
   }
 }

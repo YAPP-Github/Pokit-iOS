@@ -60,6 +60,9 @@ public struct PokitRootFeature {
             /// - Kebob
             case kebobButtonTapped(PokitRootCardMock)
             case unclassifiedKebobButtonTapped(LinkMock)
+            
+            case categoryTapped
+            case linkItemTapped(LinkMock)
 
         }
         
@@ -75,7 +78,17 @@ public struct PokitRootFeature {
             case deleteBottomSheet(PokitDeleteBottomSheet.Delegate)
         }
         
-        public enum DelegateAction: Equatable { case doNothing }
+        public enum DelegateAction: Equatable {
+            case searchButtonTapped
+            case alertButtonTapped
+            case settingButtonTapped
+            
+            case categoryTapped
+            case 수정하기(PokitRootCardMock)
+            case 링크수정하기(LinkMock)
+            /// 링크상세로 이동
+            case linkDetailTapped(LinkMock)
+        }
     }
     
     /// - Initiallizer
@@ -122,11 +135,11 @@ private extension PokitRootFeature {
             return .none
         /// - Navigation Bar Tapped Action
         case .searchButtonTapped:
-            return .none
+            return .run { send in await send(.delegate(.searchButtonTapped)) }
         case .alertButtonTapped:
-            return .none
+            return .run { send in await send(.delegate(.alertButtonTapped)) }
         case .settingButtonTapped:
-            return .none
+            return .run { send in await send(.delegate(.settingButtonTapped)) }
         /// - Filter Action
             /// 포킷 / 미분류 버튼 눌렀을 때
         case .filterButtonTapped(let selectedFolderType):
@@ -161,8 +174,14 @@ private extension PokitRootFeature {
         case .unclassifiedKebobButtonTapped(let selectedItem):
             state.selectedUnclassifiedItem = selectedItem
             return .run { send in await send(.inner(.pokitCategorySheetPresented(true))) }
-            return .none
             
+        /// - 카테고리 항목을 눌렀을 때
+        case .categoryTapped:
+            return .run { send in await send(.delegate(.categoryTapped)) }
+        
+        /// - 링크 아이템을 눌렀을 때
+        case .linkItemTapped(let selectedItem):
+            return .run { send in await send(.delegate(.linkDetailTapped(selectedItem))) }
         }
     }
     
@@ -214,14 +233,25 @@ private extension PokitRootFeature {
                     /// 🚨 Error Case [1]: 항목을 수정하려는데 항목이 없을 때
                     return .none
                 }
-                return .none
+                ///Todo: 링크수정으로 이동
+                state.isKebobSheetPresented = false
+                return .run { [item = state.selectedUnclassifiedItem] send in
+                    guard let item else { return }
+                    await send(.delegate(.링크수정하기(item)))
+                }
                 
             case .folder(.포킷):
                 guard let selectedItem = state.selectedKebobItem else {
                     /// 🚨 Error Case [1]: 항목을 수정하려는데 항목이 없을 때
                     return .none
                 }
-                return .none
+                /// [1] 케밥을 종료
+                state.isKebobSheetPresented = false
+                /// [2] 수정하기로 이동
+                return .run { [item = state.selectedKebobItem] send in
+                    guard let item else { return }
+                    await send(.delegate(.수정하기(item)))
+                }
             default: return .none
             }
             

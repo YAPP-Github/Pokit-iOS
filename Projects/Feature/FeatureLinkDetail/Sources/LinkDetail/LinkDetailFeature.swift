@@ -111,7 +111,7 @@ private extension LinkDetailFeature {
             return .none
         case .editButtonTapped:
             return .run { [link = state.link] send in
-                await dismiss()
+//                await dismiss()
                 await send(.delegate(.pushLinkAddView(link: link)))
             }
         case .deleteButtonTapped:

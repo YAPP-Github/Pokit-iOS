@@ -11,7 +11,7 @@ import DSKit
 @Reducer
 public struct RemindFeature {
     /// - Dependency
-
+    @Dependency(\.dismiss) var dismiss
     /// - State
     @ObservableState
     public struct State: Equatable {
@@ -60,6 +60,9 @@ public struct RemindFeature {
         public enum DelegateAction: Equatable {
             case showLinkDetailView(link: LinkMock)
             case pushAddLinkView(link: LinkMock)
+            case bellButtonTapped
+            case searchButtonTapped
+            case 링크수정(link: LinkMock)
         }
     }
     /// initiallizer
@@ -96,9 +99,9 @@ private extension RemindFeature {
     func handleViewAction(_ action: Action.View, state: inout State) -> Effect<Action> {
         switch action {
         case .bellButtonTapped:
-            return .none
+            return .run { send in await send(.delegate(.bellButtonTapped)) }
         case .searchButtonTapped:
-            return .none
+            return .run { send in await send(.delegate(.searchButtonTapped)) }
         case .favoriteNavigationLinkTapped:
             return .none
         case .unreadNavigationLinkTapped:
@@ -142,7 +145,7 @@ private extension RemindFeature {
                 state.alertItem = link
                 return .none
             case .editCellButtonTapped:
-                return .send(.delegate(.pushAddLinkView(link: link)))
+                return .send(.delegate(.링크수정(link: link)))
             case .favoriteCellButtonTapped:
                 return .none
             case .shareCellButtonTapped:

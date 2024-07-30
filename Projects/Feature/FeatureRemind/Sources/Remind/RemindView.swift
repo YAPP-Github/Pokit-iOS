@@ -43,23 +43,6 @@ public extension RemindView {
             }
             .background(.pokit(.bg(.base)))
             .pokitNavigationBar(title: "")
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    logo
-                }
-                
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    PokitToolbarButton(.icon(.search)) {
-                        
-                    }
-                }
-                
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    PokitToolbarButton(.icon(.bell)) {
-                        
-                    }
-                }
-            }
             .sheet(item: $store.bottomSheetItem) { link in
                 PokitBottomSheet(
                     items: [.share, .edit, .delete],
@@ -78,12 +61,6 @@ public extension RemindView {
 }
 //MARK: - Configure View
 extension RemindView {
-    private var logo: some View {
-        Text("Remind")
-            .font(.system(size: 32, weight: .heavy))
-            .foregroundStyle(.pokit(.text(.brand)))
-    }
-    
     private var recommededLinkList: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("오늘 이 링크는 어때요?")
@@ -105,7 +82,7 @@ extension RemindView {
     
     @ViewBuilder
     private func recommendedLinkCell(link: LinkMock) -> some View {
-        Button(action: {}) {
+        Button(action: { send(.linkCardTapped(link: link)) }) {
             recommendedLinkCellLabel(link: link)
         }
         
@@ -212,7 +189,7 @@ extension RemindView {
                 
                 PokitLinkCard(
                     link: link,
-                    action: { },
+                    action: { send(.linkCardTapped(link: link)) },
                     kebabAction: { send(.kebabButtonTapped(link: link)) }
                 )
                 .divider(isFirst: isFirst, isLast: isLast)
@@ -233,8 +210,8 @@ extension RemindView {
                 
                 PokitLinkCard(
                     link: link,
-                    action: {},
-                    kebabAction: {}
+                    action: { send(.linkCardTapped(link: link)) },
+                    kebabAction: { send(.kebabButtonTapped(link: link)) }
                 )
                 .divider(isFirst: isFirst, isLast: isLast)
             }

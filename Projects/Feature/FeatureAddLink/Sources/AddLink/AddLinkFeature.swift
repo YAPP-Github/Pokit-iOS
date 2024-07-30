@@ -14,6 +14,7 @@ import Util
 @Reducer
 public struct AddLinkFeature {
     /// - Dependency
+    @Dependency(\.dismiss) var dismiss
     @Dependency(\.linkPresentation) private var linkPresentation
     /// - State
     @ObservableState
@@ -61,6 +62,8 @@ public struct AddLinkFeature {
             case addLinkViewOnAppeared
             case saveBottomButtonTapped
             case addPokitButtonTapped
+            
+            case dismiss
         }
         
         public enum InnerAction: Equatable {
@@ -70,13 +73,18 @@ public struct AddLinkFeature {
             case showPopup
         }
         
-        public enum AsyncAction: Equatable { case doNothing }
+        public enum AsyncAction: Equatable {
+            case 저장하기_네트워크
+        }
         
         public enum ScopeAction: Equatable {
             case addPokitSheet(AddPokitSheetFeature.Action.DelegateAction)
         }
         
-        public enum DelegateAction: Equatable { case doNothing }
+        public enum DelegateAction: Equatable {
+            case 저장하기_네트워크이후
+            case 포킷추가하기
+        }
     }
     
     /// - Initiallizer
@@ -155,14 +163,17 @@ private extension AddLinkFeature {
                 isRemind: state.isRemind,
                 pokit: state.selectedPokit
             )
-            return .none
+            return .run { send in await send(.async(.저장하기_네트워크)) }
         case .addPokitButtonTapped:
             guard state.pokitList.count < 30 else {
                 /// 🚨 Error Case [1]: 포킷 갯수가 30개 이상일 경우
                 return .send(.inner(.showPopup), animation: .pokitSpring)
             }
-            state.addPokitSheet = AddPokitSheetFeature.State()
-            return .none
+//            state.addPokitSheet = AddPokitSheetFeature.State()
+            return .send(.delegate(.포킷추가하기))
+            
+        case .dismiss:
+            return .run { _ in await dismiss() }
         }
     }
     
@@ -200,6 +211,11 @@ private extension AddLinkFeature {
     
     /// - Async Effect
     func handleAsyncAction(_ action: Action.AsyncAction, state: inout State) -> Effect<Action> {
+        switch action {
+        case .저장하기_네트워크:
+            //TODO: 저장하기 네트워크 코드작성
+            return .run { send in await send(.delegate(.저장하기_네트워크이후)) }
+        }
         return .none
     }
     

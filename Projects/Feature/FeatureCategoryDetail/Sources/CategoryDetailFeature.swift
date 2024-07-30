@@ -11,7 +11,7 @@ import Util
 @Reducer
 public struct CategoryDetailFeature {
     /// - Dependency
-
+    @Dependency(\.dismiss) var dismiss
     /// - State
     @ObservableState
     public struct State: Equatable {
@@ -44,11 +44,15 @@ public struct CategoryDetailFeature {
             /// - Button Tapped
             case categoryKebobButtonTapped(PokitDeleteBottomSheet.SheetType, selectedItem: DetailItemMock?)
             case categorySelectButtonTapped
+            case categorySelected(CategoryItemMock)
             case filterButtonTapped
+            case linkItemTapped(DetailItemMock)
+            case dismiss
         }
         
         public enum InnerAction: Equatable {
             case pokitCategorySheetPresented(Bool)
+            case pokitCategorySelectSheetPresented(Bool)
             case pokitDeleteSheetPresented(Bool)
         }
         
@@ -60,7 +64,12 @@ public struct CategoryDetailFeature {
             case filterBottomSheet(CategoryFilterSheet.Delegate)
         }
         
-        public enum DelegateAction: Equatable { case doNothing }
+        public enum DelegateAction: Equatable {
+            case linkItemTapped(DetailItemMock)
+            case 포킷삭제
+            case 포킷수정
+            case 포킷공유
+        }
     }
     
     /// - Initiallizer
@@ -111,11 +120,21 @@ private extension CategoryDetailFeature {
             return .run { send in await send(.inner(.pokitCategorySheetPresented(true))) }
         
         case .categorySelectButtonTapped:
-            return .none
+            return .send(.inner(.pokitCategorySelectSheetPresented(true)))
+            
+        case .categorySelected(let item):
+            /// Todo: 아이템 선택한 것 반영
+            return .send(.inner(.pokitCategorySelectSheetPresented(false)))
             
         case .filterButtonTapped:
             state.isFilterSheetPresented.toggle()
             return .none
+            
+        case .linkItemTapped(let selectedItem):
+            return .run { send in await send(.delegate(.linkItemTapped(selectedItem))) }
+            
+        case .dismiss:
+            return .run { _ in await dismiss() }
         }
     }
     
@@ -128,6 +147,10 @@ private extension CategoryDetailFeature {
         
         case let .pokitDeleteSheetPresented(presented):
             state.isPokitDeleteSheetPresented = presented
+            return .none
+            
+        case let .pokitCategorySelectSheetPresented(presented):
+            state.isCategorySelectSheetPresented = presented
             return .none
         }
     }
@@ -147,7 +170,20 @@ private extension CategoryDetailFeature {
                 return .none
                 
             case .editCellButtonTapped:
-                return .none
+                return .run { [
+                    link = state.selectedLinkItem,
+                    type = state.kebobSelectedType
+                ] send in
+                    guard let type else { return }
+                    switch type {
+                    case .링크삭제:
+                        guard let link else { return }
+                        await send(.delegate(.linkItemTapped(link)))
+                    case .포킷삭제:
+                        await send(.inner(.pokitCategorySheetPresented(false)))
+                        await send(.delegate(.포킷수정))
+                    }
+                }
                 
             case .deleteCellButtonTapped:
                 return .run { send in
@@ -184,7 +220,7 @@ private extension CategoryDetailFeature {
                 case .포킷삭제:
                     state.isPokitDeleteSheetPresented = false
                     state.kebobSelectedType = nil
-                    return .none
+                    return .send(.delegate(.포킷삭제))
                 }
             }
         /// - 필터 버튼을 눌렀을 때

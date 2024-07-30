@@ -28,14 +28,12 @@ public struct PokitRootView: View {
 public extension PokitRootView {
     var body: some View {
         WithPerceptionTracking {
-            NavigationStack {
                 VStack(spacing: 0) {
                     self.filterHeader
                     self.cardScrollView
                 }
                 .padding(.horizontal, 20)
                 .padding(.vertical, 16)
-                .toolbar { self.navigationBar }
                 .sheet(isPresented: $store.isKebobSheetPresented) {
                     PokitBottomSheet(
                         items: [.share, .edit, .delete],
@@ -51,38 +49,11 @@ public extension PokitRootView {
                         delegateSend: { store.send(.scope(.deleteBottomSheet($0))) }
                     )
                 }
-            }
         }
     }
 }
 //MARK: - Configure View
-private extension PokitRootView {
-    @ToolbarContentBuilder
-    var navigationBar: some ToolbarContent {
-        ToolbarItem(placement: .topBarLeading) {
-            Text("Pokit")
-                .font(.system(size: 36, weight: .heavy))
-                .foregroundStyle(.pokit(.text(.brand)))
-        }
-        
-        ToolbarItem(placement: .topBarTrailing) {
-            HStack(spacing: 12) {
-                PokitToolbarButton(
-                    .icon(.search),
-                    action: { send(.searchButtonTapped) }
-                )
-                PokitToolbarButton(
-                    .icon(.bell),
-                    action: { send(.alertButtonTapped) }
-                )
-                PokitToolbarButton(
-                    .icon(.setup), 
-                    action: { send(.settingButtonTapped) }
-                )
-            }
-        }
-    }
-    
+private extension PokitRootView {    
     var filterHeader: some View {
         HStack(spacing: 8) {
             PokitIconLButton(
@@ -144,7 +115,7 @@ private extension PokitRootView {
             ForEach(store.mock, id: \.id) { item in
                 PokitCard(
                     category: item,
-                    action: {},
+                    action: { send(.categoryTapped) },
                     kebabAction: { send(.kebobButtonTapped(item)) }
                 )
             }
@@ -158,7 +129,7 @@ private extension PokitRootView {
                 
                 PokitLinkCard(
                     link: link,
-                    action: {}, 
+                    action: { send(.linkItemTapped(link)) },
                     kebabAction: { send(.unclassifiedKebobButtonTapped(link)) }
                 )
                 .divider(isFirst: isFirst, isLast: isLast)
