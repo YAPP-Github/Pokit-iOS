@@ -44,6 +44,7 @@ public struct CategoryDetailFeature {
             /// - Button Tapped
             case categoryKebobButtonTapped(PokitDeleteBottomSheet.SheetType, selectedItem: DetailItemMock?)
             case categorySelectButtonTapped
+            case categorySelected(CategoryItemMock)
             case filterButtonTapped
             case linkItemTapped(DetailItemMock)
             case dismiss
@@ -51,6 +52,7 @@ public struct CategoryDetailFeature {
         
         public enum InnerAction: Equatable {
             case pokitCategorySheetPresented(Bool)
+            case pokitCategorySelectSheetPresented(Bool)
             case pokitDeleteSheetPresented(Bool)
         }
         
@@ -118,7 +120,11 @@ private extension CategoryDetailFeature {
             return .run { send in await send(.inner(.pokitCategorySheetPresented(true))) }
         
         case .categorySelectButtonTapped:
-            return .none
+            return .send(.inner(.pokitCategorySelectSheetPresented(true)))
+            
+        case .categorySelected(let item):
+            /// Todo: 아이템 선택한 것 반영
+            return .send(.inner(.pokitCategorySelectSheetPresented(false)))
             
         case .filterButtonTapped:
             state.isFilterSheetPresented.toggle()
@@ -141,6 +147,10 @@ private extension CategoryDetailFeature {
         
         case let .pokitDeleteSheetPresented(presented):
             state.isPokitDeleteSheetPresented = presented
+            return .none
+            
+        case let .pokitCategorySelectSheetPresented(presented):
+            state.isCategorySelectSheetPresented = presented
             return .none
         }
     }

@@ -8,6 +8,7 @@ import SwiftUI
 
 import ComposableArchitecture
 import DSKit
+import Util
 
 @ViewAction(for: CategoryDetailFeature.self)
 public struct CategoryDetailView: View {
@@ -38,6 +39,14 @@ public extension CategoryDetailView {
                     height: 224,
                     delegateSend: { store.send(.scope(.categoryBottomSheet($0))) }
                 )
+            }
+            .sheet(isPresented: $store.isCategorySelectSheetPresented) {
+                PokitCategorySheet(
+                    selectedItem: nil,
+                    list: CategoryItemMock.addLinkMock,
+                    action: { send(.categorySelected($0)) }
+                )
+                .presentationDragIndicator(.visible)
             }
             .sheet(isPresented: $store.isPokitDeleteSheetPresented) {
                 PokitDeleteBottomSheet(
@@ -73,7 +82,7 @@ private extension CategoryDetailView {
         VStack(spacing: 4) {
             HStack(spacing: 8) {
                 /// cateogry title
-                Button(action: { }) {
+                Button(action: { send(.categorySelectButtonTapped) }) {
                     Text("포킷")
                         .foregroundStyle(.pokit(.text(.primary)))
                         .pokitFont(.title1)
@@ -114,6 +123,31 @@ private extension CategoryDetailView {
             }
         }
         .animation(.spring, value: store.mock)
+    }
+    
+    struct PokitCategorySheet: View {
+        @State private var height: CGFloat = 0
+        var action: (CategoryItemMock) -> Void
+        var selectedItem: CategoryItemMock?
+        var list: [CategoryItemMock]
+        
+        public init(
+            selectedItem: CategoryItemMock?,
+            list: [CategoryItemMock],
+            action: @escaping (CategoryItemMock) -> Void
+        ) {
+            self.selectedItem = selectedItem
+            self.list = list
+            self.action = action
+        }
+        
+        var body: some View {
+            PokitList(
+                selectedItem: selectedItem,
+                list: list,
+                action: action
+            )
+        }
     }
 }
 //MARK: - Preview
