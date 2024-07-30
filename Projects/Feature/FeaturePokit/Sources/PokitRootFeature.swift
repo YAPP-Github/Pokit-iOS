@@ -7,7 +7,6 @@
 import ComposableArchitecture
 import DSKit
 import Util
-import FeatureCategoryDetail
 
 /// `unclassified`: 미분류 키워드
 

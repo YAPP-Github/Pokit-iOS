@@ -8,7 +8,6 @@ import SwiftUI
 
 import ComposableArchitecture
 import DSKit
-import FeatureCategoryDetail
 
 @ViewAction(for: PokitRootFeature.self)
 public struct PokitRootView: View {
