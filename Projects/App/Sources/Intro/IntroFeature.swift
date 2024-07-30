@@ -42,7 +42,7 @@ public struct IntroFeature {
         case .splash(let splashAction):
             return splashDelegate(splashAction, state: &state)
             
-        case .login(.scope(.signUpDone(.dismissLoginRootView))):
+        case .login(.delegate(.dismissLoginRootView)):
             return .run { send in await send(.delegate(.moveToTab)) }
             
         case .delegate, .login:

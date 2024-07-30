@@ -37,7 +37,6 @@ public struct LoginRootFeature {
             case pushRegisterNicknameView
             case pushSelectFieldView
             case pushSignUpDoneView
-            case dismissLoginRootView
         }
         public enum AsyncAction: Equatable { case doNothing }
         public enum ScopeAction {
@@ -46,7 +45,9 @@ public struct LoginRootFeature {
             case selectField(SelectFieldFeature.Action.DelegateAction)
             case signUpDone(SignUpDoneFeature.Action.DelegateAction)
         }
-        public enum DelegateAction: Equatable { case doNothing }
+        public enum DelegateAction: Equatable {
+            case dismissLoginRootView
+        }
     }
     /// initiallizer
     public init() {}
@@ -102,8 +103,6 @@ private extension LoginRootFeature {
         case .pushSignUpDoneView:
             state.path.append(.signUpDone(.init()))
             return .none
-        case .dismissLoginRootView:
-            return .run { _ in await self.dismiss() }
         }
     }
     /// - Async Effect
@@ -131,7 +130,7 @@ private extension LoginRootFeature {
         case .signUpDone(let delegate):
             switch delegate {
             case .dismissLoginRootView:
-                return .send(.inner(.dismissLoginRootView))
+                return .send(.delegate(.dismissLoginRootView))
             }
         }
     }

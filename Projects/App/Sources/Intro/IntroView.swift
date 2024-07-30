@@ -31,7 +31,6 @@ public extension IntroView {
                     if let store = store.scope(state: \.login, action: \.login) {
                         LoginRootView(store: store)
                     }
-                    
                 }
             }
         }
