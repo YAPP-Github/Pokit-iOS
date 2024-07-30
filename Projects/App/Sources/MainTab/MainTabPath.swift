@@ -116,9 +116,12 @@ public extension MainTabFeature {
             case let .linkDetail(.presented(.delegate(.pushLinkAddView))),
                  let .pokit(.delegate(.링크수정하기)),
                  let .remind(.delegate(.링크수정)):
-                // TODO: 링크상세 모델과 링크수정 모델 일치시키기
+                return .run { send in await send(.inner(.링크추가및수정이동)) }
+                
+            case .inner(.링크추가및수정이동):
                 state.path.append(.링크추가및수정(AddLinkFeature.State(link: AddLinkMock.init(title: "", urlText: "", createAt: Date.now, memo: "", isRemind: false, pokit: PokitMock(categoryType: "", contentSize: 4)))))
                 state.linkDetail = nil
+
                 return .none
                 
             /// - 링크 추가하기

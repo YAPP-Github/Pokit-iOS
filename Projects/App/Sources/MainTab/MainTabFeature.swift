@@ -48,7 +48,9 @@ public struct MainTabFeature {
             case addButtonTapped
             case addSheetTypeSelected(TabAddSheetType)
         }
-        public enum InnerAction: Equatable { case doNothing }
+        public enum InnerAction: Equatable {
+            case 링크추가및수정이동
+        }
         public enum AsyncAction: Equatable { case doNothing }
         public enum ScopeAction: Equatable { case doNothing }
         public enum DelegateAction: Equatable {
