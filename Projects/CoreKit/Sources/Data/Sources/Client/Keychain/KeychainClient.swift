@@ -24,9 +24,9 @@ extension DependencyValues {
 
 // MARK: - KeychainClient Client
 public struct KeychainClient {
-    var save: @Sendable (KeychainKey, String) -> Void
-    var read: @Sendable (KeychainKey) -> (String?)
-    var delete: @Sendable (KeychainKey) -> Void
+    public var save: @Sendable (KeychainKey, String) -> Void
+    public var read: @Sendable (KeychainKey) -> (String?)
+    public var delete: @Sendable (KeychainKey) -> Void
 }
 
 extension KeychainClient: DependencyKey {
