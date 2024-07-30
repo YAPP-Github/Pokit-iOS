@@ -128,11 +128,12 @@ private extension LoginRootFeature {
             case .pushSignUpDoneView:
                 return .send(.inner(.pushSignUpDoneView))
             }
-        case .signUpDone(let delegate):
-            switch delegate {
-            case .dismissLoginRootView:
-                return .send(.inner(.dismissLoginRootView))
-            }
+        default: return .none
+//        case .signUpDone(let delegate):
+//            switch delegate {
+//            case .dismissLoginRootView:
+//                return .send(.inner(.dismissLoginRootView))
+//            }
         }
     }
     /// - Delegate Effect
