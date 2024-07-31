@@ -10,9 +10,6 @@ import Foundation
 import Dependencies
 import Moya
 
-public struct Dummy: Codable {}
-public struct DummyBody: Encodable {}
-
 // MARK: - Dependency Values
 extension DependencyValues {
     public var authClient: AuthClient {
@@ -22,10 +19,9 @@ extension DependencyValues {
 }
 /// 유저정보에 관련한 API를 처리하는 Client
 public struct AuthClient {
-    /// 로그인
-    var login: @Sendable (DummyBody) async throws -> Dummy
-    /// 토큰 재발급
-    var reissueToken: @Sendable (PokitTokenRefreshRequest) async throws -> PokitTokenRefreshResponse
+    var 로그인: @Sendable (SignInRequest) async throws -> TokenResponse
+    var 회원탈퇴: @Sendable (WithdrawRequest) async throws -> EmptyResponse
+    var 토큰재발급: @Sendable (ReissueRequest) async throws -> TokenResponse
 }
 
 extension AuthClient: DependencyKey {
@@ -35,19 +31,23 @@ extension AuthClient: DependencyKey {
         let provider = MoyaProvider<AuthEndpoint>.build()
 
         return Self(
-            login: { dum in
-                try await nonTokenProvider.request(.login(dum))
+            로그인: { model in
+                try await nonTokenProvider.request(.로그인(model))
             },
-            reissueToken: {
-                try await provider.request(.reissueToken(reqeust: $0))
+            회원탈퇴: { model in
+                try await provider.request(.회원탈퇴(model))
+            },
+            토큰재발급: { model in
+                try await nonTokenProvider.request(.토큰재발급(model))
             }
         )
     }()
 
     public static let previewValue: Self = {
         Self(
-            login: { _ in  Dummy.init() },
-            reissueToken: { _ in .mock }
+            로그인: { _ in .mock },
+            회원탈퇴: { _ in .init() },
+            토큰재발급: { _ in .mock }
         )
     }()
 }
