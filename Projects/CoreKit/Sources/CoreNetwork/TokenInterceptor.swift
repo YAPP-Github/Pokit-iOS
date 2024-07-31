@@ -9,7 +9,6 @@ import Foundation
 
 import Alamofire
 import Dependencies
-import Data
 
 /// AccessToken값을 헤더에 넣어주거나, refreshToken으로 Intercept해주는 Interceptor
 public final class TokenInterceptor: RequestInterceptor {
@@ -59,11 +58,11 @@ public final class TokenInterceptor: RequestInterceptor {
             completion(.doNotRetryWithError(error))
             return
         }
-        let tokenRequest = PokitTokenRefreshRequest(refreshToken: refreshToken)
+        let tokenRequest = ReissueRequest(refreshToken: refreshToken)
 
         Task {
             do {
-                let tokenResponse = try await authClient.reissueToken(tokenRequest)
+                let tokenResponse = try await authClient.토큰재발급(tokenRequest)
 
                 keychain.save(.accessToken, tokenResponse.accessToken)
                 keychain.save(.refreshToken, tokenResponse.refreshToken)

@@ -8,13 +8,13 @@
 import ProjectDescription
 import ProjectDescriptionHelpers
 
-let targets = CoreKit.allCases.map { core in
-    return core.target
-}
+//let targets = CoreKit.allCases.map { core in
+//    return core.target
+//}
 
-let coreKitDependencies: [TargetDependency] = targets.map { target in
-    return .target(target)
-}
+//let coreKitDependencies: [TargetDependency] = targets.map { target in
+//    return .target(target)
+//}
 
 let coreKit: Target = .target(
     name: "CoreKit",
@@ -25,12 +25,17 @@ let coreKit: Target = .target(
     deploymentTargets: .appMinimunTarget,
     infoPlist: .file(path: .relativeToRoot("Projects/App/Resources/Pokit-info.plist")),
     sources: ["Sources/**"],
-    dependencies: coreKitDependencies,
+    dependencies: [
+        .project(target: "Util", path: .relativeToRoot("Projects/Util")),
+        .project(target: "SharedThirdPartyLib", path: .relativeToRoot("Projects/SharedThirdPartyLib")),
+        .external(name: "Moya"),
+        .external(name: "GoogleSignIn")
+    ],
     settings: .settings
 )
 
 let project = Project(
     name: "CoreKit",
     settings: .settings,
-    targets: [coreKit] + targets
+    targets: [coreKit]
 )

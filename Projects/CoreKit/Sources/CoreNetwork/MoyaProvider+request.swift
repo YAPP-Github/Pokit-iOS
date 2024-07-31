@@ -6,13 +6,8 @@
 //
 
 import Foundation
-import Moya
 
-public struct ErrorResponse: Error, Decodable {
-    let message: String
-    let code: String
-    static let base = ErrorResponse(message: "기본에러입니다", code: "CODE")
-}
+import Moya
 
 extension MoyaProvider {
     func request<T: Decodable>(_ target: Target) async throws -> T {
