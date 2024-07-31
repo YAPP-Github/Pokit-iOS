@@ -6,7 +6,7 @@
 //
 
 import Foundation
-/// - 토큰 재발급 API Request
+/// 토큰 재발급 API Request
 public struct ReissueRequest: Encodable {
     let refreshToken: String
 }

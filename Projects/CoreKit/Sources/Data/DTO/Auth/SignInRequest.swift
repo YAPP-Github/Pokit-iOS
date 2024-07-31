@@ -6,7 +6,7 @@
 //
 
 import Foundation
-/// - 로그인 API Request
+/// 로그인 API Request
 public struct SignInRequest: Encodable {
     let authPlatform: String
     let idToken: String
