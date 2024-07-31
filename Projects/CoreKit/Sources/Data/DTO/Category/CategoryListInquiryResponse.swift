@@ -13,7 +13,7 @@ public struct CategoryListInquiryResponse: Decodable {
     let data: [CategoryItemInquiryResponse]
     let page: Int
     let size: Int
-    let sort: [CategoryListInquirySortResponse]
+    let sort: [ItemInquirySortResponse]
     let hasNext: Bool
 }
 
@@ -26,7 +26,7 @@ public struct CategoryItemInquiryResponse: Decodable {
     let contentCount: Int
 }
 /// Sort
-public struct CategoryListInquirySortResponse: Decodable {
+public struct ItemInquirySortResponse: Decodable {
     let direction: String
     let nullHandling: String
     let ascending: Bool
@@ -51,7 +51,7 @@ extension CategoryListInquiryResponse {
         page: 1,
         size: 4,
         sort: [
-            CategoryListInquirySortResponse(
+            ItemInquirySortResponse(
                 direction: "",
                 nullHandling: "",
                 ascending: false,
