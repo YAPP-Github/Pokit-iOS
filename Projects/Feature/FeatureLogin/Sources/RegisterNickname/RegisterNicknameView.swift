@@ -68,6 +68,7 @@ extension RegisterNicknameView {
         PokitTextInput(
             text: $store.nicknameText,
             info: "한글, 영어, 숫자로만 입력이 가능합니다.",
+            maxLetter: 10,
             focusState: $isFocused,
             equals: true
         )
