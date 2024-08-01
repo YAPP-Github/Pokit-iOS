@@ -77,10 +77,10 @@ public extension MainTabView {
 //MARK: - Configure View
 private extension MainTabView {
     var content: some View {
-        VStack(spacing: 40)  {
-            ZStack(alignment: .bottom) {
-                tabView
-                if store.isLinkSheetPresented {
+        tabView
+            .overlay(alignment: .bottom) {
+                VStack(spacing: 0) {
+                    if store.isLinkSheetPresented {
                     PokitLinkPopup(
                         "복사한 링크 저장하기",
                         isPresented: $store.isLinkSheetPresented,
@@ -88,27 +88,28 @@ private extension MainTabView {
                         action: { send(.linkCopyButtonTapped) }
                     )
                 }
+
+                    bottomTabBar
+                }
             }
-            bottomTabBar
-        }
-        .sheet(isPresented: $store.isBottomSheetPresented) {
-            ///Todo: bottom sheet 추가
-            AddSheet(action: { send(.addSheetTypeSelected($0)) })
-        }
-        .sheet(
-            item: $store.scope(
-                state: \.linkDetail,
-                action: \.linkDetail
-            )
-        ) { store in
-            LinkDetailView(store: store)
-        }
-        .navigationBarBackButtonHidden()
-        .ignoresSafeArea(edges: .bottom)
-        .toolbar { navigationBar }
-        .task { await send(.onAppear).finish() }
+            .ignoresSafeArea(edges: .bottom)
+            .sheet(isPresented: $store.isBottomSheetPresented) {
+                ///Todo: bottom sheet 추가
+                AddSheet(action: { send(.addSheetTypeSelected($0)) })
+            }
+            .sheet(
+                item: $store.scope(
+                    state: \.linkDetail,
+                    action: \.linkDetail
+                )
+            ) { store in
+                LinkDetailView(store: store)
+            }
+            .pokitNavigationBar(title: "")
+            .toolbar { navigationBar }
+            .task { await send(.onAppear).finish() }
     }
-    
+
     var tabView: some View {
         TabView(selection: $store.selectedTab) {
             switch store.selectedTab {
@@ -119,7 +120,7 @@ private extension MainTabView {
             }
         }
     }
-    
+
     @ToolbarContentBuilder
     var pokitNavigationBar: some ToolbarContent {
         ToolbarItem(placement: .topBarLeading) {
@@ -127,7 +128,7 @@ private extension MainTabView {
                 .font(.system(size: 36, weight: .heavy))
                 .foregroundStyle(.pokit(.text(.brand)))
         }
-        
+
         ToolbarItem(placement: .topBarTrailing) {
             HStack(spacing: 12) {
                 PokitToolbarButton(
@@ -145,32 +146,31 @@ private extension MainTabView {
             }
         }
     }
-    
+
     @ToolbarContentBuilder
     var remindNavigationBar: some ToolbarContent {
-        
         ToolbarItem(placement: .navigationBarLeading) {
             Text("Remind")
                 .font(.system(size: 32, weight: .heavy))
                 .foregroundStyle(.pokit(.text(.brand)))
         }
-        
+
         ToolbarItem(placement: .navigationBarTrailing) {
             PokitToolbarButton(
                 .icon(.search),
                 action: { store.send(.remind(.view(.searchButtonTapped))) }
             )
         }
-        
+
         ToolbarItem(placement: .navigationBarTrailing) {
             PokitToolbarButton(
                 .icon(.bell),
                 action: { store.send(.remind(.view(.bellButtonTapped))) }
             )
         }
-        
+
     }
-    
+
     @ToolbarContentBuilder
     var navigationBar: some ToolbarContent {
         switch store.selectedTab {
@@ -178,12 +178,12 @@ private extension MainTabView {
         case .remind: remindNavigationBar
         }
     }
-    
+
     var bottomTabBar: some View {
         HStack(spacing: 0) {
             ForEach(MainTab.allCases, id: \.self) { tab in
                 let isSelected: Bool = store.selectedTab == tab
-                
+
                 VStack(spacing: 4) {
                     Image(tab.icon)
                         .renderingMode(.template)
@@ -241,7 +241,7 @@ private extension MainTabView {
     struct AddSheet: View {
         @State private var height: CGFloat = 0
         var action: (TabAddSheetType) -> Void
-        
+
         var body: some View {
             HStack(spacing: 20) {
                 ForEach(TabAddSheetType.allCases, id: \.self) { type in
@@ -281,7 +281,7 @@ private extension MainTabView {
                 }
             }
             .presentationDetents([.height(self.height)])
-            
+
         }
     }
 }

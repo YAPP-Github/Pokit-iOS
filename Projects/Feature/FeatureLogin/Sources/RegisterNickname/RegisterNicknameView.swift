@@ -43,6 +43,7 @@ public extension RegisterNicknameView {
                 )
             }
             .padding(.horizontal, 20)
+            .background(.pokit(.bg(.base)))
             .ignoresSafeArea(edges: [.bottom])
             .pokitNavigationBar(title: "")
             .toolbar {

@@ -31,6 +31,7 @@ public extension CategoryDetailView {
             }
             .padding(.top, 12)
             .padding(.horizontal, 20)
+            .background(.pokit(.bg(.base)))
             .navigationBarBackButtonHidden()
             .toolbar { self.navigationBar }
             .sheet(isPresented: $store.isCategorySheetPresented) {

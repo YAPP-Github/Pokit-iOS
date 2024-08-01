@@ -43,6 +43,7 @@ public extension NickNameSettingView {
             }
             .padding(.top, 16)
             .padding(.horizontal, 20)
+            .background(.pokit(.bg(.base)))
             .ignoresSafeArea(edges: [.bottom])
             .navigationBarBackButtonHidden()
             .pokitNavigationBar(title: "닉네임 설정")

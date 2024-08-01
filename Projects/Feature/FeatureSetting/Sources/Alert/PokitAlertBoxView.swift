@@ -33,12 +33,14 @@ public extension PokitAlertBoxView {
                         .listRowInsets(EdgeInsets())
                         .onDelete(deleteAction: { delete(item) })
                     }
+                    .listRowBackground(Color.pokit(.bg(.base)))
                 }
                 .listStyle(.plain)
             }
             .padding(.top, 16)
+            .background(.pokit(.bg(.base)))
+            .ignoresSafeArea(edges: [.bottom])
             .pokitNavigationBar(title: "알림함")
-            .navigationBarBackButtonHidden()
             .toolbar { navigationBar }
             .onAppear { send(.onAppear) }
         }

@@ -31,7 +31,7 @@ public extension CategoryFilterSheet {
             contents
         }
         .padding(.top)
-        .background(.white)
+        .background(.pokit(.bg(.base)))
         .ignoresSafeArea(edges: [.bottom])
         .pokitPresentationCornerRadius()
         .pokitPresentationBackground()

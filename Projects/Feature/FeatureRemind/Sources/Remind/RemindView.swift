@@ -36,12 +36,12 @@ public extension RemindView {
                         favoriteLinkList
                     }
                     .padding(.horizontal, 20)
-                    
-                    Spacer()
                 }
                 .padding(.top, 16)
+                .padding(.bottom, 150)
             }
             .background(.pokit(.bg(.base)))
+            .ignoresSafeArea(edges: [.bottom])
             .pokitNavigationBar(title: "")
             .sheet(item: $store.bottomSheetItem) { link in
                 PokitBottomSheet(

@@ -38,19 +38,20 @@ public extension LinkDetailView {
                 .overlay(alignment: .bottom) {
                     bottomToolbar
                 }
-                .pokitPresentationBackground()
-                .pokitPresentationCornerRadius()
-                .presentationDetents([.medium, .large])
-                .sheet(isPresented: $store.showAlert) {
-                    PokitAlert(
-                        "링크를 정말 삭제하시겠습니까?",
-                        message: "함께 저장한 모든 정보가 삭제되며, \n복구하실 수 없습니다.",
-                        confirmText: "삭제",
-                        action: { send(.deleteAlertConfirmTapped) }
-                    )
-                }
             }
             .padding(.top, 28)
+            .background(.pokit(.bg(.base)))
+            .pokitPresentationBackground()
+            .pokitPresentationCornerRadius()
+            .presentationDetents([.medium, .large])
+            .sheet(isPresented: $store.showAlert) {
+                PokitAlert(
+                    "링크를 정말 삭제하시겠습니까?",
+                    message: "함께 저장한 모든 정보가 삭제되며, \n복구하실 수 없습니다.",
+                    confirmText: "삭제",
+                    action: { send(.deleteAlertConfirmTapped) }
+                )
+            }
         }
     }
 }
@@ -83,6 +84,7 @@ private extension LinkDetailView {
                 
                 Text(store.link.title)
                     .pokitFont(.title3)
+                    .foregroundStyle(.pokit(.text(.primary)))
                     .multilineTextAlignment(.leading)
                     .lineLimit(2)
                 

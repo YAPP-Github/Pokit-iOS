@@ -28,27 +28,29 @@ public struct PokitRootView: View {
 public extension PokitRootView {
     var body: some View {
         WithPerceptionTracking {
-                VStack(spacing: 0) {
-                    self.filterHeader
-                    self.cardScrollView
-                }
-                .padding(.horizontal, 20)
-                .padding(.vertical, 16)
-                .sheet(isPresented: $store.isKebobSheetPresented) {
-                    PokitBottomSheet(
-                        items: [.share, .edit, .delete],
-                        height: 224,
-                        delegateSend: { store.send(.scope(.bottomSheet($0))) }
-                    )
-                }
-                .sheet(isPresented: $store.isPokitDeleteSheetPresented) {
-                    PokitDeleteBottomSheet(
-                        type: store.folderType == .folder(.포킷) 
-                        ? .포킷삭제
-                        : .링크삭제,
-                        delegateSend: { store.send(.scope(.deleteBottomSheet($0))) }
-                    )
-                }
+            VStack(spacing: 0) {
+                self.filterHeader
+                self.cardScrollView
+            }
+            .padding(.horizontal, 20)
+            .padding(.vertical, 16)
+            .background(.pokit(.bg(.base)))
+            .ignoresSafeArea(edges: [.bottom])
+            .sheet(isPresented: $store.isKebobSheetPresented) {
+                PokitBottomSheet(
+                    items: [.share, .edit, .delete],
+                    height: 224,
+                    delegateSend: { store.send(.scope(.bottomSheet($0))) }
+                )
+            }
+            .sheet(isPresented: $store.isPokitDeleteSheetPresented) {
+                PokitDeleteBottomSheet(
+                    type: store.folderType == .folder(.포킷)
+                    ? .포킷삭제
+                    : .링크삭제,
+                    delegateSend: { store.send(.scope(.deleteBottomSheet($0))) }
+                )
+            }
         }
     }
 }
@@ -120,6 +122,7 @@ private extension PokitRootView {
                 )
             }
         }
+        .padding(.bottom, 150)
     }
     var unclassifiedView: some View {
         VStack(spacing: 0) {
@@ -135,6 +138,7 @@ private extension PokitRootView {
                 .divider(isFirst: isFirst, isLast: isLast)
             }
         }
+        .padding(.bottom, 150)
     }
 }
 
