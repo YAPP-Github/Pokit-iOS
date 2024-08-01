@@ -24,7 +24,7 @@ public struct LinkDetailFeature {
             self.link = link
         }
         
-        let link: LinkDetailMock
+        var link: LinkDetailMock
         var linkTitle: String? = nil
         var linkImage: UIImage? = nil
         var showAlert: Bool = false
@@ -49,6 +49,7 @@ public struct LinkDetailFeature {
             case editButtonTapped
             case deleteButtonTapped
             case deleteAlertConfirmTapped
+            case favoriteButtonTapped
         }
         
         public enum InnerAction: Equatable {
@@ -124,6 +125,9 @@ private extension LinkDetailFeature {
                 await dismiss()
             }
         case .binding:
+            return .none
+        case .favoriteButtonTapped:
+            state.link.isFavorite.toggle()
             return .none
         }
     }

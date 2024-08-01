@@ -124,9 +124,10 @@ private extension MainTabView {
     @ToolbarContentBuilder
     var pokitNavigationBar: some ToolbarContent {
         ToolbarItem(placement: .topBarLeading) {
-            Text("Pokit")
-                .font(.system(size: 36, weight: .heavy))
-                .foregroundStyle(.pokit(.text(.brand)))
+            Image(.logo(.pokit))
+                .resizable()
+                .frame(width: 104, height: 32)
+                .foregroundStyle(.pokit(.icon(.brand)))
         }
 
         ToolbarItem(placement: .topBarTrailing) {

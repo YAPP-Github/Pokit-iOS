@@ -143,13 +143,15 @@ private extension LinkDetailView {
     }
     
     var favorite: some View {
-        Image(.icon(.star))
-            .resizable()
-            .scaledToFit()
-            .frame(width: 24, height: 24)
-            .foregroundStyle(
-                store.link.isFavorite ? .pokit(.icon(.brand)) : .pokit(.icon(.tertiary))
-            )
+        Button(action: { send(.favoriteButtonTapped, animation: .smooth) }) {
+            let isFavorite = store.link.isFavorite
+            
+            Image(isFavorite ? .icon(.starFill) : .icon(.star))
+                .resizable()
+                .scaledToFit()
+                .foregroundStyle(.pokit(.icon(isFavorite ? .brand : .tertiary)))
+                .frame(width: 24, height: 24)
+        }
     }
     
     var bottomToolbar: some View {
