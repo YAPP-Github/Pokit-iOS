@@ -8,8 +8,10 @@
 import Foundation
 
 public struct CategoryDetail {
-    /// - Respone
+    // - MARK: Respone
+    /// 카테고리(포킷) 내 콘텐츠(링크) 리스트
     public let contentList: BaseContentListInquiry
-    /// - Request
+    // - MARK: Request
+    /// 조회할 페이징 정보
     public let pageable: BasePageable
 }

@@ -8,10 +8,10 @@
 import Foundation
 
 public struct Login {
-    /// - Response
+    // - MARK: Response
     public let accessToken: String
     public let refreshToken: String
-    /// - Request
+    // - MARK: Request
     public let authPlatform: String
     public let idToken: String
 }

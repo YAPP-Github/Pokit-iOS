@@ -8,8 +8,10 @@
 import Foundation
 
 public struct RegisterNickname {
-    /// - Response
+    // - MARK: Response
+    /// 닉네임 중복 여부
     public let isDuplicate: Bool
-    /// - Request
+    // - MARK: Request
+    /// 등록할 닉네임
     public let nickname: String
 }

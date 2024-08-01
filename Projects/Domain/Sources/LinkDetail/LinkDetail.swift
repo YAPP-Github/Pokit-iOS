@@ -8,11 +8,7 @@
 import Foundation
 
 public struct LinkDetail {
-    /// - Response
-    public let contentId: Int
-    public let categoryName: String
-    public let title: String
-    public let data: String
-    public let createdAt: Date
-    public let favorites: Bool
+    // - MARK: Response
+    /// 콘텐츠(링크) 상세
+    public let content: BaseContent
 }

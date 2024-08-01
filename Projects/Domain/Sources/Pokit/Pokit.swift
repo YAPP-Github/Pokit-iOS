@@ -8,7 +8,9 @@
 import Foundation
 
 public struct Pokit {
-    /// - Response
+    // - MARK: Response
+    /// 카테고리(포킷) 리스트
     public let categoryList: BaseCategoryListInquiry
+    /// 컨텐트(링크) 리스트
     public let unclassifiedContentList: BaseContentListInquiry
 }

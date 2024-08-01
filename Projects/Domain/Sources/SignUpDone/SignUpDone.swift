@@ -8,8 +8,12 @@
 import Foundation
 
 public struct SignUpDone {
-    /// - Response
+    // - MARK: Response
+    /// 유저 정보
     public let user: BaseUser
-    /// - Request
+    // - MARK: Request
+    /// 등록할 닉네임
+    public let nickname: String
+    /// - 등록할 유저 관심사
     public let interest: [String]
 }

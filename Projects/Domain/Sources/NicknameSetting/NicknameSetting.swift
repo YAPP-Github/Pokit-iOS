@@ -8,9 +8,12 @@
 import Foundation
 
 public struct NicknameSetting {
-    /// - Response
+    // - MARK: Response
+    /// 유저 정보
     public let user: BaseUser
+    /// 닉네임 중복 여부
     public let isDuplicate: Bool
-    /// Request
+    // - MARK: Request
+    /// 등록할 닉네임
     public let nickname: String
 }
