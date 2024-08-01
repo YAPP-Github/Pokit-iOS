@@ -299,6 +299,10 @@ public struct PokitCalendar: View {
         isContains: Bool
     ) {
         withAnimation(.smooth) {
+            let ignoreTimeOfStartDate = ignoreTime(self.startDate)
+            let ignoreTimeOfEndDate = ignoreTime(self.endDate)
+            let isRange = ignoreTimeOfStartDate != ignoreTimeOfEndDate
+            
             guard !isStartDate else {
                 self.startDate = endDate
                 return
@@ -309,27 +313,24 @@ public struct PokitCalendar: View {
                 return
             }
             
-            let ignoreTimeOfStartDate = ignoreTime(self.startDate)
-            let ignoreTimeOfEndDate = ignoreTime(self.endDate)
-            
-            if isContains {
-                let sinceStartDate = date.timeIntervalSince(ignoreTimeOfStartDate)
-                let sinceEndDate = ignoreTimeOfEndDate.timeIntervalSince(date)
-                
-                if sinceStartDate < sinceEndDate {
-                    self.startDate = date
-                } else {
-                    self.endDate = date
-                }
-            } else {
-                if date < ignoreTimeOfStartDate {
-                    self.startDate = date
-                }
-                
-                if date > ignoreTimeOfEndDate {
-                    self.endDate = date
-                }
+            guard date > ignoreTimeOfStartDate else {
+                self.startDate = date
+                self.endDate = date
+                return
             }
+            
+            guard isRange else {
+                self.endDate = date
+                return
+            }
+            
+            guard isContains else {
+                self.startDate = date
+                self.endDate = date
+                return
+            }
+            
+            self.endDate = date
         }
     }
     
