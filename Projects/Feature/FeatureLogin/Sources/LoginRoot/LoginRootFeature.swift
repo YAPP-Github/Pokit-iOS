@@ -132,6 +132,7 @@ private extension LoginRootFeature {
             case .dismissLoginRootView:
                 return .send(.delegate(.dismissLoginRootView))
             }
+         default: return .none
         }
     }
     /// - Delegate Effect

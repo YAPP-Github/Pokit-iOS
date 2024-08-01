@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import Core
 import GoogleSignIn
 
 public final class GoogleLoginController {
