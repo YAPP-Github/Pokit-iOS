@@ -31,15 +31,18 @@ public extension SignUpDoneView {
                     title
                         .padding(.top, 28)
                 }
-                .padding(.horizontal, 20)
                 
                 Spacer()
                 
-                PokitBottomButton("시작하기", state: .filled(.primary)) {
-                    send(.startButtonTapped)
-                }
+                PokitBottomButton(
+                    "시작하기",
+                    state: .filled(.primary),
+                    action: { send(.startButtonTapped) }
+                )
             }
+            .padding(.horizontal, 20)
             .background(.pokit(.bg(.base)))
+            .ignoresSafeArea(edges: [.bottom])
             .pokitNavigationBar(title: "")
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {

@@ -32,6 +32,7 @@ public extension CategoryFilterSheet {
         }
         .padding(.top)
         .background(.white)
+        .ignoresSafeArea(edges: [.bottom])
         .pokitPresentationCornerRadius()
         .pokitPresentationBackground()
         .presentationDragIndicator(.visible)

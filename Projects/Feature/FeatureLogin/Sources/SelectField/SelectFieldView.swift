@@ -31,18 +31,18 @@ public extension SelectFieldView {
                     fieldsFlow
                         .padding(.top, 36)
                 }
-                .padding(.horizontal, 20)
                 
                 Spacer()
                 
                 PokitBottomButton(
                     "다음",
-                    state: store.selectedFields.count == 0 ? .disable : .filled(.primary)
-                ) {
-                    send(.nextButtonTapped)
-                }
+                    state: store.selectedFields.count == 0 ? .disable : .filled(.primary),
+                    action: { send(.nextButtonTapped) }
+                )
             }
+            .padding(.horizontal, 20)
             .background(.pokit(.bg(.base)))
+            .ignoresSafeArea(edges: [.bottom])
             .pokitNavigationBar(title: "")
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {

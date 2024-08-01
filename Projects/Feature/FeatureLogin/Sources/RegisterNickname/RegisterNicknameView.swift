@@ -33,17 +33,17 @@ public extension RegisterNicknameView {
                     textField
                         .padding(.top, 28)
                 }
-                .padding(.horizontal, 20)
                 
                 Spacer()
                 
                 PokitBottomButton(
-                    "다음",
-                    state: store.nicknameText == "" || store.nicknameText.count > 10 ? .disable : .filled(.primary)
-                ) {
-                    send(.nextButtonTapped)
-                }
+                    "디음",
+                    state: store.nicknameText == "" || store.nicknameText.count > 10 ? .disable : .filled(.primary),
+                    action: { send(.nextButtonTapped) }
+                )
             }
+            .padding(.horizontal, 20)
+            .ignoresSafeArea(edges: [.bottom])
             .pokitNavigationBar(title: "")
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {

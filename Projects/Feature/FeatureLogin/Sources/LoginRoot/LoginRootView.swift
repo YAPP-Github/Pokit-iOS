@@ -53,7 +53,9 @@ public extension LoginRootView {
                         googleLoginButton
                     }
                     .padding(.horizontal, 20)
+                    .padding(.bottom, 36)
                     .background(.pokit(.bg(.base)))
+                    .ignoresSafeArea(edges: [.bottom])
                     .pokitNavigationBar(title: "")
                 }
             } destination: { path in

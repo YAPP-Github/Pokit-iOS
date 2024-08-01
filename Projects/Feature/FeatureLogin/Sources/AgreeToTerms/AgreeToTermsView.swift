@@ -34,18 +34,18 @@ public extension AgreeToTermsView {
                     termsList
                         .padding(.top, 20)
                 }
-                .padding(.horizontal, 20)
                 
                 Spacer()
                 
                 PokitBottomButton(
                     "다음",
-                    state: store.isPersonalAndUsageArgee && store.isServiceAgree ? .filled(.primary) : .disable
-                ) {
-                    send(.nextButtonTapped)
-                }
+                    state: store.isPersonalAndUsageArgee && store.isServiceAgree ? .filled(.primary) : .disable,
+                    action: { send(.nextButtonTapped) }
+                )
             }
+            .padding(.horizontal, 20)
             .background(.pokit(.bg(.base)))
+            .ignoresSafeArea(edges: [.bottom])
             .pokitNavigationBar(title: "")
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {

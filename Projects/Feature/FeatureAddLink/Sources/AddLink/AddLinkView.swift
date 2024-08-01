@@ -27,31 +27,27 @@ public struct AddLinkView: View {
 public extension AddLinkView {
     var body: some View {
         WithPerceptionTracking {
-            ScrollView {
-                VStack(spacing: 24) {
-                    linkTextField
-                    
-                    titleTextField
-                    
-                    HStack(alignment: .bottom, spacing: 8) {
-                        pokitSelectButton
-                         
-                        addPokitButton
+            VStack(spacing: 0) {
+                ScrollView {
+                    VStack(spacing: 24) {
+                        
+                        linkTextField
+                        
+                        titleTextField
+                        
+                        HStack(alignment: .bottom, spacing: 8) {
+                            pokitSelectButton
+                            
+                            addPokitButton
+                        }
+                        
+                        memoTextArea
+                        
+                        remindSwitchRadio
                     }
-                    
-                    memoTextArea
-                    
-                    remindSwitchRadio
-                    
-                    Spacer(minLength: 100)
+                    .padding(.horizontal, 20)
                 }
-                .padding(.horizontal, 20)
-                .padding(.vertical, 16)
-            }
-            .overlay(alignment: .bottom) {
-                let isDisable = store.state.urlText.isEmpty || store.state.title.isEmpty
-                
-                VStack(spacing: 0) {
+                .overlay(alignment: .bottom) {
                     if store.state.showPopup {
                         PokitLinkPopup(
                             "최대 30개의 포킷을 생성할 수 있습니다. \n포킷을 삭제한 뒤에 추가해주세요.",
@@ -59,15 +55,19 @@ public extension AddLinkView {
                             type: .text
                         )
                     }
-                    
-                    PokitBottomButton(
-                        "저장하기",
-                        state: isDisable ? .disable : .filled(.primary),
-                        action: { send(.saveBottomButtonTapped) }
-                    )
-                    .background()
                 }
+                
+                let isDisable = store.state.urlText.isEmpty || store.state.title.isEmpty
+                
+                PokitBottomButton(
+                    "저장하기",
+                    state: isDisable ? .disable : .filled(.primary),
+                    action: { send(.saveBottomButtonTapped) }
+                )
+                .padding(.horizontal, 20)
             }
+            .padding(.top, 16)
+            .ignoresSafeArea(edges: [.bottom])
             .pokitNavigationBar(title: store.link == nil ? "링크 추가" : "링크 수정")
             .toolbar { navigationBar }
             .onAppear { send(.addLinkViewOnAppeared) }

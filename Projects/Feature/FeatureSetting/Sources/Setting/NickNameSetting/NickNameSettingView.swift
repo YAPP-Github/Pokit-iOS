@@ -40,10 +40,10 @@ public extension NickNameSettingView {
                     action: { send(.saveButtonTapped) }
                 )
                 .padding(.top, 16)
-                .padding(.bottom, 28)
             }
             .padding(.top, 16)
             .padding(.horizontal, 20)
+            .ignoresSafeArea(edges: [.bottom])
             .navigationBarBackButtonHidden()
             .pokitNavigationBar(title: "닉네임 설정")
             .toolbar { navigationBar }

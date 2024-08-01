@@ -60,6 +60,7 @@ public extension ProfileBottomSheet {
         .padding(.bottom, 36)
         .fixedSize(horizontal: false, vertical: true)
         .scrollIndicators(.hidden)
+        .ignoresSafeArea(edges: [.bottom])
         .background(.white)
         .pokitPresentationCornerRadius()
         .pokitPresentationBackground()
