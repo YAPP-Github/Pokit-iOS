@@ -53,7 +53,6 @@ public struct PokitMock: PokitSelectItem, Identifiable {
             .init(categoryType: "포킷명", contentSize: 15),
             .init(categoryType: "포킷명", contentSize: 15),
             .init(categoryType: "포킷명", contentSize: 15),
-            .init(categoryType: "포킷명", contentSize: 15),
             .init(categoryType: "포킷명", contentSize: 15)
         ]
     }

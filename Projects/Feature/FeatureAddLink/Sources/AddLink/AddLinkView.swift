@@ -72,14 +72,6 @@ public extension AddLinkView {
             .pokitNavigationBar(title: store.link == nil ? "링크 추가" : "링크 수정")
             .toolbar { navigationBar }
             .onAppear { send(.addLinkViewOnAppeared) }
-            .sheet(
-                item: $store.scope(
-                    state: \.addPokitSheet,
-                    action: \.addPokitSheet
-                )
-            ) { addPokitSheetFeature in
-                AddPokitSheetView(store: addPokitSheetFeature)
-            }
         }
     }
 }

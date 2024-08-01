@@ -40,7 +40,6 @@ public struct AddLinkFeature {
         var linkTitle: String? = nil
         var linkImage: UIImage? = nil
         var showPopup: Bool = false
-        @Presents var addPokitSheet: AddPokitSheetFeature.State?
     }
     
     /// - Action
@@ -50,7 +49,6 @@ public struct AddLinkFeature {
         case async(AsyncAction)
         case scope(ScopeAction)
         case delegate(DelegateAction)
-        case addPokitSheet(PresentationAction<AddPokitSheetFeature.Action>)
         
         @CasePathable
         public enum View: Equatable, BindableAction {
@@ -77,9 +75,7 @@ public struct AddLinkFeature {
             case 저장하기_네트워크
         }
         
-        public enum ScopeAction: Equatable {
-            case addPokitSheet(AddPokitSheetFeature.Action.DelegateAction)
-        }
+        public enum ScopeAction: Equatable { case doNothing }
         
         public enum DelegateAction: Equatable {
             case 저장하기_네트워크이후
@@ -112,10 +108,6 @@ public struct AddLinkFeature {
             /// - Delegate
         case .delegate(let delegateAction):
             return handleDelegateAction(delegateAction, state: &state)
-        case .addPokitSheet(.presented(.delegate(let delegate))):
-            return .send(.scope(.addPokitSheet(delegate)))
-        case .addPokitSheet:
-            return .none
         }
     }
     
@@ -123,9 +115,6 @@ public struct AddLinkFeature {
     public var body: some ReducerOf<Self> {
         BindingReducer(action: \.view)
         Reduce(self.core)
-            .ifLet(\.$addPokitSheet, action: \.addPokitSheet) {
-                AddPokitSheetFeature()
-            }
     }
 }
 //MARK: - FeatureAction Effect
@@ -169,7 +158,6 @@ private extension AddLinkFeature {
                 /// 🚨 Error Case [1]: 포킷 갯수가 30개 이상일 경우
                 return .send(.inner(.showPopup), animation: .pokitSpring)
             }
-//            state.addPokitSheet = AddPokitSheetFeature.State()
             return .send(.delegate(.포킷추가하기))
             
         case .dismiss:
@@ -216,16 +204,11 @@ private extension AddLinkFeature {
             //TODO: 저장하기 네트워크 코드작성
             return .run { send in await send(.delegate(.저장하기_네트워크이후)) }
         }
-        return .none
     }
     
     /// - Scope Effect
     func handleScopeAction(_ action: Action.ScopeAction, state: inout State) -> Effect<Action> {
-        switch action {
-        case .addPokitSheet(.addPokit(pokit: let pokit)):
-            state.pokitList.append(pokit)
-            return .none
-        }
+        return .none
     }
     
     /// - Delegate Effect
