@@ -26,24 +26,25 @@ public struct CategoryFilterSheet: View {
 //MARK: - View
 public extension CategoryFilterSheet {
     var body: some View {
-        VStack(spacing: 0) {
-            header
-            contents
-        }
-        .padding(.top)
-        .background(.pokit(.bg(.base)))
-        .ignoresSafeArea(edges: [.bottom])
-        .pokitPresentationCornerRadius()
-        .pokitPresentationBackground()
-        .presentationDragIndicator(.visible)
-        .readHeight()
-        .onPreferenceChange(HeightPreferenceKey.self) { height in
-            if let height {
-                self.height = height
+        GeometryReader { geometry in
+            VStack(spacing: 0) {
+                header
+                
+                contents
             }
+            .padding(.top)
+            .background(.pokit(.bg(.base)))
+            .pokitPresentationCornerRadius()
+            .pokitPresentationBackground()
+            .presentationDragIndicator(.visible)
+            .readHeight()
+            .onPreferenceChange(HeightPreferenceKey.self) { height in
+                if let height {
+                    self.height = height - geometry.safeAreaInsets.bottom
+                }
+            }
+            .presentationDetents([.height(self.height)])
         }
-        .presentationDetents([.height(self.height)])
-        
     }
 }
 //MARK: - Configure View
