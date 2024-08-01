@@ -123,7 +123,7 @@ extension AgreeToTermsView {
     ) -> some View {
         HStack(spacing: 4) {
             PokitCheckBox(
-                baseState: .clear,
+                baseState: .iconOnlyDefault,
                 selectedState: .iconOnly,
                 isSelected: isSelected,
                 shape: .rectangle
