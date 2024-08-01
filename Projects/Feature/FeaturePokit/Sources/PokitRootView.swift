@@ -105,8 +105,8 @@ private extension PokitRootView {
         }
         .padding(.top, 20)
         .scrollIndicators(.hidden)
-        .animation(.smooth, value: store.mock)
-        .animation(.smooth, value: store.unclassifiedMock)
+        .animation(.smooth, value: store.mock.elements)
+        .animation(.smooth, value: store.unclassifiedMock.elements)
         .animation(.spring, value: store.folderType)
     }
     

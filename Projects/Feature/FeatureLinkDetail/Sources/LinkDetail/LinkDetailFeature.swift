@@ -7,7 +7,7 @@
 import UIKit
 
 import ComposableArchitecture
-import CoreLinkPresentation
+import CoreKit
 import Util
 
 @Reducer

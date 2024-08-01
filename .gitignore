@@ -84,3 +84,4 @@ fastlane/key.json
 
 ### fastlane environment
 fastlane/.env
+fastlane/.env.default
