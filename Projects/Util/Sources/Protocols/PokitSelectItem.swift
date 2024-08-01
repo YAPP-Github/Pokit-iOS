@@ -8,6 +8,6 @@
 import Foundation
 
 public protocol PokitSelectItem: Identifiable, Equatable {
-    var categoryType: String { get }
+    var categoryName: String { get }
     var contentSize: Int { get }
 }

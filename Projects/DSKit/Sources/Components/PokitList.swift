@@ -47,7 +47,7 @@ public struct PokitList<Item: PokitSelectItem>: View {
         } label: {
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(item.categoryType)
+                    Text(item.categoryName)
                         .pokitFont(.b1(.b))
                         .foregroundStyle(.pokit(.text(.primary)))
                     

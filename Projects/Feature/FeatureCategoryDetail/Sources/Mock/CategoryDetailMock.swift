@@ -12,10 +12,10 @@ public struct DetailItemMock: PokitLinkCardItem, Identifiable, Equatable {
     public let id: UUID
     public let title: String
     public let thumbNail: String
-    public let createAt: Date
-    public let categoryType: String
+    public let createdAt: Date
+    public let categoryName: String
     public let isRead: Bool
-    public let domain: String
+    public let data: String
     
     init(
         id: UUID = .init(),
@@ -29,10 +29,10 @@ public struct DetailItemMock: PokitLinkCardItem, Identifiable, Equatable {
         self.id = id
         self.title = title
         self.thumbNail = thumbNail
-        self.createAt = createAt
-        self.categoryType = categoryType
+        self.createdAt = createAt
+        self.categoryName = categoryType
         self.isRead = isRead
-        self.domain = domain
+        self.data = domain
     }
 }
 

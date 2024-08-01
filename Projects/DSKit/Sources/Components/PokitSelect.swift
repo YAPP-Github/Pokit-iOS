@@ -62,7 +62,7 @@ public struct PokitSelect<Item: PokitSelectItem>: View {
     
     private var partSelectLabel: some View {
         HStack {
-            Text(self.selectedItem?.categoryType ?? "선택해주세요.")
+            Text(self.selectedItem?.categoryName ?? "선택해주세요.")
                 .pokitFont(.b3(.m))
                 .foregroundStyle(self.state.textColor)
                 .contentTransition(.numericText())

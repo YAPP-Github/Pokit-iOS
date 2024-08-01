@@ -203,7 +203,7 @@ private extension PokitSearchView {
     
     var pokitFilterButton: some View {
         PokitIconRButton(
-            store.pokitFilter?.categoryType ?? "포킷명",
+            store.pokitFilter?.categoryName ?? "포킷명",
             .icon(.arrowDown),
             state: store.pokitFilter == nil ? .default(.primary) : .stroke(.primary),
             size: .small,

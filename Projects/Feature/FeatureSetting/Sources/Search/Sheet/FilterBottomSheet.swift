@@ -140,7 +140,7 @@ private extension FilterBottomSheet {
     var currentFilterChips: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 6) {
-                if let pokit = store.selectedPokit?.categoryType {
+                if let pokit = store.selectedPokit?.categoryName {
                     PokitIconRChip(
                         pokit,
                         state: .stroke(.primary),

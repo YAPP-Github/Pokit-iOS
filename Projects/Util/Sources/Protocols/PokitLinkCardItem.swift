@@ -10,8 +10,8 @@ import Foundation
 public protocol PokitLinkCardItem {
     var title: String { get }
     var thumbNail: String { get }
-    var createAt: Date { get }
-    var categoryType: String { get }
+    var createdAt: Date { get }
+    var categoryName: String { get }
     var isRead: Bool { get }
-    var domain: String { get }
+    var data: String { get }
 }

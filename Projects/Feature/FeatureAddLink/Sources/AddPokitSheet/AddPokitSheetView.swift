@@ -28,7 +28,7 @@ public extension AddPokitSheetView {
         WithPerceptionTracking {
             VStack(spacing: 12) {
                 PokitTextInput(
-                    text: $store.pokit.categoryType,
+                    text: $store.pokit.categoryName,
                     maxLetter: 10,
                     focusState: $focused,
                     equals: true
@@ -37,7 +37,7 @@ public extension AddPokitSheetView {
                 
                 PokitBottomButton(
                     "추가하기",
-                    state: store.pokit.categoryType == "" ? .disable : .filled(.primary),
+                    state: store.pokit.categoryName == "" ? .disable : .filled(.primary),
                     action: { send(.addButtonTapped) }
                 )
                 .background()

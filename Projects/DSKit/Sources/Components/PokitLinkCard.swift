@@ -68,18 +68,18 @@ public struct PokitLinkCard<Item: PokitLinkCardItem>: View {
     }
     
     private var subTitle: some View {
-        Text("\(date) • \(link.domain)")
+        Text("\(date) • \(link.data)")
             .pokitFont(.detail2)
             .foregroundStyle(.pokit(.text(.tertiary)))
     }
     
     @ViewBuilder
     private func badges() -> some View {
-        let isUnCategorized = link.categoryType == "미분류"
+        let isUnCategorized = link.categoryName == "미분류"
         
         HStack(spacing: 6) {
             PokitBadge(
-                link.categoryType,
+                link.categoryName,
                 state: isUnCategorized ? .unCategorized : .default
             )
             
@@ -112,7 +112,7 @@ public struct PokitLinkCard<Item: PokitLinkCardItem>: View {
     private var date: String {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy.MM.dd"
-        return formatter.string(from: link.createAt)
+        return formatter.string(from: link.createdAt)
     }
     
     private var divider: some View {
@@ -140,13 +140,13 @@ fileprivate struct Link: PokitLinkCardItem {
     
     var thumbNail: String
     
-    var createAt: Date
+    var createdAt: Date
     
-    var categoryType: String
+    var categoryName: String
     
     var isRead: Bool
     
-    var domain: String
+    var data: String
     
     init(
         title: String,
@@ -158,10 +158,10 @@ fileprivate struct Link: PokitLinkCardItem {
     ) {
         self.title = title
         self.thumbNail = thumbNail
-        self.createAt = createAt
-        self.categoryType = categoryType
+        self.createdAt = createAt
+        self.categoryName = categoryType
         self.isRead = isRead
-        self.domain = domain
+        self.data = domain
     }
 }
 
