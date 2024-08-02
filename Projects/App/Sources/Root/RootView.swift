@@ -33,6 +33,7 @@ extension RootView {
                 }
             }
             .background(.pokit(.bg(.base)))
+            .ignoresSafeArea(edges: .bottom)
             .animation(.spring, value: store.mainTab)
         }
     }

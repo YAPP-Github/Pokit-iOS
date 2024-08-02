@@ -93,6 +93,8 @@ private extension MainTabView {
                             type: .link(url: store.link ?? ""),
                             action: { send(.linkCopyButtonTapped) }
                         )
+                        .offset(y: -30)
+                        .padding(.bottom, 20)
                     }
                     
                     bottomTabBar
