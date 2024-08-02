@@ -4,13 +4,17 @@
 //
 //  Created by 김민호 on 7/25/24.
 
+import Foundation
+
 import ComposableArchitecture
+import CoreKit
 import Util
 
 @Reducer
 public struct PokitCategorySettingFeature {
     /// - Dependency
     @Dependency(\.dismiss) var dismiss
+    @Dependency(\.pasteboard) var pasteboard
     /// - State
     @ObservableState
     public struct State: Equatable {
@@ -56,6 +60,7 @@ public struct PokitCategorySettingFeature {
             case dismiss
             case profileSettingButtonTapped
             case saveButtonTapped
+            case onAppear
         }
         
         public enum InnerAction: Equatable { case doNothing }
@@ -69,6 +74,7 @@ public struct PokitCategorySettingFeature {
         public enum DelegateAction: Equatable {
             /// 이전화면으로 돌아가 카테고리 항목을 추가하면됨
             case settingSuccess(CategorySettingMock)
+            case linkCopyDetected(URL?)
         }
     }
     
@@ -134,6 +140,14 @@ private extension PokitCategorySettingFeature {
                 /// - mock
                 let result = CategorySettingMock(categoryId: 0, categoryName: "", categoryImage: CategorySettingImageMock(imageId: 0, imageUrl: ""))
                 await send(.delegate(.settingSuccess(result)))
+            }
+            
+        case .onAppear:
+            return .run { send in
+                for await _ in self.pasteboard.changes() {
+                    let url = try await pasteboard.probableWebURL()
+                    await send(.delegate(.linkCopyDetected(url)))
+                }
             }
         }
     }
