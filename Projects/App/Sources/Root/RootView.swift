@@ -8,6 +8,7 @@
 import SwiftUI
 
 import ComposableArchitecture
+import DSKit
 
 public struct RootView: View {
     /// - Properties
@@ -28,8 +29,10 @@ extension RootView {
                 
                 if let store = store.scope(state: \.mainTab, action: \.mainTab) {
                     MainTabView(store: store)
+                        .pokitBlurReplaceTransition(.smooth)
                 }
             }
+            .background(.pokit(.bg(.base)))
             .animation(.spring, value: store.mainTab)
         }
     }

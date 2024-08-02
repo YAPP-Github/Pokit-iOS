@@ -122,6 +122,7 @@ private extension CategoryDetailView {
                     kebabAction: { send(.categoryKebobButtonTapped(.링크삭제, selectedItem: link)) }
                 )
                 .divider(isFirst: isFirst, isLast: isLast)
+                .pokitScrollTransition(.opacity)
             }
         }
         .animation(.spring, value: store.mock.elements)

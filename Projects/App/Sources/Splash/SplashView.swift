@@ -22,8 +22,19 @@ public extension SplashView {
     var body: some View {
         WithPerceptionTracking {
             VStack {
-                Text("Splash")
-                    .font(.largeTitle)
+                Spacer()
+                
+                HStack {
+                    Spacer()
+                    
+                    Text("Splash")
+                        .font(.largeTitle)
+                        .foregroundStyle(.black)
+                    
+                    Spacer()
+                }
+                
+                Spacer()
             }
             .onAppear { send(.onAppear) }
         }
