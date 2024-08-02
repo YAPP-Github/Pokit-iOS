@@ -40,6 +40,7 @@ let project = Project(
                 .project(target: "FeaturePokit", path: .relativeToRoot("Projects/Feature")),
                 .project(target: "FeatureCategoryDetail", path: .relativeToRoot("Projects/Feature")),
                 .project(target: "FeatureSetting", path: .relativeToRoot("Projects/Feature")),
+                .project(target: "FeatureLinkList", path: .relativeToRoot("Projects/Feature")),
                 .external(name: "FirebaseMessaging")
             ],
             settings: .settings(

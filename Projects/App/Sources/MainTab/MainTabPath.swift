@@ -13,6 +13,7 @@ import FeatureCategoryDetail
 import FeatureCategorySetting
 import FeatureLinkDetail
 import FeatureAddLink
+import FeatureLinkList
 
 @Reducer
 public struct MainTabPath {
@@ -24,8 +25,9 @@ public struct MainTabPath {
         case 포킷추가및수정(PokitCategorySettingFeature.State)
         case 링크추가및수정(AddLinkFeature.State)
         case 카테고리상세(CategoryDetailFeature.State)
+        case 링크목록(LinkListFeature.State)
     }
-    
+
     public enum Action {
         case 알림함(PokitAlertBoxFeature.Action)
         case 검색(PokitSearchFeature.Action)
@@ -33,8 +35,9 @@ public struct MainTabPath {
         case 포킷추가및수정(PokitCategorySettingFeature.Action)
         case 링크추가및수정(AddLinkFeature.Action)
         case 카테고리상세(CategoryDetailFeature.Action)
+        case 링크목록(LinkListFeature.Action)
     }
-    
+
     public var body: some Reducer<State, Action> {
         Scope(state: \.알림함, action: \.알림함) { PokitAlertBoxFeature() }
         Scope(state: \.검색, action: \.검색) { PokitSearchFeature() }
@@ -42,6 +45,7 @@ public struct MainTabPath {
         Scope(state: \.포킷추가및수정, action: \.포킷추가및수정) { PokitCategorySettingFeature() }
         Scope(state: \.링크추가및수정, action: \.링크추가및수정) { AddLinkFeature() }
         Scope(state: \.카테고리상세, action: \.카테고리상세) { CategoryDetailFeature() }
+        Scope(state: \.링크목록, action: \.링크목록) { LinkListFeature() }
     }
 }
 
@@ -51,52 +55,52 @@ public extension MainTabFeature {
             switch action {
             /// - 네비게이션 바 `알림`버튼 눌렀을 때
             case .pokit(.delegate(.alertButtonTapped)),
-                 .remind(.delegate(.bellButtonTapped)):
+                 .remind(.delegate(.alertButtonTapped)):
                 state.path.append(.알림함(PokitAlertBoxFeature.State(alertItems: AlertMock.mock)))
                 return .none
-                
+
             /// - 네비게이션 바 `검색`버튼 눌렀을 때
             case .pokit(.delegate(.searchButtonTapped)),
                  .remind(.delegate(.searchButtonTapped)):
                 state.path.append(.검색(PokitSearchFeature.State()))
                 return .none
-                
+
             /// - 네비게이션 바 `설정`버튼 눌렀을 때
             case .pokit(.delegate(.settingButtonTapped)):
                 state.path.append(.설정(PokitSettingFeature.State()))
                 return .none
-                
+
             /// - 포킷 `수정`버튼 눌렀을 때
             case .pokit(.delegate(.수정하기)),
                  .path(.element(_, action: .카테고리상세(.delegate(.포킷수정)))):
                 state.path.append(.포킷추가및수정(PokitCategorySettingFeature.State(type: .수정, itemList: CategoryItemMock.mock)))
                 return .none
-            
+
             /// - 포킷 `추가` 버튼 눌렀을 때
             case .delegate(.포킷추가하기),
                  .path(.element(_, action: .링크추가및수정(.delegate(.포킷추가하기)))):
                 state.path.append(.포킷추가및수정(PokitCategorySettingFeature.State(type: .추가, itemList: CategoryItemMock.mock)))
                 return .none
-                
+
             /// - 포킷 `추가` or `수정`이 성공적으로 `완료`되었을 때
             case let .path(.element(_, action: .포킷추가및수정(.delegate(.settingSuccess(item))))):
                 state.path.removeLast()
                 return .none
-                
+
             /// - 포킷 카테고리 아이템 눌렀을 때
             case let .pokit(.delegate(.categoryTapped)):
                 state.path.append(.카테고리상세(CategoryDetailFeature.State(mock: DetailItemMock.recommendedMock)))
                 return .none
-                
+
             case .path(.element(_, action: .카테고리상세(.delegate(.포킷삭제)))):
                 /// Todo: id값을 받아와 삭제API 보내기
                 state.path.removeLast()
                 return .none
-                
+
             /// - 링크 상세
             case let .path(.element(_, action: .카테고리상세(.delegate(.linkItemTapped)))),
                  let .pokit(.delegate(.linkDetailTapped)),
-                 let .remind(.delegate(.pushAddLinkView)):
+                 let .remind(.delegate(.링크상세)):
                 // TODO: 링크상세 모델과 링크수정 모델 일치시키기
                 state.linkDetail = LinkDetailFeature.State(
                     link: LinkDetailMock(
@@ -111,18 +115,18 @@ public extension MainTabFeature {
                     )
                 )
                 return .none
-                
+
             /// - 링크상세 바텀시트에서 링크수정으로 이동
             case let .linkDetail(.presented(.delegate(.pushLinkAddView))),
                  let .pokit(.delegate(.링크수정하기)),
                  let .remind(.delegate(.링크수정)):
                 return .run { send in await send(.inner(.링크추가및수정이동)) }
-                
+
             case .inner(.링크추가및수정이동):
                 state.path.append(.링크추가및수정(AddLinkFeature.State(link: AddLinkMock.init(title: "", urlText: "", createAt: Date.now, memo: "", isRemind: false, pokit: PokitMock(categoryType: "", contentSize: 4)))))
                 state.linkDetail = nil
                 return .none
-                
+
             /// - 링크 추가하기
             case .delegate(.링크추가하기):
                 let link = AddLinkMock(
@@ -138,7 +142,7 @@ public extension MainTabFeature {
                 )
                 state.path.append(.링크추가및수정(AddLinkFeature.State(link: link)))
                 return .none
-                
+
             /// - 링크추가 및 수정에서 저장하기 눌렀을 때
             case .path(.element(_, action: .링크추가및수정(.delegate(.저장하기_네트워크이후)))):
                 state.path.removeLast()
@@ -150,7 +154,14 @@ public extension MainTabFeature {
                  let .path(.element(_, action: .카테고리상세(.delegate(.linkCopyDetected(url))))),
                  let .path(.element(_, action: .포킷추가및수정(.delegate(.linkCopyDetected(url))))):
                 return .run { send in await send(.inner(.linkCopySuccess(url))) }
-
+            /// 링크목록 `안읽음`
+            case .remind(.delegate(.링크목록_안읽음)):
+                state.path.append(.링크목록(LinkListFeature.State(linkType: .unread)))
+                return .none
+            /// 링크목록 `즐겨찾기`
+            case .remind(.delegate(.링크목록_즐겨찾기)):
+                state.path.append(.링크목록(LinkListFeature.State(linkType: .favorite)))
+                return .none
             default: return .none
             }
         }

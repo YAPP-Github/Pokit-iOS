@@ -15,6 +15,7 @@ import FeatureCategorySetting
 import FeatureLinkDetail
 import FeatureAddLink
 import FeatureCategoryDetail
+import FeatureLinkList
 
 @ViewAction(for: MainTabFeature.self)
 public struct MainTabView: View {
@@ -68,6 +69,10 @@ public extension MainTabView {
                             type: .link(url: self.store.link ?? ""),
                             action: { send(.linkCopyButtonTapped) }
                         )
+                    }
+                case .링크목록:
+                    if let store = store.scope(state: \.링크목록, action: \.링크목록) {
+                        LinkListView(store: store)
                     }
                 }
             }
