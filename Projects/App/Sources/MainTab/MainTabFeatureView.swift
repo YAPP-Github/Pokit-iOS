@@ -61,7 +61,12 @@ public extension MainTabView {
                         if let store = store.scope(state: \.카테고리상세, action: \.카테고리상세) {
                             CategoryDetailView(store: store)
                         }
+                    case .링크목록:
+                        if let store = store.scope(state: \.링크목록, action: \.링크목록) {
+                            LinkListView(store: store)
+                        }
                     }
+                    
                     if self.store.isLinkSheetPresented {
                         PokitLinkPopup(
                             "복사한 링크 저장하기",
@@ -69,10 +74,6 @@ public extension MainTabView {
                             type: .link(url: self.store.link ?? ""),
                             action: { send(.linkCopyButtonTapped) }
                         )
-                    }
-                case .링크목록:
-                    if let store = store.scope(state: \.링크목록, action: \.링크목록) {
-                        LinkListView(store: store)
                     }
                 }
             }
@@ -86,14 +87,14 @@ private extension MainTabView {
             .overlay(alignment: .bottom) {
                 VStack(spacing: 0) {
                     if store.isLinkSheetPresented {
-                    PokitLinkPopup(
-                        "복사한 링크 저장하기",
-                        isPresented: $store.isLinkSheetPresented,
-                        type: .link(url: store.link ?? ""),
-                        action: { send(.linkCopyButtonTapped) }
-                    )
-                }
-
+                        PokitLinkPopup(
+                            "복사한 링크 저장하기",
+                            isPresented: $store.isLinkSheetPresented,
+                            type: .link(url: store.link ?? ""),
+                            action: { send(.linkCopyButtonTapped) }
+                        )
+                    }
+                    
                     bottomTabBar
                 }
             }
