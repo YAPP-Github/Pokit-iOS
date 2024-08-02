@@ -123,7 +123,7 @@ private extension CategoryDetailView {
                 .divider(isFirst: isFirst, isLast: isLast)
             }
         }
-        .animation(.spring, value: store.mock)
+        .animation(.spring, value: store.mock.elements)
     }
     
     struct PokitCategorySheet: View {
