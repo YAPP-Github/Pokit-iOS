@@ -139,10 +139,17 @@ public extension MainTabFeature {
                 state.path.append(.링크추가및수정(AddLinkFeature.State(link: link)))
                 return .none
                 
-            /// 링크추가 및 수정에서 저장하기 눌렀을 때
+            /// - 링크추가 및 수정에서 저장하기 눌렀을 때
             case .path(.element(_, action: .링크추가및수정(.delegate(.저장하기_네트워크이후)))):
                 state.path.removeLast()
                 return .none
+            /// - 각 화면에서 링크 복사 감지했을 때 (링크 추가 및 수정 화면 제외)
+            case let .path(.element(_, action: .알림함(.delegate(.linkCopyDetected(url))))),
+                 let .path(.element(_, action: .검색(.delegate(.linkCopyDetected(url))))),
+                 let .path(.element(_, action: .설정(.delegate(.linkCopyDetected(url))))),
+                 let .path(.element(_, action: .카테고리상세(.delegate(.linkCopyDetected(url))))),
+                 let .path(.element(_, action: .포킷추가및수정(.delegate(.linkCopyDetected(url))))):
+                return .run { send in await send(.inner(.linkCopySuccess(url))) }
 
             default: return .none
             }
