@@ -121,7 +121,6 @@ public extension MainTabFeature {
             case .inner(.링크추가및수정이동):
                 state.path.append(.링크추가및수정(AddLinkFeature.State(link: AddLinkMock.init(title: "", urlText: "", createAt: Date.now, memo: "", isRemind: false, pokit: PokitMock(categoryType: "", contentSize: 4)))))
                 state.linkDetail = nil
-
                 return .none
                 
             /// - 링크 추가하기

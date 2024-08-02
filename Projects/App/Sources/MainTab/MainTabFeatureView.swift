@@ -68,7 +68,17 @@ public extension MainTabView {
 private extension MainTabView {
     var content: some View {
         VStack(spacing: 40)  {
-            tabView
+            ZStack(alignment: .bottom) {
+                tabView
+                if store.isLinkSheetPresented {
+                    PokitLinkPopup(
+                        "복사한 링크 저장하기",
+                        isPresented: $store.isLinkSheetPresented,
+                        type: .link(url: store.link ?? ""),
+                        action: { send(.linkCopyButtonTapped) }
+                    )
+                }
+            }
             bottomTabBar
         }
         .sheet(isPresented: $store.isBottomSheetPresented) {
@@ -86,6 +96,7 @@ private extension MainTabView {
         .navigationBarBackButtonHidden()
         .ignoresSafeArea(edges: .bottom)
         .toolbar { navigationBar }
+        .task { await send(.onAppear).finish() }
     }
     
     var tabView: some View {
