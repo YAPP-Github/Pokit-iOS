@@ -160,7 +160,7 @@ private extension PokitRootFeature {
                 /// `포킷`의 최신순 정렬일 때
                 state.folderType == .folder(.포킷)
                 ? state.mock.sort { $0.createAt < $1.createAt }
-                : state.unclassifiedMock.sort { $0.createAt < $1.createAt }
+                : state.unclassifiedMock.sort { $0.createdAt < $1.createdAt }
             default: return .none
             }
             

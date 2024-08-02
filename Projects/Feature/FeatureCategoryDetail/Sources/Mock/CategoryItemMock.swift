@@ -10,7 +10,7 @@ import Foundation
 import Util
 
 public struct CategoryItemMock: PokitSelectItem, Identifiable {
-    public var categoryType: String
+    public var categoryName: String
     
     public var contentSize: Int
     
@@ -20,7 +20,7 @@ public struct CategoryItemMock: PokitSelectItem, Identifiable {
         categoryType: String,
         contentSize: Int
     ) {
-        self.categoryType = categoryType
+        self.categoryName = categoryType
         self.contentSize = contentSize
     }
     

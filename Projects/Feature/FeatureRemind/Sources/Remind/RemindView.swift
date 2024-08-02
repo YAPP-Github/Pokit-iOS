@@ -90,7 +90,7 @@ extension RemindView {
     
     @ViewBuilder
     private func recommendedLinkCellLabel(link: LinkMock) -> some View {
-        let date = formatter.string(from: link.createAt)
+        let date = formatter.string(from: link.createdAt)
         
         ZStack(alignment: .bottom) {
             AsyncImage(url: .init(string: link.thumbNail)) { image in
@@ -116,7 +116,7 @@ extension RemindView {
             )
             
             VStack(alignment: .leading, spacing: 0) {
-                PokitBadge(link.categoryType, state: .small)
+                PokitBadge(link.categoryName, state: .small)
                 
                 HStack(spacing: 4) {
                     Text(link.title)
@@ -136,7 +136,7 @@ extension RemindView {
                 }
                 .padding(.top, 4)
                 
-                Text("\(date) • \(link.domain)")
+                Text("\(date) • \(link.data)")
                     .pokitFont(.detail2)
                     .foregroundStyle(.pokit(.text(.tertiary)))
                     .padding(.top, 8)
