@@ -7,6 +7,7 @@
 import Foundation
 
 import ComposableArchitecture
+import CoreKit
 import DSKit
 import Util
 
@@ -14,6 +15,7 @@ import Util
 public struct PokitSearchFeature {
     /// - Dependency
     @Dependency(\.dismiss) var dismiss
+    @Dependency(\.pasteboard) var pasteboard
     /// - State
     @ObservableState
     public struct State: Equatable {
@@ -86,6 +88,8 @@ public struct PokitSearchFeature {
             /// - TextInput OnSubmitted
             case searchTextInputOnSubmitted
             
+            case onAppear
+            
         }
         
         public enum InnerAction: Equatable {
@@ -111,6 +115,7 @@ public struct PokitSearchFeature {
         public enum DelegateAction: Equatable {
             case linkCardTapped(link: SearchMock)
             case bottomSheetEditCellButtonTapped(link: SearchMock)
+            case linkCopyDetected(URL?)
         }
     }
     
@@ -237,6 +242,14 @@ private extension PokitSearchFeature {
         case .backButtonTapped:
             return .run { _ in
                 await dismiss()
+            }
+            
+        case .onAppear:
+            return .run { send in
+                for await _ in self.pasteboard.changes() {
+                    let url = try await pasteboard.probableWebURL()
+                    await send(.delegate(.linkCopyDetected(url)))
+                }
             }
         }
     }

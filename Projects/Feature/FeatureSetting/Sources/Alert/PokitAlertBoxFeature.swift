@@ -4,13 +4,17 @@
 //
 //  Created by 김민호 on 7/21/24.
 
+import Foundation
+
 import ComposableArchitecture
 import Util
+import CoreKit
 
 @Reducer
 public struct PokitAlertBoxFeature {
     /// - Dependency
     @Dependency(\.dismiss) var dismiss
+    @Dependency(\.pasteboard) var pasteboard
     /// - State
     @ObservableState
     public struct State: Equatable {
@@ -33,6 +37,7 @@ public struct PokitAlertBoxFeature {
             case deleteSwiped(item: AlertMock)
             case itemSelected(item: AlertMock)
             case dismiss
+            case onAppear
         }
         
         public enum InnerAction: Equatable { case doNothing }
@@ -43,11 +48,14 @@ public struct PokitAlertBoxFeature {
         
         public enum DelegateAction: Equatable {
             case moveToLinkEdit(item: AlertMock)
+            case linkCopyDetected(URL?)
         }
     }
     
     /// - Initiallizer
     public init() {}
+    
+    public enum CancelID { case disAppear }
 
     /// - Reducer Core
     private func core(into state: inout State, action: Action) -> Effect<Action> {
@@ -93,6 +101,13 @@ private extension PokitAlertBoxFeature {
             return .run { send in await send(.delegate(.moveToLinkEdit(item: item))) }
         case .dismiss:
             return .run { _ in await dismiss() }
+        case .onAppear:
+            return .run { send in
+                for await _ in self.pasteboard.changes() {
+                    let url = try await pasteboard.probableWebURL()
+                    await send(.delegate(.linkCopyDetected(url)))
+                }
+            }
         }
     }
     

@@ -4,6 +4,8 @@
 //
 //  Created by 김민호 on 7/21/24.
 
+import Foundation
+
 import ComposableArchitecture
 import CoreKit
 import Util
@@ -13,7 +15,7 @@ public struct PokitSettingFeature {
     /// - Dependency
     @Dependency(\.dismiss) var dismiss
     @Dependency(\.openSettings) var openSetting
-    
+    @Dependency(\.pasteboard) var pasteboard
     /// - State
     @ObservableState
     public struct State: Equatable {
@@ -46,6 +48,7 @@ public struct PokitSettingFeature {
             case 회원탈퇴
             case 회원탈퇴수행
             case dismiss
+            case onAppear
         }
         
         public enum InnerAction: Equatable { case doNothing }
@@ -56,7 +59,9 @@ public struct PokitSettingFeature {
             case doNothing
         }
         
-        public enum DelegateAction: Equatable { case doNothing }
+        public enum DelegateAction: Equatable {
+            case linkCopyDetected(URL?)
+        }
     }
     
     /// - Initiallizer
@@ -142,6 +147,14 @@ private extension PokitSettingFeature {
             
         case .dismiss:
             return .run { _ in await dismiss() }
+            
+        case .onAppear:
+            return .run { send in
+                for await _ in self.pasteboard.changes() {
+                    let url = try await pasteboard.probableWebURL()
+                    await send(.delegate(.linkCopyDetected(url)))
+                }
+            }
         }
     }
     

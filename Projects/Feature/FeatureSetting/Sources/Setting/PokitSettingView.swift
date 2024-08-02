@@ -57,6 +57,7 @@ public extension PokitSettingView {
             ) { store in
                 NickNameSettingView(store: store)
             }
+            .onAppear { send(.onAppear) }
         }
     }
 }

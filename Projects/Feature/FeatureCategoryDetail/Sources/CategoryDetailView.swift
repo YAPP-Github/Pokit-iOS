@@ -59,6 +59,7 @@ public extension CategoryDetailView {
                     delegateSend: { store.send(.scope(.filterBottomSheet($0))) }
                 )
             }
+            .onAppear { send(.onAppear) }
         }
     }
 }
@@ -122,7 +123,7 @@ private extension CategoryDetailView {
                 .divider(isFirst: isFirst, isLast: isLast)
             }
         }
-        .animation(.spring, value: store.mock)
+        .animation(.spring, value: store.mock.elements)
     }
     
     struct PokitCategorySheet: View {

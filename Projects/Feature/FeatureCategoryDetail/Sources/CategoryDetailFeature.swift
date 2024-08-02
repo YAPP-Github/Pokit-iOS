@@ -4,7 +4,10 @@
 //
 //  Created by 김민호 on 7/17/24.
 
+import Foundation
+
 import ComposableArchitecture
+import CoreKit
 import DSKit
 import Util
 
@@ -12,6 +15,7 @@ import Util
 public struct CategoryDetailFeature {
     /// - Dependency
     @Dependency(\.dismiss) var dismiss
+    @Dependency(\.pasteboard) var pasteboard
     /// - State
     @ObservableState
     public struct State: Equatable {
@@ -48,6 +52,7 @@ public struct CategoryDetailFeature {
             case filterButtonTapped
             case linkItemTapped(DetailItemMock)
             case dismiss
+            case onAppear
         }
         
         public enum InnerAction: Equatable {
@@ -66,6 +71,7 @@ public struct CategoryDetailFeature {
         
         public enum DelegateAction: Equatable {
             case linkItemTapped(DetailItemMock)
+            case linkCopyDetected(URL?)
             case 포킷삭제
             case 포킷수정
             case 포킷공유
@@ -135,6 +141,14 @@ private extension CategoryDetailFeature {
             
         case .dismiss:
             return .run { _ in await dismiss() }
+            
+        case .onAppear:
+            return .run { send in
+                for await _ in self.pasteboard.changes() {
+                    let url = try await pasteboard.probableWebURL()
+                    await send(.delegate(.linkCopyDetected(url)))
+                }
+            }
         }
     }
     

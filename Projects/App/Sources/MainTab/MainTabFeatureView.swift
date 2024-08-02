@@ -34,30 +34,40 @@ public extension MainTabView {
             NavigationStack(path: $store.scope(state: \.path, action: \.path)) {
                 content
             } destination: { store in
-                switch store.state {
-                case .알림함:
-                    if let store = store.scope(state: \.알림함, action: \.알림함) {
-                        PokitAlertBoxView(store: store)
+                ZStack(alignment: .bottom) {
+                    switch store.state {
+                    case .알림함:
+                        if let store = store.scope(state: \.알림함, action: \.알림함) {
+                            PokitAlertBoxView(store: store)
+                        }
+                    case .검색:
+                        if let store = store.scope(state: \.검색, action: \.검색) {
+                            PokitSearchView(store: store)
+                        }
+                    case .설정:
+                        if let store = store.scope(state: \.설정, action: \.설정) {
+                            PokitSettingView(store: store)
+                        }
+                    case .포킷추가및수정:
+                        if let store = store.scope(state: \.포킷추가및수정, action: \.포킷추가및수정) {
+                            PokitCategorySettingView(store: store)
+                        }
+                    case .링크추가및수정:
+                        if let store = store.scope(state: \.링크추가및수정, action: \.링크추가및수정) {
+                            AddLinkView(store: store)
+                        }
+                    case .카테고리상세:
+                        if let store = store.scope(state: \.카테고리상세, action: \.카테고리상세) {
+                            CategoryDetailView(store: store)
+                        }
                     }
-                case .검색:
-                    if let store = store.scope(state: \.검색, action: \.검색) {
-                        PokitSearchView(store: store)
-                    }
-                case .설정:
-                    if let store = store.scope(state: \.설정, action: \.설정) {
-                        PokitSettingView(store: store)
-                    }
-                case .포킷추가및수정:
-                    if let store = store.scope(state: \.포킷추가및수정, action: \.포킷추가및수정) {
-                        PokitCategorySettingView(store: store)
-                    }
-                case .링크추가및수정:
-                    if let store = store.scope(state: \.링크추가및수정, action: \.링크추가및수정) {
-                        AddLinkView(store: store)
-                    }
-                case .카테고리상세:
-                    if let store = store.scope(state: \.카테고리상세, action: \.카테고리상세) {
-                        CategoryDetailView(store: store)
+                    if self.store.isLinkSheetPresented {
+                        PokitLinkPopup(
+                            "복사한 링크 저장하기",
+                            isPresented: $store.isLinkSheetPresented,
+                            type: .link(url: self.store.link ?? ""),
+                            action: { send(.linkCopyButtonTapped) }
+                        )
                     }
                 }
             }
@@ -68,7 +78,17 @@ public extension MainTabView {
 private extension MainTabView {
     var content: some View {
         VStack(spacing: 40)  {
-            tabView
+            ZStack(alignment: .bottom) {
+                tabView
+                if store.isLinkSheetPresented {
+                    PokitLinkPopup(
+                        "복사한 링크 저장하기",
+                        isPresented: $store.isLinkSheetPresented,
+                        type: .link(url: store.link ?? ""),
+                        action: { send(.linkCopyButtonTapped) }
+                    )
+                }
+            }
             bottomTabBar
         }
         .sheet(isPresented: $store.isBottomSheetPresented) {
@@ -86,6 +106,7 @@ private extension MainTabView {
         .navigationBarBackButtonHidden()
         .ignoresSafeArea(edges: .bottom)
         .toolbar { navigationBar }
+        .task { await send(.onAppear).finish() }
     }
     
     var tabView: some View {
@@ -264,6 +285,7 @@ private extension MainTabView {
         }
     }
 }
+
 //MARK: - Preview
 #Preview {
     MainTabView(

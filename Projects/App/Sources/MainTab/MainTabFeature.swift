@@ -4,21 +4,26 @@
 //
 //  Created by 김민호 on 7/11/24.
 
+import Foundation
+
 import ComposableArchitecture
 import FeaturePokit
 import FeatureRemind
 import FeatureLinkDetail
 import Util
+import CoreKit
 
 @Reducer
 public struct MainTabFeature {
     /// - Dependency
-
+    @Dependency(\.pasteboard) var pasteBoard
     /// - State
     @ObservableState
     public struct State: Equatable {
         var selectedTab: MainTab = .pokit
         var isBottomSheetPresented: Bool = false
+        var isLinkSheetPresented: Bool = false
+        var link: String?
         
         var path: StackState<MainTabPath.State> = .init()
         var pokit: PokitRootFeature.State
@@ -47,9 +52,12 @@ public struct MainTabFeature {
         public enum View: Equatable {
             case addButtonTapped
             case addSheetTypeSelected(TabAddSheetType)
+            case linkCopyButtonTapped
+            case onAppear
         }
         public enum InnerAction: Equatable {
             case 링크추가및수정이동
+            case linkCopySuccess(URL?)
         }
         public enum AsyncAction: Equatable { case doNothing }
         public enum ScopeAction: Equatable { case doNothing }
@@ -119,11 +127,31 @@ private extension MainTabFeature {
             case .링크추가: return .send(.delegate(.링크추가하기))
             case .포킷추가: return .send(.delegate(.포킷추가하기))   
             }
+            
+        case .linkCopyButtonTapped:
+            state.isLinkSheetPresented = false
+            return .run { send in await send(.delegate(.링크추가하기)) }
+
+        case .onAppear:
+            return .run { send in
+                for await _ in self.pasteBoard.changes() {
+                    let url = try await pasteBoard.probableWebURL()
+                    await send(.inner(.linkCopySuccess(url)))
+                }
+            }
         }
     }
     /// - Inner Effect
     func handleInnerAction(_ action: Action.InnerAction, state: inout State) -> Effect<Action> {
-        return .none
+        switch action {
+        case let .linkCopySuccess(url):
+            guard let url else { return .none }
+            state.isLinkSheetPresented = true
+            state.link = url.absoluteString
+            return .none
+            
+        default: return .none
+        }
     }
     /// - Async Effect
     func handleAsyncAction(_ action: Action.AsyncAction, state: inout State) -> Effect<Action> {
