@@ -26,6 +26,7 @@ public struct PokitBottomSheet: View {
         VStack(spacing: 0) {
             list()
         }
+        .presentationDragIndicator(.visible)
         .presentationDetents([.height(height)])
         .pokitPresentationCornerRadius()
         .pokitPresentationBackground()

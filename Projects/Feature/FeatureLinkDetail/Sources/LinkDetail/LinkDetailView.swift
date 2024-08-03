@@ -43,6 +43,7 @@ public extension LinkDetailView {
             .background(.pokit(.bg(.base)))
             .pokitPresentationBackground()
             .pokitPresentationCornerRadius()
+            .presentationDragIndicator(.visible)
             .presentationDetents([.medium, .large])
             .sheet(isPresented: $store.showAlert) {
                 PokitAlert(

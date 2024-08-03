@@ -45,6 +45,7 @@ public struct PokitSelect<Item: PokitSelectItem>: View {
         .onChange(of: selectedItem) { onChangedSeletedItem($0) }
         .sheet(isPresented: $showSheet) {
             listSheet
+                .presentationDragIndicator(.visible)
                 .pokitPresentationCornerRadius()
                 .presentationDetents([.medium, .large])
                 .pokitPresentationBackground()
