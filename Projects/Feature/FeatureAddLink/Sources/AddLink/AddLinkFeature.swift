@@ -154,7 +154,7 @@ private extension AddLinkFeature {
                 await send(.inner(.parsingURL))
                 for await _ in self.pasteboard.changes() {
                     let url = try await pasteboard.probableWebURL()
-                    await send(.inner(.updateURLText(url?.description)))
+                    await send(.inner(.updateURLText(url?.absoluteString)))
                 }
             }
         case .saveBottomButtonTapped:
