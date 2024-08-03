@@ -14,8 +14,12 @@ import Util
 @Reducer
 public struct AddLinkFeature {
     /// - Dependency
-    @Dependency(\.dismiss) var dismiss
-    @Dependency(\.linkPresentation) private var linkPresentation
+    @Dependency(\.dismiss)
+    private var dismiss
+    @Dependency(\.linkPresentation)
+    private var linkPresentation
+    @Dependency(\.pasteboard)
+    private var pasteboard
     /// - State
     @ObservableState
     public struct State: Equatable {
@@ -72,6 +76,7 @@ public struct AddLinkFeature {
             case parsingInfo(title: String?, image: UIImage?)
             case parsingURL
             case showPopup
+            case updateURLText(String?)
         }
         
         public enum AsyncAction: Equatable {
@@ -145,7 +150,13 @@ private extension AddLinkFeature {
             state.selectedPokit = pokit
             return .none
         case .addLinkViewOnAppeared:
-            return .send(.inner(.parsingURL))
+            return .run { send in
+                await send(.inner(.parsingURL))
+                for await _ in self.pasteboard.changes() {
+                    let url = try await pasteboard.probableWebURL()
+                    await send(.inner(.updateURLText(url?.description)))
+                }
+            }
         case .saveBottomButtonTapped:
             state.link = .init(
                 title: state.title,
@@ -197,6 +208,10 @@ private extension AddLinkFeature {
         case .showPopup:
             state.showPopup = true
             return .none
+        case .updateURLText(let urlText):
+            guard let urlText else { return .none }
+            state.urlText = urlText
+            return .send(.inner(.parsingURL))
         }
     }
     
