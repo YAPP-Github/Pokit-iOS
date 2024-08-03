@@ -93,7 +93,6 @@ private extension MainTabView {
                             type: .link(url: store.link ?? ""),
                             action: { send(.linkCopyButtonTapped) }
                         )
-                        .offset(y: -30)
                         .padding(.bottom, 20)
                     }
                     
@@ -230,6 +229,7 @@ private extension MainTabView {
                     colorPercent: 10
                 )
         }
+        .padding(.top, 30)
         .overlay(alignment: .top) {
             Button(action: { send(.addButtonTapped) }) {
                 Circle()
@@ -242,7 +242,6 @@ private extension MainTabView {
                             .foregroundStyle(.pokit(.icon(.inverseWh)))
                     }
                     .frame(width: 60, height: 60)
-                    .offset(y: -30)
             }
         }
         .animation(.spring, value: store.selectedTab)
