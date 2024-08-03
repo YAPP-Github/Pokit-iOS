@@ -101,8 +101,10 @@ private extension PokitRootView {
         ScrollView {
             if store.folderType == .folder(.포킷) {
                 pokitView
+                    .pokitBlurReplaceTransition(.smooth)
             } else {
                 unclassifiedView
+                    .pokitBlurReplaceTransition(.smooth)
             }
         }
         .padding(.top, 20)
