@@ -19,12 +19,15 @@ public struct AddLinkFeature {
     /// - State
     @ObservableState
     public struct State: Equatable {
-        public init(link: AddLinkMock? = nil) {
+        public init(
+            link: AddLinkMock? = nil,
+            urlText: String = ""
+        ) {
             let pokitList = PokitMock.addLinkMock
             self.pokitList = pokitList
             self.selectedPokit = link?.pokit ?? .init(categoryType: "미분류", contentSize: 15)
             self.link = link
-            self.urlText = link?.urlText ?? ""
+            self.urlText = link?.urlText ?? urlText
             self.title = link?.title ?? ""
             self.memo = link?.memo ?? ""
             self.isRemind = link?.isRemind ?? false

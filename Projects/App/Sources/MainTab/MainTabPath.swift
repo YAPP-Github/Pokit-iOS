@@ -129,18 +129,7 @@ public extension MainTabFeature {
 
             /// - 링크 추가하기
             case .delegate(.링크추가하기):
-                let link = AddLinkMock(
-                    title: "",
-                    urlText: state.link ?? "",
-                    createAt: Date.now,
-                    memo: "",
-                    isRemind: false,
-                    pokit: PokitMock(
-                        categoryType: "미분류",
-                        contentSize: 0
-                    )
-                )
-                state.path.append(.링크추가및수정(AddLinkFeature.State(link: link)))
+                state.path.append(.링크추가및수정(AddLinkFeature.State(urlText: state.link ?? "")))
                 return .none
 
             /// - 링크추가 및 수정에서 저장하기 눌렀을 때
