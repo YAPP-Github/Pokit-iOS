@@ -72,6 +72,7 @@ public struct CategoryDetailFeature {
         public enum DelegateAction: Equatable {
             case linkItemTapped(DetailItemMock)
             case linkCopyDetected(URL?)
+            case 링크수정(DetailItemMock)
             case 포킷삭제
             case 포킷수정
             case 포킷공유
@@ -192,7 +193,8 @@ private extension CategoryDetailFeature {
                     switch type {
                     case .링크삭제:
                         guard let link else { return }
-                        await send(.delegate(.linkItemTapped(link)))
+                        await send(.inner(.pokitCategorySheetPresented(false)))
+                        await send(.delegate(.링크수정(link)))
                     case .포킷삭제:
                         await send(.inner(.pokitCategorySheetPresented(false)))
                         await send(.delegate(.포킷수정))

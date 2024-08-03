@@ -119,11 +119,23 @@ public extension MainTabFeature {
             /// - 링크상세 바텀시트에서 링크수정으로 이동
             case let .linkDetail(.presented(.delegate(.pushLinkAddView))),
                  let .pokit(.delegate(.링크수정하기)),
-                 let .remind(.delegate(.링크수정)):
+                 let .remind(.delegate(.링크수정)),
+                let .path(.element(_, action: .카테고리상세(.delegate(.링크수정)))):
                 return .run { send in await send(.inner(.링크추가및수정이동)) }
 
             case .inner(.링크추가및수정이동):
-                state.path.append(.링크추가및수정(AddLinkFeature.State(link: AddLinkMock.init(title: "", urlText: "", createAt: Date.now, memo: "", isRemind: false, pokit: PokitMock(categoryType: "", contentSize: 4)))))
+                state.path.append(.링크추가및수정(
+                    AddLinkFeature.State(
+                        link: AddLinkMock.init(
+                            title: "바이오 연구의 첨단,인공 유전자로 인간 피부 재생 가능성",
+                            urlText: "https://www.youtube.com/watch?v=wtSwdGJzQCQ",
+                            createAt: Date.now,
+                            memo: "",
+                            isRemind: false,
+                            pokit: PokitMock(categoryType: "미분류", contentSize: 4)
+                        )
+                    )
+                ))
                 state.linkDetail = nil
                 return .none
 
