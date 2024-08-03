@@ -73,7 +73,7 @@ extension SignUpDoneView {
                 .pokitFont(.title1)
                 .foregroundStyle(.pokit(.text(.primary)))
             
-            Text("POKIT을 통해 많은 링크를\n간편하게 관리하세요~!")
+            Text("POKIT을 통해 많은 링크를\n간편하게 관리하세요")
                 .pokitFont(.title3)
                 .foregroundStyle(.pokit(.text(.secondary)))
                 .multilineTextAlignment(.center)
