@@ -153,7 +153,7 @@ public extension MainTabFeature {
                  let .path(.element(_, action: .설정(.delegate(.linkCopyDetected(url))))),
                  let .path(.element(_, action: .카테고리상세(.delegate(.linkCopyDetected(url))))),
                  let .path(.element(_, action: .포킷추가및수정(.delegate(.linkCopyDetected(url))))):
-                return .run { send in await send(.inner(.linkCopySuccess(url))) }
+                return .run { send in await send(.inner(.linkCopySuccess(url)), animation: .pokitSpring) }
             /// 링크목록 `안읽음`
             case .remind(.delegate(.링크목록_안읽음)):
                 state.path.append(.링크목록(LinkListFeature.State(linkType: .unread)))
