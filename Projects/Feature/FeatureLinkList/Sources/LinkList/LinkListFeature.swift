@@ -4,14 +4,20 @@
 //
 //  Created by 김도형 on 8/2/24.
 
+import Foundation
+
 import ComposableArchitecture
+import CoreKit
 import DSKit
 import Util
 
 @Reducer
 public struct LinkListFeature {
     /// - Dependency
-    @Dependency(\.dismiss) var dismiss
+    @Dependency(\.dismiss)
+    private var dismiss
+    @Dependency(\.pasteboard)
+    private var pasteBoard
     /// - State
     @ObservableState
     public struct State: Equatable {
@@ -53,6 +59,8 @@ public struct LinkListFeature {
             case deleteAlertConfirmTapped(link: LinkListMock)
             case sortTextLinkTapped
             case backButtonTapped
+            /// - On Appeared
+            case linkListViewOnAppeared
         }
         
         public enum InnerAction: Equatable {
@@ -71,6 +79,7 @@ public struct LinkListFeature {
         public enum DelegateAction: Equatable {
             case 링크상세(link: LinkListMock)
             case 링크수정(link: LinkListMock)
+            case linkCopyDetected(URL?)
         }
     }
     
@@ -132,6 +141,13 @@ private extension LinkListFeature {
             return .none
         case .backButtonTapped:
             return .run { _ in await dismiss() }
+        case .linkListViewOnAppeared:
+            return .run { send in
+                for await _ in self.pasteBoard.changes() {
+                    let url = try await pasteBoard.probableWebURL()
+                    await send(.delegate(.linkCopyDetected(url)), animation: .pokitSpring)
+                }
+            }
         }
     }
     

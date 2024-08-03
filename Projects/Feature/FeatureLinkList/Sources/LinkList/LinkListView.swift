@@ -48,6 +48,7 @@ public extension LinkListView {
                     confirmText: "삭제"
                 ) { send(.deleteAlertConfirmTapped(link: link)) }
             }
+            .onAppear { send(.linkListViewOnAppeared) }
         }
     }
 }
