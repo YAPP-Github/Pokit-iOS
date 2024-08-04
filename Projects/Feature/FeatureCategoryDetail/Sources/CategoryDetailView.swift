@@ -7,6 +7,7 @@
 import SwiftUI
 
 import ComposableArchitecture
+import Domain
 import DSKit
 import Util
 
@@ -44,7 +45,7 @@ public extension CategoryDetailView {
             .sheet(isPresented: $store.isCategorySelectSheetPresented) {
                 PokitCategorySheet(
                     selectedItem: nil,
-                    list: CategoryItemMock.addLinkMock,
+                    list: store.categories.elements,
                     action: { send(.categorySelected($0)) }
                 )
                 .presentationDragIndicator(.visible)
@@ -85,7 +86,7 @@ private extension CategoryDetailView {
             HStack(spacing: 8) {
                 /// cateogry title
                 Button(action: { send(.categorySelectButtonTapped) }) {
-                    Text("포킷")
+                    Text(store.category.categoryName)
                         .foregroundStyle(.pokit(.text(.primary)))
                         .pokitFont(.title1)
                     Image(.icon(.arrowDown))
@@ -96,7 +97,7 @@ private extension CategoryDetailView {
                 .buttonStyle(.plain)
             }
             HStack {
-                Text("링크 14개")
+                Text("링크 \(store.category.contentCount)개")
                 Spacer()
                 PokitIconLButton(
                     "필터",
@@ -112,9 +113,9 @@ private extension CategoryDetailView {
     
     var linkScrollView: some View {
         ScrollView(showsIndicators: false) {
-            ForEach(store.mock) { link in
-                let isFirst = link == store.mock.first
-                let isLast = link == store.mock.last
+            ForEach(store.contents) { link in
+                let isFirst = link == store.contents.first
+                let isLast = link == store.contents.last
                 
                 PokitLinkCard(
                     link: link,
@@ -125,19 +126,19 @@ private extension CategoryDetailView {
                 .pokitScrollTransition(.opacity)
             }
         }
-        .animation(.spring, value: store.mock.elements)
+        .animation(.spring, value: store.contents.elements)
     }
     
     struct PokitCategorySheet: View {
         @State private var height: CGFloat = 0
-        var action: (CategoryItemMock) -> Void
-        var selectedItem: CategoryItemMock?
-        var list: [CategoryItemMock]
+        var action: (BaseCategory) -> Void
+        var selectedItem: BaseCategory?
+        var list: [BaseCategory]
         
         public init(
-            selectedItem: CategoryItemMock?,
-            list: [CategoryItemMock],
-            action: @escaping (CategoryItemMock) -> Void
+            selectedItem: BaseCategory?,
+            list: [BaseCategory],
+            action: @escaping (BaseCategory) -> Void
         ) {
             self.selectedItem = selectedItem
             self.list = list
@@ -158,7 +159,15 @@ private extension CategoryDetailView {
     NavigationStack {
         CategoryDetailView(
             store: Store(
-                initialState: .init(mock: DetailItemMock.recommendedMock),
+                initialState: .init(
+                    category: .init(
+                        id: 0,
+                        userId: 0,
+                        categoryName: "포킷",
+                        categoryImage: .init(imageId: 0, imageURL: ""),
+                        contentCount: 16
+                    )
+                ),
                 reducer: { CategoryDetailFeature() }
             )
         )

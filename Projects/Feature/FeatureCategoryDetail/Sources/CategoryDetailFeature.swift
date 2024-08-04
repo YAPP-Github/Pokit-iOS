@@ -7,6 +7,7 @@
 import Foundation
 
 import ComposableArchitecture
+import Domain
 import CoreKit
 import DSKit
 import Util
@@ -19,17 +20,35 @@ public struct CategoryDetailFeature {
     /// - State
     @ObservableState
     public struct State: Equatable {
-        var mock: IdentifiedArrayOf<DetailItemMock> = []
+        /// Domain
+        fileprivate var domain: CategoryDetail
+        var category: BaseCategory {
+            get { domain.category }
+        }
+        var categories: IdentifiedArrayOf<BaseCategory> {
+            var identifiedArray = IdentifiedArrayOf<BaseCategory>()
+            domain.categoryListInQuiry.data.forEach { category in
+                identifiedArray.append(category)
+            }
+            return identifiedArray
+        }
+        var contents: IdentifiedArrayOf<BaseContent> {
+            var identifiedArray = IdentifiedArrayOf<BaseContent>()
+            domain.contentList.data.forEach { content in
+                identifiedArray.append(content)
+            }
+            return identifiedArray
+        }
         var kebobSelectedType: PokitDeleteBottomSheet.SheetType?
-        var selectedLinkItem: DetailItemMock?
+        var selectedLinkItem: BaseContent?
         /// sheet Presented
         var isCategorySheetPresented: Bool = false
         var isCategorySelectSheetPresented: Bool = false
         var isPokitDeleteSheetPresented: Bool = false
         var isFilterSheetPresented: Bool = false
         
-        public init(mock: [DetailItemMock]) {
-            mock.forEach { self.mock.append($0) }
+        public init(category: BaseCategory) {
+            self.domain = .init(categpry: category)
         }
     }
     
@@ -46,11 +65,11 @@ public struct CategoryDetailFeature {
             /// - Binding
             case binding(BindingAction<State>)
             /// - Button Tapped
-            case categoryKebobButtonTapped(PokitDeleteBottomSheet.SheetType, selectedItem: DetailItemMock?)
+            case categoryKebobButtonTapped(PokitDeleteBottomSheet.SheetType, selectedItem: BaseContent?)
             case categorySelectButtonTapped
-            case categorySelected(CategoryItemMock)
+            case categorySelected(BaseCategory)
             case filterButtonTapped
-            case linkItemTapped(DetailItemMock)
+            case linkItemTapped(BaseContent)
             case dismiss
             case onAppear
         }
@@ -70,9 +89,9 @@ public struct CategoryDetailFeature {
         }
         
         public enum DelegateAction: Equatable {
-            case linkItemTapped(DetailItemMock)
+            case linkItemTapped(BaseContent)
             case linkCopyDetected(URL?)
-            case 링크수정(DetailItemMock)
+            case 링크수정(BaseContent)
             case 포킷삭제
             case 포킷수정
             case 포킷공유
@@ -144,6 +163,9 @@ private extension CategoryDetailFeature {
             return .run { _ in await dismiss() }
             
         case .onAppear:
+            // - MARK: 목업 데이터 조회
+            state.domain.categoryListInQuiry = CategoryListInquiryResponse.mock.toDomain()
+            state.domain.contentList = ContentListInquiryResponse.mock.toDomain()
             return .run { send in
                 for await _ in self.pasteboard.changes() {
                     let url = try await pasteboard.probableWebURL()
@@ -228,7 +250,10 @@ private extension CategoryDetailFeature {
                         state.isPokitDeleteSheetPresented = false
                         return .none
                     }
-                    state.mock.remove(id: selectedItem.id)
+                    guard let index = state.domain.contentList.data.firstIndex(of: selectedItem) else {
+                        return .none
+                    }
+                    state.domain.contentList.data.remove(at: index)
                     state.isPokitDeleteSheetPresented = false
                     state.kebobSelectedType = nil
                     return .none
@@ -245,7 +270,6 @@ private extension CategoryDetailFeature {
             case .dismissButtonTapped:
                 state.isFilterSheetPresented.toggle()
                 return .none
-                
             case let .okButtonTapped(type, bookMarkSelected, unReadSelected):
                 state.isFilterSheetPresented.toggle()
                 return .none

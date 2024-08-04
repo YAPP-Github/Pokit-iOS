@@ -7,10 +7,24 @@
 
 import Foundation
 
-public struct BaseContentListInquiry {
-    public let data: [BaseContent]
-    public let page: Int
-    public let size: Int
-    public let sort: [BaseItemInquirySort]
-    public let hasNext: Bool
+public struct BaseContentListInquiry: Equatable {
+    public var data: [BaseContent]
+    public var page: Int
+    public var size: Int
+    public var sort: [BaseItemInquirySort]
+    public var hasNext: Bool
+    
+    public init(
+        data: [BaseContent],
+        page: Int,
+        size: Int,
+        sort: [BaseItemInquirySort],
+        hasNext: Bool
+    ) {
+        self.data = data
+        self.page = page
+        self.size = size
+        self.sort = sort
+        self.hasNext = hasNext
+    }
 }

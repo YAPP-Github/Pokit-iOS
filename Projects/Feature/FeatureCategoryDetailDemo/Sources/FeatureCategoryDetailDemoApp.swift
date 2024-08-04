@@ -9,6 +9,8 @@ import SwiftUI
 
 import ComposableArchitecture
 import FeatureCategoryDetail
+import Domain
+import CoreKit
 
 @main
 struct FeatureCategoryDetailDemoApp: App {
@@ -18,7 +20,9 @@ struct FeatureCategoryDetailDemoApp: App {
             NavigationStack {
                 CategoryDetailView(
                     store: Store(
-                        initialState: .init(mock: DetailItemMock.recommendedMock),
+                        initialState: .init(
+                            category: CategoryItemInquiryResponse.mock.toDomain()
+                        ),
                         reducer: { CategoryDetailFeature() }
                     )
                 )

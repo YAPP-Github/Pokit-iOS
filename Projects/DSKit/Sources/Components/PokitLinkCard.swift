@@ -71,6 +71,7 @@ public struct PokitLinkCard<Item: PokitLinkCardItem>: View {
         Text("\(date) • \(link.data)")
             .pokitFont(.detail2)
             .foregroundStyle(.pokit(.text(.tertiary)))
+            .multilineTextAlignment(.leading)
     }
     
     @ViewBuilder

@@ -12,3 +12,18 @@ public struct LinkDetail {
     /// 콘텐츠(링크) 상세
     public let content: BaseContent
 }
+
+public extension LinkDetail {
+    struct Content {
+        public let id: Int
+        public let categoryName: String
+        public let categoryId: Int?
+        public let title: String
+        public let thumbNail: String
+        public let data: String
+        public let memo: String
+        public let createdAt: Date
+        public let favorites: Bool
+        public let alertYn: BaseContent.RemindState
+    }
+}
