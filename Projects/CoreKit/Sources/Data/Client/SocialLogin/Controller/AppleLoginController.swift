@@ -38,12 +38,6 @@ public final class AppleLoginController: NSObject, ASAuthorizationControllerDele
             return
         }
 
-        let email = credential.email
-        print("🍎 [appleLogin] email: \(email ?? "")")
-
-        let fullName = credential.fullName
-        print("🍎 [appleLogin] fullName: \(fullName?.description ?? "")")
-
         guard let tokenData = credential.identityToken,
               let token = String(data: tokenData, encoding: .utf8) else {
             continuation?.resume(throwing: SocialLoginError.appleLoginError(.invalidIdentityToken))
@@ -60,16 +54,8 @@ public final class AppleLoginController: NSObject, ASAuthorizationControllerDele
         print("🍎 [appleLogin] token: \(token)")
         print("🍎 [appleLogin] authorizationCode: \(codeString)")
 
-        let userIdentifier = credential.user
-
-        print("🍎 [appleLogin] fullName: \(fullName?.description ?? "")")
-
         let info = SocialLoginInfo(
-            id: userIdentifier,
-            authorization: codeString,
-            identityToken: token,
-            name: fullName?.givenName,
-            email: email,
+            idToken: token,
             provider: .apple
         )
         continuation?.resume(returning: info)
