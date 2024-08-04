@@ -36,12 +36,12 @@ public extension RemindView {
                         favoriteLinkList
                     }
                     .padding(.horizontal, 20)
-                    
-                    Spacer()
                 }
                 .padding(.top, 16)
+                .padding(.bottom, 150)
             }
             .background(.pokit(.bg(.base)))
+            .ignoresSafeArea(edges: .bottom)
             .pokitNavigationBar(title: "")
             .sheet(item: $store.bottomSheetItem) { link in
                 PokitBottomSheet(
@@ -179,7 +179,7 @@ extension RemindView {
     private var unreadLinkList: some View {
         VStack(spacing: 0) {
             listNavigationLink("한번도 읽지 않았어요") {
-                
+                send(.unreadNavigationLinkTapped)
             }
             .padding(.bottom, 16)
             
@@ -200,7 +200,7 @@ extension RemindView {
     private var favoriteLinkList: some View {
         VStack(spacing: 0) {
             listNavigationLink("즐겨찾기 링크만 모았어요") {
-                
+                send(.favoriteNavigationLinkTapped)
             }
             .padding(.bottom, 16)
             

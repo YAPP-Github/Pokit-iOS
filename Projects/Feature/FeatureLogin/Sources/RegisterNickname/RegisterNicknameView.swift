@@ -6,7 +6,6 @@
 
 import ComposableArchitecture
 import SwiftUI
-
 import DSKit
 
 @ViewAction(for: RegisterNicknameFeature.self)
@@ -33,17 +32,21 @@ public extension RegisterNicknameView {
                     textField
                         .padding(.top, 28)
                 }
-                .padding(.horizontal, 20)
                 
                 Spacer()
                 
+            }
+            .overlay(alignment: .bottom) {
                 PokitBottomButton(
                     "다음",
-                    state: store.nicknameText == "" || store.nicknameText.count > 10 ? .disable : .filled(.primary)
-                ) {
-                    send(.nextButtonTapped)
-                }
+                    state: store.nicknameText == "" || store.nicknameText.count > 10 ? .disable : .filled(.primary),
+                    action: { send(.nextButtonTapped) }
+                )
+                .setKeyboardHeight()
             }
+            .padding(.horizontal, 20)
+            .background(.pokit(.bg(.base)))
+            .ignoresSafeArea(edges: .bottom)
             .pokitNavigationBar(title: "")
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
@@ -67,6 +70,7 @@ extension RegisterNicknameView {
         PokitTextInput(
             text: $store.nicknameText,
             info: "한글, 영어, 숫자로만 입력이 가능합니다.",
+            maxLetter: 10,
             focusState: $isFocused,
             equals: true
         )

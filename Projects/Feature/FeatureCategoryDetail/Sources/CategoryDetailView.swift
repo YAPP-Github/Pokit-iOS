@@ -31,6 +31,7 @@ public extension CategoryDetailView {
             }
             .padding(.top, 12)
             .padding(.horizontal, 20)
+            .background(.pokit(.bg(.base)))
             .navigationBarBackButtonHidden()
             .toolbar { self.navigationBar }
             .sheet(isPresented: $store.isCategorySheetPresented) {
@@ -121,6 +122,7 @@ private extension CategoryDetailView {
                     kebabAction: { send(.categoryKebobButtonTapped(.링크삭제, selectedItem: link)) }
                 )
                 .divider(isFirst: isFirst, isLast: isLast)
+                .pokitScrollTransition(.opacity)
             }
         }
         .animation(.spring, value: store.mock.elements)

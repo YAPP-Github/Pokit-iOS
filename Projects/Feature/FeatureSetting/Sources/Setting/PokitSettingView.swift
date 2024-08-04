@@ -31,6 +31,8 @@ public extension PokitSettingView {
                 Spacer()
             }
             .padding(.top, 16)
+            .background(.pokit(.bg(.base)))
+            .ignoresSafeArea(edges: .bottom)
             .navigationBarBackButtonHidden()
             .pokitNavigationBar(title: "설정")
             .toolbar { navigationBar }

@@ -136,7 +136,7 @@ private extension MainTabFeature {
             return .run { send in
                 for await _ in self.pasteBoard.changes() {
                     let url = try await pasteBoard.probableWebURL()
-                    await send(.inner(.linkCopySuccess(url)))
+                    await send(.inner(.linkCopySuccess(url)), animation: .pokitSpring)
                 }
             }
         }

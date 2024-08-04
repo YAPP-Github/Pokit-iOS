@@ -19,3 +19,19 @@ struct PokitApp: App {
         }
     }
 }
+
+// - MARK: 네비게이션 뒤로가기 제스처
+extension UINavigationController: UIGestureRecognizerDelegate {
+    override public func viewDidLoad() {
+        super.viewDidLoad()
+        interactivePopGestureRecognizer?.delegate = self
+    }
+    
+    public func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+        return viewControllers.count > 1
+    }
+    
+    public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldBeRequiredToFailBy otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        return gestureRecognizer.isEqual(self.interactivePopGestureRecognizer)
+    }
+}

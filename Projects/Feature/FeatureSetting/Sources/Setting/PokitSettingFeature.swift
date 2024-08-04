@@ -152,7 +152,7 @@ private extension PokitSettingFeature {
             return .run { send in
                 for await _ in self.pasteboard.changes() {
                     let url = try await pasteboard.probableWebURL()
-                    await send(.delegate(.linkCopyDetected(url)))
+                    await send(.delegate(.linkCopyDetected(url)), animation: .pokitSpring)
                 }
             }
         }

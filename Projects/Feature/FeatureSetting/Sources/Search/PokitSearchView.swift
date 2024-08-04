@@ -41,6 +41,8 @@ public extension PokitSearchView {
                 
                 Spacer()
             }
+            .background(.pokit(.bg(.base)))
+            .ignoresSafeArea(edges: .bottom)
             .navigationBarBackButtonHidden(true)
             .sheet(
                 item: $store.scope(

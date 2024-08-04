@@ -124,4 +124,129 @@ extension LinkMock {
             )
         ]
     }
+    
+    static var listMock: [LinkMock] {
+        [
+            .init(
+                title: "자연 친화적인 라이프스타일을 위한 환경 보호 방법",
+                thumbNail: "https://picsum.photos/seed/picsum/200/300",
+                createAt: .now,
+                categoryType: "텍스트",
+                isRead: false,
+                domain: "youtube"
+            ),
+            .init(
+                title: "자연 친화적인 라이프스타일을 위한 환경 보호 방법",
+                thumbNail: "https://picsum.photos/seed/picsum/200/300",
+                createAt: .now,
+                categoryType: "텍스트",
+                isRead: false,
+                domain: "youtube"
+            ),
+            .init(
+                title: "자연 친화적인 라이프스타일을 위한 환경 보호 방법",
+                thumbNail: "https://picsum.photos/seed/picsum/200/300",
+                createAt: .now,
+                categoryType: "텍스트",
+                isRead: false,
+                domain: "youtube"
+            ),
+            .init(
+                title: "자연 친화적인 라이프스타일을 위한 환경 보호 방법",
+                thumbNail: "https://picsum.photos/seed/picsum/200/300",
+                createAt: .now,
+                categoryType: "텍스트",
+                isRead: false,
+                domain: "youtube"
+            ),
+            .init(
+                title: "자연 친화적인 라이프스타일을 위한 환경 보호 방법",
+                thumbNail: "https://picsum.photos/seed/picsum/200/300",
+                createAt: .now,
+                categoryType: "텍스트",
+                isRead: false,
+                domain: "youtube"
+            ),
+            .init(
+                title: "자연 친화적인 라이프스타일을 위한 환경 보호 방법",
+                thumbNail: "https://picsum.photos/seed/picsum/200/300",
+                createAt: .now,
+                categoryType: "텍스트",
+                isRead: false,
+                domain: "youtube"
+            ),
+            .init(
+                title: "자연 친화적인 라이프스타일을 위한 환경 보호 방법",
+                thumbNail: "https://picsum.photos/seed/picsum/200/300",
+                createAt: .now,
+                categoryType: "텍스트",
+                isRead: false,
+                domain: "youtube"
+            ),
+            .init(
+                title: "자연 친화적인 라이프스타일을 위한 환경 보호 방법",
+                thumbNail: "https://picsum.photos/seed/picsum/200/300",
+                createAt: .now,
+                categoryType: "텍스트",
+                isRead: false,
+                domain: "youtube"
+            ),
+            .init(
+                title: "자연 친화적인 라이프스타일을 위한 환경 보호 방법",
+                thumbNail: "https://picsum.photos/seed/picsum/200/300",
+                createAt: .now,
+                categoryType: "텍스트",
+                isRead: false,
+                domain: "youtube"
+            ),
+            .init(
+                title: "자연 친화적인 라이프스타일을 위한 환경 보호 방법",
+                thumbNail: "https://picsum.photos/seed/picsum/200/300",
+                createAt: .now,
+                categoryType: "텍스트",
+                isRead: false,
+                domain: "youtube"
+            ),
+            .init(
+                title: "자연 친화적인 라이프스타일을 위한 환경 보호 방법",
+                thumbNail: "https://picsum.photos/seed/picsum/200/300",
+                createAt: .now,
+                categoryType: "텍스트",
+                isRead: false,
+                domain: "youtube"
+            ),
+            .init(
+                title: "자연 친화적인 라이프스타일을 위한 환경 보호 방법",
+                thumbNail: "https://picsum.photos/seed/picsum/200/300",
+                createAt: .now,
+                categoryType: "텍스트",
+                isRead: false,
+                domain: "youtube"
+            ),
+            .init(
+                title: "자연 친화적인 라이프스타일을 위한 환경 보호 방법",
+                thumbNail: "https://picsum.photos/seed/picsum/200/300",
+                createAt: .now,
+                categoryType: "텍스트",
+                isRead: false,
+                domain: "youtube"
+            ),
+            .init(
+                title: "자연 친화적인 라이프스타일을 위한 환경 보호 방법",
+                thumbNail: "https://picsum.photos/seed/picsum/200/300",
+                createAt: .now,
+                categoryType: "텍스트",
+                isRead: false,
+                domain: "youtube"
+            ),
+            .init(
+                title: "자연 친화적인 라이프스타일을 위한 환경 보호 방법",
+                thumbNail: "https://picsum.photos/seed/picsum/200/300",
+                createAt: .now,
+                categoryType: "텍스트",
+                isRead: false,
+                domain: "youtube"
+            )
+        ]
+    }
 }

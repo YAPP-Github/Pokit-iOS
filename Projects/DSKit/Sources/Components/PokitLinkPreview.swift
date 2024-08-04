@@ -8,6 +8,9 @@
 import SwiftUI
 
 public struct PokitLinkPreview: View {
+    @Environment(\.openURL)
+    private var openURL
+    
     private let title: String
     private let url: String
     private let image: UIImage
@@ -23,6 +26,12 @@ public struct PokitLinkPreview: View {
     }
     
     public var body: some View {
+        Button(action: buttonTapped) {
+            buttonLabel
+        }
+    }
+    
+    private var buttonLabel: some View {
         HStack(spacing: 16) {
             Image(uiImage: image)
                 .resizable()
@@ -45,7 +54,7 @@ public struct PokitLinkPreview: View {
     }
     
     @ViewBuilder
-    func info(title: String) -> some View {
+    private func info(title: String) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(title)
                 .pokitFont(.b3(.b))
@@ -61,5 +70,10 @@ public struct PokitLinkPreview: View {
         }
         .padding(.vertical, 16)
         .padding(.trailing, 20)
+    }
+    
+    private func buttonTapped() {
+        guard let url = URL(string: url) else { return }
+        openURL(url)
     }
 }

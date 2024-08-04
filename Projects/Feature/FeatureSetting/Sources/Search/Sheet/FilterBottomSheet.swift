@@ -57,9 +57,11 @@ public extension FilterBottomSheet {
                         state: .filled(.primary),
                         action: { send(.searchButtonTapped, animation: .pokitSpring) }
                     )
-                    .background()
+                    .padding(.horizontal, 20)
                 }
             }
+            .background(.pokit(.bg(.base)))
+            .ignoresSafeArea(edges: .bottom)
             .pokitPresentationBackground()
             .pokitPresentationCornerRadius()
             .presentationDragIndicator(.visible)

@@ -81,14 +81,14 @@ public extension PokitCheckBox {
         case stroke
         case disable
         case iconOnly
-        case clear
+        case iconOnlyDefault
         
         var backgroundColor: Color {
             switch self {
             case .default, .stroke: return .pokit(.bg(.base))
             case .filled: return .pokit(.bg(.brand))
             case .disable: return .pokit(.bg(.disable))
-            case .iconOnly, .clear: return .clear
+            case .iconOnly, .iconOnlyDefault: return .clear
             }
         }
         
@@ -97,7 +97,7 @@ public extension PokitCheckBox {
             case .default: return .pokit(.border(.secondary))
             case .filled, .stroke: return .pokit(.border(.brand))
             case .disable: return .pokit(.border(.disable))
-            case .iconOnly, .clear: return .clear
+            case .iconOnly, .iconOnlyDefault: return .clear
             }
         }
         
@@ -108,7 +108,7 @@ public extension PokitCheckBox {
             case .stroke: return .pokit(.icon(.brand))
             case .disable: return .pokit(.icon(.disable))
             case .iconOnly: return .pokit(.icon(.brand))
-            case .clear: return .clear
+            case .iconOnlyDefault: return .pokit(.icon(.tertiary))
             }
         }
     }

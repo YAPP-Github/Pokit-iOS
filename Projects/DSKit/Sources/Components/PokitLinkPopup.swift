@@ -34,18 +34,19 @@ public struct PokitLinkPopup: View {
     }
     
     public var body: some View {
-        Group {
-            switch self.type {
-            case .link(url: let url):
-                linkPopup(url)
-            case .text:
-                textPopup
-            }
-        }
-        .padding(.vertical, 12)
-        .padding(.horizontal, 20)
-        .background {
+        ZStack {
             background
+            
+            Group {
+                switch self.type {
+                case let .link(url):
+                    linkPopup(url)
+                case .text:
+                    textPopup
+                }
+            }
+            .padding(.vertical, 12)
+            .padding(.horizontal, 20)
         }
         .frame(width: 335, height: 60)
         .transition(.move(edge: .bottom).combined(with: .opacity))

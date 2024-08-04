@@ -15,7 +15,7 @@ public struct LinkDetailMock: Equatable {
     public let memo: String
     public let pokit: String
     public let isRemind: Bool
-    public let isFavorite: Bool
+    public var isFavorite: Bool
     
     public init(
         id: UUID = .init(),

@@ -36,6 +36,8 @@ public extension PokitCategorySettingView {
                 saveButton
             }
             .padding(.horizontal, 20)
+            .background(.pokit(.bg(.base)))
+            .ignoresSafeArea(edges: .bottom)
             .navigationBarBackButtonHidden()
             .toolbar { navigationBar }
             .pokitNavigationBar(title: store.type.title)
