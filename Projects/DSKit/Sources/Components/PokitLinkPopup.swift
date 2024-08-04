@@ -39,7 +39,7 @@ public struct PokitLinkPopup: View {
             
             Group {
                 switch self.type {
-                case .link(url: let url):
+                case let .link(url):
                     linkPopup(url)
                 case .text:
                     textPopup

@@ -39,7 +39,7 @@ public extension PokitAlertBoxView {
             }
             .padding(.top, 16)
             .background(.pokit(.bg(.base)))
-            .ignoresSafeArea(edges: [.bottom])
+            .ignoresSafeArea(edges: .bottom)
             .pokitNavigationBar(title: "알림함")
             .toolbar { navigationBar }
             .onAppear { send(.onAppear) }

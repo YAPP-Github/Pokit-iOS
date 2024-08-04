@@ -61,7 +61,7 @@ public extension FilterBottomSheet {
                 }
             }
             .background(.pokit(.bg(.base)))
-            .ignoresSafeArea(edges: [.bottom])
+            .ignoresSafeArea(edges: .bottom)
             .pokitPresentationBackground()
             .pokitPresentationCornerRadius()
             .presentationDragIndicator(.visible)

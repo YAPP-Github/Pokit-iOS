@@ -42,7 +42,7 @@ public extension SelectFieldView {
             }
             .padding(.horizontal, 20)
             .background(.pokit(.bg(.base)))
-            .ignoresSafeArea(edges: [.bottom])
+            .ignoresSafeArea(edges: .bottom)
             .pokitNavigationBar(title: "")
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {

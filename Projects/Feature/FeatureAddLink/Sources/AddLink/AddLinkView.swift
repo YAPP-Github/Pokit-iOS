@@ -68,7 +68,7 @@ public extension AddLinkView {
             }
             .padding(.top, 16)
             .background(.pokit(.bg(.base)))
-            .ignoresSafeArea(edges: [.bottom])
+            .ignoresSafeArea(edges: focusedType == nil ? .bottom : [])
             .pokitNavigationBar(title: store.link == nil ? "링크 추가" : "링크 수정")
             .toolbar { navigationBar }
             .onAppear { send(.addLinkViewOnAppeared) }

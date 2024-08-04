@@ -191,15 +191,10 @@ private extension LinkListFeature {
 }
 
 public extension LinkListFeature {
-    enum LinkType {
-        case unread
-        case favorite
-        
-        var title: String {
-            switch self {
-            case .unread: return "안읽음"
-            case .favorite: return "즐겨찾기"
-            }
-        }
+    enum LinkType: String {
+        case unread = "안읽음"
+        case favorite = "즐겨찾기"
+            
+        var title: String { self.rawValue }
     }
 }

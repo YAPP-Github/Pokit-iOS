@@ -35,7 +35,7 @@ public extension PokitRootView {
             .padding(.horizontal, 20)
             .padding(.vertical, 16)
             .background(.pokit(.bg(.base)))
-            .ignoresSafeArea(edges: [.bottom])
+            .ignoresSafeArea(edges: .bottom)
             .sheet(isPresented: $store.isKebobSheetPresented) {
                 PokitBottomSheet(
                     items: [.share, .edit, .delete],

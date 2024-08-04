@@ -41,7 +41,7 @@ public extension RemindView {
                 .padding(.bottom, 150)
             }
             .background(.pokit(.bg(.base)))
-            .ignoresSafeArea(edges: [.bottom])
+            .ignoresSafeArea(edges: .bottom)
             .pokitNavigationBar(title: "")
             .sheet(item: $store.bottomSheetItem) { link in
                 PokitBottomSheet(
