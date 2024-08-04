@@ -161,6 +161,8 @@ private extension AddLinkFeature {
             state.selectedPokit = pokit
             return .none
         case .addLinkViewOnAppeared:
+            // - MARK: 목업 데이터 조회
+            state.domain.categoryListInQuiry = CategoryListInquiryResponse.mock.toDomain()
             return .run { send in
                 await send(.inner(.parsingURL))
                 for await _ in self.pasteboard.changes() {
