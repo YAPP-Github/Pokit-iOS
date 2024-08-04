@@ -21,6 +21,32 @@ public struct BaseContent: Identifiable, Equatable, PokitLinkCardItem {
     public let isRead: Bool
     public let favorites: Bool
     public let alertYn: RemindState
+    
+    public init(
+        id: Int,
+        categoryName: String,
+        categoryId: Int?,
+        title: String,
+        thumbNail: String,
+        data: String,
+        memo: String,
+        createdAt: Date,
+        isRead: Bool,
+        favorites: Bool,
+        alertYn: RemindState
+    ) {
+        self.id = id
+        self.categoryName = categoryName
+        self.categoryId = categoryId
+        self.title = title
+        self.thumbNail = thumbNail
+        self.data = data
+        self.memo = memo
+        self.createdAt = createdAt
+        self.isRead = isRead
+        self.favorites = favorites
+        self.alertYn = alertYn
+    }
 }
 
 public extension BaseContent {

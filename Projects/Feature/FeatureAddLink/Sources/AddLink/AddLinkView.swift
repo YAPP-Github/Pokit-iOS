@@ -57,7 +57,7 @@ public extension AddLinkView {
                     }
                 }
                 
-                let isDisable = store.state.urlText.isEmpty || store.state.title.isEmpty
+                let isDisable = store.urlText.isEmpty || store.title.isEmpty
                 
                 PokitBottomButton(
                     "저장하기",
@@ -116,7 +116,7 @@ private extension AddLinkView {
         PokitSelect(
             selectedItem: store.selectedPokit,
             label: "포킷",
-            list: store.pokitList,
+            list: store.pokitList.elements,
             action: { send(.pokitSelectItemButtonTapped(pokit: $0)) }
         )
     }
@@ -151,7 +151,7 @@ private extension AddLinkView {
                 PokitPartSwitchRadio(
                     labelText: "안받을래요",
                     selection: $store.isRemind,
-                    to: false,
+                    to: .no,
                     style: .stroke
                 )
                 .matchedGeometryEffectBackground(id: heroEffect)
@@ -159,7 +159,7 @@ private extension AddLinkView {
                 PokitPartSwitchRadio(
                     labelText: "받을래요",
                     selection: $store.isRemind,
-                    to: true,
+                    to: .yes,
                     style: .stroke
                 )
                 .matchedGeometryEffectBackground(id: heroEffect)

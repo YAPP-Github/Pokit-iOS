@@ -27,7 +27,6 @@ public struct AddLinkFeature {
         public init(link: BaseContent? = nil) {
             self.domain = .init(content: link)
         }
-
         fileprivate var domain: AddLink
         var urlText: String {
             get { domain.data }
@@ -55,7 +54,7 @@ public struct AddLinkFeature {
             }
             return identifiedArray
         }
-        var selectedPokit: BaseCategory
+        var selectedPokit: BaseCategory? = nil
         var linkTitle: String? = nil
         var linkImage: UIImage? = nil
         var showPopup: Bool = false
@@ -172,7 +171,7 @@ private extension AddLinkFeature {
         case .saveBottomButtonTapped:
             return .run { send in await send(.async(.저장하기_네트워크)) }
         case .addPokitButtonTapped:
-            guard state.pokitList.count < 30 else {
+            guard state.domain.categoryTotalCount < 30 else {
                 /// 🚨 Error Case [1]: 포킷 갯수가 30개 이상일 경우
                 return .send(.inner(.showPopup), animation: .pokitSpring)
             }
@@ -202,7 +201,7 @@ private extension AddLinkFeature {
             state.linkImage = image
             return .none
         case .parsingURL:
-            guard let url = URL(string: state.urlText) else {
+            guard let url = URL(string: state.domain.data) else {
                 /// 🚨 Error Case [1]: 올바른 링크가 아닐 때
                 state.linkTitle = nil
                 state.linkImage = nil
@@ -214,7 +213,7 @@ private extension AddLinkFeature {
             return .none
         case .updateURLText(let urlText):
             guard let urlText else { return .none }
-            state.urlText = urlText
+            state.domain.data = urlText
             return .send(.inner(.parsingURL))
         }
     }
@@ -230,11 +229,7 @@ private extension AddLinkFeature {
 
     /// - Scope Effect
     func handleScopeAction(_ action: Action.ScopeAction, state: inout State) -> Effect<Action> {
-        switch action {
-        case .addPokitSheet(.addPokit(pokit: let pokit)):
-            state.domain.categoryListInQuiry.data.append(pokit)
-            return .none
-        }
+        return .none
     }
 
     /// - Delegate Effect
