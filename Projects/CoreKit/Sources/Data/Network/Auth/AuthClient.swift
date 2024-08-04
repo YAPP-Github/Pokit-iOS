@@ -19,9 +19,9 @@ extension DependencyValues {
 }
 /// 유저정보에 관련한 API를 처리하는 Client
 public struct AuthClient {
-    var 로그인: @Sendable (SignInRequest) async throws -> TokenResponse
-    var 회원탈퇴: @Sendable (WithdrawRequest) async throws -> EmptyResponse
-    var 토큰재발급: @Sendable (ReissueRequest) async throws -> TokenResponse
+    public var 로그인: @Sendable (SignInRequest) async throws -> TokenResponse
+    public var 회원탈퇴: @Sendable (WithdrawRequest) async throws -> EmptyResponse
+    public var 토큰재발급: @Sendable (ReissueRequest) async throws -> TokenResponse
 }
 
 extension AuthClient: DependencyKey {

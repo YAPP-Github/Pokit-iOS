@@ -8,8 +8,8 @@
 import Foundation
 /// 로그인 API Response / 토큰재발급 API Response 공통
 public struct TokenResponse: Decodable {
-    let accessToken: String
-    let refreshToken: String
+    public let accessToken: String
+    public let refreshToken: String
 }
 
 extension TokenResponse {

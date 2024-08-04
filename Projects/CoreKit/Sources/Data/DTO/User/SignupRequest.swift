@@ -8,6 +8,11 @@
 import Foundation
 /// 회원 등록 API Request
 public struct SignupRequest: Encodable {
-    let nickname: String
-    let interests: [String]
+    public let nickName: String
+    public let interests: [String]
+    
+    public init(nickName: String, interests: [String]) {
+        self.nickName = nickName
+        self.interests = interests
+    }
 }

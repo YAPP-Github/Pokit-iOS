@@ -9,4 +9,8 @@ import Foundation
 /// 토큰 재발급 API Request
 public struct ReissueRequest: Encodable {
     let refreshToken: String
+    
+    public init(refreshToken: String) {
+        self.refreshToken = refreshToken
+    }
 }
