@@ -10,4 +10,12 @@ import Foundation
 public struct BaseCategoryImage: Equatable {
     public let imageId: Int
     public let imageURL: String
+    
+    public init(
+        imageId: Int,
+        imageURL: String
+    ) {
+        self.imageId = imageId
+        self.imageURL = imageURL
+    }
 }

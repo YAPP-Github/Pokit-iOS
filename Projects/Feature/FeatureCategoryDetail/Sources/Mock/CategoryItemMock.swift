@@ -12,7 +12,7 @@ import Util
 public struct CategoryItemMock: PokitSelectItem, Identifiable {
     public var categoryName: String
     
-    public var contentSize: Int
+    public var contentCount: Int
     
     public var id: UUID = .init()
     
@@ -21,7 +21,7 @@ public struct CategoryItemMock: PokitSelectItem, Identifiable {
         contentSize: Int
     ) {
         self.categoryName = categoryType
-        self.contentSize = contentSize
+        self.contentCount = contentSize
     }
     
     static var addLinkMock: [CategoryItemMock] {

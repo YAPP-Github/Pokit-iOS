@@ -7,6 +7,7 @@
 import UIKit
 
 import ComposableArchitecture
+import Domain
 import CoreKit
 import DSKit
 import Util
@@ -23,32 +24,43 @@ public struct AddLinkFeature {
     /// - State
     @ObservableState
     public struct State: Equatable {
-        public init(
-            link: AddLinkMock? = nil,
-            urlText: String = ""
-        ) {
-            let pokitList = PokitMock.addLinkMock
-            self.pokitList = pokitList
-            self.selectedPokit = link?.pokit ?? .init(categoryType: "미분류", contentSize: 15)
-            self.link = link
-            self.urlText = link?.urlText ?? urlText
-            self.title = link?.title ?? ""
-            self.memo = link?.memo ?? ""
-            self.isRemind = link?.isRemind ?? false
+        public init(link: BaseContent? = nil) {
+            self.domain = .init(content: link)
         }
-        
-        var urlText: String
-        var title: String
-        var memo: String
-        var isRemind: Bool
-        var pokitList: [PokitMock]
-        var selectedPokit: PokitMock
-        var link: AddLinkMock?
+
+        fileprivate var domain: AddLink
+        var urlText: String {
+            get { domain.data }
+            set { domain.data = newValue }
+        }
+        var title: String {
+            get { domain.title }
+            set { domain.title = newValue }
+        }
+        var memo: String {
+            get { domain.memo }
+            set { domain.memo = newValue }
+        }
+        var isRemind: BaseContent.RemindState {
+            get { domain.alertYn }
+            set { domain.alertYn = newValue }
+        }
+        var link: BaseContent? {
+            get { domain.content }
+        }
+        var pokitList: IdentifiedArrayOf<BaseCategory> {
+            var identifiedArray = IdentifiedArrayOf<BaseCategory>()
+            domain.categoryListInQuiry.data.forEach { category in
+                identifiedArray.append(category)
+            }
+            return identifiedArray
+        }
+        var selectedPokit: BaseCategory
         var linkTitle: String? = nil
         var linkImage: UIImage? = nil
         var showPopup: Bool = false
     }
-    
+
     /// - Action
     public enum Action: FeatureAction, ViewAction {
         case view(View)
@@ -56,21 +68,21 @@ public struct AddLinkFeature {
         case async(AsyncAction)
         case scope(ScopeAction)
         case delegate(DelegateAction)
-        
+
         @CasePathable
         public enum View: Equatable, BindableAction {
             /// - Binding
             case binding(BindingAction<State>)
             /// - Button Tapped
             case pokitSelectButtonTapped
-            case pokitSelectItemButtonTapped(pokit: PokitMock)
+            case pokitSelectItemButtonTapped(pokit: BaseCategory)
             case addLinkViewOnAppeared
             case saveBottomButtonTapped
             case addPokitButtonTapped
-            
+
             case dismiss
         }
-        
+
         public enum InnerAction: Equatable {
             case fetchMetadata(url: URL)
             case parsingInfo(title: String?, image: UIImage?)
@@ -78,19 +90,19 @@ public struct AddLinkFeature {
             case showPopup
             case updateURLText(String?)
         }
-        
+
         public enum AsyncAction: Equatable {
             case 저장하기_네트워크
         }
-        
+
         public enum ScopeAction: Equatable { case doNothing }
-        
+
         public enum DelegateAction: Equatable {
             case 저장하기_네트워크이후
             case 포킷추가하기
         }
     }
-    
+
     /// - Initiallizer
     public init() {}
 
@@ -100,25 +112,25 @@ public struct AddLinkFeature {
             /// - View
         case .view(let viewAction):
             return handleViewAction(viewAction, state: &state)
-            
+
             /// - Inner
         case .inner(let innerAction):
             return handleInnerAction(innerAction, state: &state)
-            
+
             /// - Async
         case .async(let asyncAction):
             return handleAsyncAction(asyncAction, state: &state)
-            
+
             /// - Scope
         case .scope(let scopeAction):
             return handleScopeAction(scopeAction, state: &state)
-            
+
             /// - Delegate
         case .delegate(let delegateAction):
             return handleDelegateAction(delegateAction, state: &state)
         }
     }
-    
+
     /// - Reducer body
     public var body: some ReducerOf<Self> {
         BindingReducer(action: \.view)
@@ -158,14 +170,6 @@ private extension AddLinkFeature {
                 }
             }
         case .saveBottomButtonTapped:
-            state.link = .init(
-                title: state.title,
-                urlText: state.urlText,
-                createAt: .now,
-                memo: state.memo,
-                isRemind: state.isRemind,
-                pokit: state.selectedPokit
-            )
             return .run { send in await send(.async(.저장하기_네트워크)) }
         case .addPokitButtonTapped:
             guard state.pokitList.count < 30 else {
@@ -173,12 +177,12 @@ private extension AddLinkFeature {
                 return .send(.inner(.showPopup), animation: .pokitSpring)
             }
             return .send(.delegate(.포킷추가하기))
-            
+
         case .dismiss:
             return .run { _ in await dismiss() }
         }
     }
-    
+
     /// - Inner Effect
     func handleInnerAction(_ action: Action.InnerAction, state: inout State) -> Effect<Action> {
         switch action {
@@ -214,7 +218,7 @@ private extension AddLinkFeature {
             return .send(.inner(.parsingURL))
         }
     }
-    
+
     /// - Async Effect
     func handleAsyncAction(_ action: Action.AsyncAction, state: inout State) -> Effect<Action> {
         switch action {
@@ -223,12 +227,16 @@ private extension AddLinkFeature {
             return .run { send in await send(.delegate(.저장하기_네트워크이후)) }
         }
     }
-    
+
     /// - Scope Effect
     func handleScopeAction(_ action: Action.ScopeAction, state: inout State) -> Effect<Action> {
-        return .none
+        switch action {
+        case .addPokitSheet(.addPokit(pokit: let pokit)):
+            state.domain.categoryListInQuiry.data.append(pokit)
+            return .none
+        }
     }
-    
+
     /// - Delegate Effect
     func handleDelegateAction(_ action: Action.DelegateAction, state: inout State) -> Effect<Action> {
         return .none

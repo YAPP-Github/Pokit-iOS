@@ -7,10 +7,24 @@
 
 import Foundation
 
-public struct BaseItemInquirySort {
-    public let direction: String
-    public let nullHandling: String
-    public let ascending: Bool
-    public let property: String
-    public let ignoreCase: Bool
+public struct BaseItemInquirySort: Equatable {
+    public var direction: String
+    public var nullHandling: String
+    public var ascending: Bool
+    public var property: String
+    public var ignoreCase: Bool
+    
+    public init(
+        direction: String,
+        nullHandling: String,
+        ascending: Bool,
+        property: String,
+        ignoreCase: Bool
+    ) {
+        self.direction = direction
+        self.nullHandling = nullHandling
+        self.ascending = ascending
+        self.property = property
+        self.ignoreCase = ignoreCase
+    }
 }
