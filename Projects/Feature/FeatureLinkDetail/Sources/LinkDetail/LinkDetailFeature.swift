@@ -7,6 +7,7 @@
 import UIKit
 
 import ComposableArchitecture
+import Domain
 import CoreKit
 import Util
 
@@ -20,11 +21,13 @@ public struct LinkDetailFeature {
     /// - State
     @ObservableState
     public struct State: Equatable {
-        public init(link: LinkDetailMock) {
-            self.link = link
+        public init(contentId: Int) {
+            self.domain = .init(contentId: contentId)
         }
-        
-        var link: LinkDetailMock
+        fileprivate var domain: LinkDetail
+        var link: LinkDetail.Content? {
+            get { domain.content }
+        }
         var linkTitle: String? = nil
         var linkImage: UIImage? = nil
         var showAlert: Bool = false
@@ -64,7 +67,7 @@ public struct LinkDetailFeature {
         public enum ScopeAction: Equatable { case doNothing }
         
         public enum DelegateAction: Equatable {
-            case pushLinkAddView(link: LinkDetailMock)
+            case pushLinkAddView(link: BaseContent)
         }
     }
     
@@ -107,13 +110,29 @@ private extension LinkDetailFeature {
     func handleViewAction(_ action: Action.View, state: inout State) -> Effect<Action> {
         switch action {
         case .linkDetailViewOnAppeared:
+            // - MARK: 목업 데이터 조회
+            state.domain.content = ContentDetailResponse.mock.toDomain()
             return .send(.inner(.parsingURL))
         case .sharedButtonTapped:
             return .none
         case .editButtonTapped:
-            return .run { [link = state.link] send in
+            guard let link = state.domain.content else { return .none }
+            let base = BaseContent(
+                id: link.id,
+                categoryName: link.categoryName,
+                categoryId: link.categoryId,
+                title: link.title,
+                thumbNail: link.thumbNail,
+                data: link.data,
+                memo: link.memo,
+                createdAt: link.createdAt,
+                isRead: true,
+                favorites: link.favorites,
+                alertYn: link.alertYn
+            )
+            return .run { [base] send in
 //                await dismiss()
-                await send(.delegate(.pushLinkAddView(link: link)))
+                await send(.delegate(.pushLinkAddView(link: base)))
             }
         case .deleteButtonTapped:
             state.showAlert = true
@@ -127,7 +146,7 @@ private extension LinkDetailFeature {
         case .binding:
             return .none
         case .favoriteButtonTapped:
-            state.link.isFavorite.toggle()
+            state.domain.content?.favorites.toggle()
             return .none
         }
     }
@@ -151,7 +170,8 @@ private extension LinkDetailFeature {
             state.linkImage = image
             return .none
         case .parsingURL:
-            guard let url = URL(string: state.link.url) else {
+            guard let urlString = state.domain.content?.data,
+                  let url = URL(string: urlString) else {
                 /// 🚨 Error Case [1]: 올바른 링크가 아닐 때
                 state.linkTitle = nil
                 state.linkImage = nil

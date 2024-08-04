@@ -7,6 +7,7 @@
 import SwiftUI
 
 import ComposableArchitecture
+import Domain
 import DSKit
 
 @ViewAction(for: LinkDetailFeature.self)
@@ -25,18 +26,31 @@ public extension LinkDetailView {
     var body: some View {
         WithPerceptionTracking {
             VStack(spacing: 0) {
-                title
-                ScrollView {
-                    VStack {
-                        linkContent
-                            .padding(.vertical, 24)
+                if let link = store.link {
+                    title(link: link)
+                    ScrollView {
+                        VStack {
+                            linkContent(link: link)
+                                .padding(.vertical, 24)
+                        }
                     }
-                }
-                .onAppear {
-                    send(.linkDetailViewOnAppeared, animation: .smooth)
-                }
-                .overlay(alignment: .bottom) {
-                    bottomToolbar
+                    .overlay(alignment: .bottom) {
+                        bottomToolbar(link: link)
+                    }
+                } else {
+                    Spacer()
+                    
+                    HStack {
+                        Spacer()
+                        
+                        ProgressView()
+                            .progressViewStyle(.circular)
+                            .tint(.pokit(.icon(.brand)))
+                        
+                        Spacer()
+                    }
+                    
+                    Spacer()
                 }
             }
             .padding(.top, 28)
@@ -53,14 +67,18 @@ public extension LinkDetailView {
                     action: { send(.deleteAlertConfirmTapped) }
                 )
             }
+            .onAppear {
+                send(.linkDetailViewOnAppeared, animation: .smooth)
+            }
         }
     }
 }
 //MARK: - Configure View
 private extension LinkDetailView {
-    var remindAndBadge: some View {
+    @ViewBuilder
+    func remindAndBadge(link: LinkDetail.Content) -> some View {
         HStack(spacing: 4) {
-            if store.link.isRemind {
+            if link.alertYn == .yes {
                 Image(.icon(.bell))
                     .resizable()
                     .frame(width: 16, height: 16)
@@ -72,18 +90,18 @@ private extension LinkDetailView {
                     }
             }
             
-            PokitBadge(store.link.pokit, state: .default)
+            PokitBadge(link.categoryName, state: .default)
             
             Spacer()
         }
     }
     
-    var title: some View {
+    func title(link: LinkDetail.Content) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             Group {
-                remindAndBadge
+                remindAndBadge(link: link)
                 
-                Text(store.link.title)
+                Text(link.title)
                     .pokitFont(.title3)
                     .foregroundStyle(.pokit(.text(.primary)))
                     .multilineTextAlignment(.leading)
@@ -105,27 +123,27 @@ private extension LinkDetailView {
         }
     }
     
-    var linkContent: some View {
+    func linkContent(link: LinkDetail.Content) -> some View {
         VStack(spacing: 16) {
             if let title = store.linkTitle,
                let image = store.linkImage {
                 PokitLinkPreview(
                     title: title,
-                    url: store.link.url,
+                    url: link.data,
                     image: image
                 )
                 .pokitBlurReplaceTransition(.smooth)
             }
             
-            linkMemo
+            linkMemo(link: link)
         }
         .padding(.horizontal, 20)
     }
     
-    var linkMemo: some View {
+    func linkMemo(link: LinkDetail.Content) -> some View {
         HStack {
             VStack {
-                Text(store.link.memo)
+                Text(link.memo)
                     .pokitFont(.b3(.r))
                     .foregroundStyle(.pokit(.text(.primary)))
                     .multilineTextAlignment(.leading)
@@ -143,9 +161,9 @@ private extension LinkDetailView {
         }
     }
     
-    var favorite: some View {
+    func favorite(link: LinkDetail.Content) -> some View {
         Button(action: { send(.favoriteButtonTapped, animation: .smooth) }) {
-            let isFavorite = store.link.isFavorite
+            let isFavorite = link.favorites
             
             Image(isFavorite ? .icon(.starFill) : .icon(.star))
                 .resizable()
@@ -155,9 +173,9 @@ private extension LinkDetailView {
         }
     }
     
-    var bottomToolbar: some View {
+    func bottomToolbar(link: LinkDetail.Content) -> some View {
         HStack(spacing: 12) {
-            favorite
+            favorite(link: link)
             
             Spacer()
             
@@ -202,7 +220,7 @@ private extension LinkDetailView {
     var linkDateText: String {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy.MM.dd hh:mm"
-        return formatter.string(from: store.link.createdAt)
+        return formatter.string(from: store.link?.createdAt ?? .now)
     }
 }
 //MARK: - Preview
@@ -210,15 +228,7 @@ private extension LinkDetailView {
     LinkDetailView(
         store: Store(
             initialState: .init(
-                link: LinkDetailMock(
-                    title: "자연 친화적인 라이프스타일을 위한 환경 보호 방법",
-                    url: "https://www.youtube.com/watch?v=xSTwqKUyM8k",
-                    createdAt: .now,
-                    memo: "건강과 지속 가능성을 추구",
-                    pokit: "아티클",
-                    isRemind: true,
-                    isFavorite: true
-                )
+                contentId: 0
             ),
             reducer: { LinkDetailFeature() }
         )

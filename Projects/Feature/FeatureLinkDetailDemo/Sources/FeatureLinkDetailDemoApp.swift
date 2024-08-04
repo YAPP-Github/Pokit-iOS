@@ -28,18 +28,8 @@ struct FeatureLinkDetailDemoApp: App {
             .background(.white)
             .sheet(isPresented: $showLinkDetail) {
                 LinkDetailView(store: .init(
-                    initialState: .init(
-                        link: LinkDetailMock(
-                            title: "자연 친화적인 라이프스타일을 위한 환경 보호 방법",
-                            url: "https://www.youtube.com/watch?v=xSTwqKUyM8k",
-                            createdAt: .now,
-                            memo: "건강과 지속 가능성을 추구",
-                            pokit: "아티클",
-                            isRemind: true,
-                            isFavorite: true
-                        )
-                    ),
-                    reducer: { LinkDetailFeature() })
+                    initialState: .init(contentId: 0),
+                    reducer: { LinkDetailFeature()._printChanges() })
                 )
             }
         }
