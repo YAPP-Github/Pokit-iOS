@@ -5,12 +5,16 @@
 //  Created by 김민호 on 7/11/24.
 
 import ComposableArchitecture
+import CoreKit
 import Util
 
 @Reducer
 public struct SplashFeature {
     /// - Dependency
     @Dependency(\.continuousClock) var clock
+    @Dependency(\.userDefaults) var userDefaults
+    @Dependency(\.authClient) var authClient
+    @Dependency(\.keychain) var keychain
     /// - State
     @ObservableState
     public struct State: Equatable {
@@ -70,10 +74,26 @@ private extension SplashFeature {
         switch action {
         case .onAppear:
             return .run { send in
-                /// Todo: userdefault를 통해 로그인할 수 있다면 로그인하기
-                /// - if (로그인체크) {} else {}
                 try await self.clock.sleep(for: .milliseconds(2000))
-                await send(.delegate(.loginNeeded))
+                
+                /// 🚨 Error Case [1]: 로그인 했던 플랫폼 정보가 없을 때
+                guard let _ = userDefaults.stringKey(.authPlatform) else {
+                    await send(.delegate(.loginNeeded))
+                    return
+                }
+                /// 🚨 Error Case [2]: refresh Token이 없을 때
+                guard let refreshToken = keychain.read(.refreshToken) else {
+                    keychain.delete(.accessToken)
+                    keychain.delete(.refreshToken)
+                    await send(.delegate(.loginNeeded))
+                    return
+                }
+                ///Todo: 토큰 재발급 API 나오면 주석 풀기
+//                let tokenRequest = ReissueRequest(refreshToken: refreshToken)
+//                let tokenResponse = try await authClient.토큰재발급(tokenRequest)
+//                keychain.save(.accessToken, tokenResponse.accessToken)
+//                keychain.save(.refreshToken, tokenResponse.refreshToken)
+                await send(.delegate(.autoLoginSuccess))
             }
         }
     }

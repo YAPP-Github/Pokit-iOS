@@ -125,7 +125,7 @@ extension LoginRootView {
     
     private var googleLoginButton: some View {
         Button {
-            
+            send(.googleLoginButtonTapped)
         } label: {
             googleLoginButtonLabel
         }

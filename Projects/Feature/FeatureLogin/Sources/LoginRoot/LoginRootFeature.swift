@@ -5,17 +5,26 @@
 //  Created by 김도형 on 7/7/24.
 
 import ComposableArchitecture
+import CoreKit
 import Util
 
 @Reducer
 public struct LoginRootFeature {
     /// - Dependency
     @Dependency(\.dismiss) var dismiss
+    @Dependency(\.socialLogin) var socialLogin
+    @Dependency(\.authClient) var authClient
+    @Dependency(\.userClient) var userClient
+    @Dependency(\.userDefaults) var userDefaults
+    @Dependency(\.keychain) var keychain
     /// - State
     @ObservableState
     public struct State {
         var path = StackState<Path.State>()
 
+        var nickName: String?
+        var interests: [String]?
+        
         public init() {}
     }
     /// - Action
@@ -31,6 +40,7 @@ public struct LoginRootFeature {
         public enum View: Equatable {
             /// - Button Tapped
             case appleLoginButtonTapped
+            case googleLoginButtonTapped
         }
         public enum InnerAction: Equatable {
             case pushAgreeToTermsView
@@ -38,7 +48,9 @@ public struct LoginRootFeature {
             case pushSelectFieldView
             case pushSignUpDoneView
         }
-        public enum AsyncAction: Equatable { case doNothing }
+        public enum AsyncAction: Equatable {
+            case 회원가입
+        }
         public enum ScopeAction {
             case agreeToTerms(AgreeToTermsFeature.Action.DelegateAction)
             case registerNickname(RegisterNicknameFeature.Action.DelegateAction)
@@ -86,6 +98,22 @@ private extension LoginRootFeature {
         switch action {
         case .appleLoginButtonTapped:
             return .send(.inner(.pushAgreeToTermsView))
+            
+        case .googleLoginButtonTapped:
+            return .run { send in
+                let response = try await socialLogin.googleLogin()
+                guard let idToken = response.idToken else { return }
+                let platform = response.provider.description
+                let request = SignInRequest(authPlatform: platform, idToken: idToken)
+                let tokenResponse = try await authClient.로그인(request)
+                
+                /// [1]. UserDefaults에 최근 로그인한 소셜로그인 `타입`저장
+                await userDefaults.setString(platform, .authPlatform)
+                /// [2]. Keychain에 `access`, `refresh` 저장
+                keychain.save(.accessToken, tokenResponse.accessToken)
+                keychain.save(.refreshToken, tokenResponse.refreshToken)
+                await send(.inner(.pushAgreeToTermsView))
+            }
         }
     }
     /// - Inner Effect
@@ -107,7 +135,17 @@ private extension LoginRootFeature {
     }
     /// - Async Effect
     func handleAsyncAction(_ action: Action.AsyncAction, state: inout State) -> Effect<Action> {
-        return .none
+        switch action {
+        case .회원가입:
+            return .run { [nickName = state.nickName, interests = state.interests] send in
+                guard let nickName else { return }
+                guard let interests else { return }
+                let signUpRequest = SignupRequest(nickName: nickName, interests: interests)
+                let a = try await userClient.회원등록(signUpRequest)
+                
+                await send(.inner(.pushSignUpDoneView))
+            }
+        }
     }
     /// - Scope Effect
     func handleScopeAction(_ action: Action.ScopeAction, state: inout State) -> Effect<Action> {
@@ -119,13 +157,15 @@ private extension LoginRootFeature {
             }
         case .registerNickname(let delegate):
             switch delegate {
-            case .pushSelectFieldView:
+            case let .pushSelectFieldView(nickName):
+                state.nickName = nickName
                 return .send(.inner(.pushSelectFieldView))
             }
         case .selectField(let delegate):
             switch delegate {
-            case .pushSignUpDoneView:
-                return .send(.inner(.pushSignUpDoneView))
+            case let .pushSignUpDoneView(interests):
+                state.interests = interests
+                return .send(.async(.회원가입))
             }
         case .signUpDone(let delegate):
             switch delegate {
