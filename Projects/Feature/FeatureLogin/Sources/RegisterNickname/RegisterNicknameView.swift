@@ -39,7 +39,9 @@ public extension RegisterNicknameView {
             .overlay(alignment: .bottom) {
                 PokitBottomButton(
                     "다음",
-                    state: store.nicknameText == "" || store.nicknameText.count > 10 ? .disable : .filled(.primary),
+                    state: store.buttonActive 
+                    ? .filled(.primary)
+                    : .disable,
                     action: { send(.nextButtonTapped) }
                 )
                 .setKeyboardHeight()

@@ -5,18 +5,24 @@
 //  Created by 김도형 on 7/5/24.
 
 import ComposableArchitecture
+import CoreKit
+import DSKit
 import Util
 
 @Reducer
 public struct RegisterNicknameFeature {
     /// - Dependency
     @Dependency(\.dismiss) var dismiss
+    @Dependency(\.userClient) var userClient
+    @Dependency(\.mainQueue) var mainQueue
     /// - State
     @ObservableState
     public struct State: Equatable {
         public init() {}
         
         var nicknameText: String = ""
+        var buttonActive: Bool = false
+        var textfieldState: PokitInputStyle.State = .default
     }
     /// - Action
     public enum Action: FeatureAction, ViewAction {
@@ -33,11 +39,16 @@ public struct RegisterNicknameFeature {
             case nextButtonTapped
             case backButtonTapped
         }
-        public enum InnerAction: Equatable { case doNothing }
-        public enum AsyncAction: Equatable { case doNothing }
+        public enum InnerAction: Equatable {
+            case textChanged
+            case 닉네임_중복_체크_네트워크_결과(Bool)
+        }
+        public enum AsyncAction: Equatable {
+            case 닉네임_중복_체크_네트워크
+        }
         public enum ScopeAction: Equatable { case doNothing }
         public enum DelegateAction: Equatable {
-            case pushSelectFieldView
+            case pushSelectFieldView(nickName: String)
         }
     }
     /// initiallizer
@@ -62,6 +73,7 @@ public struct RegisterNicknameFeature {
             return handleDelegateAction(delegateAction, state: &state)
         }
     }
+    public enum CancelID { case response }
     /// - Reducer body
     public var body: some ReducerOf<Self> {
         BindingReducer(action: \.view)
@@ -74,20 +86,53 @@ private extension RegisterNicknameFeature {
     func handleViewAction(_ action: Action.ViewAction, state: inout State) -> Effect<Action> {
         switch action {
         case .nextButtonTapped:
-            return .send(.delegate(.pushSelectFieldView))
+            if state.buttonActive {
+                return .run { [nickName = state.nicknameText] send in
+                    await send(.delegate(.pushSelectFieldView(nickName: nickName)))
+                }
+            }
+            return .none
         case .backButtonTapped:
             return .run { _ in await self.dismiss() }
+        case .binding(\.nicknameText):
+            return .run { send in
+                await send(.inner(.textChanged))
+            }
+            .throttle(id: CancelID.response, for: 3.0, scheduler: mainQueue, latest: true)
         case .binding:
             return .none
         }
     }
     /// - Inner Effect
     func handleInnerAction(_ action: Action.InnerAction, state: inout State) -> Effect<Action> {
-        return .none
+        switch action {
+        case .textChanged:
+            if state.nicknameText == "" || state.nicknameText.count > 10 {
+                state.buttonActive = false
+                return .none
+            } else {
+                return .run { send in await send(.async(.닉네임_중복_체크_네트워크)) }
+            }
+        case let .닉네임_중복_체크_네트워크_결과(isDuplicate):
+            if isDuplicate {
+                state.textfieldState = .error
+                state.buttonActive = false
+            } else {
+                state.textfieldState = .active
+                state.buttonActive = true
+            }
+            return .none
+        }
     }
     /// - Async Effect
     func handleAsyncAction(_ action: Action.AsyncAction, state: inout State) -> Effect<Action> {
-        return .none
+        switch action {
+        case .닉네임_중복_체크_네트워크:
+            return .run { [nickName = state.nicknameText] send in
+                let result = try await userClient.닉네임_중복_체크(nickName)
+                await send(.inner(.닉네임_중복_체크_네트워크_결과(result.isDuplicate)))
+            }
+        }
     }
     /// - Scope Effect
     func handleScopeAction(_ action: Action.ScopeAction, state: inout State) -> Effect<Action> {
