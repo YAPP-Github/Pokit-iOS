@@ -7,6 +7,7 @@
 
 import Foundation
 
+import Util
 import Moya
 /// 컨텐츠 전용 Endpont
 public enum UserEndpoint {
@@ -17,17 +18,17 @@ public enum UserEndpoint {
 
 extension UserEndpoint: TargetType {
     public var baseURL: URL {
-        return URL(string: "")!
+        return Constants.serverURL.appendingPathComponent(Constants.userPath, conformingTo: .url)
     }
     
     public var path: String {
         switch self {
         case .닉네임_수정:
-            return "/api/v1/user/nickname"
+            return "/nickname"
         case .회원등록:
-            return "/api/v1/user/signup"
+            return "/signup"
         case let .닉네임_중복_체크(nickname):
-            return "/api/v1/user/duplicate/\(nickname)"
+            return "/duplicate/\(nickname)"
         }
     }
     
@@ -55,6 +56,8 @@ extension UserEndpoint: TargetType {
         }
     }
     
-    public var headers: [String : String]? { nil }
+    public var headers: [String: String]? {
+        ["Content-Type": "application/json"]
+    }
 }
 
