@@ -6,7 +6,6 @@
 
 import ComposableArchitecture
 import SwiftUI
-
 import DSKit
 
 @ViewAction(for: RegisterNicknameFeature.self)
@@ -36,11 +35,14 @@ public extension RegisterNicknameView {
                 
                 Spacer()
                 
+            }
+            .overlay(alignment: .bottom) {
                 PokitBottomButton(
                     "다음",
                     state: store.nicknameText == "" || store.nicknameText.count > 10 ? .disable : .filled(.primary),
                     action: { send(.nextButtonTapped) }
                 )
+                .setKeyboardHeight()
             }
             .padding(.horizontal, 20)
             .background(.pokit(.bg(.base)))
