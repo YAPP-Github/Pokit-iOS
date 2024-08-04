@@ -53,7 +53,7 @@ public struct SelectFieldFeature {
         public enum AsyncAction: Equatable { case doNothing }
         public enum ScopeAction: Equatable { case doNothing }
         public enum DelegateAction: Equatable {
-            case pushSignUpDoneView
+            case pushSignUpDoneView(interests: [String])
         }
     }
     /// initiallizer
@@ -89,7 +89,8 @@ private extension SelectFieldFeature {
     func handleViewAction(_ action: Action.ViewAction, state: inout State) -> Effect<Action> {
         switch action {
         case .nextButtonTapped:
-            return .send(.delegate(.pushSignUpDoneView))
+            let interests = Array(state.selectedFields)
+            return .send(.delegate(.pushSignUpDoneView(interests: interests)))
         case .backButtonTapped:
             return .run { _ in await self.dismiss() }
         case .fieldChipTapped(let field):
