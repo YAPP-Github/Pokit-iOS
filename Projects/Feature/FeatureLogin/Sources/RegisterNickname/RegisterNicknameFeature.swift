@@ -5,6 +5,8 @@
 //  Created by 김도형 on 7/5/24.
 
 import ComposableArchitecture
+import Domain
+import CoreKit
 import Util
 
 @Reducer
@@ -16,7 +18,15 @@ public struct RegisterNicknameFeature {
     public struct State: Equatable {
         public init() {}
         
-        var nicknameText: String = ""
+        fileprivate var domain = RegisterNickname()
+        var nicknameText: String {
+            get { domain.nickname }
+            set { domain.nickname = newValue }
+        }
+        var isDuplicate: Bool {
+            get { domain.isDuplicate }
+            set { domain.isDuplicate = newValue }
+        }
     }
     /// - Action
     public enum Action: FeatureAction, ViewAction {
