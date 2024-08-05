@@ -9,7 +9,7 @@ import Foundation
 
 import Util
 
-public struct BaseCategory: Identifiable, Equatable, PokitSelectItem {
+public struct BaseCategory: Identifiable, Equatable, PokitSelectItem, PokitCardItem {
     public let id: Int
     public let userId: Int
     public let categoryName: String

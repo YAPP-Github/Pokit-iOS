@@ -65,7 +65,7 @@ public struct PokitCard<Item: PokitCardItem>: View {
     }
     
     private var title: some View {
-        Text(category.categoryType)
+        Text(category.categoryName)
             .pokitFont(.b1(.b))
             .foregroundStyle(.pokit(.text(.primary)))
     }
@@ -80,13 +80,13 @@ public struct PokitCard<Item: PokitCardItem>: View {
     }
     
     private var subTitle: some View {
-        Text("링크 \(category.contentSize)개")
+        Text("링크 \(category.contentCount)개")
             .pokitFont(.detail2)
             .foregroundStyle(.pokit(.text(.tertiary)))
     }
     
     private var thumbNail: some View {
-        AsyncImage(url: .init(string: category.thumbNail)) { image in
+        AsyncImage(url: .init(string: category.categoryImage.imageURL)) { image in
             image
                 .resizable()
         } placeholder: {
@@ -99,34 +99,4 @@ public struct PokitCard<Item: PokitCardItem>: View {
         RoundedRectangle(cornerRadius: 8, style: .continuous)
             .fill(.pokit(.bg(.primary)))
     }
-}
-
-fileprivate struct Category: PokitCardItem {
-    var id: Int
-    
-    var categoryType: String
-    
-    var contentSize: Int
-    
-    var thumbNail: String
-    
-    init(id: Int, categoryName: String, contentSize: Int, thumbNail: String) {
-        self.id = id
-        self.categoryType = categoryName
-        self.contentSize = contentSize
-        self.thumbNail = thumbNail
-    }
-}
-
-#Preview {
-    PokitCard(
-        category: Category(
-            id: 1,
-            categoryName: "요리/레시피", 
-            contentSize: 10,
-            thumbNail: "https://picsum.photos/200/300​"
-        ),
-        action: {},
-        kebabAction: {}
-    )
 }

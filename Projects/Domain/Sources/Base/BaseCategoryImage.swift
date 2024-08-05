@@ -7,9 +7,11 @@
 
 import Foundation
 
-public struct BaseCategoryImage: Equatable {
-    public let imageId: Int
-    public let imageURL: String
+import Util
+
+public struct BaseCategoryImage: Equatable, CategoryImage {
+    public var imageId: Int
+    public var imageURL: String
     
     public init(
         imageId: Int,
