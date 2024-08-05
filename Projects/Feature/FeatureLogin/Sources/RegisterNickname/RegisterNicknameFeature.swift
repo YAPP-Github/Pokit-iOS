@@ -47,7 +47,7 @@ public struct RegisterNicknameFeature {
         public enum AsyncAction: Equatable { case doNothing }
         public enum ScopeAction: Equatable { case doNothing }
         public enum DelegateAction: Equatable {
-            case pushSelectFieldView
+            case pushSelectFieldView(nickname: String)
         }
     }
     /// initiallizer
@@ -84,7 +84,7 @@ private extension RegisterNicknameFeature {
     func handleViewAction(_ action: Action.ViewAction, state: inout State) -> Effect<Action> {
         switch action {
         case .nextButtonTapped:
-            return .send(.delegate(.pushSelectFieldView))
+            return .send(.delegate(.pushSelectFieldView(nickname: state.domain.nickname)))
         case .backButtonTapped:
             return .run { _ in await self.dismiss() }
         case .binding:

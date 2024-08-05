@@ -5,6 +5,8 @@
 //  Created by 김도형 on 7/5/24.
 
 import ComposableArchitecture
+import Domain
+import CoreKit
 import Util
 
 @Reducer
@@ -14,9 +16,11 @@ public struct SelectFieldFeature {
     /// - State
     @ObservableState
     public struct State: Equatable {
-        public init() {}
+        public init(nickname: String) {
+            self.domain = .init(nickname: nickname)
+        }
         
-        var fields: [String] = [
+        let fields: [String] = [
             "스포츠/레저",
             "문구/오피스",
             "패션",
@@ -33,7 +37,12 @@ public struct SelectFieldFeature {
             "취업정보"
         ]
         
-        var selectedFields: Set<String> = .init()
+        fileprivate var domain: SelectField
+        
+        var selectedFields: Set<String> {
+            get { domain.interest }
+            set { domain.interest = newValue }
+        }
     }
     /// - Action
     public enum Action: FeatureAction, ViewAction {

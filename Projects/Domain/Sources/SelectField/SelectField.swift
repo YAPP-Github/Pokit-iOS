@@ -7,13 +7,18 @@
 
 import Foundation
 
-public struct SignUpDone {
+public struct SelectField: Equatable {
     // - MARK: Response
     /// 유저 정보
-    public let user: BaseUser
+//    public let user: BaseUser
     // - MARK: Request
     /// 등록할 닉네임
     public let nickname: String
     /// - 등록할 유저 관심사
-    public let interest: [String]
+    public var interest: Set<String>
+    
+    public init(nickname: String) {
+        self.nickname = nickname
+        self.interest = []
+    }
 }
