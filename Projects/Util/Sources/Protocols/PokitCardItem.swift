@@ -16,6 +16,6 @@ public protocol PokitCardItem {
 }
 
 public protocol CategoryImage {
-    var imageId: Int { get }
+    var id: Int { get }
     var imageURL: String { get }
 }

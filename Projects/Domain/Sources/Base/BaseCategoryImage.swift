@@ -9,15 +9,15 @@ import Foundation
 
 import Util
 
-public struct BaseCategoryImage: Equatable, CategoryImage {
-    public var imageId: Int
+public struct BaseCategoryImage: Equatable, Identifiable, CategoryImage {
+    public var id: Int
     public var imageURL: String
     
     public init(
         imageId: Int,
         imageURL: String
     ) {
-        self.imageId = imageId
+        self.id = imageId
         self.imageURL = imageURL
     }
 }
