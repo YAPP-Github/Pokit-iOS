@@ -7,6 +7,7 @@
 import Foundation
 
 import ComposableArchitecture
+import Domain
 import CoreKit
 import DSKit
 import Util
@@ -20,6 +21,8 @@ public struct PokitSearchFeature {
     @ObservableState
     public struct State: Equatable {
         public init() { }
+        @Presents
+        var filterBottomSheet: FilterBottomFeature.State?
         
         var searchText: String = ""
         var recentSearchTexts: [String] = [
@@ -37,20 +40,38 @@ public struct PokitSearchFeature {
         ]
         var isAutoSaveSearch: Bool = false
         var isSearching: Bool = false
-        var resultMock: IdentifiedArrayOf<SearchMock> = .init()
         var isFiltered: Bool = false
-        var pokitFilter: SearchPokitMock? = nil
-        var favoriteFilter: Bool = false
-        var unreadFilter: Bool = false
+        var pokitFilter: BaseCategory? = nil
         var linkTypeText = "모아보기"
-        var startDateFilter: Date? = nil
-        var endDateFilter: Date? = nil
-        @Presents var filterBottomSheet: FilterBottomFeature.State?
         var dateFilterText = "기간"
         var isResultAscending = true
+        
+        fileprivate var domain = Search()
+        var resultMock: IdentifiedArrayOf<BaseContent> {
+            var identifiedArray = IdentifiedArrayOf<BaseContent>()
+            domain.contentList.data.forEach { identifiedArray.append($0) }
+            return identifiedArray
+        }
+        var favoriteFilter: Bool {
+            get { domain.condition.favorites }
+            set { domain.condition.favorites = newValue }
+        }
+        var unreadFilter: Bool {
+            get { !domain.condition.isRead }
+            set { domain.condition.isRead = !newValue }
+        }
+        var startDateFilter: Date? {
+            get { domain.condition.startDate }
+            set { domain.condition.startDate = newValue }
+        }
+        var endDateFilter: Date? {
+            get { domain.condition.endDate }
+            set { domain.condition.endDate = newValue }
+        }
+        
         /// sheet item
-        var bottomSheetItem: SearchMock? = nil
-        var alertItem: SearchMock? = nil
+        var bottomSheetItem: BaseContent? = nil
+        var alertItem: BaseContent? = nil
     }
     
     /// - Action
@@ -76,13 +97,13 @@ public struct PokitSearchFeature {
             case pokitFilterButtonTapped
             case recentSearchAllRemoveButtonTapped
             case recentSearchChipIconTapped(searchText: String)
-            case linkCardTapped(link: SearchMock)
-            case kebabButtonTapped(link: SearchMock)
+            case linkCardTapped(link: BaseContent)
+            case kebabButtonTapped(link: BaseContent)
             case bottomSheetButtonTapped(
                 delegate: PokitBottomSheet.Delegate,
-                link: SearchMock
+                link: BaseContent
             )
-            case deleteAlertConfirmTapped(link: SearchMock)
+            case deleteAlertConfirmTapped(link: BaseContent)
             case sortTextLinkTapped
             case backButtonTapped
             /// - TextInput OnSubmitted
@@ -108,13 +129,13 @@ public struct PokitSearchFeature {
             case filterBottomSheet(FilterBottomFeature.Action.DelegateAction)
             case bottomSheet(
                 delegate: PokitBottomSheet.Delegate,
-                link: SearchMock
+                link: BaseContent
             )
         }
         
         public enum DelegateAction: Equatable {
-            case linkCardTapped(link: SearchMock)
-            case bottomSheetEditCellButtonTapped(link: SearchMock)
+            case linkCardTapped(link: BaseContent)
+            case bottomSheetEditCellButtonTapped(link: BaseContent)
             case linkCopyDetected(URL?)
         }
     }
@@ -231,13 +252,7 @@ private extension PokitSearchFeature {
             return .none
         case .sortTextLinkTapped:
             state.isResultAscending.toggle()
-            // - MARK: 더미 정렬
-            state.resultMock = []
-            if state.isResultAscending {
-                SearchMock.resultMock.forEach{ state.resultMock.append($0) }
-            } else {
-                SearchMock.resultMock.reversed().forEach{ state.resultMock.append($0) }
-            }
+            // - TODO: 정렬
             return .none
         case .backButtonTapped:
             return .run { _ in
@@ -260,7 +275,7 @@ private extension PokitSearchFeature {
         case .enableIsSearching:
             state.isSearching = true
             // - MARK: 더미 조회
-            SearchMock.resultMock.forEach{ state.resultMock.append($0) }
+            state.domain.contentList = ContentListInquiryResponse.mock.toDomain()
             return .none
         case .disableIsSearching:
             state.isSearching = false

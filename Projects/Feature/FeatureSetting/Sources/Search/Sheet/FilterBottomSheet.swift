@@ -66,6 +66,7 @@ public extension FilterBottomSheet {
             .pokitPresentationCornerRadius()
             .presentationDragIndicator(.visible)
             .presentationDetents([.height(664)])
+            .onAppear { send(.filterBottomSheetOnAppeard) }
         }
     }
 }
