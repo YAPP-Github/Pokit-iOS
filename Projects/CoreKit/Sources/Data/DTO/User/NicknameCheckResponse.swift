@@ -8,7 +8,7 @@
 import Foundation
 /// 닉네임 중복 체크 API Response
 public struct NicknameCheckResponse: Decodable {
-    let isDuplicate: Bool
+    public let isDuplicate: Bool
 }
 extension NicknameCheckResponse {
     public static var mock: Self = Self(isDuplicate: false)
