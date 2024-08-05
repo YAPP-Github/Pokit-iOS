@@ -10,12 +10,14 @@ import Foundation
 import Util
 
 public struct BaseContent: Identifiable, Equatable, PokitLinkCardItem {
+    
     public let id: Int
     public let categoryName: String
     public let categoryId: Int?
     public let title: String
     public let thumbNail: String
     public let data: String
+    public let domain: String
     public let memo: String
     public let createdAt: Date
     public let isRead: Bool
@@ -29,6 +31,7 @@ public struct BaseContent: Identifiable, Equatable, PokitLinkCardItem {
         title: String,
         thumbNail: String,
         data: String,
+        domain: String,
         memo: String,
         createdAt: Date,
         isRead: Bool,
@@ -41,6 +44,7 @@ public struct BaseContent: Identifiable, Equatable, PokitLinkCardItem {
         self.title = title
         self.thumbNail = thumbNail
         self.data = data
+        self.domain = domain
         self.memo = memo
         self.createdAt = createdAt
         self.isRead = isRead

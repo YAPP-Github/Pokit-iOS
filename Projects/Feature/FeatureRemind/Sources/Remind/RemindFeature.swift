@@ -5,6 +5,8 @@
 //  Created by 김도형 on 7/12/24.
 
 import ComposableArchitecture
+import Domain
+import CoreKit
 import Util
 import DSKit
 
@@ -17,12 +19,25 @@ public struct RemindFeature {
     public struct State: Equatable {
         public init() {}
         
-        var recommendedLinks = LinkMock.recommendedMock
-        var unreadLinks = LinkMock.unreadMock
-        var favoriteLinks = LinkMock.favoriteMock
+        fileprivate var domain = Remind()
+        var recommendedLinks: IdentifiedArrayOf<BaseContent> {
+            var identifiedArray = IdentifiedArrayOf<BaseContent>()
+            domain.recommendedList.data.forEach { identifiedArray.append($0) }
+            return identifiedArray
+        }
+        var unreadLinks: IdentifiedArrayOf<BaseContent> {
+            var identifiedArray = IdentifiedArrayOf<BaseContent>()
+            domain.unreadList.data.forEach { identifiedArray.append($0) }
+            return identifiedArray
+        }
+        var favoriteLinks: IdentifiedArrayOf<BaseContent> {
+            var identifiedArray = IdentifiedArrayOf<BaseContent>()
+            domain.favoriteList.data.forEach { identifiedArray.append($0) }
+            return identifiedArray
+        }
         /// sheet item
-        var bottomSheetItem: LinkMock? = nil
-        var alertItem: LinkMock? = nil
+        var bottomSheetItem: BaseContent? = nil
+        var alertItem: BaseContent? = nil
     }
     /// - Action
     public enum Action: FeatureAction, ViewAction {
@@ -37,15 +52,17 @@ public struct RemindFeature {
             /// - Button Tapped
             case bellButtonTapped
             case searchButtonTapped
-            case linkCardTapped(link: LinkMock)
-            case kebabButtonTapped(link: LinkMock)
+            case linkCardTapped(link: BaseContent)
+            case kebabButtonTapped(link: BaseContent)
             case unreadNavigationLinkTapped
             case favoriteNavigationLinkTapped
             case bottomSheetButtonTapped(
                 delegate: PokitBottomSheet.Delegate,
-                link: LinkMock
+                link: BaseContent
             )
-            case deleteAlertConfirmTapped(link: LinkMock)
+            case deleteAlertConfirmTapped(link: BaseContent)
+            
+            case remindViewOnAppeared
         }
         public enum InnerAction: Equatable {
             case dismissBottomSheet
@@ -54,14 +71,14 @@ public struct RemindFeature {
         public enum ScopeAction: Equatable {
             case bottomSheet(
                 delegate: PokitBottomSheet.Delegate,
-                link: LinkMock
+                link: BaseContent
             )
         }
         public enum DelegateAction: Equatable {
-            case 링크상세(link: LinkMock)
+            case 링크상세(link: BaseContent)
             case alertButtonTapped
             case searchButtonTapped
-            case 링크수정(link: LinkMock)
+            case 링크수정(link: BaseContent)
             case 링크목록_안읽음
             case 링크목록_즐겨찾기
         }
@@ -121,6 +138,12 @@ private extension RemindFeature {
             state.alertItem = nil
             return .none
         case .binding:
+            return .none
+        case .remindViewOnAppeared:
+            // - MARK: 목업 데이터 조회
+            state.domain.recommendedList = ContentListInquiryResponse.mock.toDomain()
+            state.domain.favoriteList = ContentListInquiryResponse.mock.toDomain()
+            state.domain.unreadList = ContentListInquiryResponse.mock.toDomain()
             return .none
         }
     }

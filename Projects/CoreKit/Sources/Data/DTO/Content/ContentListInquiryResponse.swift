@@ -18,7 +18,9 @@ public struct ContentListInquiryResponse: Decodable {
 extension ContentListInquiryResponse {
     public static var mock: Self = Self(
         data: [
-            ContentBaseResponse.mock
+            ContentBaseResponse.mock(id: 0),
+            ContentBaseResponse.mock(id: 1),
+            ContentBaseResponse.mock(id: 2)
         ],
         page: 7,
         size: 4,

@@ -7,6 +7,7 @@
 import SwiftUI
 
 import ComposableArchitecture
+import Domain
 import DSKit
 import Util
 
@@ -56,6 +57,7 @@ public extension RemindView {
                     confirmText: "삭제"
                 ) { send(.deleteAlertConfirmTapped(link: link)) }
             }
+            .onAppear { send(.remindViewOnAppeared) }
         }
     }
 }
@@ -81,7 +83,7 @@ extension RemindView {
     }
     
     @ViewBuilder
-    private func recommendedLinkCell(link: LinkMock) -> some View {
+    private func recommendedLinkCell(link: BaseContent) -> some View {
         Button(action: { send(.linkCardTapped(link: link)) }) {
             recommendedLinkCellLabel(link: link)
         }
@@ -89,7 +91,7 @@ extension RemindView {
     }
     
     @ViewBuilder
-    private func recommendedLinkCellLabel(link: LinkMock) -> some View {
+    private func recommendedLinkCellLabel(link: BaseContent) -> some View {
         let date = formatter.string(from: link.createdAt)
         
         ZStack(alignment: .bottom) {
@@ -136,7 +138,7 @@ extension RemindView {
                 }
                 .padding(.top, 4)
                 
-                Text("\(date) • \(link.data)")
+                Text("\(date) • \(link.domain)")
                     .pokitFont(.detail2)
                     .foregroundStyle(.pokit(.text(.tertiary)))
                     .padding(.top, 8)
@@ -184,8 +186,8 @@ extension RemindView {
             .padding(.bottom, 16)
             
             ForEach(store.unreadLinks) { link in
-                let isFirst = link == store.unreadLinks.first
-                let isLast = link == store.unreadLinks.last
+                let isFirst = link == store.unreadLinks.elements.first
+                let isLast = link == store.unreadLinks.elements.last
                 
                 PokitLinkCard(
                     link: link,
@@ -205,8 +207,8 @@ extension RemindView {
             .padding(.bottom, 16)
             
             ForEach(store.favoriteLinks) { link in
-                let isFirst = link == store.favoriteLinks.first
-                let isLast = link == store.favoriteLinks.last
+                let isFirst = link == store.favoriteLinks.elements.first
+                let isLast = link == store.favoriteLinks.elements.last
                 
                 PokitLinkCard(
                     link: link,

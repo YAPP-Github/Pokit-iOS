@@ -19,6 +19,7 @@ public extension ContentBaseResponse {
             title: self.title,
             thumbNail: self.thumbNail,
             data: self.data,
+            domain: self.domain,
             memo: self.memo,
             createdAt: DateFormatter.stringToDate(string: self.createdAt),
             isRead: self.isRead,

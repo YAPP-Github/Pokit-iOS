@@ -68,7 +68,7 @@ public struct PokitLinkCard<Item: PokitLinkCardItem>: View {
     }
     
     private var subTitle: some View {
-        Text("\(date) • \(link.data)")
+        Text("\(date) • \(link.domain)")
             .pokitFont(.detail2)
             .foregroundStyle(.pokit(.text(.tertiary)))
             .multilineTextAlignment(.leading)
@@ -134,81 +134,4 @@ public struct PokitLinkCard<Item: PokitLinkCardItem>: View {
                 }
             }
     }
-}
-
-fileprivate struct Link: PokitLinkCardItem {
-    var title: String
-    
-    var thumbNail: String
-    
-    var createdAt: Date
-    
-    var categoryName: String
-    
-    var isRead: Bool
-    
-    var data: String
-    
-    init(
-        title: String,
-        thumbNail: String,
-        createAt: Date,
-        categoryType: String,
-        isRead: Bool,
-        domain: String
-    ) {
-        self.title = title
-        self.thumbNail = thumbNail
-        self.createdAt = createAt
-        self.categoryName = categoryType
-        self.isRead = isRead
-        self.data = domain
-    }
-}
-
-#Preview {
-    VStack(spacing: 0) {
-        PokitLinkCard(
-            link: Link(
-                title: "자연 친화적인 라이프스타일을 위한 환경 보호 방법",
-                thumbNail: "https://picsum.photos/200/300​",
-                createAt: .now,
-                categoryType: "미분류",
-                isRead: false,
-                domain: "youtube"
-            ),
-            action: {},
-            kebabAction: {}
-        )
-        .divider(isFirst: true, isLast: false)
-        
-        PokitLinkCard(
-            link: Link(
-                title: "자연 친화적인 라이프스타일을 위한 환경 보호 방법",
-                thumbNail: "https://picsum.photos/200/300​",
-                createAt: .now,
-                categoryType: "미분류",
-                isRead: false,
-                domain: "youtube"
-            ),
-            action: {},
-            kebabAction: {}
-        )
-        .divider(isFirst: false, isLast: false)
-        
-        PokitLinkCard(
-            link: Link(
-                title: "자연 친화적인 라이프스타일을 위한 환경 보호 방법",
-                thumbNail: "https://picsum.photos/200/300​",
-                createAt: .now,
-                categoryType: "미분류",
-                isRead: false,
-                domain: "youtube"
-            ),
-            action: {},
-            kebabAction: {}
-        )
-        .divider(isFirst: false, isLast: true)
-    }
-    .padding(.horizontal, 20)
 }
