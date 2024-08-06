@@ -7,6 +7,7 @@
 
 import Foundation
 
+import Util
 import Moya
 /// Auth를 위한 Moya Endpoint
 public enum AuthEndpoint {
@@ -17,14 +18,14 @@ public enum AuthEndpoint {
 
 extension AuthEndpoint: TargetType {
     public var baseURL: URL {
-        return URL(string: "")!
+        return Constants.serverURL.appendingPathComponent(Constants.authPath, conformingTo: .url)
     }
     
     public var path: String {
         switch self {
-        case .로그인: return "/api/v1/auth/signin"
-        case .회원탈퇴: return "/api/v1/auth/withdraw"
-        case .토큰재발급: return "/api/v1/auth/reissue"
+        case .로그인: return "/signin"
+        case .회원탈퇴: return "/withdraw"
+        case .토큰재발급: return "/reissue"
         }
     }
     
@@ -49,6 +50,6 @@ extension AuthEndpoint: TargetType {
     }
     
     public var headers: [String: String]? {
-        return ["Authorization": "Bearer "]
+        ["Content-Type": "application/json"]
     }
 }

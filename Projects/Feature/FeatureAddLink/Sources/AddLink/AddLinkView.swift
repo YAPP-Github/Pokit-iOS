@@ -96,7 +96,8 @@ private extension AddLinkView {
             
             PokitTextInput(
                 text: $store.urlText,
-                label: "링크",
+                label: "링크", 
+                state: .constant(.active),
                 focusState: $focusedType,
                 equals: .link
             )
@@ -106,7 +107,8 @@ private extension AddLinkView {
     var titleTextField: some View {
         PokitTextInput(
             text: $store.title,
-            label: "제목",
+            label: "제목", 
+            state: .constant(.active),
             maxLetter: 20,
             focusState: $focusedType,
             equals: .title) { }

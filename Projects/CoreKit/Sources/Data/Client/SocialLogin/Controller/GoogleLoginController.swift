@@ -46,28 +46,9 @@ public final class GoogleLoginController {
                 return
             }
             print("🌐 googleLogin idToken: \(idToken)")
-            
-            guard let id = result.user.userID else {
-                continuation?.resume(throwing: SocialLoginError.googleLoginError(.invalidUserId))
-                continuation = nil
-                return
-            }
-            
-            let email = result.user.profile?.email
-            print("🌐 googleLogin email: \(email ?? "") ")
-
-            let name = result.user.profile?.name ?? nil
-            print("🌐 googleLogin fullName: \(name ?? "") ")
-            
-            let token = result.user.accessToken.tokenString
-            print("🌐 googleLogin token: \(token)")
 
             let info = SocialLoginInfo(
-                id: id,
-                authorization: idToken.tokenString, /// Google idToken
-                identityToken: token,               /// Access Token
-                name: name,
-                email: email,
+                idToken: idToken.tokenString,
                 provider: .google
             )
             continuation?.resume(returning: info)

@@ -9,8 +9,8 @@ import Foundation
 import Dependencies
 
 public struct SocialLoginClient {
-    var appleLogin: @Sendable () async throws -> SocialLoginInfo
-    var googleLogin: @Sendable () async throws -> SocialLoginInfo
+    public var appleLogin: @Sendable () async throws -> SocialLoginInfo
+    public var googleLogin: @Sendable () async throws -> SocialLoginInfo
 }
 
 extension SocialLoginClient: DependencyKey {
@@ -37,8 +37,8 @@ extension SocialLoginClient: DependencyKey {
     }()
 }
 
-public extension DependencyValues {
-    var socialLogin: SocialLoginClient {
+extension DependencyValues {
+    public var socialLogin: SocialLoginClient {
         get { self[SocialLoginClient.self] }
         set { self[SocialLoginClient.self] = newValue }
     }

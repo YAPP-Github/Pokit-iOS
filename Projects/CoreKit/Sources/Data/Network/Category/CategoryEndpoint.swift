@@ -7,6 +7,7 @@
 
 import Foundation
 
+import Util
 import Moya
 /// 카테고리 전용 Endpont
 public enum CategoryEndpoint {
@@ -21,23 +22,22 @@ public enum CategoryEndpoint {
 
 extension CategoryEndpoint: TargetType {
     public var baseURL: URL {
-        return URL(string: "")!
+        return Constants.serverURL.appendingPathComponent(Constants.categoryPath, conformingTo: .url)
     }
     
     public var path: String {
         switch self {
         case let .카테고리_삭제(categoryId):
-            return "/api/v1/category/\(categoryId)"
+            return "/\(categoryId)"
         case let .카테고리_수정(categoryId, _):
-            return "/api/v1/category/\(categoryId)"
-        case .카테고리_목록_조회:
-            return "/api/v1/category"
-        case .카테고리생성:
-            return "/api/v1/category"
+            return "/\(categoryId)"
         case .카테고리_프로필_목록_조회:
-            return "/api/v1/category/images"
+            return "/images"
         case .유저_카테고리_개수_조회:
-            return "/api/v1/category/count"
+            return "/count"
+        case .카테고리_목록_조회,
+             .카테고리생성:
+            return ""
         }
     }
     
@@ -82,5 +82,7 @@ extension CategoryEndpoint: TargetType {
             return .requestPlain
         }
     }
-    public var headers: [String : String]? { nil }
+    public var headers: [String: String]? {
+        ["Content-Type": "application/json"]
+    }
 }

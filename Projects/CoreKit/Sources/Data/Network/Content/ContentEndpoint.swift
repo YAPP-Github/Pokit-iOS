@@ -7,6 +7,7 @@
 
 import Foundation
 
+import Util
 import Moya
 /// 컨텐츠 전용 Endpont
 public enum ContentEndpoint {
@@ -21,25 +22,25 @@ public enum ContentEndpoint {
 
 extension ContentEndpoint: TargetType {
     public var baseURL: URL {
-        return URL(string: "")!
+        return Constants.serverURL.appendingPathComponent(Constants.contentPath, conformingTo: .url)
     }
     
     public var path: String {
         switch self {
         case let .컨텐츠_삭제(categoryId):
-            return "/api/v1/content/\(categoryId)"
+            return "/\(categoryId)"
         case let .컨텐츠_상세_조회(contentId, _):
-            return "/api/v1/content/\(contentId)"
+            return "/\(contentId)"
         case let .컨텐츠_수정(contentId, _):
-            return "/api/v1/content/\(contentId)"
+            return "/\(contentId)"
         case let .즐겨찾기_취소(contentId):
-            return "/api/v1/content/\(contentId)/bookmark"
+            return "/\(contentId)/bookmark"
         case let .즐겨찾기(contentId):
-            return "/api/v1/content/\(contentId)/bookmark"
+            return "/\(contentId)/bookmark"
         case .컨텐츠_추가:
-            return "/api/v1/content"
+            return ""
         case let .카태고리_내_컨텐츠_목록_조회(contentId, _):
-            return "/api/v1/content/\(contentId)"
+            return "/\(contentId)"
         }
     }
     
@@ -88,5 +89,7 @@ extension ContentEndpoint: TargetType {
         }
     }
     
-    public var headers: [String : String]? { nil }
+    public var headers: [String: String]? {
+        ["Content-Type": "application/json"]
+    }
 }

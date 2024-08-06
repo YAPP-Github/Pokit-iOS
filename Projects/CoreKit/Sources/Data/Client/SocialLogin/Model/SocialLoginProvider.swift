@@ -9,15 +9,10 @@ import Foundation
 import SwiftUI
 
 public enum SocialLoginProvider: String, Codable {
-    case apple
-    case google
+    case apple = "애플"
+    case google = "구글"
 }
 
 public extension SocialLoginProvider {
-    var description: String {
-        switch self {
-        case .apple: return "Apple"
-        case .google: return "Google"
-        }
-    }
+    var description: String { return self.rawValue }
 }
