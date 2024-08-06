@@ -1,34 +1,35 @@
 generate:
-	make clean
+	make templates_delete
 	make templates
 
-	tuist clean
+	make clean
+	make download
 	tuist install
 	tuist generate
 
 release:
-	tuist clean
+	make clean
+	make download
 	tuist install
 	TUIST_DEVELOPMENT_TEAM=$(DEVELOPMENT_TEAM) tuist generate
 
 test:
-	tuist clean
+	make clean
+	make download
 	tuist install
 	tuist cache
 	TUIST_DEVELOPMENT_TEAM=$(DEVELOPMENT_TEAM) tuist generate App
 	
+clean:
+	tuist clean
+	rm -rf **/*.xcodeproj
+	rm -rf *.xcworkspace
+	
 download:
 	make download-privates
 
-# 1) 템플릿을 다운받음
-# 2) Private repository로부터 파일 다운로드
-# 3) tuist clean -> install -> generate
-
-# 1)
-# File Templates 설치 경로 지정
 INSTALL_DIR := $(HOME)/Library/Developer/Xcode/Templates/File\ Templates/Pokit_TCA.xctemplate
 
-# 파일 목록 지정
 FILES := templates/Pokit_TCA.xctemplate/___FILEBASENAME___Feature.swift \
 	templates/Pokit_TCA.xctemplate/___FILEBASENAME___View.swift \
          templates/Pokit_TCA.xctemplate/TemplateIcon.png \
@@ -39,7 +40,7 @@ templates: $(FILES)
 	@mkdir -p $(INSTALL_DIR)
 	@cp -r $(FILES) $(INSTALL_DIR)
 
-clean:
+templates_delete:
 	@echo "🚜 설치되어 있는 Pokit Template file을 우선 삭제합니다."
 	@rm -rf $(INSTALL_DIR)
 
@@ -51,4 +52,11 @@ download-privates:
 	@if [ ! -d "Pokit_iOS_Private" ]; then \
 		git clone git@github.com:stealmh/Pokit_iOS_Private.git; \
 	fi
-	@cp Pokit_iOS_Private/xcconfig/Secret.xcconfig Projects/App/Resources/Secret.xcconfig
+	@if [ -f "Pokit_iOS_Private/xcconfig/Secret.xcconfig" ]; then \
+		mkdir -p xcconfig; \
+		cp Pokit_iOS_Private/xcconfig/Secret.xcconfig xcconfig/Secret.xcconfig; \
+		rm -rf Pokit_iOS_Private; \
+		echo "✅ Secret.xcconfig 파일을 성공적으로 다운로드하고 Pokit_iOS_Private 폴더를 삭제했습니다."; \
+	else \
+		echo "❌ Secret.xcconfig 파일을 찾을 수 없습니다."; \
+	fi
