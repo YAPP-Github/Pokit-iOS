@@ -5,33 +5,21 @@
 //  Created by 김도형 on 7/5/24.
 
 import ComposableArchitecture
+
+import CoreKit
 import Util
 
 @Reducer
 public struct SelectFieldFeature {
     /// - Dependency
     @Dependency(\.dismiss) var dismiss
+    @Dependency(\.userClient) var userClient
     /// - State
     @ObservableState
     public struct State: Equatable {
         public init() {}
         
-        var fields: [String] = [
-            "스포츠/레저",
-            "문구/오피스",
-            "패션",
-            "여행",
-            "경제/시사",
-            "영화/드라마",
-            "맛집",
-            "인테리어",
-            "IT",
-            "디자인",
-            "자기계발",
-            "유머",
-            "음악",
-            "취업정보"
-        ]
+        var fields: [String] = []
         
         var selectedFields: Set<String> = .init()
     }
@@ -45,11 +33,14 @@ public struct SelectFieldFeature {
         
         @CasePathable
         public enum View: Equatable {
+            case onAppear
             case nextButtonTapped
             case backButtonTapped
             case fieldChipTapped(String)
         }
-        public enum InnerAction: Equatable { case doNothing }
+        public enum InnerAction: Equatable {
+            case 관심사_목록_조회_결과(interests: [InterestResponse])
+        }
         public enum AsyncAction: Equatable { case doNothing }
         public enum ScopeAction: Equatable { case doNothing }
         public enum DelegateAction: Equatable {
@@ -88,6 +79,11 @@ private extension SelectFieldFeature {
     /// - View Effect
     func handleViewAction(_ action: Action.ViewAction, state: inout State) -> Effect<Action> {
         switch action {
+        case .onAppear:
+            return .run { send in
+                let response = try await userClient.관심사_목록_조회()
+                await send(.inner(.관심사_목록_조회_결과(interests: response)))
+            }
         case .nextButtonTapped:
             let interests = Array(state.selectedFields)
             return .send(.delegate(.pushSignUpDoneView(interests: interests)))
@@ -103,7 +99,11 @@ private extension SelectFieldFeature {
     }
     /// - Inner Effect
     func handleInnerAction(_ action: Action.InnerAction, state: inout State) -> Effect<Action> {
-        return .none
+        switch action {
+        case let .관심사_목록_조회_결과(interests):
+            interests.forEach { state.fields.append($0.description) }
+            return .none
+        }
     }
     /// - Async Effect
     func handleAsyncAction(_ action: Action.AsyncAction, state: inout State) -> Effect<Action> {
