@@ -70,7 +70,7 @@ public struct PokitRootFeature {
             case kebobButtonTapped(BaseCategory)
             case unclassifiedKebobButtonTapped(BaseContent)
             
-            case categoryTapped
+            case categoryTapped(BaseCategory)
             case linkItemTapped(BaseContent)
             
             case pokitRootViewOnAppeared
@@ -94,7 +94,7 @@ public struct PokitRootFeature {
             case alertButtonTapped
             case settingButtonTapped
             
-            case categoryTapped
+            case categoryTapped(BaseCategory)
             case 수정하기(BaseCategory)
             case 링크수정하기(BaseContent)
             /// 링크상세로 이동
@@ -196,8 +196,8 @@ private extension PokitRootFeature {
             return .run { send in await send(.inner(.pokitCategorySheetPresented(true))) }
             
         /// - 카테고리 항목을 눌렀을 때
-        case .categoryTapped:
-            return .run { send in await send(.delegate(.categoryTapped)) }
+        case .categoryTapped(let category):
+            return .run { send in await send(.delegate(.categoryTapped(category))) }
         
         /// - 링크 아이템을 눌렀을 때
         case .linkItemTapped(let selectedItem):

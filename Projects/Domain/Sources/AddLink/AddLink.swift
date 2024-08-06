@@ -29,7 +29,7 @@ public struct AddLink: Equatable {
     /// 카테고리 리스트의 조회할 페이징 정보
     public var pageable: BasePageable
     
-    public init(content: BaseContent?) {
+    public init(content: BaseContent?, data: String?) {
         self.content = content
         
         let categoryListInquiry = BaseCategoryListInquiry(
@@ -42,7 +42,7 @@ public struct AddLink: Equatable {
         
         self.categoryListInQuiry = categoryListInquiry
         self.categoryTotalCount = categoryListInquiry.data.count
-        self.data = content?.data ?? ""
+        self.data = content?.data ?? data ?? ""
         self.title = content?.title ?? ""
         self.categoryId = content?.categoryId
         self.memo = content?.memo ?? ""

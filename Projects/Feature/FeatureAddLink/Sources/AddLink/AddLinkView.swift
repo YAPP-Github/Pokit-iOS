@@ -114,9 +114,9 @@ private extension AddLinkView {
     
     var pokitSelectButton: some View {
         PokitSelect(
-            selectedItem: store.selectedPokit,
+            selectedItem: $store.selectedPokit,
             label: "포킷",
-            list: store.pokitList.elements,
+            list: store.pokitList,
             action: { send(.pokitSelectItemButtonTapped(pokit: $0)) }
         )
     }

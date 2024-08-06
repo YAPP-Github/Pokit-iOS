@@ -124,6 +124,8 @@ private extension LinkDetailFeature {
                 title: link.title,
                 thumbNail: link.thumbNail,
                 data: link.data,
+                // - MARK: 콘텐츠 통일 필요..?
+                domain: "youtube",
                 memo: link.memo,
                 createdAt: link.createdAt,
                 isRead: true,

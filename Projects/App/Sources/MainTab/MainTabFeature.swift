@@ -10,6 +10,7 @@ import ComposableArchitecture
 import FeaturePokit
 import FeatureRemind
 import FeatureLinkDetail
+import Domain
 import Util
 import CoreKit
 
@@ -31,7 +32,7 @@ public struct MainTabFeature {
         @Presents var linkDetail: LinkDetailFeature.State?
         
         public init() {
-            self.pokit = .init(mock: PokitRootCardMock.mock, unclassifiedMock: LinkMock.recommendedMock)
+            self.pokit = .init()
         }
     }
     /// - Action
@@ -56,7 +57,7 @@ public struct MainTabFeature {
             case onAppear
         }
         public enum InnerAction: Equatable {
-            case 링크추가및수정이동
+            case 링크추가및수정이동(BaseContent)
             case linkCopySuccess(URL?)
         }
         public enum AsyncAction: Equatable { case doNothing }

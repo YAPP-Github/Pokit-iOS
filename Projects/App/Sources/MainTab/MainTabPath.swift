@@ -73,23 +73,23 @@ public extension MainTabFeature {
             /// - 포킷 `수정`버튼 눌렀을 때
             case .pokit(.delegate(.수정하기)),
                  .path(.element(_, action: .카테고리상세(.delegate(.포킷수정)))):
-                state.path.append(.포킷추가및수정(PokitCategorySettingFeature.State(type: .수정, itemList: CategoryItemMock.mock)))
+                state.path.append(.포킷추가및수정(PokitCategorySettingFeature.State(type: .수정)))
                 return .none
 
             /// - 포킷 `추가` 버튼 눌렀을 때
             case .delegate(.포킷추가하기),
                  .path(.element(_, action: .링크추가및수정(.delegate(.포킷추가하기)))):
-                state.path.append(.포킷추가및수정(PokitCategorySettingFeature.State(type: .추가, itemList: CategoryItemMock.mock)))
+                state.path.append(.포킷추가및수정(PokitCategorySettingFeature.State(type: .추가)))
                 return .none
 
             /// - 포킷 `추가` or `수정`이 성공적으로 `완료`되었을 때
-            case let .path(.element(_, action: .포킷추가및수정(.delegate(.settingSuccess(item))))):
+            case let .path(.element(_, action: .포킷추가및수정(.delegate(.settingSuccess(categoryName, categoryId))))):
                 state.path.removeLast()
                 return .none
 
             /// - 포킷 카테고리 아이템 눌렀을 때
-            case let .pokit(.delegate(.categoryTapped)):
-                state.path.append(.카테고리상세(CategoryDetailFeature.State(mock: DetailItemMock.recommendedMock)))
+            case let .pokit(.delegate(.categoryTapped(category))):
+                state.path.append(.카테고리상세(CategoryDetailFeature.State(category: category)))
                 return .none
 
             case .path(.element(_, action: .카테고리상세(.delegate(.포킷삭제)))):
@@ -98,50 +98,30 @@ public extension MainTabFeature {
                 return .none
 
             /// - 링크 상세
-            case let .path(.element(_, action: .카테고리상세(.delegate(.linkItemTapped)))),
-                 let .pokit(.delegate(.linkDetailTapped)),
-                 let .remind(.delegate(.링크상세)):
+            case let .path(.element(_, action: .카테고리상세(.delegate(.linkItemTapped(content))))),
+                 let .pokit(.delegate(.linkDetailTapped(content))),
+                 let .remind(.delegate(.링크상세(content))):
                 // TODO: 링크상세 모델과 링크수정 모델 일치시키기
-                state.linkDetail = LinkDetailFeature.State(
-                    link: LinkDetailMock(
-                        id: UUID(),
-                        title: "",
-                        url: "",
-                        createdAt: Date.now,
-                        memo: "",
-                        pokit: "",
-                        isRemind: false,
-                        isFavorite: false
-                    )
-                )
+                state.linkDetail = LinkDetailFeature.State(contentId: content.id)
                 return .none
 
             /// - 링크상세 바텀시트에서 링크수정으로 이동
-            case let .linkDetail(.presented(.delegate(.pushLinkAddView))),
-                 let .pokit(.delegate(.링크수정하기)),
-                 let .remind(.delegate(.링크수정)),
-                let .path(.element(_, action: .카테고리상세(.delegate(.링크수정)))):
-                return .run { send in await send(.inner(.링크추가및수정이동)) }
+            case let .linkDetail(.presented(.delegate(.pushLinkAddView(content)))),
+                 let .pokit(.delegate(.링크수정하기(content))),
+                 let .remind(.delegate(.링크수정(content))),
+                 let .path(.element(_, action: .카테고리상세(.delegate(.링크수정(content))))):
+                return .run { send in await send(.inner(.링크추가및수정이동(content))) }
 
-            case .inner(.링크추가및수정이동):
+            case let .inner(.링크추가및수정이동(content)):
                 state.path.append(.링크추가및수정(
-                    AddLinkFeature.State(
-                        link: AddLinkMock.init(
-                            title: "바이오 연구의 첨단,인공 유전자로 인간 피부 재생 가능성",
-                            urlText: "https://www.youtube.com/watch?v=wtSwdGJzQCQ",
-                            createAt: Date.now,
-                            memo: "",
-                            isRemind: false,
-                            pokit: PokitMock(categoryType: "미분류", contentSize: 4)
-                        )
-                    )
+                    AddLinkFeature.State(link: content)
                 ))
                 state.linkDetail = nil
                 return .none
 
             /// - 링크 추가하기
             case .delegate(.링크추가하기):
-                state.path.append(.링크추가및수정(AddLinkFeature.State(urlText: state.link ?? "")))
+                state.path.append(.링크추가및수정(AddLinkFeature.State(urlText: state.link)))
                 return .none
 
             /// - 링크추가 및 수정에서 저장하기 눌렀을 때

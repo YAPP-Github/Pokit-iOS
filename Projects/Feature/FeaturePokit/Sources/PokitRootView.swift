@@ -120,7 +120,7 @@ private extension PokitRootView {
             ForEach(store.categories, id: \.id) { item in
                 PokitCard(
                     category: item,
-                    action: { send(.categoryTapped) },
+                    action: { send(.categoryTapped(item)) },
                     kebabAction: { send(.kebobButtonTapped(item)) }
                 )
             }

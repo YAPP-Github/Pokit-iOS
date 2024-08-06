@@ -24,8 +24,11 @@ public struct AddLinkFeature {
     /// - State
     @ObservableState
     public struct State: Equatable {
-        public init(link: BaseContent? = nil) {
-            self.domain = .init(content: link)
+        public init(
+            link: BaseContent? = nil,
+            urlText: String? = nil
+        ) {
+            self.domain = .init(content: link, data: urlText)
         }
         fileprivate var domain: AddLink
         var urlText: String {
@@ -47,12 +50,8 @@ public struct AddLinkFeature {
         var link: BaseContent? {
             get { domain.content }
         }
-        var pokitList: IdentifiedArrayOf<BaseCategory> {
-            var identifiedArray = IdentifiedArrayOf<BaseCategory>()
-            domain.categoryListInQuiry.data.forEach { category in
-                identifiedArray.append(category)
-            }
-            return identifiedArray
+        var pokitList: [BaseCategory] {
+            get { domain.categoryListInQuiry.data }
         }
         var selectedPokit: BaseCategory? = nil
         var linkTitle: String? = nil
@@ -163,6 +162,9 @@ private extension AddLinkFeature {
         case .addLinkViewOnAppeared:
             // - MARK: 목업 데이터 조회
             state.domain.categoryListInQuiry = CategoryListInquiryResponse.mock.toDomain()
+            if state.domain.categoryId != nil {
+                state.selectedPokit = CategoryItemInquiryResponse.mock.toDomain()
+            }
             return .run { send in
                 await send(.inner(.parsingURL))
                 for await _ in self.pasteboard.changes() {
