@@ -88,16 +88,16 @@ private extension SplashFeature {
                     await send(.delegate(.loginNeeded))
                     return
                 }
-                /// 토큰 재발급 API 수정되면 주석풀기
-//                do {
-//                    let tokenRequest = ReissueRequest(refreshToken: refreshToken)
-//                    let tokenResponse = try await authClient.토큰재발급(tokenRequest)
-//                    keychain.save(.accessToken, tokenResponse.accessToken)
-//                    await send(.delegate(.autoLoginSuccess))
-//                } catch {
-//                    await send(.delegate(.loginNeeded))
-//                }
-                await send(.delegate(.autoLoginSuccess))
+
+                do {
+                    let tokenRequest = ReissueRequest(refreshToken: refreshToken)
+                    let tokenResponse = try await authClient.토큰재발급(tokenRequest)
+                    keychain.save(.accessToken, tokenResponse.accessToken)
+                    await send(.delegate(.autoLoginSuccess))
+                } catch {
+                    await send(.delegate(.loginNeeded))
+                }
+                await send(.delegate(.loginNeeded))
             }
         }
     }
