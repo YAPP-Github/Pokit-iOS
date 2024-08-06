@@ -7,6 +7,7 @@
 import Foundation
 
 import ComposableArchitecture
+import Domain
 import CoreKit
 import DSKit
 import Util
@@ -23,18 +24,19 @@ public struct LinkListFeature {
     public struct State: Equatable {
         public init(linkType: LinkType) {
             self.linkType = linkType
-            self.links = .init()
-            LinkListMock.listMock.forEach { link in
-                self.links.append(link)
-            }
         }
         
         let linkType: LinkType
-        var links: IdentifiedArrayOf<LinkListMock>
+        fileprivate var domain = LinkList()
+        var links: IdentifiedArrayOf<BaseContent> {
+            var identifiedArray = IdentifiedArrayOf<BaseContent>()
+            domain.contentList.data.forEach { identifiedArray.append($0) }
+            return identifiedArray
+        }
         var isListAscending = true
         /// sheet item
-        var bottomSheetItem: LinkListMock? = nil
-        var alertItem: LinkListMock? = nil
+        var bottomSheetItem: BaseContent? = nil
+        var alertItem: BaseContent? = nil
     }
     
     /// - Action
@@ -50,13 +52,13 @@ public struct LinkListFeature {
             /// - Binding
             case binding(BindingAction<State>)
             /// - Button Tapped
-            case linkCardTapped(link: LinkListMock)
-            case kebabButtonTapped(link: LinkListMock)
+            case linkCardTapped(link: BaseContent)
+            case kebabButtonTapped(link: BaseContent)
             case bottomSheetButtonTapped(
                 delegate: PokitBottomSheet.Delegate,
-                link: LinkListMock
+                link: BaseContent
             )
-            case deleteAlertConfirmTapped(link: LinkListMock)
+            case deleteAlertConfirmTapped(link: BaseContent)
             case sortTextLinkTapped
             case backButtonTapped
             /// - On Appeared
@@ -72,13 +74,13 @@ public struct LinkListFeature {
         public enum ScopeAction: Equatable {
             case bottomSheet(
                 delegate: PokitBottomSheet.Delegate,
-                link: LinkListMock
+                link: BaseContent
             )
         }
         
         public enum DelegateAction: Equatable {
-            case 링크상세(link: LinkListMock)
-            case 링크수정(link: LinkListMock)
+            case 링크상세(link: BaseContent)
+            case 링크수정(link: BaseContent)
             case linkCopyDetected(URL?)
         }
     }
@@ -142,6 +144,8 @@ private extension LinkListFeature {
         case .backButtonTapped:
             return .run { _ in await dismiss() }
         case .linkListViewOnAppeared:
+            // - MARK: 더미 조회
+            state.domain.contentList = ContentListInquiryResponse.mock.toDomain()
             return .run { send in
                 for await _ in self.pasteBoard.changes() {
                     let url = try await pasteBoard.probableWebURL()
