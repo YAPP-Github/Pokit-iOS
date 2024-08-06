@@ -9,8 +9,6 @@ import ProjectDescription
 import Foundation
 
 public enum Feature: String, CaseIterable {
-    case myPage = "MyPage"
-    case myFolder = "MyFolder"
     case linkDetail = "LinkDetail"
     case addLink = "AddLink"
     case categorySetting = "CategorySetting"
