@@ -11,9 +11,9 @@ import ComposableArchitecture
 import FeatureSetting
 import FeatureCategoryDetail
 import FeatureCategorySetting
-import FeatureLinkDetail
-import FeatureAddLink
-import FeatureLinkList
+import FeatureContentDetail
+import FeatureContentSetting
+import FeatureContentList
 
 @Reducer
 public struct MainTabPath {
@@ -23,9 +23,9 @@ public struct MainTabPath {
         case 검색(PokitSearchFeature.State)
         case 설정(PokitSettingFeature.State)
         case 포킷추가및수정(PokitCategorySettingFeature.State)
-        case 링크추가및수정(AddLinkFeature.State)
+        case 링크추가및수정(ContentSettingFeature.State)
         case 카테고리상세(CategoryDetailFeature.State)
-        case 링크목록(LinkListFeature.State)
+        case 링크목록(ContentListFeature.State)
     }
 
     public enum Action {
@@ -33,9 +33,9 @@ public struct MainTabPath {
         case 검색(PokitSearchFeature.Action)
         case 설정(PokitSettingFeature.Action)
         case 포킷추가및수정(PokitCategorySettingFeature.Action)
-        case 링크추가및수정(AddLinkFeature.Action)
+        case 링크추가및수정(ContentSettingFeature.Action)
         case 카테고리상세(CategoryDetailFeature.Action)
-        case 링크목록(LinkListFeature.Action)
+        case 링크목록(ContentListFeature.Action)
     }
 
     public var body: some Reducer<State, Action> {
@@ -43,9 +43,9 @@ public struct MainTabPath {
         Scope(state: \.검색, action: \.검색) { PokitSearchFeature() }
         Scope(state: \.설정, action: \.설정) { PokitSettingFeature() }
         Scope(state: \.포킷추가및수정, action: \.포킷추가및수정) { PokitCategorySettingFeature() }
-        Scope(state: \.링크추가및수정, action: \.링크추가및수정) { AddLinkFeature() }
+        Scope(state: \.링크추가및수정, action: \.링크추가및수정) { ContentSettingFeature() }
         Scope(state: \.카테고리상세, action: \.카테고리상세) { CategoryDetailFeature() }
-        Scope(state: \.링크목록, action: \.링크목록) { LinkListFeature() }
+        Scope(state: \.링크목록, action: \.링크목록) { ContentListFeature() }
     }
 }
 
@@ -103,15 +103,15 @@ public extension MainTabFeature {
                 return .none
 
             /// - 링크 상세
-            case let .path(.element(_, action: .카테고리상세(.delegate(.linkItemTapped(content))))),
-                 let .pokit(.delegate(.linkDetailTapped(content))),
+            case let .path(.element(_, action: .카테고리상세(.delegate(.contentItemTapped(content))))),
+                 let .pokit(.delegate(.contentDetailTapped(content))),
                  let .remind(.delegate(.링크상세(content))):
                 // TODO: 링크상세 모델과 링크수정 모델 일치시키기
-                state.linkDetail = LinkDetailFeature.State(contentId: content.id)
+                state.contentDetail = ContentDetailFeature.State(contentId: content.id)
                 return .none
 
             /// - 링크상세 바텀시트에서 링크수정으로 이동
-            case let .linkDetail(.presented(.delegate(.pushLinkAddView(content)))),
+            case let .contentDetail(.presented(.delegate(.editButtonTapped(content)))),
                  let .pokit(.delegate(.링크수정하기(content))),
                  let .remind(.delegate(.링크수정(content))),
                  let .path(.element(_, action: .카테고리상세(.delegate(.링크수정(content))))),
@@ -120,14 +120,14 @@ public extension MainTabFeature {
 
             case let .inner(.링크추가및수정이동(content)):
                 state.path.append(.링크추가및수정(
-                    AddLinkFeature.State(link: content)
+                    ContentSettingFeature.State(content: content)
                 ))
-                state.linkDetail = nil
+                state.contentDetail = nil
                 return .none
 
             /// - 링크 추가하기
             case .delegate(.링크추가하기):
-                state.path.append(.링크추가및수정(AddLinkFeature.State(urlText: state.link)))
+                state.path.append(.링크추가및수정(ContentSettingFeature.State(urlText: state.link)))
                 return .none
 
             /// - 링크추가 및 수정에서 저장하기 눌렀을 때
@@ -144,11 +144,11 @@ public extension MainTabFeature {
                 return .run { send in await send(.inner(.linkCopySuccess(url)), animation: .pokitSpring) }
             /// 링크목록 `안읽음`
             case .remind(.delegate(.링크목록_안읽음)):
-                state.path.append(.링크목록(LinkListFeature.State(linkType: .unread)))
+                state.path.append(.링크목록(ContentListFeature.State(contentType: .unread)))
                 return .none
             /// 링크목록 `즐겨찾기`
             case .remind(.delegate(.링크목록_즐겨찾기)):
-                state.path.append(.링크목록(LinkListFeature.State(linkType: .favorite)))
+                state.path.append(.링크목록(ContentListFeature.State(contentType: .favorite)))
                 return .none
             default: return .none
             }

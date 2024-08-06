@@ -12,7 +12,7 @@ import CoreKit
 import Util
 
 @Reducer
-public struct LinkDetailFeature {
+public struct ContentDetailFeature {
     /// - Dependency
     @Dependency(\.linkPresentation)
     private var linkPresentation
@@ -24,8 +24,8 @@ public struct LinkDetailFeature {
         public init(contentId: Int) {
             self.domain = .init(contentId: contentId)
         }
-        fileprivate var domain: LinkDetail
-        var link: LinkDetail.Content? {
+        fileprivate var domain: ContentDetail
+        var content: ContentDetail.Content? {
             get { domain.content }
         }
         var linkTitle: String? = nil
@@ -46,7 +46,7 @@ public struct LinkDetailFeature {
             /// - Binding
             case binding(BindingAction<State>)
             /// - View OnAppeared
-            case linkDetailViewOnAppeared
+            case contentDetailViewOnAppeared
             /// - Button Tapped
             case sharedButtonTapped
             case editButtonTapped
@@ -67,7 +67,7 @@ public struct LinkDetailFeature {
         public enum ScopeAction: Equatable { case doNothing }
         
         public enum DelegateAction: Equatable {
-            case pushLinkAddView(link: BaseContent)
+            case editButtonTapped(content: BaseContent)
         }
     }
     
@@ -105,36 +105,36 @@ public struct LinkDetailFeature {
     }
 }
 //MARK: - FeatureAction Effect
-private extension LinkDetailFeature {
+private extension ContentDetailFeature {
     /// - View Effect
     func handleViewAction(_ action: Action.View, state: inout State) -> Effect<Action> {
         switch action {
-        case .linkDetailViewOnAppeared:
+        case .contentDetailViewOnAppeared:
             // - MARK: 목업 데이터 조회
             state.domain.content = ContentDetailResponse.mock.toDomain()
             return .send(.inner(.parsingURL))
         case .sharedButtonTapped:
             return .none
         case .editButtonTapped:
-            guard let link = state.domain.content else { return .none }
+            guard let content = state.domain.content else { return .none }
             let base = BaseContent(
-                id: link.id,
-                categoryName: link.categoryName,
-                categoryId: link.categoryId,
-                title: link.title,
-                thumbNail: link.thumbNail,
-                data: link.data,
+                id: content.id,
+                categoryName: content.categoryName,
+                categoryId: content.categoryId,
+                title: content.title,
+                thumbNail: content.thumbNail,
+                data: content.data,
                 // - MARK: 콘텐츠 통일 필요..?
                 domain: "youtube",
-                memo: link.memo,
-                createdAt: link.createdAt,
+                memo: content.memo,
+                createdAt: content.createdAt,
                 isRead: true,
-                favorites: link.favorites,
-                alertYn: link.alertYn
+                favorites: content.favorites,
+                alertYn: content.alertYn
             )
             return .run { [base] send in
 //                await dismiss()
-                await send(.delegate(.pushLinkAddView(link: base)))
+                await send(.delegate(.editButtonTapped(content: base)))
             }
         case .deleteButtonTapped:
             state.showAlert = true

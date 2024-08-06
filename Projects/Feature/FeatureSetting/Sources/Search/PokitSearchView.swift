@@ -52,18 +52,18 @@ public extension PokitSearchView {
             ) { store in
                 FilterBottomSheet(store: store)
             }
-            .sheet(item: $store.bottomSheetItem) { link in
+            .sheet(item: $store.bottomSheetItem) { content in
                 PokitBottomSheet(
                     items: [.share, .edit, .delete],
                     height: 224
-                ) { send(.bottomSheetButtonTapped(delegate: $0, link: link)) }
+                ) { send(.bottomSheetButtonTapped(delegate: $0, content: content)) }
             }
-            .sheet(item: $store.alertItem) { link in
+            .sheet(item: $store.alertItem) { content in
                 PokitAlert(
                     "링크를 정말 삭제하시겠습니까?",
                     message: "함께 저장한 모든 정보가 삭제되며, \n복구하실 수 없습니다.",
                     confirmText: "삭제"
-                ) { send(.deleteAlertConfirmTapped(link: link)) }
+                ) { send(.deleteAlertConfirmTapped(content: content)) }
             }
             .onAppear { send(.onAppear) }
         }
@@ -177,9 +177,9 @@ private extension PokitSearchView {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 6) {
                     Group {
-                        pokitFilterButton
+                        categoryFilterButton
                         
-                        linkTypeFilterButton
+                        contentTypeFilterButton
                         
                         dateFilterButton
                     }
@@ -204,25 +204,25 @@ private extension PokitSearchView {
         )
     }
     
-    var pokitFilterButton: some View {
+    var categoryFilterButton: some View {
         PokitIconRButton(
-            store.pokitFilter?.categoryName ?? "포킷명",
+            store.categoryFilter?.categoryName ?? "포킷명",
             .icon(.arrowDown),
-            state: store.pokitFilter == nil ? .default(.primary) : .stroke(.primary),
+            state: store.categoryFilter == nil ? .default(.primary) : .stroke(.primary),
             size: .small,
             shape: .round,
-            action: { send(.pokitFilterButtonTapped) }
+            action: { send(.categoryFilterButtonTapped) }
         )
     }
     
-    var linkTypeFilterButton: some View {
+    var contentTypeFilterButton: some View {
         PokitIconRButton(
-            store.linkTypeText,
+            store.contentTypeText,
             .icon(.arrowDown),
             state: store.favoriteFilter || store.unreadFilter ? .stroke(.primary) : .default(.primary),
             size: .small,
             shape: .round,
-            action: { send(.linkTypeFilterButtonTapped) }
+            action: { send(.contentTypeFilterButtonTapped) }
         )
     }
     
@@ -249,14 +249,14 @@ private extension PokitSearchView {
             
             ScrollView {
                 LazyVStack {
-                    ForEach(store.resultMock) { link in
-                        let isFirst = link == store.resultMock.first
-                        let isLast = link == store.resultMock.last
+                    ForEach(store.resultMock) { content in
+                        let isFirst = content == store.resultMock.first
+                        let isLast = content == store.resultMock.last
                         
                         PokitLinkCard(
-                            link: link,
-                            action: { send(.linkCardTapped(link: link)) },
-                            kebabAction: { send(.kebabButtonTapped(link: link)) }
+                            link: content,
+                            action: { send(.linkCardTapped(content: content)) },
+                            kebabAction: { send(.kebabButtonTapped(content: content)) }
                         )
                         .divider(isFirst: isFirst, isLast: isLast)
                     }

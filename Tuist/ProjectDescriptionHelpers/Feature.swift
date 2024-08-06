@@ -9,15 +9,15 @@ import ProjectDescription
 import Foundation
 
 public enum Feature: String, CaseIterable {
-    case linkDetail = "LinkDetail"
-    case addLink = "AddLink"
+    case contentDetail = "ContentDetail"
+    case contentSetting = "ContentSetting"
     case categorySetting = "CategorySetting"
     case remind = "Remind"
     case login = "Login"
     case pokit = "Pokit"
     case categoryDetail = "CategoryDetail"
     case setting = "Setting"
-    case linkList = "LinkList"
+    case contentList = "ContentList"
     
     public var target: Target {
         return .makeTarget(

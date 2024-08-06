@@ -9,19 +9,19 @@ import SwiftUI
 import ComposableArchitecture
 import DSKit
 
-@ViewAction(for: LinkListFeature.self)
-public struct LinkListView: View {
+@ViewAction(for: ContentListFeature.self)
+public struct ContentListView: View {
     /// - Properties
     @Perception.Bindable
-    public var store: StoreOf<LinkListFeature>
+    public var store: StoreOf<ContentListFeature>
     
     /// - Initializer
-    public init(store: StoreOf<LinkListFeature>) {
+    public init(store: StoreOf<ContentListFeature>) {
         self.store = store
     }
 }
 //MARK: - View
-public extension LinkListView {
+public extension ContentListView {
     var body: some View {
         WithPerceptionTracking {
             VStack(spacing: 16) {
@@ -33,30 +33,30 @@ public extension LinkListView {
             .padding(.top, 12)
             .background(.pokit(.bg(.base)))
             .ignoresSafeArea(edges: .bottom)
-            .pokitNavigationBar(title: store.linkType.title)
+            .pokitNavigationBar(title: store.contentType.title)
             .toolbar { toolbar }
-            .sheet(item: $store.bottomSheetItem) { link in
+            .sheet(item: $store.bottomSheetItem) { content in
                 PokitBottomSheet(
                     items: [.share, .edit, .delete],
                     height: 224
-                ) { send(.bottomSheetButtonTapped(delegate: $0, link: link)) }
+                ) { send(.bottomSheetButtonTapped(delegate: $0, content: content)) }
             }
-            .sheet(item: $store.alertItem) { link in
+            .sheet(item: $store.alertItem) { content in
                 PokitAlert(
                     "링크를 정말 삭제하시겠습니까?",
                     message: "함께 저장한 모든 정보가 삭제되며, \n복구하실 수 없습니다.",
                     confirmText: "삭제"
-                ) { send(.deleteAlertConfirmTapped(link: link)) }
+                ) { send(.deleteAlertConfirmTapped(content: content)) }
             }
-            .onAppear { send(.linkListViewOnAppeared) }
+            .onAppear { send(.contentListViewOnAppeared) }
         }
     }
 }
 //MARK: - Configure View
-private extension LinkListView {
+private extension ContentListView {
     var listHeader: some View {
         HStack {
-            Text("링크 \(store.links.count)개")
+            Text("링크 \(store.contents.count)개")
                 .pokitFont(.detail1)
                 .foregroundStyle(.pokit(.text(.secondary)))
             
@@ -74,14 +74,14 @@ private extension LinkListView {
     var list: some View {
         ScrollView {
             VStack(spacing: 0) {
-                ForEach(store.links) { link in
-                    let isFirst = link == store.links.first
-                    let isLast = link == store.links.last
+                ForEach(store.contents) { content in
+                    let isFirst = content == store.contents.first
+                    let isLast = content == store.contents.last
                     
                     PokitLinkCard(
-                        link: link,
-                        action: { send(.linkCardTapped(link: link)) },
-                        kebabAction: { send(.kebabButtonTapped(link: link)) }
+                        link: content,
+                        action: { send(.linkCardTapped(content: content)) },
+                        kebabAction: { send(.kebabButtonTapped(content: content)) }
                     )
                     .divider(isFirst: isFirst, isLast: isLast)
                     .pokitScrollTransition(.opacity)
@@ -103,10 +103,10 @@ private extension LinkListView {
 //MARK: - Preview
 #Preview {
     NavigationStack {
-        LinkListView(
+        ContentListView(
             store: Store(
-                initialState: .init(linkType: .favorite),
-                reducer: { LinkListFeature() }
+                initialState: .init(contentType: .favorite),
+                reducer: { ContentListFeature() }
             )
         )
     }

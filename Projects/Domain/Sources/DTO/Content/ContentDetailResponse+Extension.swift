@@ -11,7 +11,7 @@ import CoreKit
 import Util
 
 public extension ContentDetailResponse {
-    func toDomain() -> LinkDetail.Content {
+    func toDomain() -> ContentDetail.Content {
         return .init(
             id: self.contentId,
             categoryName: self.categoryName,

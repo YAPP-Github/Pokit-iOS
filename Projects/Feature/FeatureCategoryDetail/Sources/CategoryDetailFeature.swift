@@ -40,7 +40,7 @@ public struct CategoryDetailFeature {
             return identifiedArray
         }
         var kebobSelectedType: PokitDeleteBottomSheet.SheetType?
-        var selectedLinkItem: BaseContent?
+        var selectedContentItem: BaseContent?
         /// sheet Presented
         var isCategorySheetPresented: Bool = false
         var isCategorySelectSheetPresented: Bool = false
@@ -69,7 +69,7 @@ public struct CategoryDetailFeature {
             case categorySelectButtonTapped
             case categorySelected(BaseCategory)
             case filterButtonTapped
-            case linkItemTapped(BaseContent)
+            case contentItemTapped(BaseContent)
             case dismiss
             case onAppear
         }
@@ -89,7 +89,7 @@ public struct CategoryDetailFeature {
         }
         
         public enum DelegateAction: Equatable {
-            case linkItemTapped(BaseContent)
+            case contentItemTapped(BaseContent)
             case linkCopyDetected(URL?)
             case 링크수정(BaseContent)
             case 포킷삭제
@@ -142,7 +142,7 @@ private extension CategoryDetailFeature {
             
         case let .categoryKebobButtonTapped(selectedType, selectedItem):
             state.kebobSelectedType = selectedType
-            state.selectedLinkItem = selectedItem
+            state.selectedContentItem = selectedItem
             return .run { send in await send(.inner(.pokitCategorySheetPresented(true))) }
         
         case .categorySelectButtonTapped:
@@ -156,8 +156,8 @@ private extension CategoryDetailFeature {
             state.isFilterSheetPresented.toggle()
             return .none
             
-        case .linkItemTapped(let selectedItem):
-            return .run { send in await send(.delegate(.linkItemTapped(selectedItem))) }
+        case .contentItemTapped(let selectedItem):
+            return .run { send in await send(.delegate(.contentItemTapped(selectedItem))) }
             
         case .dismiss:
             return .run { _ in await dismiss() }
@@ -208,7 +208,7 @@ private extension CategoryDetailFeature {
                 
             case .editCellButtonTapped:
                 return .run { [
-                    link = state.selectedLinkItem,
+                    link = state.selectedContentItem,
                     type = state.kebobSelectedType,
                     category = state.category
                 ] send in
@@ -246,7 +246,7 @@ private extension CategoryDetailFeature {
                 }
                 switch selectedType {
                 case .링크삭제:
-                    guard let selectedItem = state.selectedLinkItem else {
+                    guard let selectedItem = state.selectedContentItem else {
                     /// 🚨 Error Case [1]: 링크 타입의 항목을 삭제하려는데 선택한 `링크항목`이 없을 때
                         state.isPokitDeleteSheetPresented = false
                         return .none

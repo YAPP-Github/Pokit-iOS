@@ -71,7 +71,7 @@ public struct PokitRootFeature {
             case unclassifiedKebobButtonTapped(BaseContent)
             
             case categoryTapped(BaseCategory)
-            case linkItemTapped(BaseContent)
+            case contentItemTapped(BaseContent)
             
             case pokitRootViewOnAppeared
 
@@ -98,7 +98,7 @@ public struct PokitRootFeature {
             case 수정하기(BaseCategory)
             case 링크수정하기(BaseContent)
             /// 링크상세로 이동
-            case linkDetailTapped(BaseContent)
+            case contentDetailTapped(BaseContent)
         }
     }
     
@@ -200,8 +200,8 @@ private extension PokitRootFeature {
             return .run { send in await send(.delegate(.categoryTapped(category))) }
         
         /// - 링크 아이템을 눌렀을 때
-        case .linkItemTapped(let selectedItem):
-            return .run { send in await send(.delegate(.linkDetailTapped(selectedItem))) }
+        case .contentItemTapped(let selectedItem):
+            return .run { send in await send(.delegate(.contentDetailTapped(selectedItem))) }
         case .pokitRootViewOnAppeared:
             // - MARK: 목업 데이터 조회
             state.domain.categoryList = CategoryListInquiryResponse.mock.toDomain()

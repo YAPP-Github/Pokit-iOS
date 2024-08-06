@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct AddLink: Equatable {
+public struct ContentSetting: Equatable {
     // - MARK: Response
     /// 조회할 콘텐츠(링크)
     public var content: BaseContent?

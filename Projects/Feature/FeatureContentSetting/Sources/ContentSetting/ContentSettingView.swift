@@ -9,22 +9,22 @@ import SwiftUI
 import ComposableArchitecture
 import DSKit
 
-@ViewAction(for: AddLinkFeature.self)
-public struct AddLinkView: View {
+@ViewAction(for: ContentSettingFeature.self)
+public struct ContentSettingView: View {
     /// - Properties
     @Perception.Bindable
-    public var store: StoreOf<AddLinkFeature>
+    public var store: StoreOf<ContentSettingFeature>
     @FocusState
     private var focusedType: FocusedType?
     @Namespace
     private var heroEffect
     /// - Initializer
-    public init(store: StoreOf<AddLinkFeature>) {
+    public init(store: StoreOf<ContentSettingFeature>) {
         self.store = store
     }
 }
 //MARK: - View
-public extension AddLinkView {
+public extension ContentSettingView {
     var body: some View {
         WithPerceptionTracking {
             VStack(spacing: 0) {
@@ -69,14 +69,14 @@ public extension AddLinkView {
             .padding(.top, 16)
             .background(.pokit(.bg(.base)))
             .ignoresSafeArea(edges: focusedType == nil ? .bottom : [])
-            .pokitNavigationBar(title: store.link == nil ? "링크 추가" : "링크 수정")
+            .pokitNavigationBar(title: store.content == nil ? "링크 추가" : "링크 수정")
             .toolbar { navigationBar }
-            .onAppear { send(.addLinkViewOnAppeared) }
+            .onAppear { send(.contentSettingViewOnAppeared) }
         }
     }
 }
 //MARK: - Configure View
-private extension AddLinkView {
+private extension ContentSettingView {
     var navigationBar: some ToolbarContent {
         ToolbarItem(placement: .topBarLeading) {
             PokitToolbarButton(.icon(.arrowLeft), action: { send(.dismiss) })
@@ -172,7 +172,7 @@ private extension AddLinkView {
         }
     }
 }
-private extension AddLinkView {
+private extension ContentSettingView {
     enum FocusedType: Equatable {
         case link
         case title
@@ -181,10 +181,10 @@ private extension AddLinkView {
 }
 //MARK: - Preview
 #Preview {
-    AddLinkView(
+    ContentSettingView(
         store: Store(
             initialState: .init(),
-            reducer: { AddLinkFeature()._printChanges() }
+            reducer: { ContentSettingFeature()._printChanges() }
         )
     )
 }

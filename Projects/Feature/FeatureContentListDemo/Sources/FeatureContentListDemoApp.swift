@@ -10,13 +10,13 @@ import SwiftUI
 import FeatureLinkList
 
 @main
-struct FeatureLinkListDemoApp: App {
+struct FeatureContentListDemoApp: App {
     var body: some Scene {
         WindowGroup {
             // TODO: 루트 뷰 추가
-            LinkListView(store: .init(
+            ContentListView(store: .init(
                 initialState: .init(linkType: .unread),
-                reducer: { LinkListFeature() }
+                reducer: { ContentListFeature() }
             ))
         }
     }

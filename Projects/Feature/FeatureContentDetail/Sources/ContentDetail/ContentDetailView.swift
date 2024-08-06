@@ -10,32 +10,32 @@ import ComposableArchitecture
 import Domain
 import DSKit
 
-@ViewAction(for: LinkDetailFeature.self)
-public struct LinkDetailView: View {
+@ViewAction(for: ContentDetailFeature.self)
+public struct ContentDetailView: View {
     /// - Properties
     @Perception.Bindable
-    public var store: StoreOf<LinkDetailFeature>
+    public var store: StoreOf<ContentDetailFeature>
     
     /// - Initializer
-    public init(store: StoreOf<LinkDetailFeature>) {
+    public init(store: StoreOf<ContentDetailFeature>) {
         self.store = store
     }
 }
 //MARK: - View
-public extension LinkDetailView {
+public extension ContentDetailView {
     var body: some View {
         WithPerceptionTracking {
             VStack(spacing: 0) {
-                if let link = store.link {
-                    title(link: link)
+                if let content = store.content {
+                    title(content: content)
                     ScrollView {
                         VStack {
-                            linkContent(link: link)
+                            contentLinkPreview(content: content)
                                 .padding(.vertical, 24)
                         }
                     }
                     .overlay(alignment: .bottom) {
-                        bottomToolbar(link: link)
+                        bottomToolbar(content: content)
                     }
                 } else {
                     Spacer()
@@ -68,17 +68,17 @@ public extension LinkDetailView {
                 )
             }
             .onAppear {
-                send(.linkDetailViewOnAppeared, animation: .smooth)
+                send(.contentDetailViewOnAppeared, animation: .smooth)
             }
         }
     }
 }
 //MARK: - Configure View
-private extension LinkDetailView {
+private extension ContentDetailView {
     @ViewBuilder
-    func remindAndBadge(link: LinkDetail.Content) -> some View {
+    func remindAndBadge(content: ContentDetail.Content) -> some View {
         HStack(spacing: 4) {
-            if link.alertYn == .yes {
+            if content.alertYn == .yes {
                 Image(.icon(.bell))
                     .resizable()
                     .frame(width: 16, height: 16)
@@ -90,18 +90,19 @@ private extension LinkDetailView {
                     }
             }
             
-            PokitBadge(link.categoryName, state: .default)
+            PokitBadge(content.categoryName, state: .default)
             
             Spacer()
         }
     }
     
-    func title(link: LinkDetail.Content) -> some View {
+    @ViewBuilder
+    func title(content: ContentDetail.Content) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             Group {
-                remindAndBadge(link: link)
+                remindAndBadge(content: content)
                 
-                Text(link.title)
+                Text(content.title)
                     .pokitFont(.title3)
                     .foregroundStyle(.pokit(.text(.primary)))
                     .multilineTextAlignment(.leading)
@@ -110,7 +111,7 @@ private extension LinkDetailView {
                 HStack {
                     Spacer()
                     
-                    Text(linkDateText)
+                    Text(contentDateText)
                         .pokitFont(.detail2)
                         .foregroundStyle(.pokit(.text(.tertiary)))
                 }
@@ -123,27 +124,29 @@ private extension LinkDetailView {
         }
     }
     
-    func linkContent(link: LinkDetail.Content) -> some View {
+    @ViewBuilder
+    func contentLinkPreview(content: ContentDetail.Content) -> some View {
         VStack(spacing: 16) {
             if let title = store.linkTitle,
                let image = store.linkImage {
                 PokitLinkPreview(
                     title: title,
-                    url: link.data,
+                    url: content.data,
                     image: image
                 )
                 .pokitBlurReplaceTransition(.smooth)
             }
             
-            linkMemo(link: link)
+            contentMemo(content: content)
         }
         .padding(.horizontal, 20)
     }
     
-    func linkMemo(link: LinkDetail.Content) -> some View {
+    @ViewBuilder
+    func contentMemo(content: ContentDetail.Content) -> some View {
         HStack {
             VStack {
-                Text(link.memo)
+                Text(content.memo)
                     .pokitFont(.b3(.r))
                     .foregroundStyle(.pokit(.text(.primary)))
                     .multilineTextAlignment(.leading)
@@ -161,9 +164,10 @@ private extension LinkDetailView {
         }
     }
     
-    func favorite(link: LinkDetail.Content) -> some View {
+    @ViewBuilder
+    func favorite(content: ContentDetail.Content) -> some View {
         Button(action: { send(.favoriteButtonTapped, animation: .smooth) }) {
-            let isFavorite = link.favorites
+            let isFavorite = content.favorites
             
             Image(isFavorite ? .icon(.starFill) : .icon(.star))
                 .resizable()
@@ -173,9 +177,10 @@ private extension LinkDetailView {
         }
     }
     
-    func bottomToolbar(link: LinkDetail.Content) -> some View {
+    @ViewBuilder
+    func bottomToolbar(content: ContentDetail.Content) -> some View {
         HStack(spacing: 12) {
-            favorite(link: link)
+            favorite(content: content)
             
             Spacer()
             
@@ -216,21 +221,21 @@ private extension LinkDetailView {
         }
     }
 }
-private extension LinkDetailView {
-    var linkDateText: String {
+private extension ContentDetailView {
+    var contentDateText: String {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy.MM.dd hh:mm"
-        return formatter.string(from: store.link?.createdAt ?? .now)
+        return formatter.string(from: store.content?.createdAt ?? .now)
     }
 }
 //MARK: - Preview
 #Preview {
-    LinkDetailView(
+    ContentDetailView(
         store: Store(
             initialState: .init(
                 contentId: 0
             ),
-            reducer: { LinkDetailFeature() }
+            reducer: { ContentDetailFeature() }
         )
     )
 }

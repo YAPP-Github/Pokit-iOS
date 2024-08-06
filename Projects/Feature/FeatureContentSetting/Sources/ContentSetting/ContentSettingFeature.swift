@@ -13,7 +13,7 @@ import DSKit
 import Util
 
 @Reducer
-public struct AddLinkFeature {
+public struct ContentSettingFeature {
     /// - Dependency
     @Dependency(\.dismiss)
     private var dismiss
@@ -25,12 +25,12 @@ public struct AddLinkFeature {
     @ObservableState
     public struct State: Equatable {
         public init(
-            link: BaseContent? = nil,
+            content: BaseContent? = nil,
             urlText: String? = nil
         ) {
-            self.domain = .init(content: link, data: urlText)
+            self.domain = .init(content: content, data: urlText)
         }
-        fileprivate var domain: AddLink
+        fileprivate var domain: ContentSetting
         var urlText: String {
             get { domain.data }
             set { domain.data = newValue }
@@ -47,7 +47,7 @@ public struct AddLinkFeature {
             get { domain.alertYn }
             set { domain.alertYn = newValue }
         }
-        var link: BaseContent? {
+        var content: BaseContent? {
             get { domain.content }
         }
         var pokitList: [BaseCategory] {
@@ -74,7 +74,7 @@ public struct AddLinkFeature {
             /// - Button Tapped
             case pokitSelectButtonTapped
             case pokitSelectItemButtonTapped(pokit: BaseCategory)
-            case addLinkViewOnAppeared
+            case contentSettingViewOnAppeared
             case saveBottomButtonTapped
             case addPokitButtonTapped
 
@@ -136,7 +136,7 @@ public struct AddLinkFeature {
     }
 }
 //MARK: - FeatureAction Effect
-private extension AddLinkFeature {
+private extension ContentSettingFeature {
     /// - View Effect
     func handleViewAction(_ action: Action.View, state: inout State) -> Effect<Action> {
         switch action {
@@ -159,7 +159,7 @@ private extension AddLinkFeature {
         case .pokitSelectItemButtonTapped(pokit: let pokit):
             state.selectedPokit = pokit
             return .none
-        case .addLinkViewOnAppeared:
+        case .contentSettingViewOnAppeared:
             // - MARK: 목업 데이터 조회
             state.domain.categoryListInQuiry = CategoryListInquiryResponse.mock.toDomain()
             if state.domain.categoryId != nil {

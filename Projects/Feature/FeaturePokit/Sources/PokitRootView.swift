@@ -129,14 +129,14 @@ private extension PokitRootView {
     }
     var unclassifiedView: some View {
         VStack(spacing: 0) {
-            ForEach(store.unclassifiedContents) { link in
-                let isFirst = link == store.unclassifiedContents.first
-                let isLast = link == store.unclassifiedContents.last
+            ForEach(store.unclassifiedContents) { content in
+                let isFirst = content == store.unclassifiedContents.first
+                let isLast = content == store.unclassifiedContents.last
                 
                 PokitLinkCard(
-                    link: link,
-                    action: { send(.linkItemTapped(link)) },
-                    kebabAction: { send(.unclassifiedKebobButtonTapped(link)) }
+                    link: content,
+                    action: { send(.contentItemTapped(content)) },
+                    kebabAction: { send(.unclassifiedKebobButtonTapped(content)) }
                 )
                 .divider(isFirst: isFirst, isLast: isLast)
             }

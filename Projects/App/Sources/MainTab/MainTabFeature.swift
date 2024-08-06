@@ -9,7 +9,7 @@ import Foundation
 import ComposableArchitecture
 import FeaturePokit
 import FeatureRemind
-import FeatureLinkDetail
+import FeatureContentDetail
 import Domain
 import Util
 import CoreKit
@@ -29,7 +29,7 @@ public struct MainTabFeature {
         var path: StackState<MainTabPath.State> = .init()
         var pokit: PokitRootFeature.State
         var remind: RemindFeature.State = .init()
-        @Presents var linkDetail: LinkDetailFeature.State?
+        @Presents var contentDetail: ContentDetailFeature.State?
         
         public init() {
             self.pokit = .init()
@@ -47,7 +47,7 @@ public struct MainTabFeature {
         case path(StackAction<MainTabPath.State, MainTabPath.Action>)
         case pokit(PokitRootFeature.Action)
         case remind(RemindFeature.Action)
-        case linkDetail(PresentationAction<LinkDetailFeature.Action>)
+        case contentDetail(PresentationAction<ContentDetailFeature.Action>)
 
         @CasePathable
         public enum View: Equatable {
@@ -96,7 +96,7 @@ public struct MainTabFeature {
             return .none
         case .remind:
             return .none
-        case .linkDetail:
+        case .contentDetail:
             return .none
         }
     }
@@ -108,8 +108,8 @@ public struct MainTabFeature {
         BindingReducer()
         navigationReducer
         Reduce(self.core)
-            .ifLet(\.$linkDetail, action: \.linkDetail) {
-                LinkDetailFeature()
+            .ifLet(\.$contentDetail, action: \.contentDetail) {
+                ContentDetailFeature()
             }
     }
 }

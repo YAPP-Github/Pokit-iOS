@@ -7,16 +7,16 @@
 
 import Foundation
 
-public struct LinkDetail: Equatable {
+public struct ContentDetail: Equatable {
     // - MARK: Response
     /// 콘텐츠(링크) 상세
-    public var content: LinkDetail.Content?
+    public var content: ContentDetail.Content?
     // - MARK: Request
     /// 조회할 콘텐츠 id
     public let contentId: Int
     
     public init(
-        content: LinkDetail.Content? = nil,
+        content: ContentDetail.Content? = nil,
         contentId: Int
     ) {
         self.content = content
@@ -24,7 +24,7 @@ public struct LinkDetail: Equatable {
     }
 }
 
-public extension LinkDetail {
+public extension ContentDetail {
     struct Content: Equatable {
         public let id: Int
         public let categoryName: String

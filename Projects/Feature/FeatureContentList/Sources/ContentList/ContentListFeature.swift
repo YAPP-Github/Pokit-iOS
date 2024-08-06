@@ -13,7 +13,7 @@ import DSKit
 import Util
 
 @Reducer
-public struct LinkListFeature {
+public struct ContentListFeature {
     /// - Dependency
     @Dependency(\.dismiss)
     private var dismiss
@@ -22,13 +22,13 @@ public struct LinkListFeature {
     /// - State
     @ObservableState
     public struct State: Equatable {
-        public init(linkType: LinkType) {
-            self.linkType = linkType
+        public init(contentType: ContentType) {
+            self.contentType = contentType
         }
         
-        let linkType: LinkType
-        fileprivate var domain = LinkList()
-        var links: IdentifiedArrayOf<BaseContent> {
+        let contentType: ContentType
+        fileprivate var domain = ContentList()
+        var contents: IdentifiedArrayOf<BaseContent> {
             var identifiedArray = IdentifiedArrayOf<BaseContent>()
             domain.contentList.data.forEach { identifiedArray.append($0) }
             return identifiedArray
@@ -52,17 +52,17 @@ public struct LinkListFeature {
             /// - Binding
             case binding(BindingAction<State>)
             /// - Button Tapped
-            case linkCardTapped(link: BaseContent)
-            case kebabButtonTapped(link: BaseContent)
+            case linkCardTapped(content: BaseContent)
+            case kebabButtonTapped(content: BaseContent)
             case bottomSheetButtonTapped(
                 delegate: PokitBottomSheet.Delegate,
-                link: BaseContent
+                content: BaseContent
             )
-            case deleteAlertConfirmTapped(link: BaseContent)
+            case deleteAlertConfirmTapped(content: BaseContent)
             case sortTextLinkTapped
             case backButtonTapped
             /// - On Appeared
-            case linkListViewOnAppeared
+            case contentListViewOnAppeared
         }
         
         public enum InnerAction: Equatable {
@@ -74,13 +74,13 @@ public struct LinkListFeature {
         public enum ScopeAction: Equatable {
             case bottomSheet(
                 delegate: PokitBottomSheet.Delegate,
-                link: BaseContent
+                content: BaseContent
             )
         }
         
         public enum DelegateAction: Equatable {
-            case 링크상세(link: BaseContent)
-            case 링크수정(link: BaseContent)
+            case 링크상세(content: BaseContent)
+            case 링크수정(content: BaseContent)
             case linkCopyDetected(URL?)
         }
     }
@@ -119,19 +119,19 @@ public struct LinkListFeature {
     }
 }
 //MARK: - FeatureAction Effect
-private extension LinkListFeature {
+private extension ContentListFeature {
     /// - View Effect
     func handleViewAction(_ action: Action.View, state: inout State) -> Effect<Action> {
         switch action {
-        case .kebabButtonTapped(let link):
-            state.bottomSheetItem = link
+        case .kebabButtonTapped(let content):
+            state.bottomSheetItem = content
             return .none
-        case .linkCardTapped(let link):
-            return .send(.delegate(.링크상세(link: link)))
-        case .bottomSheetButtonTapped(let delegate, let link):
+        case .linkCardTapped(let content):
+            return .send(.delegate(.링크상세(content: content)))
+        case .bottomSheetButtonTapped(let delegate, let content):
             return .run { send in
                 await send(.inner(.dismissBottomSheet))
-                await send(.scope(.bottomSheet(delegate: delegate, link: link)))
+                await send(.scope(.bottomSheet(delegate: delegate, content: content)))
             }
         case .deleteAlertConfirmTapped:
             state.alertItem = nil
@@ -143,7 +143,7 @@ private extension LinkListFeature {
             return .none
         case .backButtonTapped:
             return .run { _ in await dismiss() }
-        case .linkListViewOnAppeared:
+        case .contentListViewOnAppeared:
             // - MARK: 더미 조회
             state.domain.contentList = ContentListInquiryResponse.mock.toDomain()
             return .run { send in
@@ -173,13 +173,13 @@ private extension LinkListFeature {
     func handleScopeAction(_ action: Action.ScopeAction, state: inout State) -> Effect<Action> {
         /// - 링크에 대한 `공유` /  `수정` / `삭제` delegate
         switch action {
-        case .bottomSheet(let delegate, let link):
+        case .bottomSheet(let delegate, let content):
             switch delegate {
             case .deleteCellButtonTapped:
-                state.alertItem = link
+                state.alertItem = content
                 return .none
             case .editCellButtonTapped:
-                return .send(.delegate(.링크수정(link: link)))
+                return .send(.delegate(.링크수정(content: content)))
             case .favoriteCellButtonTapped:
                 return .none
             case .shareCellButtonTapped:
@@ -194,8 +194,8 @@ private extension LinkListFeature {
     }
 }
 
-public extension LinkListFeature {
-    enum LinkType: String {
+public extension ContentListFeature {
+    enum ContentType: String {
         case unread = "안읽음"
         case favorite = "즐겨찾기"
             

@@ -221,7 +221,7 @@ private extension FilterBottomFeature {
 public extension FilterBottomFeature {
     enum FilterType {
         case pokit
-        case linkType
+        case contentType
         case date
     }
 }

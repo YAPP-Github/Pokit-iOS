@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct LinkList: Equatable {
+public struct ContentList: Equatable {
     // - MARK: Response
     /// 콘텐츠 목록
     public var contentList: BaseContentListInquiry

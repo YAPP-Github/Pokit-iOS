@@ -28,7 +28,7 @@ public extension CategoryDetailView {
         WithPerceptionTracking {
             VStack(spacing: 16) {
                 header
-                linkScrollView
+                contentScrollView
             }
             .padding(.top, 12)
             .padding(.horizontal, 20)
@@ -111,16 +111,16 @@ private extension CategoryDetailView {
         }
     }
     
-    var linkScrollView: some View {
+    var contentScrollView: some View {
         ScrollView(showsIndicators: false) {
-            ForEach(store.contents) { link in
-                let isFirst = link == store.contents.first
-                let isLast = link == store.contents.last
+            ForEach(store.contents) { content in
+                let isFirst = content == store.contents.first
+                let isLast = content == store.contents.last
                 
                 PokitLinkCard(
-                    link: link,
-                    action: { send(.linkItemTapped(link)) }, 
-                    kebabAction: { send(.categoryKebobButtonTapped(.링크삭제, selectedItem: link)) }
+                    link: content,
+                    action: { send(.contentItemTapped(content)) }, 
+                    kebabAction: { send(.categoryKebobButtonTapped(.링크삭제, selectedItem: content)) }
                 )
                 .divider(isFirst: isFirst, isLast: isLast)
                 .pokitScrollTransition(.opacity)

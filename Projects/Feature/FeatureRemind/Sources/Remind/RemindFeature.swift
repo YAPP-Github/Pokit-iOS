@@ -20,17 +20,17 @@ public struct RemindFeature {
         public init() {}
         
         fileprivate var domain = Remind()
-        var recommendedLinks: IdentifiedArrayOf<BaseContent> {
+        var recommendedContents: IdentifiedArrayOf<BaseContent> {
             var identifiedArray = IdentifiedArrayOf<BaseContent>()
             domain.recommendedList.data.forEach { identifiedArray.append($0) }
             return identifiedArray
         }
-        var unreadLinks: IdentifiedArrayOf<BaseContent> {
+        var unreadContents: IdentifiedArrayOf<BaseContent> {
             var identifiedArray = IdentifiedArrayOf<BaseContent>()
             domain.unreadList.data.forEach { identifiedArray.append($0) }
             return identifiedArray
         }
-        var favoriteLinks: IdentifiedArrayOf<BaseContent> {
+        var favoriteContents: IdentifiedArrayOf<BaseContent> {
             var identifiedArray = IdentifiedArrayOf<BaseContent>()
             domain.favoriteList.data.forEach { identifiedArray.append($0) }
             return identifiedArray
@@ -52,15 +52,15 @@ public struct RemindFeature {
             /// - Button Tapped
             case bellButtonTapped
             case searchButtonTapped
-            case linkCardTapped(link: BaseContent)
-            case kebabButtonTapped(link: BaseContent)
+            case linkCardTapped(content: BaseContent)
+            case kebabButtonTapped(content: BaseContent)
             case unreadNavigationLinkTapped
             case favoriteNavigationLinkTapped
             case bottomSheetButtonTapped(
                 delegate: PokitBottomSheet.Delegate,
-                link: BaseContent
+                content: BaseContent
             )
-            case deleteAlertConfirmTapped(link: BaseContent)
+            case deleteAlertConfirmTapped(content: BaseContent)
             
             case remindViewOnAppeared
         }
@@ -71,14 +71,14 @@ public struct RemindFeature {
         public enum ScopeAction: Equatable {
             case bottomSheet(
                 delegate: PokitBottomSheet.Delegate,
-                link: BaseContent
+                content: BaseContent
             )
         }
         public enum DelegateAction: Equatable {
-            case 링크상세(link: BaseContent)
+            case 링크상세(content: BaseContent)
             case alertButtonTapped
             case searchButtonTapped
-            case 링크수정(link: BaseContent)
+            case 링크수정(content: BaseContent)
             case 링크목록_안읽음
             case 링크목록_즐겨찾기
         }
@@ -124,15 +124,15 @@ private extension RemindFeature {
             return .send(.delegate(.링크목록_즐겨찾기))
         case .unreadNavigationLinkTapped:
             return .send(.delegate(.링크목록_안읽음))
-        case .kebabButtonTapped(let link):
-            state.bottomSheetItem = link
+        case .kebabButtonTapped(let content):
+            state.bottomSheetItem = content
             return .none
-        case .linkCardTapped(let link):
-            return .send(.delegate(.링크상세(link: link)))
-        case .bottomSheetButtonTapped(let delegate, let link):
+        case .linkCardTapped(let content):
+            return .send(.delegate(.링크상세(content: content)))
+        case .bottomSheetButtonTapped(let delegate, let content):
             return .run { send in
                 await send(.inner(.dismissBottomSheet))
-                await send(.scope(.bottomSheet(delegate: delegate, link: link)))
+                await send(.scope(.bottomSheet(delegate: delegate, content: content)))
             }
         case .deleteAlertConfirmTapped:
             state.alertItem = nil
@@ -163,13 +163,13 @@ private extension RemindFeature {
     func handleScopeAction(_ action: Action.ScopeAction, state: inout State) -> Effect<Action> {
         /// - 링크에 대한 `공유` /  `수정` / `삭제` delegate
         switch action {
-        case .bottomSheet(let delegate, let link):
+        case .bottomSheet(let delegate, let content):
             switch delegate {
             case .deleteCellButtonTapped:
-                state.alertItem = link
+                state.alertItem = content
                 return .none
             case .editCellButtonTapped:
-                return .send(.delegate(.링크수정(link: link)))
+                return .send(.delegate(.링크수정(content: content)))
             case .favoriteCellButtonTapped:
                 return .none
             case .shareCellButtonTapped:
