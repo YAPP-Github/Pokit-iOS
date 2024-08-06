@@ -71,9 +71,14 @@ public extension MainTabFeature {
                 return .none
 
             /// - 포킷 `수정`버튼 눌렀을 때
-            case .pokit(.delegate(.수정하기)),
-                 .path(.element(_, action: .카테고리상세(.delegate(.포킷수정)))):
-                state.path.append(.포킷추가및수정(PokitCategorySettingFeature.State(type: .수정)))
+            case let .pokit(.delegate(.수정하기(category))),
+                 let .path(.element(_, action: .카테고리상세(.delegate(.포킷수정(category))))):
+                state.path.append(.포킷추가및수정(PokitCategorySettingFeature.State(
+                    type: .수정,
+                    categoryId: category.id,
+                    categoryImage: category.categoryImage,
+                    categoryName: category.categoryName
+                )))
                 return .none
 
             /// - 포킷 `추가` 버튼 눌렀을 때
@@ -109,7 +114,8 @@ public extension MainTabFeature {
             case let .linkDetail(.presented(.delegate(.pushLinkAddView(content)))),
                  let .pokit(.delegate(.링크수정하기(content))),
                  let .remind(.delegate(.링크수정(content))),
-                 let .path(.element(_, action: .카테고리상세(.delegate(.링크수정(content))))):
+                 let .path(.element(_, action: .카테고리상세(.delegate(.링크수정(content))))),
+                 let .path(.element(_, action: .링크목록(.delegate(.링크수정(content))))):
                 return .run { send in await send(.inner(.링크추가및수정이동(content))) }
 
             case let .inner(.링크추가및수정이동(content)):

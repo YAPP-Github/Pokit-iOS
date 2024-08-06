@@ -93,7 +93,7 @@ public struct CategoryDetailFeature {
             case linkCopyDetected(URL?)
             case 링크수정(BaseContent)
             case 포킷삭제
-            case 포킷수정
+            case 포킷수정(BaseCategory)
             case 포킷공유
         }
     }
@@ -209,7 +209,8 @@ private extension CategoryDetailFeature {
             case .editCellButtonTapped:
                 return .run { [
                     link = state.selectedLinkItem,
-                    type = state.kebobSelectedType
+                    type = state.kebobSelectedType,
+                    category = state.category
                 ] send in
                     guard let type else { return }
                     switch type {
@@ -219,7 +220,7 @@ private extension CategoryDetailFeature {
                         await send(.delegate(.링크수정(link)))
                     case .포킷삭제:
                         await send(.inner(.pokitCategorySheetPresented(false)))
-                        await send(.delegate(.포킷수정))
+                        await send(.delegate(.포킷수정(category)))
                     }
                 }
                 
