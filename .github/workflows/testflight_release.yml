@@ -19,10 +19,10 @@ jobs:
       with:
         xcode-version: '15.4'
 
-    # - uses: shimataro/ssh-key-action@v2
-    #   with:
-    #     key: ${{ secrets.SSH_KEY }}
-    #     known_hosts: ${{ secrets.KNOWN_HOSTS }}
+    - uses: shimataro/ssh-key-action@v2
+      with:
+        key: ${{ secrets.SSH_KEY }}
+        known_hosts: ${{ secrets.KNOWN_HOSTS }}
 
     - name: initial mise
       run: |
