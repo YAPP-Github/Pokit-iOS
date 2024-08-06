@@ -21,7 +21,7 @@ extension DependencyValues {
 public struct AuthClient {
     public var 로그인: @Sendable (SignInRequest) async throws -> TokenResponse
     public var 회원탈퇴: @Sendable (WithdrawRequest) async throws -> EmptyResponse
-    public var 토큰재발급: @Sendable (ReissueRequest) async throws -> TokenResponse
+    public var 토큰재발급: @Sendable (ReissueRequest) async throws -> ReissueResponse
 }
 
 extension AuthClient: DependencyKey {

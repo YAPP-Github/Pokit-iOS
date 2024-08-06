@@ -6,7 +6,7 @@
 //
 
 import Foundation
-/// 로그인 API Response / 토큰재발급 API Response 공통
+/// 로그인 API Response
 public struct TokenResponse: Decodable {
     public let accessToken: String
     public let refreshToken: String
