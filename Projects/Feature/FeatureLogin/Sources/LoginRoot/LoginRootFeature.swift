@@ -98,20 +98,10 @@ private extension LoginRootFeature {
     func handleViewAction(_ action: Action.View, state: inout State) -> Effect<Action> {
         switch action {
         case .appleLoginButtonTapped:
-            
             return .run { send in
                 let response = try await socialLogin.appleLogin()
-                guard let idToken = response.idToken else { return }
-                let platform = response.provider.description
-                let request = SignInRequest(authPlatform: platform, idToken: idToken)
-                let tokenResponse = try await authClient.로그인(request)
-                print(response)
+                await send(.async(.로그인(response)))
             }
-            
-//            return .run { send in
-//                let response = try await socialLogin.appleLogin()
-//                await send(.async(.로그인(response)))
-//            }
             
         case .googleLoginButtonTapped:
             return .run { send in
