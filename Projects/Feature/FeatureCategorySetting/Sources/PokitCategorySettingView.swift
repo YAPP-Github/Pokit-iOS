@@ -112,7 +112,7 @@ private extension PokitCategorySettingView {
                 .pokitFont(.b2(.m))
                 .foregroundStyle(.pokit(.text(.secondary)))
             PokitTextInput(
-                text: $store.text,
+                text: $store.categoryName,
                 state: .constant(.active),
                 placeholder: "포킷명을 입력해주세요.",
                 maxLetter: 10,

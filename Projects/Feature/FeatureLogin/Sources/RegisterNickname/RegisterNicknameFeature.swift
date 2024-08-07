@@ -30,7 +30,6 @@ public struct RegisterNicknameFeature {
             get { domain.isDuplicate }
             set { domain.isDuplicate = newValue }
         }
-        var nicknameText: String = ""
         var buttonActive: Bool = false
         var textfieldState: PokitInputStyle.State = .default
     }
@@ -96,8 +95,8 @@ private extension RegisterNicknameFeature {
     func handleViewAction(_ action: Action.ViewAction, state: inout State) -> Effect<Action> {
         switch action {
         case .nextButtonTapped:
-                return .run { [nickName = state.nickNameText] send in
-                    await send(.delegate(.pushSelectFieldView(nickName: nickName)))
+                return .run { [nickName = state.nicknameText] send in
+                    await send(.delegate(.pushSelectFieldView(nickname: nickName)))
                 }
             return .none
         case .backButtonTapped:
