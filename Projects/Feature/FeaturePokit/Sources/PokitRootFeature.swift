@@ -15,7 +15,7 @@ import Util
 @Reducer
 public struct PokitRootFeature {
     /// - Dependency
-
+    @Dependency(\.categoryClient) var categoryClient
     /// - State
     @ObservableState
     public struct State: Equatable {
@@ -43,6 +43,8 @@ public struct PokitRootFeature {
         
         var isKebobSheetPresented: Bool = false
         var isPokitDeleteSheetPresented: Bool = false
+        /// 목록조회 시 호출용
+        var listResponse = BasePageableRequest(page: 0, size: 10, sort: ["desc"])
         
         public init() { }
     }
@@ -80,6 +82,7 @@ public struct PokitRootFeature {
         public enum InnerAction: Equatable {
             case pokitCategorySheetPresented(Bool)
             case pokitDeleteSheetPresented(Bool)
+            case onAppearResult(classified: BaseCategoryListInquiry)
         }
         
         public enum AsyncAction: Equatable { case doNothing }
@@ -203,10 +206,16 @@ private extension PokitRootFeature {
         case .contentItemTapped(let selectedItem):
             return .run { send in await send(.delegate(.contentDetailTapped(selectedItem))) }
         case .pokitRootViewOnAppeared:
-            // - MARK: 목업 데이터 조회
-            state.domain.categoryList = CategoryListInquiryResponse.mock.toDomain()
-            state.domain.unclassifiedContentList = ContentListInquiryResponse.mock.toDomain()
-            return .none
+            return .run { [domain = state.domain.categoryList,
+                           sortType = state.sortType] send in
+                if domain.hasNext {
+                    let sort = sortType == .sort(.최신순) ? "desc" : "asc"
+                    let request = BasePageableRequest(page: domain.page + 1, size: domain.size, sort: [sort])
+                    let classified = try await categoryClient.카테고리_목록_조회(request, true).toDomain()
+                    await send(.inner(.onAppearResult(classified: classified)))
+                    await send(.view(.sortButtonTapped))
+                }
+            }
         }
     }
     
@@ -218,6 +227,9 @@ private extension PokitRootFeature {
             return .none
         case let .pokitDeleteSheetPresented(presented):
             state.isPokitDeleteSheetPresented = presented
+            return .none
+        case let .onAppearResult(classified):
+            state.domain.categoryList = classified
             return .none
         }
     }
