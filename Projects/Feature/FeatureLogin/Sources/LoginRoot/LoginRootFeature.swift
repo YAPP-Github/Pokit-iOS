@@ -158,6 +158,7 @@ private extension LoginRootFeature {
         case .registerNickname(let delegate):
             switch delegate {
             case .pushSelectFieldView(let nickname):
+                state.nickName = nickname
                 return .send(.inner(.pushSelectFieldView(nickname: nickname)))
             }
         case .selectField(let delegate):
