@@ -41,8 +41,7 @@ public struct PokitSearchFeature {
         var isAutoSaveSearch: Bool = false
         var isSearching: Bool = false
         var isFiltered: Bool = false
-        var categoryFilter: BaseCategory? = nil
-        var contentTypeText = "모아보기"
+        var categoryFilter = IdentifiedArrayOf<BaseCategory>()
         var dateFilterText = "기간"
         var isResultAscending = true
         
@@ -93,8 +92,11 @@ public struct PokitSearchFeature {
             case searchTextChipButtonTapped(text: String)
             case filterButtonTapped
             case contentTypeFilterButtonTapped
+            case favoriteChipTapped
+            case unreadChipTapped
             case dateFilterButtonTapped
             case categoryFilterButtonTapped
+            case categoryFilterChipTapped(category: BaseCategory)
             case recentSearchAllRemoveButtonTapped
             case recentSearchChipIconTapped(searchText: String)
             case linkCardTapped(content: BaseContent)
@@ -121,6 +123,7 @@ public struct PokitSearchFeature {
             case updateContentTypeFilter(favoriteFilter: Bool, unreadFilter: Bool)
             case dismissBottomSheet
             case updateIsFiltered
+            case updateCategoryIds
         }
         
         public enum AsyncAction: Equatable { case doNothing }
@@ -225,7 +228,13 @@ private extension PokitSearchFeature {
         case .contentTypeFilterButtonTapped:
             return .send(.inner(.showFilterBottomSheet(filterType: .contentType)))
         case .dateFilterButtonTapped:
-            return .send(.inner(.showFilterBottomSheet(filterType: .date)))
+            guard state.domain.condition.startDate != nil && state.domain.condition.endDate != nil else {
+                /// - 선택된 기간이 없을 경우
+                return .send(.inner(.showFilterBottomSheet(filterType: .date)))
+            }
+            state.domain.condition.startDate = nil
+            state.domain.condition.endDate = nil
+            return .send(.inner(.updateDateFilter(startDate: nil, endDate: nil)))
         case .categoryFilterButtonTapped:
             return .send(.inner(.showFilterBottomSheet(filterType: .pokit)))
         case .recentSearchAllRemoveButtonTapped:
@@ -266,6 +275,15 @@ private extension PokitSearchFeature {
                     await send(.delegate(.linkCopyDetected(url)), animation: .pokitSpring)
                 }
             }
+        case .categoryFilterChipTapped(category: let category):
+            state.categoryFilter.remove(category)
+            return .send(.inner(.updateCategoryIds))
+        case .favoriteChipTapped:
+            state.domain.condition.favorites = false
+            return .none
+        case .unreadChipTapped:
+            state.domain.condition.isRead = true
+            return .none
         }
     }
     
@@ -284,8 +302,8 @@ private extension PokitSearchFeature {
             let formatter = DateFormatter()
             formatter.dateFormat = "yy.MM.dd"
             
-            state.startDateFilter = startDate
-            state.endDateFilter = endDate
+            state.domain.condition.startDate = startDate
+            state.domain.condition.endDate = endDate
             
             guard let startDate, let endDate else {
                 /// - 날짜 필터가 선택 안되었을 경우
@@ -312,31 +330,21 @@ private extension PokitSearchFeature {
             )
             return .none
         case .updateContentTypeFilter(favoriteFilter: let favoriteFilter, unreadFilter: let unreadFilter):
-            state.favoriteFilter = favoriteFilter
-            state.unreadFilter = unreadFilter
-            
-            if favoriteFilter && unreadFilter {
-                /// - 즐겨찾기, 안읽음 모두 선택
-                state.contentTypeText = "즐겨찾기, 안읽음"
-            } else if favoriteFilter {
-                /// - 즐겨찾기만 선택
-                state.contentTypeText = "즐겨찾기"
-            } else if unreadFilter {
-                /// - 안읽음만 선택
-                state.contentTypeText = "안읽음"
-            } else {
-                state.contentTypeText = "모아보기"
-            }
+            state.domain.condition.favorites = favoriteFilter
+            state.domain.condition.isRead = !unreadFilter
             return .none
         case .dismissBottomSheet:
             state.bottomSheetItem = nil
             return .none
         case .updateIsFiltered:
-            state.isFiltered = state.categoryFilter != nil ||
+            state.isFiltered = !state.categoryFilter.isEmpty ||
             state.favoriteFilter ||
             state.unreadFilter ||
             state.startDateFilter != nil ||
             state.endDateFilter != nil
+            return .none
+        case .updateCategoryIds:
+            state.domain.condition.categoryIds = state.categoryFilter.map { $0.id }
             return .none
         }
     }
@@ -350,13 +358,14 @@ private extension PokitSearchFeature {
     func handleScopeAction(_ action: Action.ScopeAction, state: inout State) -> Effect<Action> {
         switch action {
         case .filterBottomSheet(.searchButtonTapped(
-            pokit: let pokit,
+            categories: let categories,
             isFavorite: let isFavorite,
             isUnread: let isUnread,
             startDate: let startDate,
             endDate: let endDate)):
-            state.categoryFilter = pokit
+            state.categoryFilter = categories
             return .run { send in
+                await send(.inner(.updateCategoryIds))
                 await send(.inner(.updateContentTypeFilter(favoriteFilter: isFavorite, unreadFilter: isUnread)))
                 await send(.inner(.updateDateFilter(startDate: startDate, endDate: endDate)))
                 await send(.inner(.updateIsFiltered))

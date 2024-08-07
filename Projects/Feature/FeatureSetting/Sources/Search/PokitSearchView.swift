@@ -205,36 +205,72 @@ private extension PokitSearchView {
     }
     
     var categoryFilterButton: some View {
-        PokitIconRButton(
-            store.categoryFilter?.categoryName ?? "포킷명",
-            .icon(.arrowDown),
-            state: store.categoryFilter == nil ? .default(.primary) : .stroke(.primary),
-            size: .small,
-            shape: .round,
-            action: { send(.categoryFilterButtonTapped) }
-        )
+        Group {
+            if store.categoryFilter.isEmpty {
+                PokitIconRChip(
+                    "포킷",
+                    icon: .icon(.arrowDown),
+                    state: .default(.primary),
+                    size: .small,
+                    action: { send(.categoryFilterButtonTapped) }
+                )
+            } else {
+                ForEach(store.categoryFilter) { category in
+                    PokitIconRChip(
+                        category.categoryName,
+                        state: .stroke(.primary),
+                        size: .small,
+                        action: { send(.categoryFilterChipTapped(category: category), animation: .pokitSpring) }
+                    )
+                    .pokitBlurReplaceTransition(.smooth)
+                }
+            }
+        }
     }
     
     var contentTypeFilterButton: some View {
-        PokitIconRButton(
-            store.contentTypeText,
-            .icon(.arrowDown),
-            state: store.favoriteFilter || store.unreadFilter ? .stroke(.primary) : .default(.primary),
-            size: .small,
-            shape: .round,
-            action: { send(.contentTypeFilterButtonTapped) }
-        )
+        Group {
+            if !store.favoriteFilter && !store.unreadFilter {
+                PokitIconRChip(
+                    "모아보기",
+                    icon: .icon(.arrowDown),
+                    state: .default(.primary),
+                    size: .small,
+                    action: { send(.contentTypeFilterButtonTapped) }
+                )
+            } else {
+                if store.favoriteFilter {
+                    PokitIconRChip(
+                        "즐겨찾기",
+                        state: .stroke(.primary),
+                        size: .small,
+                        action: { send(.favoriteChipTapped, animation: .pokitSpring) }
+                    )
+                    .pokitBlurReplaceTransition(.smooth)
+                }
+                
+                if store.unreadFilter {
+                    PokitIconRChip(
+                        "안읽음",
+                        state: .stroke(.primary),
+                        size: .small,
+                        action: { send(.unreadChipTapped, animation: .pokitSpring) }
+                    )
+                    .pokitBlurReplaceTransition(.smooth)
+                }
+            }
+        }
     }
     
     var dateFilterButton: some View {
-        PokitIconRButton(
+        PokitIconRChip(
             store.dateFilterText,
-            .icon(.arrowDown),
+            icon: store.dateFilterText == "기간" ? .icon(.arrowDown) : .icon(.x),
             state: store.dateFilterText == "기간" ? .default(.primary) : .stroke(.primary),
             size: .small,
-            shape: .round,
-            action: { send(.dateFilterButtonTapped) }
+            action: { send(.dateFilterButtonTapped, animation: .pokitSpring) }
         )
+        .pokitBlurReplaceTransition(.smooth)
     }
     
     var resultList: some View {

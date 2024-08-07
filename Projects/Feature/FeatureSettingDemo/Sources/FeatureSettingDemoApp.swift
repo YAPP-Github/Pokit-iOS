@@ -25,7 +25,7 @@ struct FeatureSettingDemoApp: App {
                         PokitSearchView(
                             store: Store(
                                 initialState: .init(),
-                                reducer: { PokitSearchFeature() }
+                                reducer: { PokitSearchFeature()._printChanges() }
                             )
                         )
                     }

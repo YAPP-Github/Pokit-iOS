@@ -34,7 +34,7 @@ public extension FilterBottomSheet {
                 switch store.currentType {
                 case .pokit:
                     PokitList(
-                        selectedItem: store.selectedPokit,
+                        selectedItem: nil,
                         list: store.pokitList,
                         action: { send(.pokitListCellTapped(pokit: $0), animation: .pokitSpring) }
                     )
@@ -143,12 +143,12 @@ private extension FilterBottomSheet {
     var currentFilterChips: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 6) {
-                if let pokit = store.selectedPokit?.categoryName {
+                ForEach(store.selectedCategories) { category in
                     PokitIconRChip(
-                        pokit,
+                        category.categoryName,
                         state: .stroke(.primary),
                         size: .small,
-                        action: { send(.pokitChipTapped, animation: .pokitSpring) }
+                        action: { send(.pokitChipTapped(category), animation: .pokitSpring) }
                     )
                     .pokitBlurReplaceTransition(.smooth)
                 }
@@ -204,7 +204,7 @@ private extension FilterBottomSheet {
         store: Store(
             initialState: .init(
                 filterType: .pokit,
-                pokitFilter: nil,
+                pokitFilter: .init(),
                 favoriteFilter: false,
                 unreadFilter: false,
                 startDateFilter: nil,
