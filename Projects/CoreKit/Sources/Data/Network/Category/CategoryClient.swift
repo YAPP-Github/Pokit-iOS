@@ -18,9 +18,7 @@ extension DependencyValues {
 }
 /// Category에 관련한 API를 처리하는 Client
 public struct CategoryClient {
-    public var 카테고리_삭제: @Sendable (
-        _ categoryId: String
-    ) async throws -> EmptyResponse
+    public var 카테고리_삭제: @Sendable (_ categoryId: Int) async throws -> Void
     public var 카테고리_수정: @Sendable (
         _ categoryId: String,
         _ model: CategoryEditRequest
@@ -41,7 +39,7 @@ extension CategoryClient: DependencyKey {
 
         return Self(
             카테고리_삭제: { id in
-                try await provider.request(.카테고리_삭제(categoryId: id))
+                try await provider.requestNoBody(.카테고리_삭제(categoryId: id))
             },
             카테고리_수정: { id, model in
                 try await provider.request(.카테고리_수정(categoryId: id, model: model))
@@ -63,7 +61,7 @@ extension CategoryClient: DependencyKey {
 
     public static let previewValue: Self = {
         Self(
-            카테고리_삭제: { _ in .init() },
+            카테고리_삭제: { _ in },
             카테고리_수정: { _, _ in .mock },
             카테고리_목록_조회: { _, _ in .mock },
             카테고리_생성: { _ in .mock },
