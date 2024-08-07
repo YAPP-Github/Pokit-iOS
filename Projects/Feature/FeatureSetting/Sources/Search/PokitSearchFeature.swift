@@ -228,7 +228,12 @@ private extension PokitSearchFeature {
         case .contentTypeFilterButtonTapped:
             return .send(.inner(.showFilterBottomSheet(filterType: .contentType)))
         case .dateFilterButtonTapped:
-            return .send(.inner(.showFilterBottomSheet(filterType: .date)))
+            guard state.domain.condition.startDate != nil && state.domain.condition.endDate != nil else {
+                return .send(.inner(.showFilterBottomSheet(filterType: .date)))
+            }
+            state.domain.condition.startDate = nil
+            state.domain.condition.endDate = nil
+            return .send(.inner(.updateDateFilter(startDate: nil, endDate: nil)))
         case .categoryFilterButtonTapped:
             return .send(.inner(.showFilterBottomSheet(filterType: .pokit)))
         case .recentSearchAllRemoveButtonTapped:

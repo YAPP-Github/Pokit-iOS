@@ -263,14 +263,14 @@ private extension PokitSearchView {
     }
     
     var dateFilterButton: some View {
-        PokitIconRButton(
+        PokitIconRChip(
             store.dateFilterText,
-            .icon(.arrowDown),
+            icon: store.dateFilterText == "기간" ? .icon(.arrowDown) : .icon(.x),
             state: store.dateFilterText == "기간" ? .default(.primary) : .stroke(.primary),
             size: .small,
-            shape: .round,
-            action: { send(.dateFilterButtonTapped) }
+            action: { send(.dateFilterButtonTapped, animation: .pokitSpring) }
         )
+        .pokitBlurReplaceTransition(.smooth)
     }
     
     var resultList: some View {
