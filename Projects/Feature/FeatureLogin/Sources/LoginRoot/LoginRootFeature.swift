@@ -50,6 +50,7 @@ public struct LoginRootFeature {
         }
         public enum AsyncAction: Equatable {
             case 회원가입
+            case 로그인(SocialLoginInfo)
         }
         public enum ScopeAction {
             case agreeToTerms(AgreeToTermsFeature.Action.DelegateAction)
@@ -97,22 +98,15 @@ private extension LoginRootFeature {
     func handleViewAction(_ action: Action.View, state: inout State) -> Effect<Action> {
         switch action {
         case .appleLoginButtonTapped:
-            return .send(.inner(.pushAgreeToTermsView))
+            return .run { send in
+                let response = try await socialLogin.appleLogin()
+                await send(.async(.로그인(response)))
+            }
             
         case .googleLoginButtonTapped:
             return .run { send in
                 let response = try await socialLogin.googleLogin()
-                guard let idToken = response.idToken else { return }
-                let platform = response.provider.description
-                let request = SignInRequest(authPlatform: platform, idToken: idToken)
-                let tokenResponse = try await authClient.로그인(request)
-                
-                /// [1]. UserDefaults에 최근 로그인한 소셜로그인 `타입`저장
-                await userDefaults.setString(platform, .authPlatform)
-                /// [2]. Keychain에 `access`, `refresh` 저장
-                keychain.save(.accessToken, tokenResponse.accessToken)
-                keychain.save(.refreshToken, tokenResponse.refreshToken)
-                await send(.inner(.pushAgreeToTermsView))
+                await send(.async(.로그인(response)))
             }
         }
     }
@@ -144,6 +138,26 @@ private extension LoginRootFeature {
                 let a = try await userClient.회원등록(signUpRequest)
                 
                 await send(.inner(.pushSignUpDoneView))
+            }
+        
+        case .로그인(let response):
+            return .run { send in
+                guard let idToken = response.idToken else { return }
+                let platform = response.provider.description
+                let request = SignInRequest(authPlatform: platform, idToken: idToken)
+                let tokenResponse = try await authClient.로그인(request)
+                
+                /// [1]. UserDefaults에 최근 로그인한 소셜로그인 `타입`저장
+                await userDefaults.setString(platform, .authPlatform)
+                /// [2]. Keychain에 `access`, `refresh` 저장
+                keychain.save(.accessToken, tokenResponse.accessToken)
+                keychain.save(.refreshToken, tokenResponse.refreshToken)
+                /// [3]. 이미 회원가입했던 유저라면 `메인`이동
+                if tokenResponse.isRegistered {
+                    await send(.delegate(.dismissLoginRootView))
+                } else {
+                    await send(.inner(.pushAgreeToTermsView))
+                }
             }
         }
     }

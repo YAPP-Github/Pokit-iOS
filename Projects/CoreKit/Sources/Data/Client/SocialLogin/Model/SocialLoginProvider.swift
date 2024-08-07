@@ -8,7 +8,7 @@
 import Foundation
 import SwiftUI
 
-public enum SocialLoginProvider: String, Codable {
+public enum SocialLoginProvider: String, Codable, Equatable {
     case apple = "애플"
     case google = "구글"
 }
