@@ -10,23 +10,26 @@ import SwiftUI
 import Util
 
 public struct PokitSelect<Item: PokitSelectItem>: View {
-    @State private var selectedItem: Item?
-    @State private var state: PokitSelect.SelectState
-    @State private var showSheet: Bool = false
+    @Binding
+    private var selectedItem: Item?
+    @State
+    private var state: PokitSelect.SelectState
+    @State
+    private var showSheet: Bool = false
     
     private let label: String
     private let list: [Item]
     private let action: (Item) -> Void
     
     public init(
-        selectedItem: Item? = nil,
+        selectedItem: Binding<Item?> = .constant(nil),
         state: PokitSelect.SelectState = .default,
         label: String,
         list: [Item],
         action: @escaping (Item) -> Void
     ) {
-        self._selectedItem = State(initialValue: selectedItem)
-        if selectedItem != nil {
+        self._selectedItem = selectedItem
+        if selectedItem.wrappedValue != nil {
             self.state = .input
         } else {
             self._state = State(initialValue: state)

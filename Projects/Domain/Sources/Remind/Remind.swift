@@ -9,12 +9,36 @@ import Foundation
 
 import Util
 
-public struct Remind {
+public struct Remind: Equatable {
     // - MARK: Response
     /// 오늘의 추천 콘텐츠(링크) 리스트
-    public let recommendedList: [BaseContent]
+    public var recommendedList: BaseContentListInquiry
     /// 읽지 않은 콘텐츠(링크) 리스트
-    public let unreadList: [BaseContent]
+    public var unreadList: BaseContentListInquiry
     /// 즐겨찾기한 콘텐츠(링크) 리스트
-    public let favoriteList: [BaseContent]
+    public var favoriteList: BaseContentListInquiry
+    
+    public init() {
+        self.recommendedList = .init(
+            data: [],
+            page: 0,
+            size: 3,
+            sort: [],
+            hasNext: false
+        )
+        self.unreadList = .init(
+            data: [],
+            page: 0,
+            size: 3,
+            sort: [],
+            hasNext: false
+        )
+        self.favoriteList = .init(
+            data: [],
+            page: 0,
+            size: 3,
+            sort: [],
+            hasNext: false
+        )
+    }
 }

@@ -7,11 +7,39 @@
 
 import Foundation
 
-public struct CategoryDetail {
+public struct CategoryDetail: Equatable {
     // - MARK: Respone
+    /// 카테고리(포킷)
+    public let category: BaseCategory
+    /// - 카테고리(포킷) 리스트
+    public var categoryListInQuiry: BaseCategoryListInquiry
     /// 카테고리(포킷) 내 콘텐츠(링크) 리스트
-    public let contentList: BaseContentListInquiry
+    public var contentList: BaseContentListInquiry
     // - MARK: Request
     /// 조회할 페이징 정보
-    public let pageable: BasePageable
+    public var pageable: BasePageable
+    
+    public init(categpry: BaseCategory) {
+        self.category = categpry
+        let categoryListInquiry = BaseCategoryListInquiry(
+            data: [],
+            page: 0,
+            size: 0,
+            sort: [],
+            hasNext: false
+        )
+        self.categoryListInQuiry = categoryListInquiry
+        self.contentList = .init(
+            data: [],
+            page: 0,
+            size: 0,
+            sort: [],
+            hasNext: false
+        )
+        self.pageable = .init(
+            page: 0,
+            size: 10,
+            sort: []
+        )
+    }
 }

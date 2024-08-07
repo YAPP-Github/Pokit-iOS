@@ -12,10 +12,10 @@ import FeaturePokit
 import FeatureRemind
 import FeatureSetting
 import FeatureCategorySetting
-import FeatureLinkDetail
-import FeatureAddLink
+import FeatureContentDetail
+import FeatureContentSetting
 import FeatureCategoryDetail
-import FeatureLinkList
+import FeatureContentList
 
 @ViewAction(for: MainTabFeature.self)
 public struct MainTabView: View {
@@ -71,7 +71,7 @@ public extension MainTabView {
                         }
                     case .링크추가및수정:
                         if let store = store.scope(state: \.링크추가및수정, action: \.링크추가및수정) {
-                            AddLinkView(store: store)
+                            ContentSettingView(store: store)
                         }
                     case .카테고리상세:
                         if let store = store.scope(state: \.카테고리상세, action: \.카테고리상세) {
@@ -79,7 +79,7 @@ public extension MainTabView {
                         }
                     case .링크목록:
                         if let store = store.scope(state: \.링크목록, action: \.링크목록) {
-                            LinkListView(store: store)
+                            ContentListView(store: store)
                         }
                     }
                     
@@ -122,11 +122,11 @@ private extension MainTabView {
             }
             .sheet(
                 item: $store.scope(
-                    state: \.linkDetail,
-                    action: \.linkDetail
+                    state: \.contentDetail,
+                    action: \.contentDetail
                 )
             ) { store in
-                LinkDetailView(store: store)
+                ContentDetailView(store: store)
             }
             .pokitNavigationBar(title: "")
             .toolbar { navigationBar }

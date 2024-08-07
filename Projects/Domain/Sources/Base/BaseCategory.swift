@@ -7,9 +7,26 @@
 
 import Foundation
 
-public struct BaseCategory: Identifiable, Equatable {
+import Util
+
+public struct BaseCategory: Identifiable, Equatable, PokitSelectItem, PokitCardItem {
     public let id: Int
     public let userId: Int
     public let categoryName: String
     public let categoryImage: BaseCategoryImage
+    public var contentCount: Int
+    
+    public init(
+        id: Int,
+        userId: Int,
+        categoryName: String,
+        categoryImage: BaseCategoryImage,
+        contentCount: Int
+    ) {
+        self.id = id
+        self.userId = userId
+        self.categoryName = categoryName
+        self.categoryImage = categoryImage
+        self.contentCount = contentCount
+    }
 }

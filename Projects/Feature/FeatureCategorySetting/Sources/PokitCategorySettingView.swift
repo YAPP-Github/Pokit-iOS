@@ -7,6 +7,7 @@
 import SwiftUI
 
 import ComposableArchitecture
+import Domain
 import DSKit
 
 @ViewAction(for: PokitCategorySettingFeature.self)
@@ -64,7 +65,7 @@ private extension PokitCategorySettingView {
     /// 썸네일이미지 +프로필 설정
     var thumbnailSection: some View {
         AsyncImage(
-            url: URL(string: store.selectedProfile?.imageUrl ?? ""),
+            url: URL(string: store.selectedProfile?.imageURL ?? ""),
             transaction: .init(animation: .spring)
         ) { phase in
             switch phase {
@@ -111,7 +112,7 @@ private extension PokitCategorySettingView {
                 .pokitFont(.b2(.m))
                 .foregroundStyle(.pokit(.text(.secondary)))
             PokitTextInput(
-                text: $store.text,
+                text: $store.categoryName,
                 state: .constant(.active),
                 placeholder: "포킷명을 입력해주세요.",
                 maxLetter: 10,
@@ -143,7 +144,7 @@ private extension PokitCategorySettingView {
     var saveButton: some View {
         PokitBottomButton(
             "저장하기",
-            state: !store.text.isEmpty && store.selectedProfile != nil
+            state: !store.categoryName.isEmpty && store.selectedProfile != nil
             ? .filled(.primary)
             : .disable,
             action: { send(.saveButtonTapped) }
@@ -151,9 +152,9 @@ private extension PokitCategorySettingView {
     }
     /// 내포킷 Item
     struct PokitItem: View {
-        let item: CategoryItemMock
+        let item: BaseCategory
         
-        init(item: CategoryItemMock) {
+        init(item: BaseCategory) {
             self.item = item
         }
         
@@ -166,7 +167,7 @@ private extension PokitCategorySettingView {
                     Spacer()
                 }
                 HStack {
-                    Text("링크 \(item.linkCount)개")
+                    Text("링크 \(item.contentCount)개")
                         .pokitFont(.detail1)
                         .foregroundStyle(.pokit(.text(.disable)))
                     Spacer()
@@ -181,10 +182,7 @@ private extension PokitCategorySettingView {
     NavigationStack {
         PokitCategorySettingView(
             store: Store(
-                initialState: .init(
-                    type: .추가,
-                    itemList: CategoryItemMock.mock
-                ),
+                initialState: .init(type: .추가),
                 reducer: { PokitCategorySettingFeature() }
             )
         )

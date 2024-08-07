@@ -45,7 +45,7 @@ public struct LoginRootFeature {
         public enum InnerAction: Equatable {
             case pushAgreeToTermsView
             case pushRegisterNicknameView
-            case pushSelectFieldView
+            case pushSelectFieldView(nickname: String)
             case pushSignUpDoneView
         }
         public enum AsyncAction: Equatable {
@@ -129,8 +129,8 @@ private extension LoginRootFeature {
         case .pushRegisterNicknameView:
             state.path.append(.registerNickname(.init()))
             return .none
-        case .pushSelectFieldView:
-            state.path.append(.selecteField(.init()))
+        case .pushSelectFieldView(let nickname):
+            state.path.append(.selecteField(.init(nickname: nickname)))
             return .none
         case .pushSignUpDoneView:
             state.path.append(.signUpDone(.init()))
@@ -181,9 +181,8 @@ private extension LoginRootFeature {
             }
         case .registerNickname(let delegate):
             switch delegate {
-            case let .pushSelectFieldView(nickName):
-                state.nickName = nickName
-                return .send(.inner(.pushSelectFieldView))
+            case .pushSelectFieldView(let nickname):
+                return .send(.inner(.pushSelectFieldView(nickname: nickname)))
             }
         case .selectField(let delegate):
             switch delegate {
@@ -196,7 +195,6 @@ private extension LoginRootFeature {
             case .dismissLoginRootView:
                 return .send(.delegate(.dismissLoginRootView))
             }
-         default: return .none
         }
     }
     /// - Delegate Effect

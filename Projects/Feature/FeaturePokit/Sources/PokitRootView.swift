@@ -51,6 +51,7 @@ public extension PokitRootView {
                     delegateSend: { store.send(.scope(.deleteBottomSheet($0))) }
                 )
             }
+            .onAppear { send(.pokitRootViewOnAppeared) }
         }
     }
 }
@@ -109,17 +110,17 @@ private extension PokitRootView {
         }
         .padding(.top, 20)
         .scrollIndicators(.hidden)
-        .animation(.smooth, value: store.mock.elements)
-        .animation(.smooth, value: store.unclassifiedMock.elements)
+        .animation(.smooth, value: store.categories.elements)
+        .animation(.smooth, value: store.unclassifiedContents.elements)
         .animation(.spring, value: store.folderType)
     }
     
     var pokitView: some View {
         LazyVGrid(columns: column, spacing: 12) {
-            ForEach(store.mock, id: \.id) { item in
+            ForEach(store.categories, id: \.id) { item in
                 PokitCard(
                     category: item,
-                    action: { send(.categoryTapped) },
+                    action: { send(.categoryTapped(item)) },
                     kebabAction: { send(.kebobButtonTapped(item)) }
                 )
             }
@@ -128,14 +129,14 @@ private extension PokitRootView {
     }
     var unclassifiedView: some View {
         VStack(spacing: 0) {
-            ForEach(store.unclassifiedMock) { link in
-                let isFirst = link == store.unclassifiedMock.first
-                let isLast = link == store.unclassifiedMock.last
+            ForEach(store.unclassifiedContents) { content in
+                let isFirst = content == store.unclassifiedContents.first
+                let isLast = content == store.unclassifiedContents.last
                 
                 PokitLinkCard(
-                    link: link,
-                    action: { send(.linkItemTapped(link)) },
-                    kebabAction: { send(.unclassifiedKebobButtonTapped(link)) }
+                    link: content,
+                    action: { send(.contentItemTapped(content)) },
+                    kebabAction: { send(.unclassifiedKebobButtonTapped(content)) }
                 )
                 .divider(isFirst: isFirst, isLast: isLast)
             }
@@ -149,10 +150,7 @@ private extension PokitRootView {
     Group {
         PokitRootView(
             store: Store(
-                initialState: .init(
-                    mock: PokitRootCardMock.mock, 
-                    unclassifiedMock: LinkMock.recommendedMock
-                ),
+                initialState: .init(),
                 reducer: { PokitRootFeature() }
             )
         )

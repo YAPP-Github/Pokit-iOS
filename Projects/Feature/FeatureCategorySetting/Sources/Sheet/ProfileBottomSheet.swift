@@ -6,11 +6,13 @@
 
 import SwiftUI
 
+import Domain
+import CoreKit
 import DSKit
 
 public struct ProfileBottomSheet: View {
     @State private var height: CGFloat = 0
-    @State private var images: [CategorySettingImageMock]
+    @State private var images: [BaseCategoryImage]
     private let colmumns = [
         GridItem(.fixed(66), spacing: 20),
         GridItem(.fixed(66), spacing: 20),
@@ -19,7 +21,7 @@ public struct ProfileBottomSheet: View {
     private let delegateSend: ((ProfileBottomSheet.Delegate) -> Void)?
     
     public init(
-        images: [CategorySettingImageMock],
+        images: [BaseCategoryImage],
         delegateSend: ((ProfileBottomSheet.Delegate) -> Void)?
     ) {
         self.images = images
@@ -32,9 +34,9 @@ public extension ProfileBottomSheet {
     var body: some View {
         ScrollView {
             LazyVGrid(columns: colmumns, spacing: 12) {
-                ForEach(images, id: \.imageId) { item in
+                ForEach(images) { item in
                     AsyncImage(
-                        url: URL(string: item.imageUrl),
+                        url: URL(string: item.imageURL),
                         transaction: .init(animation: .spring)
                     ) { phase in
                         switch phase {
@@ -77,13 +79,13 @@ public extension ProfileBottomSheet {
 //MARK: - Delegate
 public extension ProfileBottomSheet {
     enum Delegate: Equatable {
-        case imageSelected(CategorySettingImageMock)
+        case imageSelected(BaseCategoryImage)
     }
 }
 //MARK: - Preview
 #Preview {
     ProfileBottomSheet(
-        images: CategorySettingImageMock.mock,
+        images: CategoryImageResponse.mock.map { $0.toDomain() },
         delegateSend: nil
     )
 }

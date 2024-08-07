@@ -7,11 +7,18 @@
 
 import Foundation
 
-public struct RegisterNickname {
+public struct RegisterNickname: Equatable {
     // - MARK: Response
     /// 닉네임 중복 여부
-    public let isDuplicate: Bool
+    public var isDuplicate: Bool
     // - MARK: Request
     /// 등록할 닉네임
-    public let nickname: String
+    public var nickname: String
+    
+    public init(
+        isDuplicate: Bool = false,
+        nickname: String = "") {
+        self.isDuplicate = isDuplicate
+        self.nickname = nickname
+    }
 }

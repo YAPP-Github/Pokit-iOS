@@ -51,7 +51,7 @@ public struct PokitList<Item: PokitSelectItem>: View {
                         .pokitFont(.b1(.b))
                         .foregroundStyle(.pokit(.text(.primary)))
                     
-                    Text("링크 \(item.contentSize)개")
+                    Text("링크 \(item.contentCount)개")
                         .pokitFont(.detail1)
                         .foregroundStyle(.pokit(.text(.tertiary)))
                 }

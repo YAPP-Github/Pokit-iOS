@@ -14,4 +14,5 @@ public protocol PokitLinkCardItem {
     var categoryName: String { get }
     var isRead: Bool { get }
     var data: String { get }
+    var domain: String { get }
 }

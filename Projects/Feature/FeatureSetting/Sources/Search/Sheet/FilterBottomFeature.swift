@@ -7,6 +7,8 @@
 import Foundation
 
 import ComposableArchitecture
+import Domain
+import CoreKit
 import Util
 
 @Reducer
@@ -18,7 +20,7 @@ public struct FilterBottomFeature {
     public struct State: Equatable {
         public init(
             filterType currentType: FilterType,
-            pokitFilter selectedPokit: SearchPokitMock?,
+            pokitFilter selectedPokit: BaseCategory?,
             favoriteFilter isFavorite: Bool,
             unreadFilter isUnread: Bool,
             startDateFilter startDate: Date?,
@@ -34,8 +36,8 @@ public struct FilterBottomFeature {
         }
         
         var currentType: FilterType
-        var pokitList = SearchPokitMock.addLinkMock
-        var selectedPokit: SearchPokitMock?
+        
+        var selectedPokit: BaseCategory?
         var isFavorite: Bool
         var isUnread: Bool
         var dateSelected: Bool
@@ -50,6 +52,11 @@ public struct FilterBottomFeature {
             let fomatter = DateFormatter()
             fomatter.dateFormat = "yy.MM.dd"
             return fomatter.string(from: endDate)
+        }
+        
+        fileprivate var domain = FilterBottom()
+        var pokitList: [BaseCategory] {
+            get { domain.categoryList.data }
         }
     }
     
@@ -66,7 +73,7 @@ public struct FilterBottomFeature {
             /// - Binding
             case binding(BindingAction<State>)
             /// - Button Tapped
-            case pokitListCellTapped(pokit: SearchPokitMock)
+            case pokitListCellTapped(pokit: BaseCategory)
             case searchButtonTapped
             case pokitChipTapped
             case favoriteChipTapped
@@ -74,6 +81,8 @@ public struct FilterBottomFeature {
             case dateChipTapped
             case favoriteButtonTapped
             case unreadButtonTapped
+            
+            case filterBottomSheetOnAppeard
         }
         
         public enum InnerAction: Equatable { case doNothing }
@@ -84,7 +93,7 @@ public struct FilterBottomFeature {
         
         public enum DelegateAction: Equatable {
             case searchButtonTapped(
-                pokit: SearchPokitMock?,
+                pokit: BaseCategory?,
                 isFavorite: Bool,
                 isUnread: Bool,
                 startDate: Date?,
@@ -181,6 +190,10 @@ private extension FilterBottomFeature {
         case .unreadButtonTapped:
             state.isUnread.toggle()
             return .none
+        case .filterBottomSheetOnAppeard:
+            // - MARK: 더미 조회
+            state.domain.categoryList = CategoryListInquiryResponse.mock.toDomain()
+            return .none
         }
     }
     
@@ -208,7 +221,7 @@ private extension FilterBottomFeature {
 public extension FilterBottomFeature {
     enum FilterType {
         case pokit
-        case linkType
+        case contentType
         case date
     }
 }
