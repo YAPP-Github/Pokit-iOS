@@ -10,7 +10,7 @@ import Foundation
 public struct CategoryDetail: Equatable {
     // - MARK: Respone
     /// 카테고리(포킷)
-    public let category: BaseCategory
+    public var category: BaseCategory
     /// - 카테고리(포킷) 리스트
     public var categoryListInQuiry: BaseCategoryListInquiry
     /// 카테고리(포킷) 내 콘텐츠(링크) 리스트

@@ -84,6 +84,7 @@ public struct PokitRootFeature {
             case pokitDeleteSheetPresented(Bool)
             case sort
             case onAppearResult(classified: BaseCategoryListInquiry)
+            case 목록조회_갱신용
         }
         
         public enum AsyncAction: Equatable {
@@ -192,6 +193,8 @@ private extension PokitRootFeature {
                     let classified = try await categoryClient.카테고리_목록_조회(request, true).toDomain()
                     await send(.inner(.onAppearResult(classified: classified)))
                     await send(.inner(.sort))
+                } else {
+                    await send(.inner(.목록조회_갱신용))
                 }
             }
         }
@@ -234,6 +237,15 @@ private extension PokitRootFeature {
             default: return .none
             }
             return .none
+        case .목록조회_갱신용:
+            return .run { [domain = state.domain.categoryList,
+                           sortType = state.sortType] send in
+                let sort = sortType == .sort(.최신순) ? "desc" : "asc"
+                let request = BasePageableRequest(page: 0, size: domain.size, sort: [sort])
+                let classified = try await categoryClient.카테고리_목록_조회(request, true).toDomain()
+                await send(.inner(.onAppearResult(classified: classified)))
+                await send(.inner(.sort))
+            }
         }
     }
     
@@ -241,7 +253,7 @@ private extension PokitRootFeature {
     func handleAsyncAction(_ action: Action.AsyncAction, state: inout State) -> Effect<Action> {
         switch action {
         case let .포킷삭제(categoryId):
-            return .run { _ in
+            return .run { send in
                 try await categoryClient.카테고리_삭제(categoryId)
             }
         }
