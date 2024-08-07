@@ -17,10 +17,10 @@ public struct Pokit: Equatable {
     public init() {
         self.categoryList = .init(
             data: [],
-            page: 0,
+            page: -1,
             size: 10,
             sort: [],
-            hasNext: false
+            hasNext: true
         )
         self.unclassifiedContentList = .init(
             data: [],
