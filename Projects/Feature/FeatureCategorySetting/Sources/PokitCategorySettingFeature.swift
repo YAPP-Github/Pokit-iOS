@@ -11,11 +11,15 @@ import Domain
 import CoreKit
 import Util
 
+/// - 사용되는 API 목록
+/// 1. Profile 🎨
+/// 2. 포킷 생성 🖨️
 @Reducer
 public struct PokitCategorySettingFeature {
     /// - Dependency
     @Dependency(\.dismiss) var dismiss
     @Dependency(\.pasteboard) var pasteboard
+    @Dependency(\.categoryClient) var categoryClient
     /// - State
     @ObservableState
     public struct State: Equatable {
@@ -79,9 +83,13 @@ public struct PokitCategorySettingFeature {
             case onAppear
         }
         
-        public enum InnerAction: Equatable { case doNothing }
+        public enum InnerAction: Equatable {
+            case 프로필_목록_조회_결과(images: [BaseCategoryImage])
+        }
         
-        public enum AsyncAction: Equatable { case doNothing }
+        public enum AsyncAction: Equatable {
+            case 프로필_목록_조회
+        }
         
         public enum ScopeAction: Equatable {
             case profile(ProfileBottomSheet.Delegate)
@@ -141,25 +149,39 @@ private extension PokitCategorySettingFeature {
             return .run { _ in await dismiss() }
             
         case .profileSettingButtonTapped:
-            /// 1. 프로필 목록 조회 API 호출
-            /// 2. 프로필 목록들을 profileImages에 할당
-            // - MARK: 목업 데이터 조회
-            state.domain.imageList = CategoryImageResponse.mock.map { $0.toDomain() }
-            /// 3. 토글 on
-            state.isProfileSheetPresented.toggle()
-            return .none
-            
+            /// [Profile 🎨]1. 프로필 목록 조회 API 호출
+            return .run { send in await send(.async(.프로필_목록_조회)) }
+
         case .saveButtonTapped:
-            return .run { [domain = state.domain] send in
-                ///Todo: 네트워크 코드 추가
-//                let result = try await network
-            
-                /// - mock
-                guard let imageId = domain.categoryImage?.id else { return }
-                await send(.delegate(.settingSuccess(
-                    categoryName: domain.categoryName,
-                    categoryImageId: imageId
-                )))
+            return .run { [domain = state.domain,
+                           type = state.type] send in
+                switch type {
+                case .추가:
+                    guard let image = domain.categoryImage else { return }
+                    let request = CategoryEditRequest(categoryName: domain.categoryName, categoryImageId: image.id)
+                    let response = try await categoryClient.카테고리_생성(request)
+                    await send(
+                        .delegate(
+                            .settingSuccess(
+                                categoryName: response.categoryName,
+                                categoryImageId: response.categoryImage.imageId
+                            )
+                        )
+                    )
+                case .수정:
+                    guard let categoryId = domain.categoryId else { return }
+                    guard let image = domain.categoryImage else { return }
+                    let request = CategoryEditRequest(categoryName: domain.categoryName, categoryImageId: image.id)
+                    let response = try await categoryClient.카테고리_수정(categoryId, request)
+                    await send(
+                        .delegate(
+                            .settingSuccess(
+                                categoryName: response.categoryName,
+                                categoryImageId: response.categoryImage.imageId
+                            )
+                        )
+                    )
+                }
             }
             
         case .onAppear:
@@ -176,12 +198,26 @@ private extension PokitCategorySettingFeature {
     
     /// - Inner Effect
     func handleInnerAction(_ action: Action.InnerAction, state: inout State) -> Effect<Action> {
-        return .none
+        switch action {
+        case let .프로필_목록_조회_결과(images):
+            /// [Profile 🎨] 2. 프로필 목록들을 profileImages에 할당
+            state.domain.imageList = images
+            /// [Profile 🎨] 3. 토글 on
+            state.isProfileSheetPresented.toggle()
+            return .none
+        }
     }
     
     /// - Async Effect
     func handleAsyncAction(_ action: Action.AsyncAction, state: inout State) -> Effect<Action> {
-        return .none
+        switch action {
+        case .프로필_목록_조회:
+            return .run { send in
+                let a = try await categoryClient.카테고리_프로필_목록_조회()
+                let b = a.map { $0.toDomain() }
+                await send(.inner(.프로필_목록_조회_결과(images: b)))
+            }
+        }
     }
     
     /// - Scope Effect
