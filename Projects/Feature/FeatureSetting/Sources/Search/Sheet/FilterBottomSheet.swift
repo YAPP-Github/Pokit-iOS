@@ -38,8 +38,8 @@ public extension FilterBottomSheet {
                         list: store.pokitList,
                         action: { send(.pokitListCellTapped(pokit: $0), animation: .pokitSpring) }
                     )
-                case .linkType:
-                    linkTypes
+                case .contentType:
+                    contentTypes
                 case .date:
                     PokitCalendar(
                         startDate: $store.startDate,
@@ -66,6 +66,7 @@ public extension FilterBottomSheet {
             .pokitPresentationCornerRadius()
             .presentationDragIndicator(.visible)
             .presentationDetents([.height(664)])
+            .onAppear { send(.filterBottomSheetOnAppeard) }
         }
     }
 }
@@ -83,7 +84,7 @@ private extension FilterBottomSheet {
             PokitPartTap(
                 "모아보기",
                 selection: $store.currentType,
-                to: .linkType
+                to: .contentType
             )
             .matchedGeometryEffectBackground(id: heroEffect)
             
@@ -96,15 +97,15 @@ private extension FilterBottomSheet {
         }
     }
     
-    var linkTypes: some View {
+    var contentTypes: some View {
         VStack(spacing: 0) {
-            linkTypeButton(
+            contentTypeButton(
                 "즐겨찾기",
                 isSelected: $store.isFavorite,
                 action: { send(.favoriteButtonTapped, animation: .pokitSpring) }
             )
             
-            linkTypeButton(
+            contentTypeButton(
                 "안읽음",
                 isSelected: $store.isUnread,
                 action: { send(.unreadButtonTapped, animation: .pokitSpring) }
@@ -115,7 +116,7 @@ private extension FilterBottomSheet {
     }
     
     @ViewBuilder
-    func linkTypeButton(
+    func contentTypeButton(
         _ title: String,
         isSelected: Binding<Bool>,
         action: @escaping () -> Void

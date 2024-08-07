@@ -7,13 +7,21 @@
 
 import Foundation
 
-public struct NicknameSetting {
+public struct NicknameSetting: Equatable {
     // - MARK: Response
     /// 유저 정보
-    public let user: BaseUser
+//    public let user: BaseUser
     /// 닉네임 중복 여부
-    public let isDuplicate: Bool
+    public var isDuplicate: Bool
     // - MARK: Request
     /// 등록할 닉네임
-    public let nickname: String
+    public var nickname: String
+    
+    public init(
+        isDuplicate: Bool = false,
+        nickname: String = ""
+    ) {
+        self.isDuplicate = isDuplicate
+        self.nickname = nickname
+    }
 }

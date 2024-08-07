@@ -5,6 +5,8 @@
 //  Created by 김민호 on 7/16/24.
 
 import ComposableArchitecture
+import Domain
+import CoreKit
 import DSKit
 import Util
 
@@ -20,22 +22,29 @@ public struct PokitRootFeature {
         var folderType: PokitRootFilterType = .folder(.포킷)
         var sortType: PokitRootFilterType = .sort(.최신순)
         
-        var mock: IdentifiedArrayOf<PokitRootCardMock> = []
-        var unclassifiedMock: IdentifiedArrayOf<LinkMock> = []
+        fileprivate var domain = Pokit()
+        var categories: IdentifiedArrayOf<BaseCategory> {
+            var identifiedArray = IdentifiedArrayOf<BaseCategory>()
+            domain.categoryList.data.forEach { category in
+                identifiedArray.append(category)
+            }
+            return identifiedArray
+        }
+        var unclassifiedContents: IdentifiedArrayOf<BaseContent> {
+            var identifiedArray = IdentifiedArrayOf<BaseContent>()
+            domain.unclassifiedContentList.data.forEach { content in
+                identifiedArray.append(content)
+            }
+            return identifiedArray
+        }
         
-        var selectedKebobItem: PokitRootCardMock?
-        var selectedUnclassifiedItem: LinkMock?
+        var selectedKebobItem: BaseCategory?
+        var selectedUnclassifiedItem: BaseContent?
         
         var isKebobSheetPresented: Bool = false
         var isPokitDeleteSheetPresented: Bool = false
         
-        public init(
-            mock: [PokitRootCardMock],
-            unclassifiedMock: [LinkMock]
-        ) {
-            mock.forEach { self.mock.append($0) }
-            unclassifiedMock.forEach { self.unclassifiedMock.append($0) }
-        }
+        public init() { }
     }
     
     /// - Action
@@ -58,11 +67,13 @@ public struct PokitRootFeature {
             case filterButtonTapped(PokitRootFilterType.Folder)
             case sortButtonTapped
             /// - Kebob
-            case kebobButtonTapped(PokitRootCardMock)
-            case unclassifiedKebobButtonTapped(LinkMock)
+            case kebobButtonTapped(BaseCategory)
+            case unclassifiedKebobButtonTapped(BaseContent)
             
-            case categoryTapped
-            case linkItemTapped(LinkMock)
+            case categoryTapped(BaseCategory)
+            case contentItemTapped(BaseContent)
+            
+            case pokitRootViewOnAppeared
 
         }
         
@@ -83,11 +94,11 @@ public struct PokitRootFeature {
             case alertButtonTapped
             case settingButtonTapped
             
-            case categoryTapped
-            case 수정하기(PokitRootCardMock)
-            case 링크수정하기(LinkMock)
+            case categoryTapped(BaseCategory)
+            case 수정하기(BaseCategory)
+            case 링크수정하기(BaseContent)
             /// 링크상세로 이동
-            case linkDetailTapped(LinkMock)
+            case contentDetailTapped(BaseContent)
         }
     }
     
@@ -153,14 +164,23 @@ private extension PokitRootFeature {
             case .sort(.이름순):
                 /// `포킷`의 이름순 정렬일 때
                 state.folderType == .folder(.포킷)
-                ? state.mock.sort { $0.categoryType < $1.categoryType }
-                : state.unclassifiedMock.sort { $0.title < $1.title }
+                ? state.domain.categoryList.data.sort { $0.categoryName < $1.categoryName }
+                : state.domain.unclassifiedContentList.data.sort { $0.title < $1.title }
                 
             case .sort(.최신순):
                 /// `포킷`의 최신순 정렬일 때
                 state.folderType == .folder(.포킷)
-                ? state.mock.sort { $0.createAt < $1.createAt }
-                : state.unclassifiedMock.sort { $0.createdAt < $1.createdAt }
+                // - TODO: 정렬 조회 필요
+                ? state.domain.categoryList.sort = [
+                    .init(
+                        direction: "",
+                        nullHandling: "",
+                        ascending: true,
+                        property: "",
+                        ignoreCase: false
+                    )
+                ]
+                : state.domain.unclassifiedContentList.data.sort { $0.createdAt < $1.createdAt }
             default: return .none
             }
             
@@ -176,12 +196,17 @@ private extension PokitRootFeature {
             return .run { send in await send(.inner(.pokitCategorySheetPresented(true))) }
             
         /// - 카테고리 항목을 눌렀을 때
-        case .categoryTapped:
-            return .run { send in await send(.delegate(.categoryTapped)) }
+        case .categoryTapped(let category):
+            return .run { send in await send(.delegate(.categoryTapped(category))) }
         
         /// - 링크 아이템을 눌렀을 때
-        case .linkItemTapped(let selectedItem):
-            return .run { send in await send(.delegate(.linkDetailTapped(selectedItem))) }
+        case .contentItemTapped(let selectedItem):
+            return .run { send in await send(.delegate(.contentDetailTapped(selectedItem))) }
+        case .pokitRootViewOnAppeared:
+            // - MARK: 목업 데이터 조회
+            state.domain.categoryList = CategoryListInquiryResponse.mock.toDomain()
+            state.domain.unclassifiedContentList = ContentListInquiryResponse.mock.toDomain()
+            return .none
         }
     }
     
@@ -274,7 +299,10 @@ private extension PokitRootFeature {
                     /// 🚨 Error Case [1]: 항목을 삭제하려는데 항목이 없을 때
                     return .none
                 }
-                state.unclassifiedMock.remove(id: selectedItem.id)
+                guard let index = state.domain.unclassifiedContentList.data.firstIndex(of: selectedItem) else {
+                    return .none
+                }
+                state.domain.unclassifiedContentList.data.remove(at: index)
                 state.isPokitDeleteSheetPresented = false
                 return .none
                 
@@ -283,7 +311,10 @@ private extension PokitRootFeature {
                     /// 🚨 Error Case [1]: 항목을 삭제하려는데 항목이 없을 때
                     return .none
                 }
-                state.mock.remove(id: selectedItem.id)
+                guard let index = state.domain.categoryList.data.firstIndex(of: selectedItem) else {
+                    return .none
+                }
+                state.domain.categoryList.data.remove(at: index)
                 state.isPokitDeleteSheetPresented = false
                 return .none
             default: return .none

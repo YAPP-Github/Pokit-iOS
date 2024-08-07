@@ -7,6 +7,7 @@
 import Foundation
 
 import ComposableArchitecture
+import Domain
 import CoreKit
 import Util
 
@@ -18,13 +19,28 @@ public struct PokitCategorySettingFeature {
     /// - State
     @ObservableState
     public struct State: Equatable {
+        fileprivate var domain: PokitCategorySetting
+        
+        var selectedProfile: BaseCategoryImage? {
+            get { domain.categoryImage }
+            set { domain.categoryImage = newValue }
+        }
+        var categoryName: String {
+            get { domain.categoryName }
+            set { domain.categoryName = newValue }
+        }
+        var profileImages: [BaseCategoryImage] {
+            get { domain.imageList }
+        }
+        var itemList: IdentifiedArrayOf<BaseCategory> {
+            var identifiedArray = IdentifiedArrayOf<BaseCategory>()
+            domain.categoryListInQuiry.data.forEach { category in
+                identifiedArray.append(category)
+            }
+            return identifiedArray
+        }
         let type: SettingType
-        var categoryId: Int?
-        var selectedProfile: CategorySettingImageMock?
-        var text: String
-        var itemList: IdentifiedArrayOf<CategoryItemMock> = []
         var isProfileSheetPresented: Bool = false
-        var profileImages: [CategorySettingImageMock] = []
         
         /// - 포킷 수정 API / 추가 API
         /// categoryName
@@ -34,15 +50,15 @@ public struct PokitCategorySettingFeature {
         public init(
             type: SettingType,
             categoryId: Int? = nil,
-            selectedProfile: CategorySettingImageMock? = nil,
-            text: String? = "",
-            itemList: [CategoryItemMock]
+            categoryImage: BaseCategoryImage? = nil,
+            categoryName: String? = ""
         ) {
             self.type = type
-            self.categoryId = categoryId
-            self.selectedProfile = selectedProfile
-            self.text = text ?? ""
-            itemList.forEach { self.itemList.append($0) }
+            self.domain = .init(
+                categoryId: categoryId,
+                categoryName: categoryName,
+                categoryImage: categoryImage
+            )
         }
     }
     
@@ -73,7 +89,7 @@ public struct PokitCategorySettingFeature {
         
         public enum DelegateAction: Equatable {
             /// 이전화면으로 돌아가 카테고리 항목을 추가하면됨
-            case settingSuccess(CategorySettingMock)
+            case settingSuccess(categoryName: String, categoryImageId: Int)
             case linkCopyDetected(URL?)
         }
     }
@@ -127,22 +143,28 @@ private extension PokitCategorySettingFeature {
         case .profileSettingButtonTapped:
             /// 1. 프로필 목록 조회 API 호출
             /// 2. 프로필 목록들을 profileImages에 할당
-            state.profileImages = CategorySettingImageMock.mock
+            // - MARK: 목업 데이터 조회
+            state.domain.imageList = CategoryImageResponse.mock.map { $0.toDomain() }
             /// 3. 토글 on
             state.isProfileSheetPresented.toggle()
             return .none
             
         case .saveButtonTapped:
-            return .run { send in
+            return .run { [domain = state.domain] send in
                 ///Todo: 네트워크 코드 추가
 //                let result = try await network
             
                 /// - mock
-                let result = CategorySettingMock(categoryId: 0, categoryName: "", categoryImage: CategorySettingImageMock(imageId: 0, imageUrl: ""))
-                await send(.delegate(.settingSuccess(result)))
+                guard let imageId = domain.categoryImage?.id else { return }
+                await send(.delegate(.settingSuccess(
+                    categoryName: domain.categoryName,
+                    categoryImageId: imageId
+                )))
             }
             
         case .onAppear:
+            // - MARK: 목업 데이터 조회
+            state.domain.categoryListInQuiry = CategoryListInquiryResponse.mock.toDomain()
             return .run { send in
                 for await _ in self.pasteboard.changes() {
                     let url = try await pasteboard.probableWebURL()

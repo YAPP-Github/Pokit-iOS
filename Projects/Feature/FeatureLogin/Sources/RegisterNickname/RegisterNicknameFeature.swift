@@ -5,6 +5,7 @@
 //  Created by 김도형 on 7/5/24.
 
 import ComposableArchitecture
+import Domain
 import CoreKit
 import DSKit
 import Util
@@ -20,7 +21,15 @@ public struct RegisterNicknameFeature {
     public struct State: Equatable {
         public init() {}
         
-        var nicknameText: String = ""
+        fileprivate var domain = RegisterNickname()
+        var nicknameText: String {
+            get { domain.nickname }
+            set { domain.nickname = newValue }
+        }
+        var isDuplicate: Bool {
+            get { domain.isDuplicate }
+            set { domain.isDuplicate = newValue }
+        }
         var buttonActive: Bool = false
         var textfieldState: PokitInputStyle.State = .default
     }
@@ -48,7 +57,7 @@ public struct RegisterNicknameFeature {
         }
         public enum ScopeAction: Equatable { case doNothing }
         public enum DelegateAction: Equatable {
-            case pushSelectFieldView(nickName: String)
+            case pushSelectFieldView(nickname: String)
         }
     }
     /// initiallizer
@@ -86,11 +95,9 @@ private extension RegisterNicknameFeature {
     func handleViewAction(_ action: Action.ViewAction, state: inout State) -> Effect<Action> {
         switch action {
         case .nextButtonTapped:
-            if state.buttonActive {
                 return .run { [nickName = state.nicknameText] send in
-                    await send(.delegate(.pushSelectFieldView(nickName: nickName)))
+                    await send(.delegate(.pushSelectFieldView(nickname: nickName)))
                 }
-            }
             return .none
         case .backButtonTapped:
             return .run { _ in await self.dismiss() }

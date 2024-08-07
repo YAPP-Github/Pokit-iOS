@@ -10,9 +10,9 @@ import Foundation
 import Util
 /// 포킷 수정 API Response
 public struct CategoryEditResponse: Decodable {
-    let categoryId: Int
-    let categoryName: String
-    let categoryImage: CategoryImageResponse
+    public let categoryId: Int
+    public let categoryName: String
+    public let categoryImage: CategoryImageResponse
 }
 
 extension CategoryEditResponse {
@@ -27,8 +27,8 @@ extension CategoryEditResponse {
 }
 
 public struct CategoryImageResponse: Decodable {
-    let imageId: Int
-    let imageUrl: String
+    public let imageId: Int
+    public let imageUrl: String
 }
 
 extension CategoryImageResponse {

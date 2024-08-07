@@ -47,7 +47,7 @@ public struct PokitAlertBoxFeature {
         public enum ScopeAction: Equatable { case doNothing }
         
         public enum DelegateAction: Equatable {
-            case moveToLinkEdit(item: AlertMock)
+            case moveToContentEdit(item: AlertMock)
             case linkCopyDetected(URL?)
         }
     }
@@ -98,7 +98,7 @@ private extension PokitAlertBoxFeature {
             return .none
         /// - 선택한 항목을 `링크수정`화면으로 이동해 수정
         case .itemSelected(let item):
-            return .run { send in await send(.delegate(.moveToLinkEdit(item: item))) }
+            return .run { send in await send(.delegate(.moveToContentEdit(item: item))) }
         case .dismiss:
             return .run { _ in await dismiss() }
         case .onAppear:

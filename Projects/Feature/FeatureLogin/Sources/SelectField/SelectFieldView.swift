@@ -92,7 +92,7 @@ extension SelectFieldView {
     NavigationStack {
         SelectFieldView(
             store: Store(
-                initialState: .init(),
+                initialState: .init(nickname: ""),
                 reducer: { SelectFieldFeature() }
             )
         )

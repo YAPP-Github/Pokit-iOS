@@ -5,6 +5,8 @@
 //  Created by 김민호 on 7/22/24.
 
 import ComposableArchitecture
+import Domain
+import CoreKit
 import DSKit
 import Util
 
@@ -15,7 +17,11 @@ public struct NickNameSettingFeature {
     /// - State
     @ObservableState
     public struct State: Equatable {
-        var text: String = ""
+        fileprivate var domain = NicknameSetting()
+        var text: String {
+            get { self.domain.nickname }
+            set { self.domain.nickname = newValue }
+        }
         var buttonState: PokitButtonStyle.State = .disable
         
         public init() {}
@@ -85,6 +91,8 @@ private extension NickNameSettingFeature {
     func handleViewAction(_ action: Action.View, state: inout State) -> Effect<Action> {
         switch action {
         case .binding:
+            // - MARK: 목업 데이터 조회
+            state.domain.isDuplicate = NicknameCheckResponse.mock.toDomain()
             return .none
             
         case .dismiss:

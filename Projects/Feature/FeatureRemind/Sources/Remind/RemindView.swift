@@ -7,6 +7,7 @@
 import SwiftUI
 
 import ComposableArchitecture
+import Domain
 import DSKit
 import Util
 
@@ -28,12 +29,12 @@ public extension RemindView {
         WithPerceptionTracking {
             ScrollView {
                 VStack(spacing: 32) {
-                    recommededLinkList
+                    recommededContentList
                     
                     Group {
-                        unreadLinkList
+                        unreadContentList
                         
-                        favoriteLinkList
+                        favoriteContentList
                     }
                     .padding(.horizontal, 20)
                 }
@@ -43,25 +44,26 @@ public extension RemindView {
             .background(.pokit(.bg(.base)))
             .ignoresSafeArea(edges: .bottom)
             .pokitNavigationBar(title: "")
-            .sheet(item: $store.bottomSheetItem) { link in
+            .sheet(item: $store.bottomSheetItem) { content in
                 PokitBottomSheet(
                     items: [.share, .edit, .delete],
                     height: 224
-                ) { send(.bottomSheetButtonTapped(delegate: $0, link: link)) }
+                ) { send(.bottomSheetButtonTapped(delegate: $0, content: content)) }
             }
-            .sheet(item: $store.alertItem) { link in
+            .sheet(item: $store.alertItem) { content in
                 PokitAlert(
                     "링크를 정말 삭제하시겠습니까?",
                     message: "함께 저장한 모든 정보가 삭제되며, \n복구하실 수 없습니다.",
                     confirmText: "삭제"
-                ) { send(.deleteAlertConfirmTapped(link: link)) }
+                ) { send(.deleteAlertConfirmTapped(content: content)) }
             }
+            .onAppear { send(.remindViewOnAppeared) }
         }
     }
 }
 //MARK: - Configure View
 extension RemindView {
-    private var recommededLinkList: some View {
+    private var recommededContentList: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("오늘 이 링크는 어때요?")
                 .pokitFont(.title2)
@@ -70,8 +72,8 @@ extension RemindView {
             
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 12) {
-                    ForEach(store.recommendedLinks) { link in
-                        recommendedLinkCell(link: link)
+                    ForEach(store.recommendedContents) { content in
+                        recommendedContentCell(content: content)
                         
                     }
                 }
@@ -81,19 +83,19 @@ extension RemindView {
     }
     
     @ViewBuilder
-    private func recommendedLinkCell(link: LinkMock) -> some View {
-        Button(action: { send(.linkCardTapped(link: link)) }) {
-            recommendedLinkCellLabel(link: link)
+    private func recommendedContentCell(content: BaseContent) -> some View {
+        Button(action: { send(.linkCardTapped(content: content)) }) {
+            recommendedContentCellLabel(content: content)
         }
         
     }
     
     @ViewBuilder
-    private func recommendedLinkCellLabel(link: LinkMock) -> some View {
-        let date = formatter.string(from: link.createdAt)
+    private func recommendedContentCellLabel(content: BaseContent) -> some View {
+        let date = formatter.string(from: content.createdAt)
         
         ZStack(alignment: .bottom) {
-            AsyncImage(url: .init(string: link.thumbNail)) { image in
+            AsyncImage(url: .init(string: content.thumbNail)) { image in
                 image
                     .resizable()
             } placeholder: {
@@ -116,10 +118,10 @@ extension RemindView {
             )
             
             VStack(alignment: .leading, spacing: 0) {
-                PokitBadge(link.categoryName, state: .small)
+                PokitBadge(content.categoryName, state: .small)
                 
                 HStack(spacing: 4) {
-                    Text(link.title)
+                    Text(content.title)
                         .pokitFont(.b2(.b))
                         .foregroundStyle(.pokit(.text(.inverseWh)))
                         .multilineTextAlignment(.leading)
@@ -128,7 +130,7 @@ extension RemindView {
                     Spacer()
                     
                     kebabButton {
-                        send(.kebabButtonTapped(link: link))
+                        send(.kebabButtonTapped(content: content))
                     }
                     .foregroundStyle(.pokit(.icon(.inverseWh)))
                     .zIndex(1)
@@ -136,7 +138,7 @@ extension RemindView {
                 }
                 .padding(.top, 4)
                 
-                Text("\(date) • \(link.data)")
+                Text("\(date) • \(content.domain)")
                     .pokitFont(.detail2)
                     .foregroundStyle(.pokit(.text(.tertiary)))
                     .padding(.top, 8)
@@ -176,42 +178,42 @@ extension RemindView {
         }
     }
     
-    private var unreadLinkList: some View {
+    private var unreadContentList: some View {
         VStack(spacing: 0) {
             listNavigationLink("한번도 읽지 않았어요") {
                 send(.unreadNavigationLinkTapped)
             }
             .padding(.bottom, 16)
             
-            ForEach(store.unreadLinks) { link in
-                let isFirst = link == store.unreadLinks.first
-                let isLast = link == store.unreadLinks.last
+            ForEach(store.unreadContents) { content in
+                let isFirst = content == store.unreadContents.elements.first
+                let isLast = content == store.unreadContents.elements.last
                 
                 PokitLinkCard(
-                    link: link,
-                    action: { send(.linkCardTapped(link: link)) },
-                    kebabAction: { send(.kebabButtonTapped(link: link)) }
+                    link: content,
+                    action: { send(.linkCardTapped(content: content)) },
+                    kebabAction: { send(.kebabButtonTapped(content: content)) }
                 )
                 .divider(isFirst: isFirst, isLast: isLast)
             }
         }
     }
     
-    private var favoriteLinkList: some View {
+    private var favoriteContentList: some View {
         VStack(spacing: 0) {
             listNavigationLink("즐겨찾기 링크만 모았어요") {
                 send(.favoriteNavigationLinkTapped)
             }
             .padding(.bottom, 16)
             
-            ForEach(store.favoriteLinks) { link in
-                let isFirst = link == store.favoriteLinks.first
-                let isLast = link == store.favoriteLinks.last
+            ForEach(store.favoriteContents) { content in
+                let isFirst = content == store.favoriteContents.elements.first
+                let isLast = content == store.favoriteContents.elements.last
                 
                 PokitLinkCard(
-                    link: link,
-                    action: { send(.linkCardTapped(link: link)) },
-                    kebabAction: { send(.kebabButtonTapped(link: link)) }
+                    link: content,
+                    action: { send(.linkCardTapped(content: content)) },
+                    kebabAction: { send(.kebabButtonTapped(content: content)) }
                 )
                 .divider(isFirst: isFirst, isLast: isLast)
             }

@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct BasePageable {
+public struct BasePageable: Equatable {
     public let page: Int
     public let size: Int
     public let sort: [String]

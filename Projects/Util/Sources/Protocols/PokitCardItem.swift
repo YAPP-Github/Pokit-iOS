@@ -8,7 +8,14 @@
 import Foundation
 
 public protocol PokitCardItem {
-    var categoryType: String { get }
-    var contentSize: Int { get }
-    var thumbNail: String { get }
+    associatedtype Thumbnail: CategoryImage
+    
+    var categoryName: String { get }
+    var contentCount: Int { get }
+    var categoryImage: Thumbnail { get }
+}
+
+public protocol CategoryImage {
+    var id: Int { get }
+    var imageURL: String { get }
 }

@@ -7,6 +7,7 @@
 import Foundation
 
 import ComposableArchitecture
+import Domain
 import CoreKit
 import DSKit
 import Util
@@ -20,6 +21,8 @@ public struct PokitSearchFeature {
     @ObservableState
     public struct State: Equatable {
         public init() { }
+        @Presents
+        var filterBottomSheet: FilterBottomFeature.State?
         
         var searchText: String = ""
         var recentSearchTexts: [String] = [
@@ -37,20 +40,38 @@ public struct PokitSearchFeature {
         ]
         var isAutoSaveSearch: Bool = false
         var isSearching: Bool = false
-        var resultMock: IdentifiedArrayOf<SearchMock> = .init()
         var isFiltered: Bool = false
-        var pokitFilter: SearchPokitMock? = nil
-        var favoriteFilter: Bool = false
-        var unreadFilter: Bool = false
-        var linkTypeText = "모아보기"
-        var startDateFilter: Date? = nil
-        var endDateFilter: Date? = nil
-        @Presents var filterBottomSheet: FilterBottomFeature.State?
+        var categoryFilter: BaseCategory? = nil
+        var contentTypeText = "모아보기"
         var dateFilterText = "기간"
         var isResultAscending = true
+        
+        fileprivate var domain = Search()
+        var resultMock: IdentifiedArrayOf<BaseContent> {
+            var identifiedArray = IdentifiedArrayOf<BaseContent>()
+            domain.contentList.data.forEach { identifiedArray.append($0) }
+            return identifiedArray
+        }
+        var favoriteFilter: Bool {
+            get { domain.condition.favorites }
+            set { domain.condition.favorites = newValue }
+        }
+        var unreadFilter: Bool {
+            get { !domain.condition.isRead }
+            set { domain.condition.isRead = !newValue }
+        }
+        var startDateFilter: Date? {
+            get { domain.condition.startDate }
+            set { domain.condition.startDate = newValue }
+        }
+        var endDateFilter: Date? {
+            get { domain.condition.endDate }
+            set { domain.condition.endDate = newValue }
+        }
+        
         /// sheet item
-        var bottomSheetItem: SearchMock? = nil
-        var alertItem: SearchMock? = nil
+        var bottomSheetItem: BaseContent? = nil
+        var alertItem: BaseContent? = nil
     }
     
     /// - Action
@@ -71,18 +92,18 @@ public struct PokitSearchFeature {
             case searchTextInputIconTapped
             case searchTextChipButtonTapped(text: String)
             case filterButtonTapped
-            case linkTypeFilterButtonTapped
+            case contentTypeFilterButtonTapped
             case dateFilterButtonTapped
-            case pokitFilterButtonTapped
+            case categoryFilterButtonTapped
             case recentSearchAllRemoveButtonTapped
             case recentSearchChipIconTapped(searchText: String)
-            case linkCardTapped(link: SearchMock)
-            case kebabButtonTapped(link: SearchMock)
+            case linkCardTapped(content: BaseContent)
+            case kebabButtonTapped(content: BaseContent)
             case bottomSheetButtonTapped(
                 delegate: PokitBottomSheet.Delegate,
-                link: SearchMock
+                content: BaseContent
             )
-            case deleteAlertConfirmTapped(link: SearchMock)
+            case deleteAlertConfirmTapped(content: BaseContent)
             case sortTextLinkTapped
             case backButtonTapped
             /// - TextInput OnSubmitted
@@ -97,7 +118,7 @@ public struct PokitSearchFeature {
             case disableIsSearching
             case updateDateFilter(startDate: Date?, endDate: Date?)
             case showFilterBottomSheet(filterType: FilterBottomFeature.FilterType)
-            case updateLinkTypeFilter(favoriteFilter: Bool, unreadFilter: Bool)
+            case updateContentTypeFilter(favoriteFilter: Bool, unreadFilter: Bool)
             case dismissBottomSheet
             case updateIsFiltered
         }
@@ -108,13 +129,13 @@ public struct PokitSearchFeature {
             case filterBottomSheet(FilterBottomFeature.Action.DelegateAction)
             case bottomSheet(
                 delegate: PokitBottomSheet.Delegate,
-                link: SearchMock
+                content: BaseContent
             )
         }
         
         public enum DelegateAction: Equatable {
-            case linkCardTapped(link: SearchMock)
-            case bottomSheetEditCellButtonTapped(link: SearchMock)
+            case linkCardTapped(content: BaseContent)
+            case bottomSheetEditCellButtonTapped(content: BaseContent)
             case linkCopyDetected(URL?)
         }
     }
@@ -201,11 +222,11 @@ private extension PokitSearchFeature {
             }
         case .filterButtonTapped:
             return .send(.inner(.showFilterBottomSheet(filterType: .pokit)))
-        case .linkTypeFilterButtonTapped:
-            return .send(.inner(.showFilterBottomSheet(filterType: .linkType)))
+        case .contentTypeFilterButtonTapped:
+            return .send(.inner(.showFilterBottomSheet(filterType: .contentType)))
         case .dateFilterButtonTapped:
             return .send(.inner(.showFilterBottomSheet(filterType: .date)))
-        case .pokitFilterButtonTapped:
+        case .categoryFilterButtonTapped:
             return .send(.inner(.showFilterBottomSheet(filterType: .pokit)))
         case .recentSearchAllRemoveButtonTapped:
             state.recentSearchTexts.removeAll()
@@ -216,28 +237,22 @@ private extension PokitSearchFeature {
             }
             state.recentSearchTexts.remove(at: predicate)
             return .none
-        case .linkCardTapped(link: let link):
-            return .send(.delegate(.linkCardTapped(link: link)))
-        case .kebabButtonTapped(link: let link):
-            state.bottomSheetItem = link
+        case .linkCardTapped(content: let content):
+            return .send(.delegate(.linkCardTapped(content: content)))
+        case .kebabButtonTapped(content: let content):
+            state.bottomSheetItem = content
             return .none
-        case .bottomSheetButtonTapped(delegate: let delegate, link: let link):
+        case .bottomSheetButtonTapped(delegate: let delegate, content: let content):
             return .run { send in
                 await send(.inner(.dismissBottomSheet))
-                await send(.scope(.bottomSheet(delegate: delegate, link: link)))
+                await send(.scope(.bottomSheet(delegate: delegate, content: content)))
             }
-        case .deleteAlertConfirmTapped(link: let link):
+        case .deleteAlertConfirmTapped(content: let content):
             state.alertItem = nil
             return .none
         case .sortTextLinkTapped:
             state.isResultAscending.toggle()
-            // - MARK: 더미 정렬
-            state.resultMock = []
-            if state.isResultAscending {
-                SearchMock.resultMock.forEach{ state.resultMock.append($0) }
-            } else {
-                SearchMock.resultMock.reversed().forEach{ state.resultMock.append($0) }
-            }
+            // - TODO: 정렬
             return .none
         case .backButtonTapped:
             return .run { _ in
@@ -260,7 +275,7 @@ private extension PokitSearchFeature {
         case .enableIsSearching:
             state.isSearching = true
             // - MARK: 더미 조회
-            SearchMock.resultMock.forEach{ state.resultMock.append($0) }
+            state.domain.contentList = ContentListInquiryResponse.mock.toDomain()
             return .none
         case .disableIsSearching:
             state.isSearching = false
@@ -289,35 +304,35 @@ private extension PokitSearchFeature {
         case .showFilterBottomSheet(filterType: let filterType):
             state.filterBottomSheet = .init(
                 filterType: filterType,
-                pokitFilter: state.pokitFilter,
+                pokitFilter: state.categoryFilter,
                 favoriteFilter: state.favoriteFilter,
                 unreadFilter: state.unreadFilter,
                 startDateFilter: state.startDateFilter,
                 endDateFilter: state.endDateFilter
             )
             return .none
-        case .updateLinkTypeFilter(favoriteFilter: let favoriteFilter, unreadFilter: let unreadFilter):
+        case .updateContentTypeFilter(favoriteFilter: let favoriteFilter, unreadFilter: let unreadFilter):
             state.favoriteFilter = favoriteFilter
             state.unreadFilter = unreadFilter
             
             if favoriteFilter && unreadFilter {
                 /// - 즐겨찾기, 안읽음 모두 선택
-                state.linkTypeText = "즐겨찾기, 안읽음"
+                state.contentTypeText = "즐겨찾기, 안읽음"
             } else if favoriteFilter {
                 /// - 즐겨찾기만 선택
-                state.linkTypeText = "즐겨찾기"
+                state.contentTypeText = "즐겨찾기"
             } else if unreadFilter {
                 /// - 안읽음만 선택
-                state.linkTypeText = "안읽음"
+                state.contentTypeText = "안읽음"
             } else {
-                state.linkTypeText = "모아보기"
+                state.contentTypeText = "모아보기"
             }
             return .none
         case .dismissBottomSheet:
             state.bottomSheetItem = nil
             return .none
         case .updateIsFiltered:
-            state.isFiltered = state.pokitFilter != nil ||
+            state.isFiltered = state.categoryFilter != nil ||
             state.favoriteFilter ||
             state.unreadFilter ||
             state.startDateFilter != nil ||
@@ -340,20 +355,20 @@ private extension PokitSearchFeature {
             isUnread: let isUnread,
             startDate: let startDate,
             endDate: let endDate)):
-            state.pokitFilter = pokit
+            state.categoryFilter = pokit
             return .run { send in
-                await send(.inner(.updateLinkTypeFilter(favoriteFilter: isFavorite, unreadFilter: isUnread)))
+                await send(.inner(.updateContentTypeFilter(favoriteFilter: isFavorite, unreadFilter: isUnread)))
                 await send(.inner(.updateDateFilter(startDate: startDate, endDate: endDate)))
                 await send(.inner(.updateIsFiltered))
                 // - TODO: 검색 조회
             }
-        case .bottomSheet(let delegate, let link):
+        case .bottomSheet(let delegate, let content):
             switch delegate {
             case .deleteCellButtonTapped:
-                state.alertItem = link
+                state.alertItem = content
                 return .none
             case .editCellButtonTapped:
-                return .send(.delegate(.bottomSheetEditCellButtonTapped(link: link)))
+                return .send(.delegate(.bottomSheetEditCellButtonTapped(content: content)))
             case .favoriteCellButtonTapped:
                 return .none
             case .shareCellButtonTapped:

@@ -28,19 +28,8 @@ let project = Project(
             sources: ["Sources/**"],
             resources: ["Resources/**"],
             entitlements: .file(path: .relativeToRoot("Projects/App/Resources/Pokit-iOS.entitlements")),
-            dependencies: [
+            dependencies: features + [
                 // TODO: 의존성 추가
-                .project(target: "FeatureRemind", path: .relativeToRoot("Projects/Feature")),
-                .project(target: "FeatureCategorySetting", path: .relativeToRoot("Projects/Feature")),
-                .project(target: "FeatureAddLink", path: .relativeToRoot("Projects/Feature")),
-                .project(target: "FeatureLinkDetail", path: .relativeToRoot("Projects/Feature")),
-                .project(target: "FeatureMyFolder", path: .relativeToRoot("Projects/Feature")),
-                .project(target: "FeatureMyPage", path: .relativeToRoot("Projects/Feature")),
-                .project(target: "FeatureLogin", path: .relativeToRoot("Projects/Feature")),
-                .project(target: "FeaturePokit", path: .relativeToRoot("Projects/Feature")),
-                .project(target: "FeatureCategoryDetail", path: .relativeToRoot("Projects/Feature")),
-                .project(target: "FeatureSetting", path: .relativeToRoot("Projects/Feature")),
-                .project(target: "FeatureLinkList", path: .relativeToRoot("Projects/Feature")),
                 .external(name: "FirebaseMessaging")
             ],
             settings: .settings(

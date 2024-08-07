@@ -18,12 +18,7 @@ struct FeatureCategorySettingDemoApp: App {
             NavigationStack {
                 PokitCategorySettingView(
                     store: Store(
-                        initialState: .init(
-                            type: .수정,
-                            selectedProfile: CategorySettingImageMock(imageId: 22, imageUrl: Constants.mockImageUrl),
-                            text: "맛집리스트",
-                            itemList: CategoryItemMock.mock
-                        ),
+                        initialState: .init(type: .추가),
                         reducer: { PokitCategorySettingFeature() }
                     )
                 )

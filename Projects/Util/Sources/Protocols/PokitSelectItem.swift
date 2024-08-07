@@ -9,5 +9,5 @@ import Foundation
 
 public protocol PokitSelectItem: Identifiable, Equatable {
     var categoryName: String { get }
-    var contentSize: Int { get }
+    var contentCount: Int { get }
 }
