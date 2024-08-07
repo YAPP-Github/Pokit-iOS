@@ -20,7 +20,7 @@ extension DependencyValues {
 public struct CategoryClient {
     public var 카테고리_삭제: @Sendable (_ categoryId: Int) async throws -> Void
     public var 카테고리_수정: @Sendable (
-        _ categoryId: String,
+        _ categoryId: Int,
         _ model: CategoryEditRequest
     ) async throws -> CategoryEditResponse
     public var 카테고리_목록_조회: @Sendable (_ model: BasePageableRequest, _ filterUncategorized: Bool) async throws -> CategoryListInquiryResponse
