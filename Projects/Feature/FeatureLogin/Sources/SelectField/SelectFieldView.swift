@@ -51,6 +51,7 @@ public extension SelectFieldView {
                     }
                 }
             }
+            .task { await send(.onAppear).finish() }
         }
     }
 }
@@ -82,6 +83,7 @@ extension SelectFieldView {
                     send(.fieldChipTapped(field), animation: .smooth)
                 }
             }
+            .animation(.pokitSpring, value: store.fields)
         }
     }
 }

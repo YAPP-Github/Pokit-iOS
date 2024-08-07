@@ -8,10 +8,10 @@
 import Foundation
 
 public enum UserDefaultsKey {
-    enum BoolKey: String {
+    public enum BoolKey: String {
         case doNothing
     }
-    enum StringKey: String {
+    public enum StringKey: String {
         /// `구글` or `애플`
         case authPlatform
     }

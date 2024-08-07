@@ -17,12 +17,12 @@ extension DependencyValues {
 }
 
 public struct UserDefaultsClient {
-    var boolKey: @Sendable (UserDefaultsKey.BoolKey) -> Bool = { _ in false }
-    var stringKey: @Sendable (UserDefaultsKey.StringKey) -> String? = { _ in "" }
-    var removeBool: @Sendable (UserDefaultsKey.BoolKey) async -> Void
-    var removeString: @Sendable (UserDefaultsKey.StringKey) async -> Void
-    var setBool: @Sendable (Bool, UserDefaultsKey.BoolKey) async -> Void
-    var setString: @Sendable (String, UserDefaultsKey.StringKey) async -> Void
+    public var boolKey: @Sendable (UserDefaultsKey.BoolKey) -> Bool = { _ in false }
+    public var stringKey: @Sendable (UserDefaultsKey.StringKey) -> String? = { _ in "" }
+    public var removeBool: @Sendable (UserDefaultsKey.BoolKey) async -> Void
+    public var removeString: @Sendable (UserDefaultsKey.StringKey) async -> Void
+    public var setBool: @Sendable (Bool, UserDefaultsKey.BoolKey) async -> Void
+    public var setString: @Sendable (String, UserDefaultsKey.StringKey) async -> Void
 }
 
 extension UserDefaultsClient: DependencyKey {

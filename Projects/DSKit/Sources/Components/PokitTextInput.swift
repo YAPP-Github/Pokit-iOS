@@ -10,7 +10,7 @@ import SwiftUI
 public struct PokitTextInput<Value: Hashable>: View {
     @Binding private var text: String
     
-    @State private var state: PokitInputStyle.State
+    @Binding private var state: PokitInputStyle.State
     @State private var isMaxLetters: Bool = false
     
     private var focusState: FocusState<Value>.Binding
@@ -26,7 +26,7 @@ public struct PokitTextInput<Value: Hashable>: View {
     public init(
         text: Binding<String>,
         label: String? = nil,
-        state: PokitInputStyle.State = .default,
+        state: Binding<PokitInputStyle.State>,
         errorMessage: String? = nil,
         placeholder: String = "내용을 입력해주세요.",
         info: String? = nil,
@@ -37,7 +37,7 @@ public struct PokitTextInput<Value: Hashable>: View {
     ) {
         self._text = text
         self.label = label
-        self._state = State(initialValue: state)
+        self._state = state
         self.focusState = focusState
         self.equals = equals
         self.errorMessage = errorMessage

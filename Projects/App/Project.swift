@@ -39,6 +39,10 @@ let project = Project(
                     "PROVISIONING_PROFILE_SPECIFIER": "match AppStore com.pokitmons.pokit 1721720816",
                     "PROVISIONING_PROFILE": "match AppStore com.pokitmons.pokit 1721720816",
                     "DEVELOPMENT_TEAM": "\(developmentTeam ?? "")"
+                ],
+                configurations: [
+                    .debug(name: "Debug", xcconfig: .relativeToRoot("xcconfig/Secret.xcconfig")),
+                    .debug(name: "Release", xcconfig: .relativeToRoot("xcconfig/Secret.xcconfig"))
                 ]
             )
         )

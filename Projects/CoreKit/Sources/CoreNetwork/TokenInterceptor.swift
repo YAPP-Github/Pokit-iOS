@@ -65,7 +65,6 @@ public final class TokenInterceptor: RequestInterceptor {
                 let tokenResponse = try await authClient.토큰재발급(tokenRequest)
 
                 keychain.save(.accessToken, tokenResponse.accessToken)
-                keychain.save(.refreshToken, tokenResponse.refreshToken)
 
                 completion(.retryWithDelay(1))
             } catch {

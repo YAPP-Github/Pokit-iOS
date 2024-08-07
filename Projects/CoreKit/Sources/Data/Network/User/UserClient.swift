@@ -18,9 +18,10 @@ extension DependencyValues {
 }
 /// Category에 관련한 API를 처리하는 Client
 public struct UserClient {
-    var 닉네임_수정: @Sendable (_ model: NicknameEditRequest) async throws -> BaseUserResponse
-    var 회원등록: @Sendable (_ model: SignupRequest) async throws -> BaseUserResponse
-    var 닉네임_중복_체크: @Sendable (_ nickname: String) async throws -> NicknameCheckResponse
+    public var 닉네임_수정: @Sendable (_ model: NicknameEditRequest) async throws -> BaseUserResponse
+    public var 회원등록: @Sendable (_ model: SignupRequest) async throws -> BaseUserResponse
+    public var 닉네임_중복_체크: @Sendable (_ nickname: String) async throws -> NicknameCheckResponse
+    public var 관심사_목록_조회: @Sendable () async throws -> [InterestResponse]
 }
 
 extension UserClient: DependencyKey {
@@ -36,6 +37,9 @@ extension UserClient: DependencyKey {
             },
             닉네임_중복_체크: { nickname in
                 try await provider.request(.닉네임_중복_체크(nickname: nickname))
+            },
+            관심사_목록_조회: {
+                try await provider.request(.관심사_목록_조회)
             }
         )
     }()
@@ -44,7 +48,8 @@ extension UserClient: DependencyKey {
         Self(
             닉네임_수정: { _ in .mock },
             회원등록: { _ in .mock },
-            닉네임_중복_체크: { _ in .mock }
+            닉네임_중복_체크: { _ in .mock },
+            관심사_목록_조회: { InterestResponse.mock }
         )
     }()
 }

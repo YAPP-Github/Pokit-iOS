@@ -39,7 +39,9 @@ public extension RegisterNicknameView {
             .overlay(alignment: .bottom) {
                 PokitBottomButton(
                     "다음",
-                    state: store.nicknameText == "" || store.nicknameText.count > 10 ? .disable : .filled(.primary),
+                    state: store.buttonActive 
+                    ? .filled(.primary)
+                    : .disable,
                     action: { send(.nextButtonTapped) }
                 )
                 .setKeyboardHeight()
@@ -69,6 +71,8 @@ extension RegisterNicknameView {
     private var textField: some View {
         PokitTextInput(
             text: $store.nicknameText,
+            state: $store.textfieldState,
+            errorMessage: "중복된 닉네임입니다.",
             info: "한글, 영어, 숫자로만 입력이 가능합니다.",
             maxLetter: 10,
             focusState: $isFocused,

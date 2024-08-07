@@ -16,7 +16,6 @@ public enum SocialLoginError: Error {
 
 public enum GoogleLoginError: Error {
     case invalidIdToken
-    case invalidUserId
 }
 
 public enum AppleLoginError: Error {
