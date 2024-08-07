@@ -84,6 +84,7 @@ public struct PokitCategorySettingFeature {
         }
         
         public enum InnerAction: Equatable {
+            case 카테고리_목록_조회_결과(BaseCategoryListInquiry)
             case 프로필_목록_조회_결과(images: [BaseCategoryImage])
         }
         
@@ -185,9 +186,11 @@ private extension PokitCategorySettingFeature {
             }
             
         case .onAppear:
-            // - MARK: 목업 데이터 조회
-            state.domain.categoryListInQuiry = CategoryListInquiryResponse.mock.toDomain()
             return .run { send in
+                let pageRequest = BasePageableRequest(page: 0, size: 100, sort: ["desc"])
+                let response = try await categoryClient.카테고리_목록_조회(pageRequest, true).toDomain()
+                await send(.inner(.카테고리_목록_조회_결과(response)))
+                
                 for await _ in self.pasteboard.changes() {
                     let url = try await pasteboard.probableWebURL()
                     await send(.delegate(.linkCopyDetected(url)), animation: .pokitSpring)
@@ -204,6 +207,9 @@ private extension PokitCategorySettingFeature {
             state.domain.imageList = images
             /// [Profile 🎨] 3. 토글 on
             state.isProfileSheetPresented.toggle()
+            return .none
+        case let .카테고리_목록_조회_결과(response):
+            state.domain.categoryListInQuiry = response
             return .none
         }
     }
