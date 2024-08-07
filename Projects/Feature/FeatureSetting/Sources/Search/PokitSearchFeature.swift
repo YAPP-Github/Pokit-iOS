@@ -42,7 +42,6 @@ public struct PokitSearchFeature {
         var isSearching: Bool = false
         var isFiltered: Bool = false
         var categoryFilter = IdentifiedArrayOf<BaseCategory>()
-        var contentTypeText = "모아보기"
         var dateFilterText = "기간"
         var isResultAscending = true
         
@@ -93,6 +92,8 @@ public struct PokitSearchFeature {
             case searchTextChipButtonTapped(text: String)
             case filterButtonTapped
             case contentTypeFilterButtonTapped
+            case favoriteChipTapped
+            case unreadChipTapped
             case dateFilterButtonTapped
             case categoryFilterButtonTapped
             case categoryFilterChipTapped(category: BaseCategory)
@@ -271,6 +272,12 @@ private extension PokitSearchFeature {
         case .categoryFilterChipTapped(category: let category):
             state.categoryFilter.remove(category)
             return .send(.inner(.updateCategoryIds))
+        case .favoriteChipTapped:
+            state.favoriteFilter = false
+            return .none
+        case .unreadChipTapped:
+            state.unreadFilter = false
+            return .none
         }
     }
     
@@ -319,19 +326,6 @@ private extension PokitSearchFeature {
         case .updateContentTypeFilter(favoriteFilter: let favoriteFilter, unreadFilter: let unreadFilter):
             state.favoriteFilter = favoriteFilter
             state.unreadFilter = unreadFilter
-            
-            if favoriteFilter && unreadFilter {
-                /// - 즐겨찾기, 안읽음 모두 선택
-                state.contentTypeText = "즐겨찾기, 안읽음"
-            } else if favoriteFilter {
-                /// - 즐겨찾기만 선택
-                state.contentTypeText = "즐겨찾기"
-            } else if unreadFilter {
-                /// - 안읽음만 선택
-                state.contentTypeText = "안읽음"
-            } else {
-                state.contentTypeText = "모아보기"
-            }
             return .none
         case .dismissBottomSheet:
             state.bottomSheetItem = nil

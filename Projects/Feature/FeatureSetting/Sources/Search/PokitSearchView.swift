@@ -229,14 +229,37 @@ private extension PokitSearchView {
     }
     
     var contentTypeFilterButton: some View {
-        PokitIconRButton(
-            store.contentTypeText,
-            .icon(.arrowDown),
-            state: store.favoriteFilter || store.unreadFilter ? .stroke(.primary) : .default(.primary),
-            size: .small,
-            shape: .round,
-            action: { send(.contentTypeFilterButtonTapped) }
-        )
+        Group {
+            if !store.favoriteFilter && !store.unreadFilter {
+                PokitIconRChip(
+                    "모아보기",
+                    icon: .icon(.arrowDown),
+                    state: .default(.primary),
+                    size: .small,
+                    action: { send(.contentTypeFilterButtonTapped) }
+                )
+            } else {
+                if store.favoriteFilter {
+                    PokitIconRChip(
+                        "즐겨찾기",
+                        state: .stroke(.primary),
+                        size: .small,
+                        action: { send(.favoriteChipTapped, animation: .pokitSpring) }
+                    )
+                    .pokitBlurReplaceTransition(.smooth)
+                }
+                
+                if store.unreadFilter {
+                    PokitIconRChip(
+                        "안읽음",
+                        state: .stroke(.primary),
+                        size: .small,
+                        action: { send(.unreadChipTapped, animation: .pokitSpring) }
+                    )
+                    .pokitBlurReplaceTransition(.smooth)
+                }
+            }
+        }
     }
     
     var dateFilterButton: some View {
