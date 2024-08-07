@@ -82,10 +82,13 @@ public struct PokitRootFeature {
         public enum InnerAction: Equatable {
             case pokitCategorySheetPresented(Bool)
             case pokitDeleteSheetPresented(Bool)
+            case sort
             case onAppearResult(classified: BaseCategoryListInquiry)
         }
         
-        public enum AsyncAction: Equatable { case doNothing }
+        public enum AsyncAction: Equatable {
+            case 포킷삭제(categoryId: Int)
+        }
         
         public enum ScopeAction: Equatable {
             case bottomSheet(PokitBottomSheet.Delegate)
@@ -162,32 +165,7 @@ private extension PokitRootFeature {
             /// 최신순 / 이름순 버튼 눌렀을 때
         case .sortButtonTapped:
             state.sortType = .sort(state.sortType == .sort(.이름순) ? .최신순 : .이름순)
-            
-            switch state.sortType {
-            case .sort(.이름순):
-                /// `포킷`의 이름순 정렬일 때
-                state.folderType == .folder(.포킷)
-                ? state.domain.categoryList.data.sort { $0.categoryName < $1.categoryName }
-                : state.domain.unclassifiedContentList.data.sort { $0.title < $1.title }
-                
-            case .sort(.최신순):
-                /// `포킷`의 최신순 정렬일 때
-                state.folderType == .folder(.포킷)
-                // - TODO: 정렬 조회 필요
-                ? state.domain.categoryList.sort = [
-                    .init(
-                        direction: "",
-                        nullHandling: "",
-                        ascending: true,
-                        property: "",
-                        ignoreCase: false
-                    )
-                ]
-                : state.domain.unclassifiedContentList.data.sort { $0.createdAt < $1.createdAt }
-            default: return .none
-            }
-            
-            return .none
+            return .send(.inner(.sort))
         /// - 케밥버튼 눌렀을 때
             /// 분류된 아이템의 케밥버튼
         case .kebobButtonTapped(let selectedItem):
@@ -213,7 +191,7 @@ private extension PokitRootFeature {
                     let request = BasePageableRequest(page: domain.page + 1, size: domain.size, sort: [sort])
                     let classified = try await categoryClient.카테고리_목록_조회(request, true).toDomain()
                     await send(.inner(.onAppearResult(classified: classified)))
-                    await send(.view(.sortButtonTapped))
+                    await send(.inner(.sort))
                 }
             }
         }
@@ -231,12 +209,42 @@ private extension PokitRootFeature {
         case let .onAppearResult(classified):
             state.domain.categoryList = classified
             return .none
+        case .sort:
+            switch state.sortType {
+            case .sort(.이름순):
+                /// `포킷`의 이름순 정렬일 때
+                state.folderType == .folder(.포킷)
+                ? state.domain.categoryList.data.sort { $0.categoryName < $1.categoryName }
+                : state.domain.unclassifiedContentList.data.sort { $0.title < $1.title }
+                
+            case .sort(.최신순):
+                /// `포킷`의 최신순 정렬일 때
+                state.folderType == .folder(.포킷)
+                // - TODO: 정렬 조회 필요
+                ? state.domain.categoryList.sort = [
+                    .init(
+                        direction: "",
+                        nullHandling: "",
+                        ascending: true,
+                        property: "",
+                        ignoreCase: false
+                    )
+                ]
+                : state.domain.unclassifiedContentList.data.sort { $0.createdAt < $1.createdAt }
+            default: return .none
+            }
+            return .none
         }
     }
     
     /// - Async Effect
     func handleAsyncAction(_ action: Action.AsyncAction, state: inout State) -> Effect<Action> {
-        return .none
+        switch action {
+        case let .포킷삭제(categoryId):
+            return .run { _ in
+                try await categoryClient.카테고리_삭제(categoryId)
+            }
+        }
     }
     
     /// - Scope Effect
@@ -328,7 +336,8 @@ private extension PokitRootFeature {
                 }
                 state.domain.categoryList.data.remove(at: index)
                 state.isPokitDeleteSheetPresented = false
-                return .none
+                
+                return .run { send in await send(.async(.포킷삭제(categoryId: selectedItem.id))) }
             default: return .none
             }
         default: return .none
