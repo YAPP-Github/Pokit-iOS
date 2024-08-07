@@ -205,14 +205,27 @@ private extension PokitSearchView {
     }
     
     var categoryFilterButton: some View {
-        PokitIconRButton(
-            store.categoryFilter?.categoryName ?? "포킷명",
-            .icon(.arrowDown),
-            state: store.categoryFilter == nil ? .default(.primary) : .stroke(.primary),
-            size: .small,
-            shape: .round,
-            action: { send(.categoryFilterButtonTapped) }
-        )
+        Group {
+            if store.categoryFilter.isEmpty {
+                PokitIconRChip(
+                    "포킷",
+                    icon: .icon(.arrowDown),
+                    state: .default(.primary),
+                    size: .small,
+                    action: { send(.categoryFilterButtonTapped) }
+                )
+            } else {
+                ForEach(store.categoryFilter) { category in
+                    PokitIconRChip(
+                        category.categoryName,
+                        state: .stroke(.primary),
+                        size: .small,
+                        action: { send(.categoryFilterChipTapped(category: category), animation: .pokitSpring) }
+                    )
+                    .pokitBlurReplaceTransition(.smooth)
+                }
+            }
+        }
     }
     
     var contentTypeFilterButton: some View {

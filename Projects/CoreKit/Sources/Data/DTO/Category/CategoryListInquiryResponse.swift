@@ -51,6 +51,26 @@ extension CategoryListInquiryResponse {
     public static var mock: Self = Self(
         data: [
             CategoryItemInquiryResponse(
+                categoryId: 1,
+                userId: 5555555,
+                categoryName: "카테고리1",
+                categoryImage: CategoryImageResponse(
+                    imageId: 22312,
+                    imageUrl: Constants.mockImageUrl
+                ),
+                contentCount: 90
+            ),
+            CategoryItemInquiryResponse(
+                categoryId: 2,
+                userId: 5555555,
+                categoryName: "카테고리1",
+                categoryImage: CategoryImageResponse(
+                    imageId: 22312,
+                    imageUrl: Constants.mockImageUrl
+                ),
+                contentCount: 90
+            ),
+            CategoryItemInquiryResponse(
                 categoryId: 3,
                 userId: 5555555,
                 categoryName: "카테고리1",

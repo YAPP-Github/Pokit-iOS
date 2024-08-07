@@ -14,20 +14,21 @@ import Util
 @Reducer
 public struct FilterBottomFeature {
     /// - Dependency
-    @Dependency(\.dismiss) var dismiss
+    @Dependency(\.dismiss)
+    private var dismiss
     /// - State
     @ObservableState
     public struct State: Equatable {
         public init(
             filterType currentType: FilterType,
-            pokitFilter selectedPokit: BaseCategory?,
+            pokitFilter selectedPokit: IdentifiedArrayOf<BaseCategory>,
             favoriteFilter isFavorite: Bool,
             unreadFilter isUnread: Bool,
             startDateFilter startDate: Date?,
             endDateFilter endDate: Date?
         ) {
             self.currentType = currentType
-            self.selectedPokit = selectedPokit
+            self.selectedCategories = selectedPokit
             self.isFavorite = isFavorite
             self.isUnread = isUnread
             self.dateSelected = startDate != nil || endDate != nil
@@ -37,7 +38,7 @@ public struct FilterBottomFeature {
         
         var currentType: FilterType
         
-        var selectedPokit: BaseCategory?
+        var selectedCategories = IdentifiedArrayOf<BaseCategory>()
         var isFavorite: Bool
         var isUnread: Bool
         var dateSelected: Bool
@@ -75,7 +76,7 @@ public struct FilterBottomFeature {
             /// - Button Tapped
             case pokitListCellTapped(pokit: BaseCategory)
             case searchButtonTapped
-            case pokitChipTapped
+            case pokitChipTapped(BaseCategory)
             case favoriteChipTapped
             case unreadChipTapped
             case dateChipTapped
@@ -93,7 +94,7 @@ public struct FilterBottomFeature {
         
         public enum DelegateAction: Equatable {
             case searchButtonTapped(
-                pokit: BaseCategory?,
+                categories: IdentifiedArrayOf<BaseCategory>,
                 isFavorite: Bool,
                 isUnread: Bool,
                 startDate: Date?,
@@ -150,11 +151,11 @@ private extension FilterBottomFeature {
         case .binding:
             return .none
         case .pokitListCellTapped(let pokit):
-            state.selectedPokit = pokit
+            state.selectedCategories.append(pokit)
             return .none
         case .searchButtonTapped:
             return .run { [
-                pokit = state.selectedPokit,
+                categories = state.selectedCategories,
                 isFavorite = state.isFavorite,
                 isUnread = state.isUnread,
                 startDate = state.startDate,
@@ -162,7 +163,7 @@ private extension FilterBottomFeature {
                 dateSelected = state.dateSelected
             ] send in
                 await send(.delegate(.searchButtonTapped(
-                    pokit: pokit,
+                    categories: categories,
                     isFavorite: isFavorite,
                     isUnread: isUnread,
                     startDate: dateSelected ? startDate : nil,
@@ -170,8 +171,8 @@ private extension FilterBottomFeature {
                 )))
                 await dismiss()
             }
-        case .pokitChipTapped:
-            state.selectedPokit = nil
+        case .pokitChipTapped(let category):
+            state.selectedCategories.remove(category)
             return .none
         case .favoriteChipTapped:
             state.isFavorite = false

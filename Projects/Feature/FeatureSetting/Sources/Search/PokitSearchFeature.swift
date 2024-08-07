@@ -41,7 +41,7 @@ public struct PokitSearchFeature {
         var isAutoSaveSearch: Bool = false
         var isSearching: Bool = false
         var isFiltered: Bool = false
-        var categoryFilter: BaseCategory? = nil
+        var categoryFilter = IdentifiedArrayOf<BaseCategory>()
         var contentTypeText = "모아보기"
         var dateFilterText = "기간"
         var isResultAscending = true
@@ -95,6 +95,7 @@ public struct PokitSearchFeature {
             case contentTypeFilterButtonTapped
             case dateFilterButtonTapped
             case categoryFilterButtonTapped
+            case categoryFilterChipTapped(category: BaseCategory)
             case recentSearchAllRemoveButtonTapped
             case recentSearchChipIconTapped(searchText: String)
             case linkCardTapped(content: BaseContent)
@@ -121,6 +122,7 @@ public struct PokitSearchFeature {
             case updateContentTypeFilter(favoriteFilter: Bool, unreadFilter: Bool)
             case dismissBottomSheet
             case updateIsFiltered
+            case updateCategoryIds
         }
         
         public enum AsyncAction: Equatable { case doNothing }
@@ -266,6 +268,9 @@ private extension PokitSearchFeature {
                     await send(.delegate(.linkCopyDetected(url)), animation: .pokitSpring)
                 }
             }
+        case .categoryFilterChipTapped(category: let category):
+            state.categoryFilter.remove(category)
+            return .send(.inner(.updateCategoryIds))
         }
     }
     
@@ -332,11 +337,14 @@ private extension PokitSearchFeature {
             state.bottomSheetItem = nil
             return .none
         case .updateIsFiltered:
-            state.isFiltered = state.categoryFilter != nil ||
+            state.isFiltered = !state.categoryFilter.isEmpty ||
             state.favoriteFilter ||
             state.unreadFilter ||
             state.startDateFilter != nil ||
             state.endDateFilter != nil
+            return .none
+        case .updateCategoryIds:
+            state.domain.condition.categoryIds = state.categoryFilter.map { $0.id }
             return .none
         }
     }
@@ -350,13 +358,14 @@ private extension PokitSearchFeature {
     func handleScopeAction(_ action: Action.ScopeAction, state: inout State) -> Effect<Action> {
         switch action {
         case .filterBottomSheet(.searchButtonTapped(
-            pokit: let pokit,
+            categories: let categories,
             isFavorite: let isFavorite,
             isUnread: let isUnread,
             startDate: let startDate,
             endDate: let endDate)):
-            state.categoryFilter = pokit
+            state.categoryFilter = categories
             return .run { send in
+                await send(.inner(.updateCategoryIds))
                 await send(.inner(.updateContentTypeFilter(favoriteFilter: isFavorite, unreadFilter: isUnread)))
                 await send(.inner(.updateDateFilter(startDate: startDate, endDate: endDate)))
                 await send(.inner(.updateIsFiltered))
