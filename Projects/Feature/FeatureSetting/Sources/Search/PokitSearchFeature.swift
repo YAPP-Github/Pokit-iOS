@@ -229,6 +229,7 @@ private extension PokitSearchFeature {
             return .send(.inner(.showFilterBottomSheet(filterType: .contentType)))
         case .dateFilterButtonTapped:
             guard state.domain.condition.startDate != nil && state.domain.condition.endDate != nil else {
+                /// - 선택된 기간이 없을 경우
                 return .send(.inner(.showFilterBottomSheet(filterType: .date)))
             }
             state.domain.condition.startDate = nil
@@ -278,10 +279,10 @@ private extension PokitSearchFeature {
             state.categoryFilter.remove(category)
             return .send(.inner(.updateCategoryIds))
         case .favoriteChipTapped:
-            state.favoriteFilter = false
+            state.domain.condition.favorites = false
             return .none
         case .unreadChipTapped:
-            state.unreadFilter = false
+            state.domain.condition.isRead = true
             return .none
         }
     }
@@ -301,8 +302,8 @@ private extension PokitSearchFeature {
             let formatter = DateFormatter()
             formatter.dateFormat = "yy.MM.dd"
             
-            state.startDateFilter = startDate
-            state.endDateFilter = endDate
+            state.domain.condition.startDate = startDate
+            state.domain.condition.endDate = endDate
             
             guard let startDate, let endDate else {
                 /// - 날짜 필터가 선택 안되었을 경우
@@ -329,8 +330,8 @@ private extension PokitSearchFeature {
             )
             return .none
         case .updateContentTypeFilter(favoriteFilter: let favoriteFilter, unreadFilter: let unreadFilter):
-            state.favoriteFilter = favoriteFilter
-            state.unreadFilter = unreadFilter
+            state.domain.condition.favorites = favoriteFilter
+            state.domain.condition.isRead = !unreadFilter
             return .none
         case .dismissBottomSheet:
             state.bottomSheetItem = nil
