@@ -21,6 +21,8 @@ public struct ContentListFeature {
     private var pasteBoard
     @Dependency(\.remindClient)
     private var remindClient
+    @Dependency(\.contentClient)
+    private var contentClient
     /// - State
     @ObservableState
     public struct State: Equatable {
@@ -70,11 +72,13 @@ public struct ContentListFeature {
         public enum InnerAction: Equatable {
             case dismissBottomSheet
             case 컨텐츠_목록_조회(BaseContentListInquiry)
+            case 컨텐츠_삭제_반영(contentId: Int)
         }
         
         public enum AsyncAction: Equatable {
             case 읽지않음_컨텐츠_조회
             case 즐겨찾기_링크모음_조회
+            case 컨텐츠_삭제(contentId: Int)
         }
         
         public enum ScopeAction: Equatable {
@@ -140,8 +144,10 @@ private extension ContentListFeature {
                 await send(.scope(.bottomSheet(delegate: delegate, content: content)))
             }
         case .deleteAlertConfirmTapped:
-            state.alertItem = nil
-            return .none
+            guard let id = state.alertItem?.id else { return .none }
+            return .run { [id] send in
+                await send(.async(.컨텐츠_삭제(contentId: id)))
+            }
         case .binding:
             return .none
         case .sortTextLinkTapped:
@@ -177,6 +183,10 @@ private extension ContentListFeature {
         case .컨텐츠_목록_조회(let contentList):
             state.domain.contentList = contentList
             return .none
+        case .컨텐츠_삭제_반영(contentId: let id):
+            state.alertItem = nil
+            state.domain.contentList.data.removeAll { $0.id == id }
+            return .none
         }
     }
     
@@ -204,6 +214,11 @@ private extension ContentListFeature {
                     )
                 ).toDomain()
                 await send(.inner(.컨텐츠_목록_조회(contentList)))
+            }
+        case .컨텐츠_삭제(contentId: let id):
+            return .run { [id] send in
+                let _ = try await contentClient.컨텐츠_삭제("\(id)")
+                await send(.inner(.컨텐츠_삭제_반영(contentId: id)), animation: .pokitSpring)
             }
         }
     }

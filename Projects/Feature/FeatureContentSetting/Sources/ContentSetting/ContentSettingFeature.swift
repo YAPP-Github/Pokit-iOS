@@ -282,7 +282,8 @@ private extension ContentSettingFeature {
                         page: pageable.page,
                         size: pageable.size,
                         sort: pageable.sort
-                    )
+                    ),
+                    true
                 ).toDomain()
                 await send(.inner(.카테고리_목록_갱신(categoryList: categoryList)))
             }
