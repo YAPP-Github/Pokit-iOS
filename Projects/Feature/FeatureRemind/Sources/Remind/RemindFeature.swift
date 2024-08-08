@@ -17,6 +17,8 @@ public struct RemindFeature {
     private var dismiss
     @Dependency(\.remindClient)
     private var remindClient
+    @Dependency(\.contentClient)
+    private var contentClient
     /// - State
     @ObservableState
     public struct State: Equatable {
@@ -72,11 +74,13 @@ public struct RemindFeature {
             case 오늘의_리마인드_조회(contents: [BaseContent])
             case 읽지않음_컨텐츠_조회(contentList: BaseContentListInquiry)
             case 즐겨찾기_링크모음_조회(contentList: BaseContentListInquiry)
+            case 컨텐츠_삭제_반영(contentId: Int)
         }
         public enum AsyncAction: Equatable {
             case 오늘의_리마인드_조회
             case 읽지않음_컨텐츠_조회
             case 즐겨찾기_링크모음_조회
+            case 컨텐츠_삭제(contentId: Int)
         }
         public enum ScopeAction: Equatable {
             case bottomSheet(
@@ -146,8 +150,10 @@ private extension RemindFeature {
                 await send(.scope(.bottomSheet(delegate: delegate, content: content)))
             }
         case .deleteAlertConfirmTapped:
-            state.alertItem = nil
-            return .none
+            guard let id = state.alertItem?.id else { return .none }
+            return .run { [id] send in
+                await send(.async(.컨텐츠_삭제(contentId: id)))
+            }
         case .binding:
             return .none
         case .remindViewOnAppeared:
@@ -172,6 +178,12 @@ private extension RemindFeature {
             return .none
         case .즐겨찾기_링크모음_조회(contentList: let contentList):
             state.domain.favoriteList = contentList
+            return .none
+        case .컨텐츠_삭제_반영(contentId: let contentId):
+            state.alertItem = nil
+            state.domain.recommendedList.removeAll { $0.id == contentId }
+            state.domain.unreadList.data.removeAll { $0.id == contentId }
+            state.domain.favoriteList.data.removeAll { $0.id == contentId }
             return .none
         }
     }
@@ -204,6 +216,11 @@ private extension RemindFeature {
                     )
                 ).toDomain()
                 await send(.inner(.즐겨찾기_링크모음_조회(contentList: contentList)))
+            }
+        case .컨텐츠_삭제(contentId: let id):
+            return .run { [id] send in
+                let _ = try await contentClient.컨텐츠_삭제("\(id)")
+                await send(.inner(.컨텐츠_삭제_반영(contentId: id)), animation: .pokitSpring)
             }
         }
     }
