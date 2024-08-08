@@ -16,6 +16,8 @@ public struct ContentSetting: Equatable {
     /// 유저가 등록한 카테고리(포킷) 개수
     public var categoryTotalCount: Int
     // - MARK: Request
+    /// 수정할 콘텐츠(링크) id
+    public var contentId: Int?
     /// 등록 또는 수정할 콘텐츠(링크) url
     public var data: String
     /// 등록 또는 수정할 콘텐츠(링크) 제목
@@ -29,8 +31,8 @@ public struct ContentSetting: Equatable {
     /// 카테고리 리스트의 조회할 페이징 정보
     public var pageable: BasePageable
     
-    public init(content: ContentDetail.Content?, data: String?) {
-        self.content = content
+    public init(contentId: Int?, data: String?) {
+        self.contentId = contentId
         
         let categoryListInquiry = BaseCategoryListInquiry(
             data: [],
@@ -49,8 +51,8 @@ public struct ContentSetting: Equatable {
         self.alertYn = content?.alertYn ?? .no
         self.pageable = .init(
             page: 0,
-            size: 0,
-            sort: []
+            size: 10,
+            sort: ["desc"]
         )
     }
 }
