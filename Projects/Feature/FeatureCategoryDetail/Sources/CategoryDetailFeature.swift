@@ -93,7 +93,7 @@ public struct CategoryDetailFeature {
         public enum DelegateAction: Equatable {
             case contentItemTapped(BaseContent)
             case linkCopyDetected(URL?)
-            case 링크수정(BaseContent)
+            case 링크수정(contentId: Int)
             case 포킷삭제
             case 포킷수정(BaseCategory)
             case 포킷공유
@@ -223,16 +223,16 @@ private extension CategoryDetailFeature {
                 
             case .editCellButtonTapped:
                 return .run { [
-                    link = state.selectedContentItem,
+                    content = state.selectedContentItem,
                     type = state.kebobSelectedType,
                     category = state.category
                 ] send in
                     guard let type else { return }
                     switch type {
                     case .링크삭제:
-                        guard let link else { return }
+                        guard let content else { return }
                         await send(.inner(.pokitCategorySheetPresented(false)))
-                        await send(.delegate(.링크수정(link)))
+                        await send(.delegate(.링크수정(contentId: content.id)))
                     case .포킷삭제:
                         await send(.inner(.pokitCategorySheetPresented(false)))
                         await send(.delegate(.포킷수정(category)))

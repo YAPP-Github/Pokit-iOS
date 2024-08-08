@@ -103,7 +103,7 @@ public struct PokitRootFeature {
             
             case categoryTapped(BaseCategory)
             case 수정하기(BaseCategory)
-            case 링크수정하기(BaseContent)
+            case 링크수정하기(contentId: Int)
             /// 링크상세로 이동
             case contentDetailTapped(BaseContent)
         }
@@ -294,7 +294,7 @@ private extension PokitRootFeature {
                 state.isKebobSheetPresented = false
                 return .run { [item = state.selectedUnclassifiedItem] send in
                     guard let item else { return }
-                    await send(.delegate(.링크수정하기(item)))
+                    await send(.delegate(.링크수정하기(contentId: item.id)))
                 }
                 
             case .folder(.포킷):

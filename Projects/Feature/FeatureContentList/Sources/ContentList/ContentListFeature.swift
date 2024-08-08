@@ -85,8 +85,8 @@ public struct ContentListFeature {
         }
         
         public enum DelegateAction: Equatable {
-            case 링크상세(content: BaseContent)
-            case 링크수정(content: BaseContent)
+            case 링크상세(contentId: Int)
+            case 링크수정(contentId: Int)
             case linkCopyDetected(URL?)
         }
     }
@@ -133,7 +133,7 @@ private extension ContentListFeature {
             state.bottomSheetItem = content
             return .none
         case .linkCardTapped(let content):
-            return .send(.delegate(.링크상세(content: content)))
+            return .send(.delegate(.링크상세(contentId: content.id)))
         case .bottomSheetButtonTapped(let delegate, let content):
             return .run { send in
                 await send(.inner(.dismissBottomSheet))
@@ -218,7 +218,7 @@ private extension ContentListFeature {
                 state.alertItem = content
                 return .none
             case .editCellButtonTapped:
-                return .send(.delegate(.링크수정(content: content)))
+                return .send(.delegate(.링크수정(contentId: content.id)))
             case .favoriteCellButtonTapped:
                 return .none
             case .shareCellButtonTapped:

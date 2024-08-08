@@ -111,16 +111,16 @@ public extension MainTabFeature {
                 return .none
 
             /// - 링크상세 바텀시트에서 링크수정으로 이동
-            case let .contentDetail(.presented(.delegate(.editButtonTapped(content)))),
-                 let .pokit(.delegate(.링크수정하기(content))),
-                 let .remind(.delegate(.링크수정(content))),
-                 let .path(.element(_, action: .카테고리상세(.delegate(.링크수정(content))))),
-                 let .path(.element(_, action: .링크목록(.delegate(.링크수정(content))))):
-                return .run { send in await send(.inner(.링크추가및수정이동(content))) }
+            case let .contentDetail(.presented(.delegate(.editButtonTapped(id)))),
+                 let .pokit(.delegate(.링크수정하기(id))),
+                 let .remind(.delegate(.링크수정(id))),
+                 let .path(.element(_, action: .카테고리상세(.delegate(.링크수정(id))))),
+                 let .path(.element(_, action: .링크목록(.delegate(.링크수정(id))))):
+                return .run { send in await send(.inner(.링크추가및수정이동(contentId: id))) }
 
-            case let .inner(.링크추가및수정이동(content)):
+            case let .inner(.링크추가및수정이동(contentId: id)):
                 state.path.append(.링크추가및수정(
-                    ContentSettingFeature.State(content: content)
+                    ContentSettingFeature.State(contentId: id)
                 ))
                 state.contentDetail = nil
                 return .none
@@ -131,9 +131,9 @@ public extension MainTabFeature {
                 return .none
 
             /// - 링크추가 및 수정에서 저장하기 눌렀을 때
-            case .path(.element(_, action: .링크추가및수정(.delegate(.저장하기_네트워크이후)))):
+            case .path(.element(_, action: .링크추가및수정(.delegate(.저장하기_완료)))):
                 state.path.removeLast()
-                return .none
+                return .send(.remind(.delegate(.컨텐츠목록_조회)))
             /// - 각 화면에서 링크 복사 감지했을 때 (링크 추가 및 수정 화면 제외)
             case let .path(.element(_, action: .알림함(.delegate(.linkCopyDetected(url))))),
                  let .path(.element(_, action: .검색(.delegate(.linkCopyDetected(url))))),

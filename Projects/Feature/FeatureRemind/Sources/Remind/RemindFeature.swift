@@ -88,9 +88,10 @@ public struct RemindFeature {
             case 링크상세(content: BaseContent)
             case alertButtonTapped
             case searchButtonTapped
-            case 링크수정(content: BaseContent)
+            case 링크수정(contentId: Int)
             case 링크목록_안읽음
             case 링크목록_즐겨찾기
+            case 컨텐츠목록_조회
         }
     }
     /// initiallizer
@@ -216,7 +217,7 @@ private extension RemindFeature {
                 state.alertItem = content
                 return .none
             case .editCellButtonTapped:
-                return .send(.delegate(.링크수정(content: content)))
+                return .send(.delegate(.링크수정(contentId: content.id)))
             case .favoriteCellButtonTapped:
                 return .none
             case .shareCellButtonTapped:
@@ -226,6 +227,19 @@ private extension RemindFeature {
     }
     /// - Delegate Effect
     func handleDelegateAction(_ action: Action.DelegateAction, state: inout State) -> Effect<Action> {
-        return .none
+        switch action {
+        case .링크상세: return .none
+        case .alertButtonTapped: return .none
+        case .searchButtonTapped: return .none
+        case .링크수정: return .none
+        case .링크목록_안읽음: return .none
+        case .링크목록_즐겨찾기: return .none
+        case .컨텐츠목록_조회:
+            return .run { send in
+                await send(.async(.오늘의_리마인드_조회))
+                await send(.async(.읽지않음_컨텐츠_조회))
+                await send(.async(.즐겨찾기_링크모음_조회))
+            }
+        }
     }
 }

@@ -27,10 +27,10 @@ public struct ContentClient {
     public var 컨텐츠_수정: @Sendable (
         _ contentId: String,
         _ model: ContentBaseRequest
-    ) async throws -> ContentBaseResponse
+    ) async throws -> ContentDetailResponse
     public var 컨텐츠_추가: @Sendable (
         _ model: ContentBaseRequest
-    ) async throws -> ContentBaseResponse
+    ) async throws -> ContentDetailResponse
     public var 즐겨찾기: @Sendable (
         _ contentId: String
     ) async throws -> BookmarkResponse
@@ -76,8 +76,8 @@ extension ContentClient: DependencyKey {
         Self(
             컨텐츠_삭제: { _ in .init() },
             컨텐츠_상세_조회: { _ in .mock },
-            컨텐츠_수정: { _, _ in .mock(id: 0) },
-            컨텐츠_추가: { _ in .mock(id: 0) },
+            컨텐츠_수정: { _, _ in .mock },
+            컨텐츠_추가: { _ in .mock },
             즐겨찾기: { _ in .mock },
             즐겨찾기_취소: { _ in .init() },
             카테고리_내_컨텐츠_목록_조회: { _, _ in .mock }

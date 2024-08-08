@@ -82,7 +82,7 @@ public struct ContentDetailFeature {
         public enum ScopeAction: Equatable { case doNothing }
         
         public enum DelegateAction: Equatable {
-            case editButtonTapped(content: ContentDetail.Content)
+            case editButtonTapped(contentId: Int)
         }
     }
     
@@ -134,7 +134,7 @@ private extension ContentDetailFeature {
             guard let content = state.domain.content else { return .none }
             return .run { [content] send in
 //                await dismiss()
-                await send(.delegate(.editButtonTapped(content: content)))
+                await send(.delegate(.editButtonTapped(contentId: content.id)))
             }
         case .deleteButtonTapped:
             state.showAlert = true

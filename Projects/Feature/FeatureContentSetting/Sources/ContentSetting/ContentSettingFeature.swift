@@ -107,7 +107,7 @@ public struct ContentSettingFeature {
         public enum ScopeAction: Equatable { case doNothing }
 
         public enum DelegateAction: Equatable {
-//            case 저장하기_네트워크이후(BaseContent)
+            case 저장하기_완료
             case 포킷추가하기
         }
     }
@@ -189,7 +189,6 @@ private extension ContentSettingFeature {
                 } else {
                     await send(.async(.컨텐츠_추가))
                 }
-                await dismiss()
             }
         case .addPokitButtonTapped:
             guard state.domain.categoryTotalCount < 30 else {
@@ -302,7 +301,7 @@ private extension ContentSettingFeature {
                 memo = state.domain.memo,
                 alertYn = state.domain.alertYn
             ] send in
-                let content = try await contentClient.컨텐츠_수정(
+                let _ = try await contentClient.컨텐츠_수정(
                     "\(id)",
                     ContentBaseRequest(
                         data: data,
@@ -311,8 +310,8 @@ private extension ContentSettingFeature {
                         memo: memo,
                         alertYn: alertYn.rawValue
                     )
-                ).toDomain()
-//                await send(.delegate(.저장하기_네트워크이후(content)))
+                )
+                await send(.delegate(.저장하기_완료))
             }
         case .컨텐츠_추가:
             guard let categoryId = state.selectedPokit?.id else {
@@ -325,7 +324,7 @@ private extension ContentSettingFeature {
                 memo = state.domain.memo,
                 alertYn = state.domain.alertYn
             ] send in
-                let content = try await contentClient.컨텐츠_추가(
+                let _ = try await contentClient.컨텐츠_추가(
                     ContentBaseRequest(
                         data: data,
                         title: title,
@@ -333,8 +332,8 @@ private extension ContentSettingFeature {
                         memo: memo,
                         alertYn: alertYn.rawValue
                     )
-                ).toDomain()
-//                await send(.delegate(.저장하기_네트워크이후(content)))
+                )
+                await send(.delegate(.저장하기_완료))
             }
         }
     }

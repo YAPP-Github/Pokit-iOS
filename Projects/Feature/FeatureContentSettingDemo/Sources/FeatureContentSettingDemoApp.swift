@@ -11,6 +11,7 @@ import FeatureContentSetting
 
 @main
 struct FeatureContentSettingDemoApp: App {
+    
     var body: some Scene {
         WindowGroup {
             NavigationStack {
