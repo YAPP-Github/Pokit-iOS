@@ -48,7 +48,7 @@ public extension PokitCategorySettingView {
                     delegateSend: { store.send(.scope(.profile($0))) }
                 )
             }
-            .onAppear { send(.onAppear) }
+            .task { await send(.onAppear).finish() }
         }
     }
 }

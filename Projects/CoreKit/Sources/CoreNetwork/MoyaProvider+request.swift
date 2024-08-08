@@ -34,4 +34,23 @@ extension MoyaProvider {
             }
         }
     }
+    
+    func requestNoBody(_ target: Target) async throws -> Void {
+        return try await withCheckedThrowingContinuation { continuation in
+            self.request(target) { response in
+                switch response {
+                case .success:
+                    continuation.resume()
+
+                case .failure(let error):
+                    if let response = error.response?.data {
+                        let errorResponse = try? JSONDecoder().decode(ErrorResponse.self, from: response)
+                        continuation.resume(throwing: errorResponse ?? .base)
+                    } else {
+                        continuation.resume(throwing: error)
+                    }
+                }
+            }
+        }
+    }
 }

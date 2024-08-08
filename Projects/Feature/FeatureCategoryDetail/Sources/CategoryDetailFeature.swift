@@ -17,6 +17,7 @@ public struct CategoryDetailFeature {
     /// - Dependency
     @Dependency(\.dismiss) var dismiss
     @Dependency(\.pasteboard) var pasteboard
+    @Dependency(\.categoryClient) var categoryClient
     /// - State
     @ObservableState
     public struct State: Equatable {
@@ -78,6 +79,7 @@ public struct CategoryDetailFeature {
             case pokitCategorySheetPresented(Bool)
             case pokitCategorySelectSheetPresented(Bool)
             case pokitDeleteSheetPresented(Bool)
+            case 카테고리_목록_조회_결과(BaseCategoryListInquiry)
         }
         
         public enum AsyncAction: Equatable { case doNothing }
@@ -149,7 +151,8 @@ private extension CategoryDetailFeature {
             return .send(.inner(.pokitCategorySelectSheetPresented(true)))
             
         case .categorySelected(let item):
-            /// Todo: 아이템 선택한 것 반영
+            state.domain.category = item
+            //TODO: 현재 아이템 값을 통해 카테고리 내 컨텐츠 리스트들을 뿌려줘야 함
             return .send(.inner(.pokitCategorySelectSheetPresented(false)))
             
         case .filterButtonTapped:
@@ -164,9 +167,13 @@ private extension CategoryDetailFeature {
             
         case .onAppear:
             // - MARK: 목업 데이터 조회
-            state.domain.categoryListInQuiry = CategoryListInquiryResponse.mock.toDomain()
-            state.domain.contentList = ContentListInquiryResponse.mock.toDomain()
+//            state.domain.categoryListInQuiry = CategoryListInquiryResponse.mock.toDomain()
+//            state.domain.contentList = ContentListInquiryResponse.mock.toDomain()
             return .run { send in
+                let request = BasePageableRequest(page: 0, size: 100, sort: ["desc"])
+                let response = try await categoryClient.카테고리_목록_조회(request, true).toDomain()
+                await send(.inner(.카테고리_목록_조회_결과(response)))
+                
                 for await _ in self.pasteboard.changes() {
                     let url = try await pasteboard.probableWebURL()
                     await send(.delegate(.linkCopyDetected(url)), animation: .pokitSpring)
@@ -188,6 +195,14 @@ private extension CategoryDetailFeature {
             
         case let .pokitCategorySelectSheetPresented(presented):
             state.isCategorySelectSheetPresented = presented
+            return .none
+            
+        case let .카테고리_목록_조회_결과(response):
+            state.domain.categoryListInQuiry = response
+            guard let first = response.data.first(where: { item in
+                item.id == state.domain.category.id
+            }) else { return .none }
+            state.domain.category = first
             return .none
         }
     }
@@ -262,7 +277,11 @@ private extension CategoryDetailFeature {
                 case .포킷삭제:
                     state.isPokitDeleteSheetPresented = false
                     state.kebobSelectedType = nil
-                    return .send(.delegate(.포킷삭제))
+                    return .run { [categoryId = state.domain.category.id] send in
+                        await send(.inner(.pokitDeleteSheetPresented(false)))
+                        await send(.delegate(.포킷삭제))
+                        try await categoryClient.카테고리_삭제(categoryId)
+                    }
                 }
             }
         /// - 필터 버튼을 눌렀을 때

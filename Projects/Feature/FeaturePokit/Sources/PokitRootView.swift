@@ -51,7 +51,7 @@ public extension PokitRootView {
                     delegateSend: { store.send(.scope(.deleteBottomSheet($0))) }
                 )
             }
-            .onAppear { send(.pokitRootViewOnAppeared) }
+            .task { await send(.pokitRootViewOnAppeared).finish() }
         }
     }
 }

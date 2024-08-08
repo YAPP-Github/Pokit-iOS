@@ -11,9 +11,9 @@ import Util
 import Moya
 /// 카테고리 전용 Endpont
 public enum CategoryEndpoint {
-    case 카테고리_삭제(categoryId: String)
-    case 카테고리_수정(categoryId: String, model: CategoryEditRequest)
-    case 카테고리_목록_조회(model: BasePageableRequest)
+    case 카테고리_삭제(categoryId: Int)
+    case 카테고리_수정(categoryId: Int, model: CategoryEditRequest)
+    case 카테고리_목록_조회(model: BasePageableRequest, filterUncategorized: Bool)
     case 카테고리생성(model: CategoryEditRequest)
     case 카테고리_프로필_목록_조회
     case 유저_카테고리_개수_조회
@@ -65,12 +65,13 @@ extension CategoryEndpoint: TargetType {
             return .requestPlain
         case let .카테고리_수정(_, model):
             return .requestJSONEncodable(model)
-        case let .카테고리_목록_조회(model):
+        case let .카테고리_목록_조회(model, categorized):
             return .requestParameters(
                 parameters: [
                     "page": model.page,
                     "size": model.size,
-                    "sort": model.sort
+                    "sort": model.sort,
+                    "filterUncategorized": categorized
                 ],
                 encoding: URLEncoding.default
             )

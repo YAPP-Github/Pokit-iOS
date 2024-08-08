@@ -98,10 +98,10 @@ private extension RegisterNicknameFeature {
                 return .run { [nickName = state.nicknameText] send in
                     await send(.delegate(.pushSelectFieldView(nickname: nickName)))
                 }
-            return .none
         case .backButtonTapped:
             return .run { _ in await self.dismiss() }
         case .binding(\.nicknameText):
+            state.buttonActive = false
             return .run { send in
                 await send(.inner(.textChanged))
             }
