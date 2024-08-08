@@ -10,11 +10,13 @@ import Foundation
 public struct TokenResponse: Decodable {
     public let accessToken: String
     public let refreshToken: String
+    public let isRegistered: Bool
 }
 
 extension TokenResponse {
     public static var mock: Self = Self(
         accessToken: "access(Mock)",
-        refreshToken: "refresh(Mock)"
+        refreshToken: "refresh(Mock)",
+        isRegistered: false
     )
 }

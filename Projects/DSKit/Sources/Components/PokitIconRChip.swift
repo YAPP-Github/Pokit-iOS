@@ -9,6 +9,7 @@ import SwiftUI
 
 public struct PokitIconRChip: View {
     private let labelText: String
+    private let icon: PokitImage
     private let state: PokitButtonStyle.State
     private let size: PokitChipStyle.Size
     private let action: (() -> Void)?
@@ -16,12 +17,14 @@ public struct PokitIconRChip: View {
     
     public init(
         _ labelText: String,
+        icon: PokitImage = .icon(.x),
         state: PokitButtonStyle.State,
         size: PokitChipStyle.Size,
         action: (() -> Void)? = nil,
         iconTappedAction: (() -> Void)? = nil
     ) {
         self.labelText = labelText
+        self.icon = icon
         self.state = state
         self.size = size
         self.action = action
@@ -44,7 +47,7 @@ public struct PokitIconRChip: View {
             Button {
                 iconTappedAction?()
             } label: {
-                Image(.icon(.x))
+                Image(icon)
                     .resizable()
                     .frame(width: self.iconSize.width, height: self.iconSize.height)
                     .foregroundStyle(self.state.iconColor)
