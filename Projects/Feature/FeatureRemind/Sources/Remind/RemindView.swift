@@ -72,7 +72,7 @@ extension RemindView {
             
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 12) {
-                    ForEach(store.recommendedContents) { content in
+                    ForEach(store.recommendedContents, id: \.id) { content in
                         recommendedContentCell(content: content)
                         
                     }
@@ -185,7 +185,7 @@ extension RemindView {
             }
             .padding(.bottom, 16)
             
-            ForEach(store.unreadContents) { content in
+            ForEach(store.unreadContents, id: \.id) { content in
                 let isFirst = content == store.unreadContents.elements.first
                 let isLast = content == store.unreadContents.elements.last
                 
@@ -206,7 +206,7 @@ extension RemindView {
             }
             .padding(.bottom, 16)
             
-            ForEach(store.favoriteContents) { content in
+            ForEach(store.favoriteContents, id: \.id) { content in
                 let isFirst = content == store.favoriteContents.elements.first
                 let isLast = content == store.favoriteContents.elements.last
                 

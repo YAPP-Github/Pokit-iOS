@@ -49,7 +49,14 @@ extension RemindEndpoint: TargetType {
             return .requestPlain
         case .읽지않음_컨텐츠_조회(let model),
              .즐겨찾기_링크모음_조회(let model):
-            return .requestJSONEncodable(model)
+            return .requestParameters(
+                parameters: [
+                    "page": model.page,
+                    "size": model.size,
+                    "sort": model.sort
+                ],
+                encoding: URLEncoding.default
+            )
         }
     }
     

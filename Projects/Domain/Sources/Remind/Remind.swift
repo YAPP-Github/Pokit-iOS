@@ -32,7 +32,7 @@ public struct Remind: Equatable {
         self.unreadListPageable = .init(
             page: 0,
             size: 3,
-            sort: []
+            sort: ["desc"]
         )
         self.favoriteList = .init(
             data: [],
@@ -44,7 +44,7 @@ public struct Remind: Equatable {
         self.favoriteListPageable = .init(
             page: 0,
             size: 3,
-            sort: []
+            sort: ["desc"]
         )
     }
 }
