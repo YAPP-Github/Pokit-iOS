@@ -34,7 +34,7 @@ public extension ContentDetail {
         public let memo: String
         public let createdAt: Date
         public var favorites: Bool
-        public var alertYn: BaseContent.RemindState
+        public var alertYn: RemindState
         
         public init(
             id: Int,
@@ -45,7 +45,7 @@ public extension ContentDetail {
             memo: String,
             createdAt: Date,
             favorites: Bool,
-            alertYn: BaseContent.RemindState
+            alertYn: RemindState
         ) {
             self.id = id
             self.categoryName = categoryName
@@ -57,5 +57,12 @@ public extension ContentDetail {
             self.favorites = favorites
             self.alertYn = alertYn
         }
+    }
+}
+
+public extension ContentDetail.Content {
+    enum RemindState: String, Equatable {
+        case yes = "YES"
+        case no = "NO"
     }
 }

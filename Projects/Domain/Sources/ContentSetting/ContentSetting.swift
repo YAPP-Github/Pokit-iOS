@@ -10,7 +10,7 @@ import Foundation
 public struct ContentSetting: Equatable {
     // - MARK: Response
     /// 조회할 콘텐츠(링크)
-    public var content: BaseContent?
+    public var content: ContentDetail.Content?
     /// 카테고리(포킷) 리스트
     public var categoryListInQuiry: BaseCategoryListInquiry
     /// 유저가 등록한 카테고리(포킷) 개수
@@ -25,11 +25,11 @@ public struct ContentSetting: Equatable {
     /// 등록 또는 수정할 콘텐츠(링크) 메모
     public var memo: String
     /// 등록 또는 수정할 콘텐츠(링크) 리마인드 여부
-    public var alertYn: BaseContent.RemindState
+    public var alertYn: ContentDetail.Content.RemindState
     /// 카테고리 리스트의 조회할 페이징 정보
     public var pageable: BasePageable
     
-    public init(content: BaseContent?, data: String?) {
+    public init(content: ContentDetail.Content?, data: String?) {
         self.content = content
         
         let categoryListInquiry = BaseCategoryListInquiry(
