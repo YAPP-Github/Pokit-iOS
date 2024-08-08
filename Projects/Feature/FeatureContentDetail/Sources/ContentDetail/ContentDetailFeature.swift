@@ -148,9 +148,15 @@ private extension ContentDetailFeature {
         case .binding:
             return .none
         case .favoriteButtonTapped:
-            state.domain.content?.favorites.toggle()
-            return .run { send in
-                
+            guard let content = state.domain.content else {
+                return .none
+            }
+            return .run { [content] send in
+                if content.favorites {
+                    await send(.async(.즐겨찾기_취소(id: content.id)))
+                } else {
+                    await send(.async(.즐겨찾기(id: content.id)))
+                }
             }
         }
     }
