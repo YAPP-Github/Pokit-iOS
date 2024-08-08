@@ -19,6 +19,8 @@ public struct ContentListFeature {
     private var dismiss
     @Dependency(\.pasteboard)
     private var pasteBoard
+    @Dependency(\.remindClient)
+    private var remindClient
     /// - State
     @ObservableState
     public struct State: Equatable {
@@ -67,9 +69,13 @@ public struct ContentListFeature {
         
         public enum InnerAction: Equatable {
             case dismissBottomSheet
+            case 컨텐츠_목록_조회(BaseContentListInquiry)
         }
         
-        public enum AsyncAction: Equatable { case doNothing }
+        public enum AsyncAction: Equatable {
+            case 읽지않음_컨텐츠_조회
+            case 즐겨찾기_링크모음_조회
+        }
         
         public enum ScopeAction: Equatable {
             case bottomSheet(
@@ -144,9 +150,16 @@ private extension ContentListFeature {
         case .backButtonTapped:
             return .run { _ in await dismiss() }
         case .contentListViewOnAppeared:
-            // - MARK: 더미 조회
-            state.domain.contentList = ContentListInquiryResponse.mock.toDomain()
-            return .run { send in
+            return .run { [type = state.contentType] send in
+                switch type {
+                case .unread:
+                    await send(.async(.읽지않음_컨텐츠_조회))
+                    break
+                case .favorite:
+                    await send(.async(.즐겨찾기_링크모음_조회))
+                    break
+                }
+                
                 for await _ in self.pasteBoard.changes() {
                     let url = try await pasteBoard.probableWebURL()
                     await send(.delegate(.linkCopyDetected(url)), animation: .pokitSpring)
@@ -161,12 +174,38 @@ private extension ContentListFeature {
         case .dismissBottomSheet:
             state.bottomSheetItem = nil
             return .none
+        case .컨텐츠_목록_조회(let contentList):
+            state.domain.contentList = contentList
+            return .none
         }
     }
     
     /// - Async Effect
     func handleAsyncAction(_ action: Action.AsyncAction, state: inout State) -> Effect<Action> {
-        return .none
+        switch action {
+        case .읽지않음_컨텐츠_조회:
+            return .run { [pageable = state.domain.pageable] send in
+                let contentList = try await remindClient.읽지않음_컨텐츠_조회(
+                    .init(
+                        page: pageable.page,
+                        size: pageable.size,
+                        sort: pageable.sort
+                    )
+                ).toDomain()
+                await send(.inner(.컨텐츠_목록_조회(contentList)))
+            }
+        case .즐겨찾기_링크모음_조회:
+            return .run { [pageable = state.domain.pageable] send in
+                let contentList = try await remindClient.즐겨찾기_링크모음_조회(
+                    .init(
+                        page: pageable.page,
+                        size: pageable.size,
+                        sort: pageable.sort
+                    )
+                ).toDomain()
+                await send(.inner(.컨텐츠_목록_조회(contentList)))
+            }
+        }
     }
     
     /// - Scope Effect

@@ -48,7 +48,7 @@ public extension ContentListView {
                     confirmText: "삭제"
                 ) { send(.deleteAlertConfirmTapped(content: content)) }
             }
-            .onAppear { send(.contentListViewOnAppeared) }
+            .task { await send(.contentListViewOnAppeared).finish() }
         }
     }
 }
@@ -74,7 +74,7 @@ private extension ContentListView {
     var list: some View {
         ScrollView {
             VStack(spacing: 0) {
-                ForEach(store.contents) { content in
+                ForEach(store.contents, id: \.id) { content in
                     let isFirst = content == store.contents.first
                     let isLast = content == store.contents.last
                     

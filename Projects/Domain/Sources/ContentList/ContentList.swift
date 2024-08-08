@@ -11,6 +11,7 @@ public struct ContentList: Equatable {
     // - MARK: Response
     /// 콘텐츠 목록
     public var contentList: BaseContentListInquiry
+    public var pageable: BasePageable
     
     public init() {
         self.contentList = .init(
@@ -19,6 +20,10 @@ public struct ContentList: Equatable {
             size: 0,
             sort: [],
             hasNext: false
+        )
+        self.pageable = .init(
+            page: 0, size: 10,
+            sort: ["desc"]
         )
     }
 }
