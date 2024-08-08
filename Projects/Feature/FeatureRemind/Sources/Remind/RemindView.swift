@@ -92,8 +92,6 @@ extension RemindView {
     
     @ViewBuilder
     private func recommendedContentCellLabel(content: BaseContent) -> some View {
-        let date = formatter.string(from: content.createdAt)
-        
         ZStack(alignment: .bottom) {
             AsyncImage(url: .init(string: content.thumbNail)) { image in
                 image
@@ -138,7 +136,7 @@ extension RemindView {
                 }
                 .padding(.top, 4)
                 
-                Text("\(date) • \(content.domain)")
+                Text("\(content.createdAt) • \(content.domain)")
                     .pokitFont(.detail2)
                     .foregroundStyle(.pokit(.text(.tertiary)))
                     .padding(.top, 8)
