@@ -18,27 +18,26 @@ extension DependencyValues {
 }
 /// Category에 관련한 API를 처리하는 Client
 public struct ContentClient {
-    var 컨텐츠_삭제: @Sendable (
+    public var 컨텐츠_삭제: @Sendable (
         _ categoryId: String
     ) async throws -> EmptyResponse
-    var 컨텐츠_상세_조회: @Sendable (
+    public var 컨텐츠_상세_조회: @Sendable (
+        _ contentId: String
+    ) async throws -> ContentDetailResponse
+    public var 컨텐츠_수정: @Sendable (
         _ contentId: String,
         _ model: ContentBaseRequest
     ) async throws -> ContentBaseResponse
-    var 컨텐츠_수정: @Sendable (
-        _ contentId: String, 
+    public var 컨텐츠_추가: @Sendable (
         _ model: ContentBaseRequest
     ) async throws -> ContentBaseResponse
-    var 컨텐츠_추가: @Sendable (
-        _ model: ContentBaseRequest
-    ) async throws -> ContentBaseResponse
-    var 즐겨찾기: @Sendable (
+    public var 즐겨찾기: @Sendable (
         _ contentId: String
     ) async throws -> BookmarkResponse
-    var 즐겨찾기_취소: @Sendable (
+    public var 즐겨찾기_취소: @Sendable (
         _ contentId: String
     ) async throws -> EmptyResponse
-    var 카테고리_내_컨텐츠_목록_조회: @Sendable (
+    public var 카테고리_내_컨텐츠_목록_조회: @Sendable (
         _ contentId: String,
         _ model: BasePageableRequest
     ) async throws -> ContentListInquiryResponse
@@ -52,8 +51,8 @@ extension ContentClient: DependencyKey {
             컨텐츠_삭제: { id in
                 try await provider.request(.컨텐츠_삭제(contentId: id))
             },
-            컨텐츠_상세_조회: { id, model in
-                try await provider.request(.컨텐츠_상세_조회(contentId: id, model: model))
+            컨텐츠_상세_조회: { id in
+                try await provider.request(.컨텐츠_상세_조회(contentId: id))
             },
             컨텐츠_수정: { id, model in
                 try await provider.request(.컨텐츠_수정(contentId: id, model: model))
@@ -76,7 +75,7 @@ extension ContentClient: DependencyKey {
     public static let previewValue: Self = {
         Self(
             컨텐츠_삭제: { _ in .init() },
-            컨텐츠_상세_조회: { _, _ in .mock(id: 0) },
+            컨텐츠_상세_조회: { _ in .mock },
             컨텐츠_수정: { _, _ in .mock(id: 0) },
             컨텐츠_추가: { _ in .mock(id: 0) },
             즐겨찾기: { _ in .mock },

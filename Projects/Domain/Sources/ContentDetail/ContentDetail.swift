@@ -30,7 +30,6 @@ public extension ContentDetail {
         public let categoryName: String
         public let categoryId: Int?
         public let title: String
-        public let thumbNail: String
         public let data: String
         public let memo: String
         public let createdAt: Date
@@ -42,7 +41,6 @@ public extension ContentDetail {
             categoryName: String,
             categoryId: Int?,
             title: String,
-            thumbNail: String,
             data: String,
             memo: String,
             createdAt: Date,
@@ -53,7 +51,6 @@ public extension ContentDetail {
             self.categoryName = categoryName
             self.categoryId = categoryId
             self.title = title
-            self.thumbNail = thumbNail
             self.data = data
             self.memo = memo
             self.createdAt = createdAt

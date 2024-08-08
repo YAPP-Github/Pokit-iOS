@@ -67,8 +67,8 @@ public extension ContentDetailView {
                     action: { send(.deleteAlertConfirmTapped) }
                 )
             }
-            .onAppear {
-                send(.contentDetailViewOnAppeared, animation: .smooth)
+            .task {
+                await send(.contentDetailViewOnAppeared, animation: .smooth).finish()
             }
         }
     }
@@ -235,7 +235,7 @@ private extension ContentDetailView {
             initialState: .init(
                 contentId: 0
             ),
-            reducer: { ContentDetailFeature() }
+            reducer: { ContentDetailFeature()._printChanges() }
         )
     )
 }

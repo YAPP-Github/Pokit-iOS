@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-import FeatureLinkDetail
+import FeatureContentDetail
 
 @main
 struct FeatureContentDetailDemoApp: App {
@@ -28,7 +28,7 @@ struct FeatureContentDetailDemoApp: App {
             .background(.white)
             .sheet(isPresented: $showLinkDetail) {
                 ContentDetailView(store: .init(
-                    initialState: .init(contentId: 0),
+                    initialState: .init(contentId: 2),
                     reducer: { ContentDetailFeature()._printChanges() })
                 )
             }

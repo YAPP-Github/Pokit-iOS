@@ -18,6 +18,8 @@ public struct ContentDetailFeature {
     private var linkPresentation
     @Dependency(\.dismiss)
     private var dismiss
+    @Dependency(\.contentClient)
+    private var contentClient
     /// - State
     @ObservableState
     public struct State: Equatable {
@@ -60,9 +62,12 @@ public struct ContentDetailFeature {
             case parsingInfo(title: String?, image: UIImage?)
             case parsingURL
             case dismissAlert
+            case 컨텐츠_상세_조회(content: ContentDetail.Content)
         }
         
-        public enum AsyncAction: Equatable { case doNothing }
+        public enum AsyncAction: Equatable {
+            case 컨텐츠_상세_조회(id: Int)
+        }
         
         public enum ScopeAction: Equatable { case doNothing }
         
@@ -110,9 +115,9 @@ private extension ContentDetailFeature {
     func handleViewAction(_ action: Action.View, state: inout State) -> Effect<Action> {
         switch action {
         case .contentDetailViewOnAppeared:
-            // - MARK: 목업 데이터 조회
-            state.domain.content = ContentDetailResponse.mock.toDomain()
-            return .send(.inner(.parsingURL))
+            return .run { [id = state.domain.contentId] send in
+                await send(.async(.컨텐츠_상세_조회(id: id)))
+            }
         case .sharedButtonTapped:
             return .none
         case .editButtonTapped:
@@ -122,7 +127,8 @@ private extension ContentDetailFeature {
                 categoryName: content.categoryName,
                 categoryId: content.categoryId,
                 title: content.title,
-                thumbNail: content.thumbNail,
+                // - MARK: 콘텐츠 통일 필요..?
+                thumbNail: "",
                 data: content.data,
                 // - MARK: 콘텐츠 통일 필요..?
                 domain: "youtube",
@@ -183,12 +189,21 @@ private extension ContentDetailFeature {
         case .dismissAlert:
             state.showAlert = false
             return .none
+        case .컨텐츠_상세_조회(content: let content):
+            state.domain.content = content
+            return .send(.inner(.parsingURL))
         }
     }
     
     /// - Async Effect
     func handleAsyncAction(_ action: Action.AsyncAction, state: inout State) -> Effect<Action> {
-        return .none
+        switch action {
+        case .컨텐츠_상세_조회(id: let id):
+            return .run { [id] send in
+                let contentResponse = try await contentClient.컨텐츠_상세_조회("\(id)").toDomain()
+                await send(.inner(.컨텐츠_상세_조회(content: contentResponse)))
+            }
+        }
     }
     
     /// - Scope Effect

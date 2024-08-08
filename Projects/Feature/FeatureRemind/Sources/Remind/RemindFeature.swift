@@ -13,7 +13,10 @@ import DSKit
 @Reducer
 public struct RemindFeature {
     /// - Dependency
-    @Dependency(\.dismiss) var dismiss
+    @Dependency(\.dismiss)
+    private var dismiss
+    @Dependency(\.remindClient)
+    private var remindClient
     /// - State
     @ObservableState
     public struct State: Equatable {
@@ -22,7 +25,7 @@ public struct RemindFeature {
         fileprivate var domain = Remind()
         var recommendedContents: IdentifiedArrayOf<BaseContent> {
             var identifiedArray = IdentifiedArrayOf<BaseContent>()
-            domain.recommendedList.data.forEach { identifiedArray.append($0) }
+            domain.recommendedList.forEach { identifiedArray.append($0) }
             return identifiedArray
         }
         var unreadContents: IdentifiedArrayOf<BaseContent> {
@@ -66,8 +69,15 @@ public struct RemindFeature {
         }
         public enum InnerAction: Equatable {
             case dismissBottomSheet
+            case 오늘의_리마인드_조회(contents: [BaseContent])
+            case 읽지않음_컨텐츠_조회(contentList: BaseContentListInquiry)
+            case 즐겨찾기_링크모음_조회(contentList: BaseContentListInquiry)
         }
-        public enum AsyncAction: Equatable { case doNothing }
+        public enum AsyncAction: Equatable {
+            case 오늘의_리마인드_조회
+            case 읽지않음_컨텐츠_조회
+            case 즐겨찾기_링크모음_조회
+        }
         public enum ScopeAction: Equatable {
             case bottomSheet(
                 delegate: PokitBottomSheet.Delegate,
@@ -140,11 +150,11 @@ private extension RemindFeature {
         case .binding:
             return .none
         case .remindViewOnAppeared:
-            // - MARK: 목업 데이터 조회
-            state.domain.recommendedList = ContentListInquiryResponse.mock.toDomain()
-            state.domain.favoriteList = ContentListInquiryResponse.mock.toDomain()
-            state.domain.unreadList = ContentListInquiryResponse.mock.toDomain()
-            return .none
+            return .run { send in
+                await send(.async(.오늘의_리마인드_조회))
+                await send(.async(.읽지않음_컨텐츠_조회))
+                await send(.async(.즐겨찾기_링크모음_조회))
+            }
         }
     }
     /// - Inner Effect
@@ -153,11 +163,48 @@ private extension RemindFeature {
         case .dismissBottomSheet:
             state.bottomSheetItem = nil
             return .none
+        case .오늘의_리마인드_조회(contents: let contents):
+            state.domain.recommendedList = contents
+            return .none
+        case .읽지않음_컨텐츠_조회(contentList: let contentList):
+            state.domain.unreadList = contentList
+            return .none
+        case .즐겨찾기_링크모음_조회(contentList: let contentList):
+            state.domain.favoriteList = contentList
+            return .none
         }
     }
     /// - Async Effect
     func handleAsyncAction(_ action: Action.AsyncAction, state: inout State) -> Effect<Action> {
-        return .none
+        switch action {
+        case .오늘의_리마인드_조회:
+            return .run { send in
+                let contents = try await remindClient.오늘의_리마인드_조회().map { $0.toDomain() }
+                await send(.inner(.오늘의_리마인드_조회(contents: contents)))
+            }
+        case .읽지않음_컨텐츠_조회:
+            return .run { [pageable = state.domain.unreadListPageable] send in
+                let contentList = try await remindClient.읽지않음_컨텐츠_조회(
+                    .init(
+                        page: pageable.page,
+                        size: pageable.size,
+                        sort: pageable.sort
+                    )
+                ).toDomain()
+                await send(.inner(.읽지않음_컨텐츠_조회(contentList: contentList)))
+            }
+        case .즐겨찾기_링크모음_조회:
+            return .run { [pageable = state.domain.favoriteListPageable] send in
+                let contentList = try await remindClient.즐겨찾기_링크모음_조회(
+                    .init(
+                        page: pageable.page,
+                        size: pageable.size,
+                        sort: pageable.sort
+                    )
+                ).toDomain()
+                await send(.inner(.즐겨찾기_링크모음_조회(contentList: contentList)))
+            }
+        }
     }
     /// - Scope Effect
     func handleScopeAction(_ action: Action.ScopeAction, state: inout State) -> Effect<Action> {

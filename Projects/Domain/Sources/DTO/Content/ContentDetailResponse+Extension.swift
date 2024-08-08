@@ -17,7 +17,6 @@ public extension ContentDetailResponse {
             categoryName: self.categoryName,
             categoryId: self.categoryId,
             title: self.title,
-            thumbNail: self.thumbNail,
             data: self.data,
             memo: self.memo,
             createdAt: DateFormatter.stringToDate(string: self.createdAt),

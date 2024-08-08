@@ -12,7 +12,7 @@ import Moya
 /// 컨텐츠 전용 Endpont
 public enum ContentEndpoint {
     case 컨텐츠_삭제(contentId: String)
-    case 컨텐츠_상세_조회(contentId: String, model: ContentBaseRequest)
+    case 컨텐츠_상세_조회(contentId: String)
     case 컨텐츠_수정(contentId: String, model: ContentBaseRequest)
     case 즐겨찾기_취소(contentId: String)
     case 즐겨찾기(contentId: String)
@@ -29,7 +29,7 @@ extension ContentEndpoint: TargetType {
         switch self {
         case let .컨텐츠_삭제(categoryId):
             return "/\(categoryId)"
-        case let .컨텐츠_상세_조회(contentId, _):
+        case let .컨텐츠_상세_조회(contentId):
             return "/\(contentId)"
         case let .컨텐츠_수정(contentId, _):
             return "/\(contentId)"
@@ -67,8 +67,8 @@ extension ContentEndpoint: TargetType {
         switch self {
         case .컨텐츠_삭제:
             return .requestPlain
-        case let .컨텐츠_상세_조회(_, model):
-            return .requestJSONEncodable(model)
+        case .컨텐츠_상세_조회:
+            return .requestPlain
         case let .컨텐츠_수정(_, model):
             return .requestJSONEncodable(model)
         case .즐겨찾기_취소:
