@@ -9,6 +9,16 @@ import Foundation
 
 import CoreKit
 
+public extension CategoryEditResponse {
+    func toDomain() -> BaseCategoryDetail {
+        return .init(
+            categoryId: self.categoryId,
+            categoryName: self.categoryName,
+            categoryImage: self.categoryImage.toDomain()
+        )
+    }
+}
+
 public extension CategoryImageResponse {
     func toDomain() -> BaseCategoryImage {
         return .init(imageId: self.imageId, imageURL: self.imageUrl)

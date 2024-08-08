@@ -20,6 +20,8 @@ public struct ContentDetailFeature {
     private var dismiss
     @Dependency(\.contentClient)
     private var contentClient
+    @Dependency(\.categoryClient)
+    private var categoryClient
     /// - State
     @ObservableState
     public struct State: Equatable {
@@ -29,6 +31,9 @@ public struct ContentDetailFeature {
         fileprivate var domain: ContentDetail
         var content: ContentDetail.Content? {
             get { domain.content }
+        }
+        var category: BaseCategoryDetail? {
+            get { domain.category }
         }
         var linkTitle: String? = nil
         var linkImage: UIImage? = nil
@@ -63,10 +68,15 @@ public struct ContentDetailFeature {
             case parsingURL
             case dismissAlert
             case 컨텐츠_상세_조회(content: ContentDetail.Content)
+            case 즐겨찾기_갱신(Bool)
+            case 카테고리_갱신(BaseCategoryDetail)
         }
         
         public enum AsyncAction: Equatable {
             case 컨텐츠_상세_조회(id: Int)
+            case 즐겨찾기(id: Int)
+            case 즐겨찾기_취소(id: Int)
+            case 카테고리_상세_조회(id: Int)
         }
         
         public enum ScopeAction: Equatable { case doNothing }
@@ -139,7 +149,9 @@ private extension ContentDetailFeature {
             return .none
         case .favoriteButtonTapped:
             state.domain.content?.favorites.toggle()
-            return .none
+            return .run { send in
+                
+            }
         }
     }
     
@@ -176,6 +188,12 @@ private extension ContentDetailFeature {
         case .컨텐츠_상세_조회(content: let content):
             state.domain.content = content
             return .send(.inner(.parsingURL))
+        case .즐겨찾기_갱신(let favorite):
+            state.domain.content?.favorites = favorite
+            return .none
+        case .카테고리_갱신(let category):
+            state.domain.category = category
+            return .none
         }
     }
     
@@ -186,6 +204,22 @@ private extension ContentDetailFeature {
             return .run { [id] send in
                 let contentResponse = try await contentClient.컨텐츠_상세_조회("\(id)").toDomain()
                 await send(.inner(.컨텐츠_상세_조회(content: contentResponse)))
+                await send(.async(.카테고리_상세_조회(id: contentResponse.categoryId)))
+            }
+        case .즐겨찾기(id: let id):
+            return .run { [id] send in
+                let _ = try await contentClient.즐겨찾기("\(id)")
+                await send(.inner(.즐겨찾기_갱신(true)))
+            }
+        case .즐겨찾기_취소(id: let id):
+            return .run { [id] send in
+                let _ = try await contentClient.즐겨찾기_취소("\(id)")
+                await send(.inner(.즐겨찾기_갱신(false)))
+            }
+        case .카테고리_상세_조회(id: let id):
+            return .run { [id] send in
+                let category = try await categoryClient.카테고리_상세_조회("\(id)").toDomain()
+                await send(.inner(.카테고리_갱신(category)))
             }
         }
     }

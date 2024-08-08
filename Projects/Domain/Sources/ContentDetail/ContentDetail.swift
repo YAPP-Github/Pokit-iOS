@@ -11,6 +11,7 @@ public struct ContentDetail: Equatable {
     // - MARK: Response
     /// 콘텐츠(링크) 상세
     public var content: ContentDetail.Content?
+    public var category: BaseCategoryDetail?
     // - MARK: Request
     /// 조회할 콘텐츠 id
     public let contentId: Int
@@ -27,8 +28,7 @@ public struct ContentDetail: Equatable {
 public extension ContentDetail {
     struct Content: Equatable {
         public let id: Int
-        public let categoryName: String
-        public let categoryId: Int?
+        public let categoryId: Int
         public let title: String
         public let data: String
         public let memo: String
@@ -38,8 +38,7 @@ public extension ContentDetail {
         
         public init(
             id: Int,
-            categoryName: String,
-            categoryId: Int?,
+            categoryId: Int,
             title: String,
             data: String,
             memo: String,
@@ -48,7 +47,6 @@ public extension ContentDetail {
             alertYn: RemindState
         ) {
             self.id = id
-            self.categoryName = categoryName
             self.categoryId = categoryId
             self.title = title
             self.data = data

@@ -17,7 +17,7 @@ public struct BaseContent: Identifiable, Equatable, PokitLinkCardItem {
     public let thumbNail: String
     public let data: String
     public let domain: String
-    public let createdAt: Date
+    public let createdAt: String
     public let isRead: Bool
     
     public init(
@@ -28,7 +28,7 @@ public struct BaseContent: Identifiable, Equatable, PokitLinkCardItem {
         thumbNail: String,
         data: String,
         domain: String,
-        createdAt: Date,
+        createdAt: String,
         isRead: Bool
     ) {
         self.id = id

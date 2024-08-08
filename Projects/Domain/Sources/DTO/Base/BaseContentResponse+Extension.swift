@@ -20,7 +20,7 @@ public extension ContentBaseResponse {
             thumbNail: self.thumbNail,
             data: self.data,
             domain: self.domain,
-            createdAt: DateFormatter.stringToDate(string: self.createdAt),
+            createdAt: self.createdAt,
             isRead: self.isRead
         )
     }

@@ -28,7 +28,7 @@ struct FeatureContentDetailDemoApp: App {
             .background(.white)
             .sheet(isPresented: $showLinkDetail) {
                 ContentDetailView(store: .init(
-                    initialState: .init(contentId: 2),
+                    initialState: .init(contentId: 3),
                     reducer: { ContentDetailFeature()._printChanges() })
                 )
             }

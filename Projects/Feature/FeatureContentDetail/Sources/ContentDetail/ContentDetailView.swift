@@ -90,7 +90,9 @@ private extension ContentDetailView {
                     }
             }
             
-            PokitBadge(content.categoryName, state: .default)
+            if let categoryName = store.category?.categoryName {
+                PokitBadge(categoryName, state: .default)
+            }
             
             Spacer()
         }

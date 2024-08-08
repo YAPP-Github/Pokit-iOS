@@ -14,7 +14,6 @@ public extension ContentDetailResponse {
     func toDomain() -> ContentDetail.Content {
         return .init(
             id: self.contentId,
-            categoryName: self.categoryName,
             categoryId: self.categoryId,
             title: self.title,
             data: self.data,
