@@ -169,8 +169,10 @@ private extension CategoryDetailFeature {
             
         case .categorySelected(let item):
             state.domain.category = item
-            //TODO: 현재 아이템 값을 통해 카테고리 내 컨텐츠 리스트들을 뿌려줘야 함
-            return .send(.inner(.pokitCategorySelectSheetPresented(false)))
+            return .run { send in
+                await send(.async(.카테고리_내_컨텐츠_목록_조회))
+                await send(.inner(.pokitCategorySelectSheetPresented(false)))
+            }
             
         case .filterButtonTapped:
             state.isFilterSheetPresented.toggle()
