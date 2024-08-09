@@ -93,12 +93,12 @@ public struct CategoryDetailFeature {
             case pokitDeleteSheetPresented(Bool)
             case 카테고리_목록_조회_결과(BaseCategoryListInquiry)
             case 카테고리_내_컨텐츠_목록_갱신(BaseContentListInquiry)
-            case 컨텐츠_삭제_반영(contentId: Int)
+            case 컨텐츠_삭제_반영(id: Int)
         }
         
         public enum AsyncAction: Equatable {
             case 카테고리_내_컨텐츠_목록_조회
-            case 컨텐츠_삭제(contentId: Int)
+            case 컨텐츠_삭제(id: Int)
         }
         
         public enum ScopeAction: Equatable {
@@ -110,7 +110,7 @@ public struct CategoryDetailFeature {
         public enum DelegateAction: Equatable {
             case contentItemTapped(BaseContentItem)
             case linkCopyDetected(URL?)
-            case 링크수정(contentId: Int)
+            case 링크수정(id: Int)
             case 포킷삭제
             case 포킷수정(BaseCategoryItem)
             case 포킷공유
@@ -224,7 +224,7 @@ private extension CategoryDetailFeature {
         case .카테고리_내_컨텐츠_목록_갱신(let contentList):
             state.domain.contentList = contentList
             return .none
-        case .컨텐츠_삭제_반영(contentId: let id):
+        case .컨텐츠_삭제_반영(id: let id):
             state.domain.contentList.data.removeAll { $0.id == id }
             state.selectedContentItem = nil
             state.isPokitDeleteSheetPresented = false
@@ -257,10 +257,10 @@ private extension CategoryDetailFeature {
                 ).toDomain()
                 await send(.inner(.카테고리_내_컨텐츠_목록_갱신(contentList)))
             }
-        case .컨텐츠_삭제(contentId: let id):
+        case .컨텐츠_삭제(id: let id):
             return .run { [id] send in
                 let _ = try await contentClient.컨텐츠_삭제("\(id)")
-                await send(.inner(.컨텐츠_삭제_반영(contentId: id)), animation: .pokitSpring)
+                await send(.inner(.컨텐츠_삭제_반영(id: id)), animation: .pokitSpring)
             }
         }
     }
@@ -285,7 +285,7 @@ private extension CategoryDetailFeature {
                     case .링크삭제:
                         guard let content else { return }
                         await send(.inner(.pokitCategorySheetPresented(false)))
-                        await send(.delegate(.링크수정(contentId: content.id)))
+                        await send(.delegate(.링크수정(id: content.id)))
                     case .포킷삭제:
                         await send(.inner(.pokitCategorySheetPresented(false)))
                         await send(.delegate(.포킷수정(category)))
@@ -319,7 +319,7 @@ private extension CategoryDetailFeature {
                         state.isPokitDeleteSheetPresented = false
                         return .none
                     }
-                    return .send(.async(.컨텐츠_삭제(contentId: selectedItem.id)))
+                    return .send(.async(.컨텐츠_삭제(id: selectedItem.id)))
                     
                 case .포킷삭제:
                     state.isPokitDeleteSheetPresented = false

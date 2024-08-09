@@ -117,14 +117,14 @@ public extension MainTabFeature {
                  let .remind(.delegate(.링크수정(id))),
                  let .path(.element(_, action: .카테고리상세(.delegate(.링크수정(id))))),
                  let .path(.element(_, action: .링크목록(.delegate(.링크수정(id))))):
-                return .run { send in await send(.inner(.링크추가및수정이동(contentId: id))) }
+                return .run { send in await send(.inner(.링크추가및수정이동(id: id))) }
                 
-            case let .contentDetail(.presented(.delegate(.컨텐츠_삭제_완료(contentId: id)))):
+            case let .contentDetail(.presented(.delegate(.컨텐츠_삭제_완료(id: id)))):
                 state.contentDetail = nil
                 // - TODO: 컨텐츠 상세를 띄운 뷰에 컨텐츠 삭제 반영
                 return .none
 
-            case let .inner(.링크추가및수정이동(contentId: id)):
+            case let .inner(.링크추가및수정이동(id: id)):
                 state.path.append(.링크추가및수정(
                     ContentSettingFeature.State(contentId: id)
                 ))

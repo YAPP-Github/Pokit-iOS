@@ -74,13 +74,13 @@ public struct RemindFeature {
             case 오늘의_리마인드_조회(contents: [BaseContentItem])
             case 읽지않음_컨텐츠_조회(contentList: BaseContentListInquiry)
             case 즐겨찾기_링크모음_조회(contentList: BaseContentListInquiry)
-            case 컨텐츠_삭제_반영(contentId: Int)
+            case 컨텐츠_삭제_반영(id: Int)
         }
         public enum AsyncAction: Equatable {
             case 오늘의_리마인드_조회
             case 읽지않음_컨텐츠_조회
             case 즐겨찾기_링크모음_조회
-            case 컨텐츠_삭제(contentId: Int)
+            case 컨텐츠_삭제(id: Int)
         }
         public enum ScopeAction: Equatable {
             case bottomSheet(
@@ -92,7 +92,7 @@ public struct RemindFeature {
             case 링크상세(content: BaseContentItem)
             case alertButtonTapped
             case searchButtonTapped
-            case 링크수정(contentId: Int)
+            case 링크수정(id: Int)
             case 링크목록_안읽음
             case 링크목록_즐겨찾기
             case 컨텐츠목록_조회
@@ -152,7 +152,7 @@ private extension RemindFeature {
         case .deleteAlertConfirmTapped:
             guard let id = state.alertItem?.id else { return .none }
             return .run { [id] send in
-                await send(.async(.컨텐츠_삭제(contentId: id)))
+                await send(.async(.컨텐츠_삭제(id: id)))
             }
         case .binding:
             return .none
@@ -179,7 +179,7 @@ private extension RemindFeature {
         case .즐겨찾기_링크모음_조회(contentList: let contentList):
             state.domain.favoriteList = contentList
             return .none
-        case .컨텐츠_삭제_반영(contentId: let contentId):
+        case .컨텐츠_삭제_반영(id: let contentId):
             state.alertItem = nil
             state.domain.recommendedList.removeAll { $0.id == contentId }
             state.domain.unreadList.data.removeAll { $0.id == contentId }
@@ -217,10 +217,10 @@ private extension RemindFeature {
                 ).toDomain()
                 await send(.inner(.즐겨찾기_링크모음_조회(contentList: contentList)))
             }
-        case .컨텐츠_삭제(contentId: let id):
+        case .컨텐츠_삭제(id: let id):
             return .run { [id] send in
                 let _ = try await contentClient.컨텐츠_삭제("\(id)")
-                await send(.inner(.컨텐츠_삭제_반영(contentId: id)), animation: .pokitSpring)
+                await send(.inner(.컨텐츠_삭제_반영(id: id)), animation: .pokitSpring)
             }
         }
     }
@@ -234,7 +234,7 @@ private extension RemindFeature {
                 state.alertItem = content
                 return .none
             case .editCellButtonTapped:
-                return .send(.delegate(.링크수정(contentId: content.id)))
+                return .send(.delegate(.링크수정(id: content.id)))
             case .favoriteCellButtonTapped:
                 return .none
             case .shareCellButtonTapped:

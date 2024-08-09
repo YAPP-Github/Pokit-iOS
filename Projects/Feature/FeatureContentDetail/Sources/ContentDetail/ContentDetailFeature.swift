@@ -77,14 +77,14 @@ public struct ContentDetailFeature {
             case 즐겨찾기(id: Int)
             case 즐겨찾기_취소(id: Int)
             case 카테고리_상세_조회(id: Int)
-            case 컨텐츠_삭제(contentId: Int)
+            case 컨텐츠_삭제(id: Int)
         }
         
         public enum ScopeAction: Equatable { case doNothing }
         
         public enum DelegateAction: Equatable {
-            case editButtonTapped(contentId: Int)
-            case 컨텐츠_삭제_완료(contentId: Int)
+            case editButtonTapped(id: Int)
+            case 컨텐츠_삭제_완료(id: Int)
         }
     }
     
@@ -135,8 +135,7 @@ private extension ContentDetailFeature {
         case .editButtonTapped:
             guard let content = state.domain.content else { return .none }
             return .run { [content] send in
-//                await dismiss()
-                await send(.delegate(.editButtonTapped(contentId: content.id)))
+                await send(.delegate(.editButtonTapped(id: content.id)))
             }
         case .deleteButtonTapped:
             state.showAlert = true
@@ -145,7 +144,7 @@ private extension ContentDetailFeature {
             return .run { [id = state.domain.contentId] send in
                 //TODO: 링크 삭제
                 await send(.inner(.dismissAlert))
-                await send(.async(.컨텐츠_삭제(contentId: id)))
+                await send(.async(.컨텐츠_삭제(id: id)))
             }
         case .binding:
             return .none
@@ -229,10 +228,10 @@ private extension ContentDetailFeature {
                 let category = try await categoryClient.카테고리_상세_조회("\(id)").toDomain()
                 await send(.inner(.카테고리_갱신(category)))
             }
-        case .컨텐츠_삭제(contentId: let id):
+        case .컨텐츠_삭제(id: let id):
             return .run { [id] send in
                 let _ = try await contentClient.컨텐츠_삭제("\(id)")
-                await send(.delegate(.컨텐츠_삭제_완료(contentId: id)))
+                await send(.delegate(.컨텐츠_삭제_완료(id: id)))
             }
         }
     }

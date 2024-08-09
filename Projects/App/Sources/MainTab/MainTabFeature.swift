@@ -57,7 +57,7 @@ public struct MainTabFeature {
             case onAppear
         }
         public enum InnerAction: Equatable {
-            case 링크추가및수정이동(contentId: Int)
+            case 링크추가및수정이동(id: Int)
             case linkCopySuccess(URL?)
         }
         public enum AsyncAction: Equatable { case doNothing }
