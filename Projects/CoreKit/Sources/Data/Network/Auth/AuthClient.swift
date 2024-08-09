@@ -20,7 +20,7 @@ extension DependencyValues {
 /// 유저정보에 관련한 API를 처리하는 Client
 public struct AuthClient {
     public var 로그인: @Sendable (SignInRequest) async throws -> TokenResponse
-    public var 회원탈퇴: @Sendable (WithdrawRequest) async throws -> EmptyResponse
+    public var 회원탈퇴: @Sendable (WithdrawRequest) async throws -> Void
     public var 토큰재발급: @Sendable (ReissueRequest) async throws -> ReissueResponse
 }
 
@@ -35,7 +35,7 @@ extension AuthClient: DependencyKey {
                 try await nonTokenProvider.request(.로그인(model))
             },
             회원탈퇴: { model in
-                try await provider.request(.회원탈퇴(model))
+                try await provider.requestNoBody(.회원탈퇴(model))
             },
             토큰재발급: { model in
                 try await nonTokenProvider.request(.토큰재발급(model))
@@ -46,7 +46,7 @@ extension AuthClient: DependencyKey {
     public static let previewValue: Self = {
         Self(
             로그인: { _ in .mock },
-            회원탈퇴: { _ in .init() },
+            회원탈퇴: { _ in  },
             토큰재발급: { _ in .mock }
         )
     }()
