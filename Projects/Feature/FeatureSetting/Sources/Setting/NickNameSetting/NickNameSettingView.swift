@@ -28,19 +28,21 @@ public extension NickNameSettingView {
             VStack(spacing: 0) {
                 PokitTextInput(
                     text: $store.text,
-                    state: .constant(.active),
+                    state: $store.textfieldState,
                     errorMessage: "사용중인 닉네임입니다.",
                     info: "한글, 영어, 숫자로만 입력이 가능합니다.",
                     focusState: $isFocused,
                     equals: true
                 )
                 Spacer()
+            }
+            .overlay(alignment: .bottom) {
                 PokitBottomButton(
                     "저장",
                     state: store.buttonState,
                     action: { send(.saveButtonTapped) }
                 )
-                .padding(.top, 16)
+                .setKeyboardHeight()
             }
             .padding(.top, 16)
             .padding(.horizontal, 20)
