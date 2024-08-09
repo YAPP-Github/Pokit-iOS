@@ -15,40 +15,55 @@ import Util
 @Reducer
 public struct CategoryDetailFeature {
     /// - Dependency
-    @Dependency(\.dismiss) var dismiss
-    @Dependency(\.pasteboard) var pasteboard
-    @Dependency(\.categoryClient) var categoryClient
+    @Dependency(\.dismiss)
+    private var dismiss
+    @Dependency(\.pasteboard)
+    private var pasteboard
+    @Dependency(\.categoryClient)
+    private var categoryClient
+    @Dependency(\.contentClient)
+    private var contentClient
     /// - State
     @ObservableState
     public struct State: Equatable {
         /// Domain
         fileprivate var domain: CategoryDetail
-        var category: BaseCategory {
+        var category: BaseCategoryItem {
             get { domain.category }
         }
-        var categories: IdentifiedArrayOf<BaseCategory> {
-            var identifiedArray = IdentifiedArrayOf<BaseCategory>()
+        var isUnreadFiltered: Bool {
+            get { domain.condition.isUnreadFlitered }
+        }
+        var isFavoriteFiltered: Bool {
+            get { domain.condition.isFavoriteFlitered }
+        }
+        // - TODO: 더 구체적인 처리 필요
+        var sortType: SortType {
+            get { domain.pageable.sort == ["desc"] ? .최신순 : .오래된순 }
+        }
+        var categories: IdentifiedArrayOf<BaseCategoryItem> {
+            var identifiedArray = IdentifiedArrayOf<BaseCategoryItem>()
             domain.categoryListInQuiry.data.forEach { category in
                 identifiedArray.append(category)
             }
             return identifiedArray
         }
-        var contents: IdentifiedArrayOf<BaseContent> {
-            var identifiedArray = IdentifiedArrayOf<BaseContent>()
+        var contents: IdentifiedArrayOf<BaseContentItem> {
+            var identifiedArray = IdentifiedArrayOf<BaseContentItem>()
             domain.contentList.data.forEach { content in
                 identifiedArray.append(content)
             }
             return identifiedArray
         }
         var kebobSelectedType: PokitDeleteBottomSheet.SheetType?
-        var selectedContentItem: BaseContent?
+        var selectedContentItem: BaseContentItem?
         /// sheet Presented
         var isCategorySheetPresented: Bool = false
         var isCategorySelectSheetPresented: Bool = false
         var isPokitDeleteSheetPresented: Bool = false
         var isFilterSheetPresented: Bool = false
         
-        public init(category: BaseCategory) {
+        public init(category: BaseCategoryItem) {
             self.domain = .init(categpry: category)
         }
     }
@@ -66,11 +81,11 @@ public struct CategoryDetailFeature {
             /// - Binding
             case binding(BindingAction<State>)
             /// - Button Tapped
-            case categoryKebobButtonTapped(PokitDeleteBottomSheet.SheetType, selectedItem: BaseContent?)
+            case categoryKebobButtonTapped(PokitDeleteBottomSheet.SheetType, selectedItem: BaseContentItem?)
             case categorySelectButtonTapped
-            case categorySelected(BaseCategory)
+            case categorySelected(BaseCategoryItem)
             case filterButtonTapped
-            case contentItemTapped(BaseContent)
+            case contentItemTapped(BaseContentItem)
             case dismiss
             case onAppear
         }
@@ -80,9 +95,14 @@ public struct CategoryDetailFeature {
             case pokitCategorySelectSheetPresented(Bool)
             case pokitDeleteSheetPresented(Bool)
             case 카테고리_목록_조회_결과(BaseCategoryListInquiry)
+            case 카테고리_내_컨텐츠_목록_갱신(BaseContentListInquiry)
+            case 컨텐츠_삭제_반영(id: Int)
         }
         
-        public enum AsyncAction: Equatable { case doNothing }
+        public enum AsyncAction: Equatable {
+            case 카테고리_내_컨텐츠_목록_조회
+            case 컨텐츠_삭제(id: Int)
+        }
         
         public enum ScopeAction: Equatable {
             case categoryBottomSheet(PokitBottomSheet.Delegate)
@@ -91,11 +111,11 @@ public struct CategoryDetailFeature {
         }
         
         public enum DelegateAction: Equatable {
-            case contentItemTapped(BaseContent)
+            case contentItemTapped(BaseContentItem)
             case linkCopyDetected(URL?)
-            case 링크수정(BaseContent)
+            case 링크수정(contentId: Int)
             case 포킷삭제
-            case 포킷수정(BaseCategory)
+            case 포킷수정(BaseCategoryItem)
             case 포킷공유
         }
     }
@@ -152,8 +172,10 @@ private extension CategoryDetailFeature {
             
         case .categorySelected(let item):
             state.domain.category = item
-            //TODO: 현재 아이템 값을 통해 카테고리 내 컨텐츠 리스트들을 뿌려줘야 함
-            return .send(.inner(.pokitCategorySelectSheetPresented(false)))
+            return .run { send in
+                await send(.async(.카테고리_내_컨텐츠_목록_조회))
+                await send(.inner(.pokitCategorySelectSheetPresented(false)))
+            }
             
         case .filterButtonTapped:
             state.isFilterSheetPresented.toggle()
@@ -166,12 +188,10 @@ private extension CategoryDetailFeature {
             return .run { _ in await dismiss() }
             
         case .onAppear:
-            // - MARK: 목업 데이터 조회
-//            state.domain.categoryListInQuiry = CategoryListInquiryResponse.mock.toDomain()
-//            state.domain.contentList = ContentListInquiryResponse.mock.toDomain()
             return .run { send in
                 let request = BasePageableRequest(page: 0, size: 100, sort: ["desc"])
                 let response = try await categoryClient.카테고리_목록_조회(request, true).toDomain()
+                await send(.async(.카테고리_내_컨텐츠_목록_조회))
                 await send(.inner(.카테고리_목록_조회_결과(response)))
                 
                 for await _ in self.pasteboard.changes() {
@@ -204,12 +224,48 @@ private extension CategoryDetailFeature {
             }) else { return .none }
             state.domain.category = first
             return .none
+        case .카테고리_내_컨텐츠_목록_갱신(let contentList):
+            state.domain.contentList = contentList
+            return .none
+        case .컨텐츠_삭제_반영(id: let id):
+            state.domain.contentList.data.removeAll { $0.id == id }
+            state.selectedContentItem = nil
+            state.isPokitDeleteSheetPresented = false
+            state.kebobSelectedType = nil
+            return .none
         }
     }
     
     /// - Async Effect
     func handleAsyncAction(_ action: Action.AsyncAction, state: inout State) -> Effect<Action> {
-        return .none
+        switch action {
+        case .카테고리_내_컨텐츠_목록_조회:
+            return .run { [
+                id = state.domain.category.id,
+                pageable = state.domain.pageable,
+                condition = state.domain.condition
+            ] send in
+                let contentList = try await contentClient.카테고리_내_컨텐츠_목록_조회(
+                    "\(id)",
+                    .init(
+                        page: pageable.page,
+                        size: pageable.size,
+                        sort: pageable.sort
+                    ),
+                    .init(
+                        categoryIds: condition.categoryIds,
+                        isRead: condition.isUnreadFlitered,
+                        favorites: condition.isFavoriteFlitered
+                    )
+                ).toDomain()
+                await send(.inner(.카테고리_내_컨텐츠_목록_갱신(contentList)))
+            }
+        case .컨텐츠_삭제(id: let id):
+            return .run { [id] send in
+                let _ = try await contentClient.컨텐츠_삭제("\(id)")
+                await send(.inner(.컨텐츠_삭제_반영(id: id)), animation: .pokitSpring)
+            }
+        }
     }
     
     /// - Scope Effect
@@ -223,16 +279,16 @@ private extension CategoryDetailFeature {
                 
             case .editCellButtonTapped:
                 return .run { [
-                    link = state.selectedContentItem,
+                    content = state.selectedContentItem,
                     type = state.kebobSelectedType,
                     category = state.category
                 ] send in
                     guard let type else { return }
                     switch type {
                     case .링크삭제:
-                        guard let link else { return }
+                        guard let content else { return }
                         await send(.inner(.pokitCategorySheetPresented(false)))
-                        await send(.delegate(.링크수정(link)))
+                        await send(.delegate(.링크수정(contentId: content.id)))
                     case .포킷삭제:
                         await send(.inner(.pokitCategorySheetPresented(false)))
                         await send(.delegate(.포킷수정(category)))
@@ -266,13 +322,7 @@ private extension CategoryDetailFeature {
                         state.isPokitDeleteSheetPresented = false
                         return .none
                     }
-                    guard let index = state.domain.contentList.data.firstIndex(of: selectedItem) else {
-                        return .none
-                    }
-                    state.domain.contentList.data.remove(at: index)
-                    state.isPokitDeleteSheetPresented = false
-                    state.kebobSelectedType = nil
-                    return .none
+                    return .send(.async(.컨텐츠_삭제(id: selectedItem.id)))
                     
                 case .포킷삭제:
                     state.isPokitDeleteSheetPresented = false
@@ -292,7 +342,13 @@ private extension CategoryDetailFeature {
                 return .none
             case let .okButtonTapped(type, bookMarkSelected, unReadSelected):
                 state.isFilterSheetPresented.toggle()
-                return .none
+                state.domain.pageable.sort = [
+                    "createdAt",
+                    type == .최신순 ? "desc" : "asc"
+                ]
+                state.domain.condition.isFavoriteFlitered = bookMarkSelected
+                state.domain.condition.isUnreadFlitered = unReadSelected
+                return .send(.async(.카테고리_내_컨텐츠_목록_조회))
             }
         }
     }

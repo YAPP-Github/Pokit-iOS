@@ -19,6 +19,10 @@ public struct ContentListFeature {
     private var dismiss
     @Dependency(\.pasteboard)
     private var pasteBoard
+    @Dependency(\.remindClient)
+    private var remindClient
+    @Dependency(\.contentClient)
+    private var contentClient
     /// - State
     @ObservableState
     public struct State: Equatable {
@@ -28,15 +32,15 @@ public struct ContentListFeature {
         
         let contentType: ContentType
         fileprivate var domain = ContentList()
-        var contents: IdentifiedArrayOf<BaseContent> {
-            var identifiedArray = IdentifiedArrayOf<BaseContent>()
+        var contents: IdentifiedArrayOf<BaseContentItem> {
+            var identifiedArray = IdentifiedArrayOf<BaseContentItem>()
             domain.contentList.data.forEach { identifiedArray.append($0) }
             return identifiedArray
         }
         var isListAscending = true
         /// sheet item
-        var bottomSheetItem: BaseContent? = nil
-        var alertItem: BaseContent? = nil
+        var bottomSheetItem: BaseContentItem? = nil
+        var alertItem: BaseContentItem? = nil
     }
     
     /// - Action
@@ -52,13 +56,13 @@ public struct ContentListFeature {
             /// - Binding
             case binding(BindingAction<State>)
             /// - Button Tapped
-            case linkCardTapped(content: BaseContent)
-            case kebabButtonTapped(content: BaseContent)
+            case linkCardTapped(content: BaseContentItem)
+            case kebabButtonTapped(content: BaseContentItem)
             case bottomSheetButtonTapped(
                 delegate: PokitBottomSheet.Delegate,
-                content: BaseContent
+                content: BaseContentItem
             )
-            case deleteAlertConfirmTapped(content: BaseContent)
+            case deleteAlertConfirmTapped(content: BaseContentItem)
             case sortTextLinkTapped
             case backButtonTapped
             /// - On Appeared
@@ -67,20 +71,26 @@ public struct ContentListFeature {
         
         public enum InnerAction: Equatable {
             case dismissBottomSheet
+            case 컨텐츠_목록_조회(BaseContentListInquiry)
+            case 컨텐츠_삭제_반영(id: Int)
         }
         
-        public enum AsyncAction: Equatable { case doNothing }
+        public enum AsyncAction: Equatable {
+            case 읽지않음_컨텐츠_조회
+            case 즐겨찾기_링크모음_조회
+            case 컨텐츠_삭제(id: Int)
+        }
         
         public enum ScopeAction: Equatable {
             case bottomSheet(
                 delegate: PokitBottomSheet.Delegate,
-                content: BaseContent
+                content: BaseContentItem
             )
         }
         
         public enum DelegateAction: Equatable {
-            case 링크상세(content: BaseContent)
-            case 링크수정(content: BaseContent)
+            case 링크상세(content: BaseContentItem)
+            case 링크수정(contentId: Int)
             case linkCopyDetected(URL?)
         }
     }
@@ -134,8 +144,10 @@ private extension ContentListFeature {
                 await send(.scope(.bottomSheet(delegate: delegate, content: content)))
             }
         case .deleteAlertConfirmTapped:
-            state.alertItem = nil
-            return .none
+            guard let id = state.alertItem?.id else { return .none }
+            return .run { [id] send in
+                await send(.async(.컨텐츠_삭제(id: id)))
+            }
         case .binding:
             return .none
         case .sortTextLinkTapped:
@@ -144,9 +156,16 @@ private extension ContentListFeature {
         case .backButtonTapped:
             return .run { _ in await dismiss() }
         case .contentListViewOnAppeared:
-            // - MARK: 더미 조회
-            state.domain.contentList = ContentListInquiryResponse.mock.toDomain()
-            return .run { send in
+            return .run { [type = state.contentType] send in
+                switch type {
+                case .unread:
+                    await send(.async(.읽지않음_컨텐츠_조회))
+                    break
+                case .favorite:
+                    await send(.async(.즐겨찾기_링크모음_조회))
+                    break
+                }
+                
                 for await _ in self.pasteBoard.changes() {
                     let url = try await pasteBoard.probableWebURL()
                     await send(.delegate(.linkCopyDetected(url)), animation: .pokitSpring)
@@ -161,12 +180,47 @@ private extension ContentListFeature {
         case .dismissBottomSheet:
             state.bottomSheetItem = nil
             return .none
+        case .컨텐츠_목록_조회(let contentList):
+            state.domain.contentList = contentList
+            return .none
+        case .컨텐츠_삭제_반영(id: let id):
+            state.alertItem = nil
+            state.domain.contentList.data.removeAll { $0.id == id }
+            return .none
         }
     }
     
     /// - Async Effect
     func handleAsyncAction(_ action: Action.AsyncAction, state: inout State) -> Effect<Action> {
-        return .none
+        switch action {
+        case .읽지않음_컨텐츠_조회:
+            return .run { [pageable = state.domain.pageable] send in
+                let contentList = try await remindClient.읽지않음_컨텐츠_조회(
+                    .init(
+                        page: pageable.page,
+                        size: pageable.size,
+                        sort: pageable.sort
+                    )
+                ).toDomain()
+                await send(.inner(.컨텐츠_목록_조회(contentList)))
+            }
+        case .즐겨찾기_링크모음_조회:
+            return .run { [pageable = state.domain.pageable] send in
+                let contentList = try await remindClient.즐겨찾기_링크모음_조회(
+                    .init(
+                        page: pageable.page,
+                        size: pageable.size,
+                        sort: pageable.sort
+                    )
+                ).toDomain()
+                await send(.inner(.컨텐츠_목록_조회(contentList)))
+            }
+        case .컨텐츠_삭제(id: let id):
+            return .run { [id] send in
+                let _ = try await contentClient.컨텐츠_삭제("\(id)")
+                await send(.inner(.컨텐츠_삭제_반영(id: id)), animation: .pokitSpring)
+            }
+        }
     }
     
     /// - Scope Effect
@@ -179,7 +233,7 @@ private extension ContentListFeature {
                 state.alertItem = content
                 return .none
             case .editCellButtonTapped:
-                return .send(.delegate(.링크수정(content: content)))
+                return .send(.delegate(.링크수정(contentId: content.id)))
             case .favoriteCellButtonTapped:
                 return .none
             case .shareCellButtonTapped:

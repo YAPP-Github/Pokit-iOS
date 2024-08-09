@@ -31,6 +31,9 @@ public struct CategoryClient {
 ) async throws -> [CategoryImageResponse]
     public var 유저_카테고리_개수_조회: @Sendable (
     ) async throws -> CategoryCountResponse
+    public var 카테고리_상세_조회: @Sendable (
+        _ categoryId: String
+    ) async throws -> CategoryEditResponse
 }
 
 extension CategoryClient: DependencyKey {
@@ -55,6 +58,9 @@ extension CategoryClient: DependencyKey {
             },
             유저_카테고리_개수_조회: {
                 try await provider.request(.유저_카테고리_개수_조회)
+            },
+            카테고리_상세_조회: { id in
+                try await provider.request(.카테고리_상세_조회(categoryId: id))
             }
         )
     }()
@@ -66,7 +72,8 @@ extension CategoryClient: DependencyKey {
             카테고리_목록_조회: { _, _ in .mock },
             카테고리_생성: { _ in .mock },
             카테고리_프로필_목록_조회: { CategoryImageResponse.mock },
-            유저_카테고리_개수_조회: { .mock }
+            유저_카테고리_개수_조회: { .mock },
+            카테고리_상세_조회: { _ in .mock }
         )
     }()
 }

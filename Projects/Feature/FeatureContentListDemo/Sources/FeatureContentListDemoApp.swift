@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-import FeatureLinkList
+import FeatureContentList
 
 @main
 struct FeatureContentListDemoApp: App {
@@ -15,8 +15,8 @@ struct FeatureContentListDemoApp: App {
         WindowGroup {
             // TODO: 루트 뷰 추가
             ContentListView(store: .init(
-                initialState: .init(linkType: .unread),
-                reducer: { ContentListFeature() }
+                initialState: .init(contentType: .unread),
+                reducer: { ContentListFeature()._printChanges() }
             ))
         }
     }

@@ -68,7 +68,7 @@ public struct PokitLinkCard<Item: PokitLinkCardItem>: View {
     }
     
     private var subTitle: some View {
-        Text("\(date) • \(link.domain)")
+        Text("\(link.createdAt) • \(link.domain)")
             .pokitFont(.detail2)
             .foregroundStyle(.pokit(.text(.tertiary)))
             .multilineTextAlignment(.leading)
@@ -103,17 +103,12 @@ public struct PokitLinkCard<Item: PokitLinkCardItem>: View {
         AsyncImage(url: .init(string: link.thumbNail)) { image in
             image
                 .resizable()
+                .aspectRatio(contentMode: .fill)
         } placeholder: {
             Color.pokit(.bg(.disable))
         }
         .frame(width: 124, height: 94)
         .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-    }
-    
-    private var date: String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy.MM.dd"
-        return formatter.string(from: link.createdAt)
     }
     
     private var divider: some View {

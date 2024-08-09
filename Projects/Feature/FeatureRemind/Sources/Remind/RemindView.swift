@@ -57,7 +57,7 @@ public extension RemindView {
                     confirmText: "삭제"
                 ) { send(.deleteAlertConfirmTapped(content: content)) }
             }
-            .onAppear { send(.remindViewOnAppeared) }
+            .task { await send(.remindViewOnAppeared).finish() }
         }
     }
 }
@@ -72,7 +72,7 @@ extension RemindView {
             
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 12) {
-                    ForEach(store.recommendedContents) { content in
+                    ForEach(store.recommendedContents, id: \.id) { content in
                         recommendedContentCell(content: content)
                         
                     }
@@ -83,7 +83,7 @@ extension RemindView {
     }
     
     @ViewBuilder
-    private func recommendedContentCell(content: BaseContent) -> some View {
+    private func recommendedContentCell(content: BaseContentItem) -> some View {
         Button(action: { send(.linkCardTapped(content: content)) }) {
             recommendedContentCellLabel(content: content)
         }
@@ -91,9 +91,7 @@ extension RemindView {
     }
     
     @ViewBuilder
-    private func recommendedContentCellLabel(content: BaseContent) -> some View {
-        let date = formatter.string(from: content.createdAt)
-        
+    private func recommendedContentCellLabel(content: BaseContentItem) -> some View {
         ZStack(alignment: .bottom) {
             AsyncImage(url: .init(string: content.thumbNail)) { image in
                 image
@@ -138,7 +136,7 @@ extension RemindView {
                 }
                 .padding(.top, 4)
                 
-                Text("\(date) • \(content.domain)")
+                Text("\(content.createdAt) • \(content.domain)")
                     .pokitFont(.detail2)
                     .foregroundStyle(.pokit(.text(.tertiary)))
                     .padding(.top, 8)
@@ -185,7 +183,7 @@ extension RemindView {
             }
             .padding(.bottom, 16)
             
-            ForEach(store.unreadContents) { content in
+            ForEach(store.unreadContents, id: \.id) { content in
                 let isFirst = content == store.unreadContents.elements.first
                 let isLast = content == store.unreadContents.elements.last
                 
@@ -206,7 +204,7 @@ extension RemindView {
             }
             .padding(.bottom, 16)
             
-            ForEach(store.favoriteContents) { content in
+            ForEach(store.favoriteContents, id: \.id) { content in
                 let isFirst = content == store.favoriteContents.elements.first
                 let isLast = content == store.favoriteContents.elements.last
                 

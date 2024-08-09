@@ -11,19 +11,17 @@ import CoreKit
 import Util
 
 public extension ContentBaseResponse {
-    func toDomain() -> BaseContent {
+    func toDomain() -> BaseContentItem {
         return .init(
             id: self.contentId,
-            categoryName: self.categoryName,
-            categoryId: self.categoryId,
+            categoryName: self.category.categoryName,
+            categoryId: self.category.categoryId,
             title: self.title,
             thumbNail: self.thumbNail,
             data: self.data,
             domain: self.domain,
-            memo: self.memo,
-            createdAt: DateFormatter.stringToDate(string: self.createdAt),
-            isRead: self.isRead,
-            favorites: self.favorites,
-            alertYn: BaseContent.RemindState(rawValue: self.alertYn) ?? .no)
+            createdAt: self.createdAt,
+            isRead: self.isRead
+        )
     }
 }

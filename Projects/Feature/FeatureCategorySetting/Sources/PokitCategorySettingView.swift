@@ -152,9 +152,9 @@ private extension PokitCategorySettingView {
     }
     /// 내포킷 Item
     struct PokitItem: View {
-        let item: BaseCategory
+        let item: BaseCategoryItem
         
-        init(item: BaseCategory) {
+        init(item: BaseCategoryItem) {
             self.item = item
         }
         

@@ -17,6 +17,7 @@ public enum CategoryEndpoint {
     case 카테고리생성(model: CategoryEditRequest)
     case 카테고리_프로필_목록_조회
     case 유저_카테고리_개수_조회
+    case 카테고리_상세_조회(categoryId: String)
     
 }
 
@@ -38,6 +39,8 @@ extension CategoryEndpoint: TargetType {
         case .카테고리_목록_조회,
              .카테고리생성:
             return ""
+        case .카테고리_상세_조회(let categoryId):
+            return "/\(categoryId)"
         }
     }
     
@@ -51,7 +54,8 @@ extension CategoryEndpoint: TargetType {
             
         case .카테고리_목록_조회,
              .카테고리_프로필_목록_조회,
-             .유저_카테고리_개수_조회: 
+             .유저_카테고리_개수_조회,
+             .카테고리_상세_조회:
             return .get
             
         case .카테고리생성:
@@ -80,6 +84,8 @@ extension CategoryEndpoint: TargetType {
         case .카테고리_프로필_목록_조회:
             return .requestPlain
         case .유저_카테고리_개수_조회:
+            return .requestPlain
+        case .카테고리_상세_조회:
             return .requestPlain
         }
     }

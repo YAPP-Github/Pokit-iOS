@@ -13,4 +13,18 @@ public struct ContentBaseRequest: Encodable {
     let categoryId: Int
     let memo: String
     let alertYn: String
+    
+    public init(
+        data: String,
+        title: String,
+        categoryId: Int,
+        memo: String,
+        alertYn: String
+    ) {
+        self.data = data
+        self.title = title
+        self.categoryId = categoryId
+        self.memo = memo
+        self.alertYn = alertYn
+    }
 }

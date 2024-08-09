@@ -1,32 +1,26 @@
 //
-//  BaseCategory.swift
+//  BaseCategoryDetail.swift
 //  Domain
 //
-//  Created by 김도형 on 7/31/24.
+//  Created by 김도형 on 8/8/24.
 //
 
 import Foundation
 
-import Util
+import CoreKit
 
-public struct BaseCategory: Identifiable, Equatable, PokitSelectItem, PokitCardItem {
-    public let id: Int
-    public let userId: Int
+public struct BaseCategory: Equatable {
+    public let categoryId: Int
     public let categoryName: String
     public let categoryImage: BaseCategoryImage
-    public var contentCount: Int
     
     public init(
-        id: Int,
-        userId: Int,
+        categoryId: Int,
         categoryName: String,
-        categoryImage: BaseCategoryImage,
-        contentCount: Int
+        categoryImage: BaseCategoryImage
     ) {
-        self.id = id
-        self.userId = userId
+        self.categoryId = categoryId
         self.categoryName = categoryName
         self.categoryImage = categoryImage
-        self.contentCount = contentCount
     }
 }

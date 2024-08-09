@@ -12,12 +12,17 @@ import Moya
 /// 컨텐츠 전용 Endpont
 public enum ContentEndpoint {
     case 컨텐츠_삭제(contentId: String)
-    case 컨텐츠_상세_조회(contentId: String, model: ContentBaseRequest)
+    case 컨텐츠_상세_조회(contentId: String)
     case 컨텐츠_수정(contentId: String, model: ContentBaseRequest)
     case 즐겨찾기_취소(contentId: String)
     case 즐겨찾기(contentId: String)
     case 컨텐츠_추가(model: ContentBaseRequest)
-    case 카태고리_내_컨텐츠_목록_조회(contentId: String, model: BasePageableRequest)
+    case 카태고리_내_컨텐츠_목록_조회(
+        contentId: String,
+        pageable: BasePageableRequest,
+        condition: BaseConditionRequest
+    )
+    case 미분류_카테고리_컨텐츠_조회(model: BasePageableRequest)
 }
 
 extension ContentEndpoint: TargetType {
@@ -29,7 +34,7 @@ extension ContentEndpoint: TargetType {
         switch self {
         case let .컨텐츠_삭제(categoryId):
             return "/\(categoryId)"
-        case let .컨텐츠_상세_조회(contentId, _):
+        case let .컨텐츠_상세_조회(contentId):
             return "/\(contentId)"
         case let .컨텐츠_수정(contentId, _):
             return "/\(contentId)"
@@ -39,8 +44,10 @@ extension ContentEndpoint: TargetType {
             return "/\(contentId)/bookmark"
         case .컨텐츠_추가:
             return ""
-        case let .카태고리_내_컨텐츠_목록_조회(contentId, _):
+        case let .카태고리_내_컨텐츠_목록_조회(contentId, _, _):
             return "/\(contentId)"
+        case .미분류_카테고리_컨텐츠_조회:
+            return "/uncategorized"
         }
     }
     
@@ -58,7 +65,8 @@ extension ContentEndpoint: TargetType {
         case .컨텐츠_수정:
             return .patch
             
-        case .카태고리_내_컨텐츠_목록_조회:
+        case .카태고리_내_컨텐츠_목록_조회,
+             .미분류_카테고리_컨텐츠_조회:
             return .get
         }
     }
@@ -67,8 +75,8 @@ extension ContentEndpoint: TargetType {
         switch self {
         case .컨텐츠_삭제:
             return .requestPlain
-        case let .컨텐츠_상세_조회(_, model):
-            return .requestJSONEncodable(model)
+        case .컨텐츠_상세_조회:
+            return .requestPlain
         case let .컨텐츠_수정(_, model):
             return .requestJSONEncodable(model)
         case .즐겨찾기_취소:
@@ -77,7 +85,21 @@ extension ContentEndpoint: TargetType {
             return .requestPlain
         case let .컨텐츠_추가(model):
             return .requestJSONEncodable(model)
-        case let .카태고리_내_컨텐츠_목록_조회(_, model):
+        case let .카태고리_내_컨텐츠_목록_조회(id, pageable, condition):
+            return .requestParameters(
+                parameters: [
+                    "page": pageable.page,
+                    "size": pageable.size,
+                    "sort": pageable.sort,
+                    "isRead": condition.isUnreadFiltered ? condition.isUnreadFiltered : "",
+                    "favorites": condition.isFavoriteFlitered ? condition.isFavoriteFlitered : "",
+                    "startDate": condition.startDate ?? "",
+                    "endDate": condition.endDate ?? "",
+                    "categoryIds": condition.categoryIds
+                ],
+                encoding: URLEncoding.default
+            )
+        case let .미분류_카테고리_컨텐츠_조회(model):
             return .requestParameters(
                 parameters: [
                     "page": model.page,

@@ -18,6 +18,10 @@ public struct ContentDetailFeature {
     private var linkPresentation
     @Dependency(\.dismiss)
     private var dismiss
+    @Dependency(\.contentClient)
+    private var contentClient
+    @Dependency(\.categoryClient)
+    private var categoryClient
     /// - State
     @ObservableState
     public struct State: Equatable {
@@ -25,8 +29,11 @@ public struct ContentDetailFeature {
             self.domain = .init(contentId: contentId)
         }
         fileprivate var domain: ContentDetail
-        var content: ContentDetail.Content? {
+        var content: BaseContentDetail? {
             get { domain.content }
+        }
+        var category: BaseCategory? {
+            get { domain.category }
         }
         var linkTitle: String? = nil
         var linkImage: UIImage? = nil
@@ -60,14 +67,24 @@ public struct ContentDetailFeature {
             case parsingInfo(title: String?, image: UIImage?)
             case parsingURL
             case dismissAlert
+            case 컨텐츠_상세_조회(content: BaseContentDetail)
+            case 즐겨찾기_갱신(Bool)
+            case 카테고리_갱신(BaseCategory)
         }
         
-        public enum AsyncAction: Equatable { case doNothing }
+        public enum AsyncAction: Equatable {
+            case 컨텐츠_상세_조회(id: Int)
+            case 즐겨찾기(id: Int)
+            case 즐겨찾기_취소(id: Int)
+            case 카테고리_상세_조회(id: Int)
+            case 컨텐츠_삭제(id: Int)
+        }
         
         public enum ScopeAction: Equatable { case doNothing }
         
         public enum DelegateAction: Equatable {
-            case editButtonTapped(content: BaseContent)
+            case editButtonTapped(contentId: Int)
+            case 컨텐츠_삭제_완료(contentId: Int)
         }
     }
     
@@ -110,46 +127,38 @@ private extension ContentDetailFeature {
     func handleViewAction(_ action: Action.View, state: inout State) -> Effect<Action> {
         switch action {
         case .contentDetailViewOnAppeared:
-            // - MARK: 목업 데이터 조회
-            state.domain.content = ContentDetailResponse.mock.toDomain()
-            return .send(.inner(.parsingURL))
+            return .run { [id = state.domain.contentId] send in
+                await send(.async(.컨텐츠_상세_조회(id: id)))
+            }
         case .sharedButtonTapped:
             return .none
         case .editButtonTapped:
             guard let content = state.domain.content else { return .none }
-            let base = BaseContent(
-                id: content.id,
-                categoryName: content.categoryName,
-                categoryId: content.categoryId,
-                title: content.title,
-                thumbNail: content.thumbNail,
-                data: content.data,
-                // - MARK: 콘텐츠 통일 필요..?
-                domain: "youtube",
-                memo: content.memo,
-                createdAt: content.createdAt,
-                isRead: true,
-                favorites: content.favorites,
-                alertYn: content.alertYn
-            )
-            return .run { [base] send in
-//                await dismiss()
-                await send(.delegate(.editButtonTapped(content: base)))
+            return .run { [content] send in
+                await send(.delegate(.editButtonTapped(contentId: content.id)))
             }
         case .deleteButtonTapped:
             state.showAlert = true
             return .none
         case .deleteAlertConfirmTapped:
-            return .run { send in
+            return .run { [id = state.domain.contentId] send in
                 //TODO: 링크 삭제
                 await send(.inner(.dismissAlert))
-                await dismiss()
+                await send(.async(.컨텐츠_삭제(id: id)))
             }
         case .binding:
             return .none
         case .favoriteButtonTapped:
-            state.domain.content?.favorites.toggle()
-            return .none
+            guard let content = state.domain.content else {
+                return .none
+            }
+            return .run { [content] send in
+                if content.favorites {
+                    await send(.async(.즐겨찾기_취소(id: content.id)))
+                } else {
+                    await send(.async(.즐겨찾기(id: content.id)))
+                }
+            }
         }
     }
     
@@ -183,12 +192,48 @@ private extension ContentDetailFeature {
         case .dismissAlert:
             state.showAlert = false
             return .none
+        case .컨텐츠_상세_조회(content: let content):
+            state.domain.content = content
+            return .send(.inner(.parsingURL))
+        case .즐겨찾기_갱신(let favorite):
+            state.domain.content?.favorites = favorite
+            return .none
+        case .카테고리_갱신(let category):
+            state.domain.category = category
+            return .none
         }
     }
     
     /// - Async Effect
     func handleAsyncAction(_ action: Action.AsyncAction, state: inout State) -> Effect<Action> {
-        return .none
+        switch action {
+        case .컨텐츠_상세_조회(id: let id):
+            return .run { [id] send in
+                let contentResponse = try await contentClient.컨텐츠_상세_조회("\(id)").toDomain()
+                await send(.inner(.컨텐츠_상세_조회(content: contentResponse)))
+                await send(.async(.카테고리_상세_조회(id: contentResponse.categoryId)))
+            }
+        case .즐겨찾기(id: let id):
+            return .run { [id] send in
+                let _ = try await contentClient.즐겨찾기("\(id)")
+                await send(.inner(.즐겨찾기_갱신(true)))
+            }
+        case .즐겨찾기_취소(id: let id):
+            return .run { [id] send in
+                let _ = try await contentClient.즐겨찾기_취소("\(id)")
+                await send(.inner(.즐겨찾기_갱신(false)))
+            }
+        case .카테고리_상세_조회(id: let id):
+            return .run { [id] send in
+                let category = try await categoryClient.카테고리_상세_조회("\(id)").toDomain()
+                await send(.inner(.카테고리_갱신(category)))
+            }
+        case .컨텐츠_삭제(id: let id):
+            return .run { [id] send in
+                let _ = try await contentClient.컨텐츠_삭제("\(id)")
+                await send(.delegate(.컨텐츠_삭제_완료(contentId: id)))
+            }
+        }
     }
     
     /// - Scope Effect

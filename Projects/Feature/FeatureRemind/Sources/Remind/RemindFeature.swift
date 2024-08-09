@@ -13,31 +13,36 @@ import DSKit
 @Reducer
 public struct RemindFeature {
     /// - Dependency
-    @Dependency(\.dismiss) var dismiss
+    @Dependency(\.dismiss)
+    private var dismiss
+    @Dependency(\.remindClient)
+    private var remindClient
+    @Dependency(\.contentClient)
+    private var contentClient
     /// - State
     @ObservableState
     public struct State: Equatable {
         public init() {}
         
         fileprivate var domain = Remind()
-        var recommendedContents: IdentifiedArrayOf<BaseContent> {
-            var identifiedArray = IdentifiedArrayOf<BaseContent>()
-            domain.recommendedList.data.forEach { identifiedArray.append($0) }
+        var recommendedContents: IdentifiedArrayOf<BaseContentItem> {
+            var identifiedArray = IdentifiedArrayOf<BaseContentItem>()
+            domain.recommendedList.forEach { identifiedArray.append($0) }
             return identifiedArray
         }
-        var unreadContents: IdentifiedArrayOf<BaseContent> {
-            var identifiedArray = IdentifiedArrayOf<BaseContent>()
+        var unreadContents: IdentifiedArrayOf<BaseContentItem> {
+            var identifiedArray = IdentifiedArrayOf<BaseContentItem>()
             domain.unreadList.data.forEach { identifiedArray.append($0) }
             return identifiedArray
         }
-        var favoriteContents: IdentifiedArrayOf<BaseContent> {
-            var identifiedArray = IdentifiedArrayOf<BaseContent>()
+        var favoriteContents: IdentifiedArrayOf<BaseContentItem> {
+            var identifiedArray = IdentifiedArrayOf<BaseContentItem>()
             domain.favoriteList.data.forEach { identifiedArray.append($0) }
             return identifiedArray
         }
         /// sheet item
-        var bottomSheetItem: BaseContent? = nil
-        var alertItem: BaseContent? = nil
+        var bottomSheetItem: BaseContentItem? = nil
+        var alertItem: BaseContentItem? = nil
     }
     /// - Action
     public enum Action: FeatureAction, ViewAction {
@@ -52,35 +57,45 @@ public struct RemindFeature {
             /// - Button Tapped
             case bellButtonTapped
             case searchButtonTapped
-            case linkCardTapped(content: BaseContent)
-            case kebabButtonTapped(content: BaseContent)
+            case linkCardTapped(content: BaseContentItem)
+            case kebabButtonTapped(content: BaseContentItem)
             case unreadNavigationLinkTapped
             case favoriteNavigationLinkTapped
             case bottomSheetButtonTapped(
                 delegate: PokitBottomSheet.Delegate,
-                content: BaseContent
+                content: BaseContentItem
             )
-            case deleteAlertConfirmTapped(content: BaseContent)
+            case deleteAlertConfirmTapped(content: BaseContentItem)
             
             case remindViewOnAppeared
         }
         public enum InnerAction: Equatable {
             case dismissBottomSheet
+            case 오늘의_리마인드_조회(contents: [BaseContentItem])
+            case 읽지않음_컨텐츠_조회(contentList: BaseContentListInquiry)
+            case 즐겨찾기_링크모음_조회(contentList: BaseContentListInquiry)
+            case 컨텐츠_삭제_반영(id: Int)
         }
-        public enum AsyncAction: Equatable { case doNothing }
+        public enum AsyncAction: Equatable {
+            case 오늘의_리마인드_조회
+            case 읽지않음_컨텐츠_조회
+            case 즐겨찾기_링크모음_조회
+            case 컨텐츠_삭제(id: Int)
+        }
         public enum ScopeAction: Equatable {
             case bottomSheet(
                 delegate: PokitBottomSheet.Delegate,
-                content: BaseContent
+                content: BaseContentItem
             )
         }
         public enum DelegateAction: Equatable {
-            case 링크상세(content: BaseContent)
+            case 링크상세(content: BaseContentItem)
             case alertButtonTapped
             case searchButtonTapped
-            case 링크수정(content: BaseContent)
+            case 링크수정(id: Int)
             case 링크목록_안읽음
             case 링크목록_즐겨찾기
+            case 컨텐츠목록_조회
         }
     }
     /// initiallizer
@@ -135,16 +150,18 @@ private extension RemindFeature {
                 await send(.scope(.bottomSheet(delegate: delegate, content: content)))
             }
         case .deleteAlertConfirmTapped:
-            state.alertItem = nil
-            return .none
+            guard let id = state.alertItem?.id else { return .none }
+            return .run { [id] send in
+                await send(.async(.컨텐츠_삭제(id: id)))
+            }
         case .binding:
             return .none
         case .remindViewOnAppeared:
-            // - MARK: 목업 데이터 조회
-            state.domain.recommendedList = ContentListInquiryResponse.mock.toDomain()
-            state.domain.favoriteList = ContentListInquiryResponse.mock.toDomain()
-            state.domain.unreadList = ContentListInquiryResponse.mock.toDomain()
-            return .none
+            return .run { send in
+                await send(.async(.오늘의_리마인드_조회))
+                await send(.async(.읽지않음_컨텐츠_조회))
+                await send(.async(.즐겨찾기_링크모음_조회))
+            }
         }
     }
     /// - Inner Effect
@@ -153,11 +170,59 @@ private extension RemindFeature {
         case .dismissBottomSheet:
             state.bottomSheetItem = nil
             return .none
+        case .오늘의_리마인드_조회(contents: let contents):
+            state.domain.recommendedList = contents
+            return .none
+        case .읽지않음_컨텐츠_조회(contentList: let contentList):
+            state.domain.unreadList = contentList
+            return .none
+        case .즐겨찾기_링크모음_조회(contentList: let contentList):
+            state.domain.favoriteList = contentList
+            return .none
+        case .컨텐츠_삭제_반영(id: let contentId):
+            state.alertItem = nil
+            state.domain.recommendedList.removeAll { $0.id == contentId }
+            state.domain.unreadList.data.removeAll { $0.id == contentId }
+            state.domain.favoriteList.data.removeAll { $0.id == contentId }
+            return .none
         }
     }
     /// - Async Effect
     func handleAsyncAction(_ action: Action.AsyncAction, state: inout State) -> Effect<Action> {
-        return .none
+        switch action {
+        case .오늘의_리마인드_조회:
+            return .run { send in
+                let contents = try await remindClient.오늘의_리마인드_조회().map { $0.toDomain() }
+                await send(.inner(.오늘의_리마인드_조회(contents: contents)))
+            }
+        case .읽지않음_컨텐츠_조회:
+            return .run { [pageable = state.domain.unreadListPageable] send in
+                let contentList = try await remindClient.읽지않음_컨텐츠_조회(
+                    .init(
+                        page: pageable.page,
+                        size: pageable.size,
+                        sort: pageable.sort
+                    )
+                ).toDomain()
+                await send(.inner(.읽지않음_컨텐츠_조회(contentList: contentList)))
+            }
+        case .즐겨찾기_링크모음_조회:
+            return .run { [pageable = state.domain.favoriteListPageable] send in
+                let contentList = try await remindClient.즐겨찾기_링크모음_조회(
+                    .init(
+                        page: pageable.page,
+                        size: pageable.size,
+                        sort: pageable.sort
+                    )
+                ).toDomain()
+                await send(.inner(.즐겨찾기_링크모음_조회(contentList: contentList)))
+            }
+        case .컨텐츠_삭제(id: let id):
+            return .run { [id] send in
+                let _ = try await contentClient.컨텐츠_삭제("\(id)")
+                await send(.inner(.컨텐츠_삭제_반영(id: id)), animation: .pokitSpring)
+            }
+        }
     }
     /// - Scope Effect
     func handleScopeAction(_ action: Action.ScopeAction, state: inout State) -> Effect<Action> {
@@ -169,7 +234,7 @@ private extension RemindFeature {
                 state.alertItem = content
                 return .none
             case .editCellButtonTapped:
-                return .send(.delegate(.링크수정(content: content)))
+                return .send(.delegate(.링크수정(id: content.id)))
             case .favoriteCellButtonTapped:
                 return .none
             case .shareCellButtonTapped:
@@ -179,6 +244,19 @@ private extension RemindFeature {
     }
     /// - Delegate Effect
     func handleDelegateAction(_ action: Action.DelegateAction, state: inout State) -> Effect<Action> {
-        return .none
+        switch action {
+        case .링크상세: return .none
+        case .alertButtonTapped: return .none
+        case .searchButtonTapped: return .none
+        case .링크수정: return .none
+        case .링크목록_안읽음: return .none
+        case .링크목록_즐겨찾기: return .none
+        case .컨텐츠목록_조회:
+            return .run { send in
+                await send(.async(.오늘의_리마인드_조회))
+                await send(.async(.읽지않음_컨텐츠_조회))
+                await send(.async(.즐겨찾기_링크모음_조회))
+            }
+        }
     }
 }

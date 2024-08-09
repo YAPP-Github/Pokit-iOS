@@ -15,7 +15,10 @@ import Util
 @Reducer
 public struct PokitRootFeature {
     /// - Dependency
-    @Dependency(\.categoryClient) var categoryClient
+    @Dependency(\.categoryClient)
+    private var categoryClient
+    @Dependency(\.contentClient)
+    private var contentClient
     /// - State
     @ObservableState
     public struct State: Equatable {
@@ -23,23 +26,23 @@ public struct PokitRootFeature {
         var sortType: PokitRootFilterType = .sort(.최신순)
         
         fileprivate var domain = Pokit()
-        var categories: IdentifiedArrayOf<BaseCategory> {
-            var identifiedArray = IdentifiedArrayOf<BaseCategory>()
+        var categories: IdentifiedArrayOf<BaseCategoryItem> {
+            var identifiedArray = IdentifiedArrayOf<BaseCategoryItem>()
             domain.categoryList.data.forEach { category in
                 identifiedArray.append(category)
             }
             return identifiedArray
         }
-        var unclassifiedContents: IdentifiedArrayOf<BaseContent> {
-            var identifiedArray = IdentifiedArrayOf<BaseContent>()
+        var unclassifiedContents: IdentifiedArrayOf<BaseContentItem> {
+            var identifiedArray = IdentifiedArrayOf<BaseContentItem>()
             domain.unclassifiedContentList.data.forEach { content in
                 identifiedArray.append(content)
             }
             return identifiedArray
         }
         
-        var selectedKebobItem: BaseCategory?
-        var selectedUnclassifiedItem: BaseContent?
+        var selectedKebobItem: BaseCategoryItem?
+        var selectedUnclassifiedItem: BaseContentItem?
         
         var isKebobSheetPresented: Bool = false
         var isPokitDeleteSheetPresented: Bool = false
@@ -69,11 +72,11 @@ public struct PokitRootFeature {
             case filterButtonTapped(PokitRootFilterType.Folder)
             case sortButtonTapped
             /// - Kebob
-            case kebobButtonTapped(BaseCategory)
-            case unclassifiedKebobButtonTapped(BaseContent)
+            case kebobButtonTapped(BaseCategoryItem)
+            case unclassifiedKebobButtonTapped(BaseContentItem)
             
-            case categoryTapped(BaseCategory)
-            case contentItemTapped(BaseContent)
+            case categoryTapped(BaseCategoryItem)
+            case contentItemTapped(BaseContentItem)
             
             case pokitRootViewOnAppeared
 
@@ -85,10 +88,12 @@ public struct PokitRootFeature {
             case sort
             case onAppearResult(classified: BaseCategoryListInquiry)
             case 목록조회_갱신용
+            case 미분류_카테고리_컨텐츠_갱신(contentList: BaseContentListInquiry)
         }
         
         public enum AsyncAction: Equatable {
             case 포킷삭제(categoryId: Int)
+            case 미분류_카테고리_컨텐츠_조회
         }
         
         public enum ScopeAction: Equatable {
@@ -101,11 +106,11 @@ public struct PokitRootFeature {
             case alertButtonTapped
             case settingButtonTapped
             
-            case categoryTapped(BaseCategory)
-            case 수정하기(BaseCategory)
-            case 링크수정하기(BaseContent)
+            case categoryTapped(BaseCategoryItem)
+            case 수정하기(BaseCategoryItem)
+            case 링크수정하기(id: Int)
             /// 링크상세로 이동
-            case contentDetailTapped(BaseContent)
+            case contentDetailTapped(BaseContentItem)
         }
     }
     
@@ -162,7 +167,12 @@ private extension PokitRootFeature {
             /// 포킷 / 미분류 버튼 눌렀을 때
         case .filterButtonTapped(let selectedFolderType):
             state.folderType = .folder(selectedFolderType)
-            return .none
+            switch selectedFolderType {
+            case .미분류:
+                return .send(.async(.미분류_카테고리_컨텐츠_조회))
+            case .포킷:
+                return .none
+            }
             /// 최신순 / 이름순 버튼 눌렀을 때
         case .sortButtonTapped:
             state.sortType = .sort(state.sortType == .sort(.이름순) ? .최신순 : .이름순)
@@ -246,6 +256,9 @@ private extension PokitRootFeature {
                 await send(.inner(.onAppearResult(classified: classified)))
                 await send(.inner(.sort))
             }
+        case .미분류_카테고리_컨텐츠_갱신(contentList: let contentList):
+            state.domain.unclassifiedContentList = contentList
+            return .none
         }
     }
     
@@ -255,6 +268,18 @@ private extension PokitRootFeature {
         case let .포킷삭제(categoryId):
             return .run { send in
                 try await categoryClient.카테고리_삭제(categoryId)
+            }
+        case .미분류_카테고리_컨텐츠_조회:
+            return .run { [
+                contentList = state.domain.unclassifiedContentList,
+                sortType = state.sortType
+            ] send in
+                let sort = sortType == .sort(.최신순) ? "desc" : "asc"
+                let request = BasePageableRequest(page: 0, size: contentList.size, sort: [sort])
+                let contentList = try await contentClient.미분류_카테고리_컨텐츠_조회(
+                    request
+                ).toDomain()
+                await send(.inner(.미분류_카테고리_컨텐츠_갱신(contentList: contentList)))
             }
         }
     }
@@ -294,7 +319,7 @@ private extension PokitRootFeature {
                 state.isKebobSheetPresented = false
                 return .run { [item = state.selectedUnclassifiedItem] send in
                     guard let item else { return }
-                    await send(.delegate(.링크수정하기(item)))
+                    await send(.delegate(.링크수정하기(id: item.id)))
                 }
                 
             case .folder(.포킷):

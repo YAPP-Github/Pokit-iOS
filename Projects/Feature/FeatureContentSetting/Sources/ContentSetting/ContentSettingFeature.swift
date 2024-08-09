@@ -21,14 +21,18 @@ public struct ContentSettingFeature {
     private var linkPresentation
     @Dependency(\.pasteboard)
     private var pasteboard
+    @Dependency(\.contentClient)
+    private var contentClient
+    @Dependency(\.categoryClient)
+    private var categoryClient
     /// - State
     @ObservableState
     public struct State: Equatable {
         public init(
-            content: BaseContent? = nil,
+            contentId: Int? = nil,
             urlText: String? = nil
         ) {
-            self.domain = .init(content: content, data: urlText)
+            self.domain = .init(contentId: contentId, data: urlText)
         }
         fileprivate var domain: ContentSetting
         var urlText: String {
@@ -43,17 +47,17 @@ public struct ContentSettingFeature {
             get { domain.memo }
             set { domain.memo = newValue }
         }
-        var isRemind: BaseContent.RemindState {
+        var isRemind: BaseContentDetail.RemindState {
             get { domain.alertYn }
             set { domain.alertYn = newValue }
         }
-        var content: BaseContent? {
+        var content: BaseContentDetail? {
             get { domain.content }
         }
-        var pokitList: [BaseCategory] {
+        var pokitList: [BaseCategoryItem] {
             get { domain.categoryListInQuiry.data }
         }
-        var selectedPokit: BaseCategory? = nil
+        var selectedPokit: BaseCategoryItem? = nil
         var linkTitle: String? = nil
         var linkImage: UIImage? = nil
         var showPopup: Bool = false
@@ -73,7 +77,7 @@ public struct ContentSettingFeature {
             case binding(BindingAction<State>)
             /// - Button Tapped
             case pokitSelectButtonTapped
-            case pokitSelectItemButtonTapped(pokit: BaseCategory)
+            case pokitSelectItemButtonTapped(pokit: BaseCategoryItem)
             case contentSettingViewOnAppeared
             case saveBottomButtonTapped
             case addPokitButtonTapped
@@ -87,16 +91,23 @@ public struct ContentSettingFeature {
             case parsingURL
             case showPopup
             case updateURLText(String?)
+            case 컨텐츠_갱신(content: BaseContentDetail)
+            case 카테고리_갱신(category: BaseCategory)
+            case 카테고리_목록_갱신(categoryList: BaseCategoryListInquiry)
         }
 
         public enum AsyncAction: Equatable {
-            case 저장하기_네트워크
+            case 컨텐츠_상세_조회(id: Int)
+            case 카테고리_상세_조회(id: Int)
+            case 카테고리_목록_조회
+            case 컨텐츠_수정
+            case 컨텐츠_추가
         }
 
         public enum ScopeAction: Equatable { case doNothing }
 
         public enum DelegateAction: Equatable {
-            case 저장하기_네트워크이후
+            case 저장하기_완료
             case 포킷추가하기
         }
     }
@@ -155,17 +166,16 @@ private extension ContentSettingFeature {
         case .binding:
             return .none
         case .pokitSelectButtonTapped:
-            return .none
+            return .send(.async(.카테고리_목록_조회))
         case .pokitSelectItemButtonTapped(pokit: let pokit):
             state.selectedPokit = pokit
             return .none
         case .contentSettingViewOnAppeared:
-            // - MARK: 목업 데이터 조회
-            state.domain.categoryListInQuiry = CategoryListInquiryResponse.mock.toDomain()
-            if state.domain.categoryId != nil {
-                state.selectedPokit = CategoryItemInquiryResponse.mock.toDomain()
-            }
-            return .run { send in
+            return .run { [id = state.domain.contentId] send in
+                if let id {
+                    await send(.async(.컨텐츠_상세_조회(id: id)))
+                }
+                await send(.async(.카테고리_목록_조회))
                 await send(.inner(.parsingURL))
                 for await _ in self.pasteboard.changes() {
                     let url = try await pasteboard.probableWebURL()
@@ -173,7 +183,13 @@ private extension ContentSettingFeature {
                 }
             }
         case .saveBottomButtonTapped:
-            return .run { send in await send(.async(.저장하기_네트워크)) }
+            return .run { [isEdit = state.domain.categoryId != nil] send in
+                if isEdit {
+                    await send(.async(.컨텐츠_수정))
+                } else {
+                    await send(.async(.컨텐츠_추가))
+                }
+            }
         case .addPokitButtonTapped:
             guard state.domain.categoryTotalCount < 30 else {
                 /// 🚨 Error Case [1]: 포킷 갯수가 30개 이상일 경우
@@ -219,15 +235,107 @@ private extension ContentSettingFeature {
             guard let urlText else { return .none }
             state.domain.data = urlText
             return .send(.inner(.parsingURL))
+        case .컨텐츠_갱신(content: let content):
+            state.domain.content = content
+            state.domain.data = content.data
+            state.domain.contentId = content.id
+            state.domain.title = content.title
+            state.domain.categoryId = content.categoryId
+            state.domain.memo = content.memo
+            state.domain.alertYn = content.alertYn
+            return .run { [id = content.categoryId] send in
+                await send(.inner(.parsingURL))
+                await send(.async(.카테고리_상세_조회(id: id)))
+            }
+        case .카테고리_갱신(category: let category):
+            state.selectedPokit = .init(
+                id: category.categoryId,
+                userId: 0,
+                categoryName: category.categoryName,
+                categoryImage: category.categoryImage,
+                contentCount: 0
+            )
+            return .none
+        case .카테고리_목록_갱신(categoryList: let categoryList):
+            state.domain.categoryListInQuiry = categoryList
+            return .none
         }
     }
 
     /// - Async Effect
     func handleAsyncAction(_ action: Action.AsyncAction, state: inout State) -> Effect<Action> {
         switch action {
-        case .저장하기_네트워크:
-            //TODO: 저장하기 네트워크 코드작성
-            return .run { send in await send(.delegate(.저장하기_네트워크이후)) }
+        case .컨텐츠_상세_조회(id: let id):
+            return .run { [id] send in
+                let content = try await contentClient.컨텐츠_상세_조회("\(id)").toDomain()
+                await send(.inner(.컨텐츠_갱신(content: content)))
+            }
+        case .카테고리_상세_조회(id: let id):
+            return .run { [id] send in
+                let category = try await categoryClient.카테고리_상세_조회("\(id)").toDomain()
+                await send(.inner(.카테고리_갱신(category: category)))
+            }
+        case .카테고리_목록_조회:
+            return .run { [pageable = state.domain.pageable] send in
+                let categoryList = try await categoryClient.카테고리_목록_조회(
+                    .init(
+                        page: pageable.page,
+                        size: pageable.size,
+                        sort: pageable.sort
+                    ),
+                    true
+                ).toDomain()
+                await send(.inner(.카테고리_목록_갱신(categoryList: categoryList)))
+            }
+        case .컨텐츠_수정:
+            guard let contentId = state.domain.contentId else {
+                return .none
+            }
+            guard let categoryId = state.selectedPokit?.id else {
+                return .none
+            }
+            return .run { [
+                id = contentId,
+                data = state.domain.data,
+                title = state.domain.title,
+                categoryId = categoryId,
+                memo = state.domain.memo,
+                alertYn = state.domain.alertYn
+            ] send in
+                let _ = try await contentClient.컨텐츠_수정(
+                    "\(id)",
+                    ContentBaseRequest(
+                        data: data,
+                        title: title,
+                        categoryId: categoryId,
+                        memo: memo,
+                        alertYn: alertYn.rawValue
+                    )
+                )
+                await send(.delegate(.저장하기_완료))
+            }
+        case .컨텐츠_추가:
+            guard let categoryId = state.selectedPokit?.id else {
+                return .none
+            }
+            return .run { [
+                data = state.domain.data,
+                title = state.domain.title,
+                categoryId = categoryId,
+                memo = state.domain.memo,
+                alertYn = state.domain.alertYn
+            ] send in
+                let _ = try await contentClient.컨텐츠_추가(
+                    ContentBaseRequest(
+                        data: data,
+                        title: title,
+                        categoryId: categoryId,
+                        memo: memo,
+                        alertYn: alertYn.rawValue
+                    )
+                )
+                await send(.delegate(.저장하기_완료))
+            }
         }
     }
 
