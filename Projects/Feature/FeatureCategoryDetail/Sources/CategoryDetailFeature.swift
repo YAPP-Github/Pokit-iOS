@@ -36,7 +36,7 @@ public struct CategoryDetailFeature {
         }
         // - TODO: 더 구체적인 처리 필요
         var sortType: SortType {
-            get { domain.pageable.sort == ["DESC"] ? .최신순 : .오래된순 }
+            get { domain.pageable.sort == ["desc"] ? .최신순 : .오래된순 }
         }
         var categories: IdentifiedArrayOf<BaseCategoryItem> {
             var identifiedArray = IdentifiedArrayOf<BaseCategoryItem>()
@@ -341,7 +341,7 @@ private extension CategoryDetailFeature {
                 state.isFilterSheetPresented.toggle()
                 state.domain.pageable.sort = [
                     "createdAt",
-                    type == .최신순 ? "DESC" : "ASC"
+                    type == .최신순 ? "desc" : "asc"
                 ]
                 state.domain.condition.isFavoriteFlitered = bookMarkSelected
                 state.domain.condition.isUnreadFlitered = unReadSelected
