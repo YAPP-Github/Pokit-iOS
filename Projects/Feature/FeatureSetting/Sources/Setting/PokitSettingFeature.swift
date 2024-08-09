@@ -19,6 +19,7 @@ public struct PokitSettingFeature {
     @Dependency(\.keychain) var keychain
     @Dependency(\.userDefaults) var userDefaults
     @Dependency(\.authClient) var authClient
+    @Dependency(\.openURL) var openURL
     /// - State
     @ObservableState
     public struct State: Equatable {
@@ -131,16 +132,20 @@ private extension PokitSettingFeature {
             return .run { _ in await openSetting() }
             
         case .공지사항:
-            return .none
+            let url = Constants.공지사항_주소
+            return .run { _ in await openURL(url) }
             
         case .서비스_이용약관:
-            return .none
+            let url = Constants.서비스_이용약관_주소
+            return .run { _ in await openURL(url) }
             
         case .개인정보_처리방침:
-            return .none
+            let url = Constants.개인정보_처리방침_주소
+            return .run { _ in await openURL(url) }
             
         case .고객문의:
-            return .none
+            let url = Constants.고객문의_주소
+            return .run { _ in await openURL(url) }
             
         case .로그아웃:
             return .send(.inner(.로그아웃_팝업(isPresented: true)))
