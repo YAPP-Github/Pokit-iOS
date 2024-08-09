@@ -83,7 +83,7 @@ extension RemindView {
     }
     
     @ViewBuilder
-    private func recommendedContentCell(content: BaseContent) -> some View {
+    private func recommendedContentCell(content: BaseContentItem) -> some View {
         Button(action: { send(.linkCardTapped(content: content)) }) {
             recommendedContentCellLabel(content: content)
         }
@@ -91,7 +91,7 @@ extension RemindView {
     }
     
     @ViewBuilder
-    private func recommendedContentCellLabel(content: BaseContent) -> some View {
+    private func recommendedContentCellLabel(content: BaseContentItem) -> some View {
         ZStack(alignment: .bottom) {
             AsyncImage(url: .init(string: content.thumbNail)) { image in
                 image

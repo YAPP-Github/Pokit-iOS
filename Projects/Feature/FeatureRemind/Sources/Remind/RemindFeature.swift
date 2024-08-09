@@ -25,24 +25,24 @@ public struct RemindFeature {
         public init() {}
         
         fileprivate var domain = Remind()
-        var recommendedContents: IdentifiedArrayOf<BaseContent> {
-            var identifiedArray = IdentifiedArrayOf<BaseContent>()
+        var recommendedContents: IdentifiedArrayOf<BaseContentItem> {
+            var identifiedArray = IdentifiedArrayOf<BaseContentItem>()
             domain.recommendedList.forEach { identifiedArray.append($0) }
             return identifiedArray
         }
-        var unreadContents: IdentifiedArrayOf<BaseContent> {
-            var identifiedArray = IdentifiedArrayOf<BaseContent>()
+        var unreadContents: IdentifiedArrayOf<BaseContentItem> {
+            var identifiedArray = IdentifiedArrayOf<BaseContentItem>()
             domain.unreadList.data.forEach { identifiedArray.append($0) }
             return identifiedArray
         }
-        var favoriteContents: IdentifiedArrayOf<BaseContent> {
-            var identifiedArray = IdentifiedArrayOf<BaseContent>()
+        var favoriteContents: IdentifiedArrayOf<BaseContentItem> {
+            var identifiedArray = IdentifiedArrayOf<BaseContentItem>()
             domain.favoriteList.data.forEach { identifiedArray.append($0) }
             return identifiedArray
         }
         /// sheet item
-        var bottomSheetItem: BaseContent? = nil
-        var alertItem: BaseContent? = nil
+        var bottomSheetItem: BaseContentItem? = nil
+        var alertItem: BaseContentItem? = nil
     }
     /// - Action
     public enum Action: FeatureAction, ViewAction {
@@ -57,21 +57,21 @@ public struct RemindFeature {
             /// - Button Tapped
             case bellButtonTapped
             case searchButtonTapped
-            case linkCardTapped(content: BaseContent)
-            case kebabButtonTapped(content: BaseContent)
+            case linkCardTapped(content: BaseContentItem)
+            case kebabButtonTapped(content: BaseContentItem)
             case unreadNavigationLinkTapped
             case favoriteNavigationLinkTapped
             case bottomSheetButtonTapped(
                 delegate: PokitBottomSheet.Delegate,
-                content: BaseContent
+                content: BaseContentItem
             )
-            case deleteAlertConfirmTapped(content: BaseContent)
+            case deleteAlertConfirmTapped(content: BaseContentItem)
             
             case remindViewOnAppeared
         }
         public enum InnerAction: Equatable {
             case dismissBottomSheet
-            case 오늘의_리마인드_조회(contents: [BaseContent])
+            case 오늘의_리마인드_조회(contents: [BaseContentItem])
             case 읽지않음_컨텐츠_조회(contentList: BaseContentListInquiry)
             case 즐겨찾기_링크모음_조회(contentList: BaseContentListInquiry)
             case 컨텐츠_삭제_반영(contentId: Int)
@@ -85,11 +85,11 @@ public struct RemindFeature {
         public enum ScopeAction: Equatable {
             case bottomSheet(
                 delegate: PokitBottomSheet.Delegate,
-                content: BaseContent
+                content: BaseContentItem
             )
         }
         public enum DelegateAction: Equatable {
-            case 링크상세(content: BaseContent)
+            case 링크상세(content: BaseContentItem)
             case alertButtonTapped
             case searchButtonTapped
             case 링크수정(contentId: Int)

@@ -11,7 +11,7 @@ import CoreKit
 import Util
 
 public extension ContentBaseResponse {
-    func toDomain() -> BaseContent {
+    func toDomain() -> BaseContentItem {
         return .init(
             id: self.contentId,
             categoryName: self.category.categoryName,

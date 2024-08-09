@@ -46,8 +46,8 @@ public struct PokitSearchFeature {
         var isResultAscending = true
         
         fileprivate var domain = Search()
-        var resultMock: IdentifiedArrayOf<BaseContent> {
-            var identifiedArray = IdentifiedArrayOf<BaseContent>()
+        var resultMock: IdentifiedArrayOf<BaseContentItem> {
+            var identifiedArray = IdentifiedArrayOf<BaseContentItem>()
             domain.contentList.data.forEach { identifiedArray.append($0) }
             return identifiedArray
         }
@@ -69,8 +69,8 @@ public struct PokitSearchFeature {
         }
         
         /// sheet item
-        var bottomSheetItem: BaseContent? = nil
-        var alertItem: BaseContent? = nil
+        var bottomSheetItem: BaseContentItem? = nil
+        var alertItem: BaseContentItem? = nil
     }
     
     /// - Action
@@ -99,13 +99,13 @@ public struct PokitSearchFeature {
             case categoryFilterChipTapped(category: BaseCategory)
             case recentSearchAllRemoveButtonTapped
             case recentSearchChipIconTapped(searchText: String)
-            case linkCardTapped(content: BaseContent)
-            case kebabButtonTapped(content: BaseContent)
+            case linkCardTapped(content: BaseContentItem)
+            case kebabButtonTapped(content: BaseContentItem)
             case bottomSheetButtonTapped(
                 delegate: PokitBottomSheet.Delegate,
-                content: BaseContent
+                content: BaseContentItem
             )
-            case deleteAlertConfirmTapped(content: BaseContent)
+            case deleteAlertConfirmTapped(content: BaseContentItem)
             case sortTextLinkTapped
             case backButtonTapped
             /// - TextInput OnSubmitted
@@ -132,13 +132,13 @@ public struct PokitSearchFeature {
             case filterBottomSheet(FilterBottomFeature.Action.DelegateAction)
             case bottomSheet(
                 delegate: PokitBottomSheet.Delegate,
-                content: BaseContent
+                content: BaseContentItem
             )
         }
         
         public enum DelegateAction: Equatable {
-            case linkCardTapped(content: BaseContent)
-            case bottomSheetEditCellButtonTapped(content: BaseContent)
+            case linkCardTapped(content: BaseContentItem)
+            case bottomSheetEditCellButtonTapped(content: BaseContentItem)
             case linkCopyDetected(URL?)
         }
     }

@@ -32,15 +32,15 @@ public struct ContentListFeature {
         
         let contentType: ContentType
         fileprivate var domain = ContentList()
-        var contents: IdentifiedArrayOf<BaseContent> {
-            var identifiedArray = IdentifiedArrayOf<BaseContent>()
+        var contents: IdentifiedArrayOf<BaseContentItem> {
+            var identifiedArray = IdentifiedArrayOf<BaseContentItem>()
             domain.contentList.data.forEach { identifiedArray.append($0) }
             return identifiedArray
         }
         var isListAscending = true
         /// sheet item
-        var bottomSheetItem: BaseContent? = nil
-        var alertItem: BaseContent? = nil
+        var bottomSheetItem: BaseContentItem? = nil
+        var alertItem: BaseContentItem? = nil
     }
     
     /// - Action
@@ -56,13 +56,13 @@ public struct ContentListFeature {
             /// - Binding
             case binding(BindingAction<State>)
             /// - Button Tapped
-            case linkCardTapped(content: BaseContent)
-            case kebabButtonTapped(content: BaseContent)
+            case linkCardTapped(content: BaseContentItem)
+            case kebabButtonTapped(content: BaseContentItem)
             case bottomSheetButtonTapped(
                 delegate: PokitBottomSheet.Delegate,
-                content: BaseContent
+                content: BaseContentItem
             )
-            case deleteAlertConfirmTapped(content: BaseContent)
+            case deleteAlertConfirmTapped(content: BaseContentItem)
             case sortTextLinkTapped
             case backButtonTapped
             /// - On Appeared
@@ -84,7 +84,7 @@ public struct ContentListFeature {
         public enum ScopeAction: Equatable {
             case bottomSheet(
                 delegate: PokitBottomSheet.Delegate,
-                content: BaseContent
+                content: BaseContentItem
             )
         }
         

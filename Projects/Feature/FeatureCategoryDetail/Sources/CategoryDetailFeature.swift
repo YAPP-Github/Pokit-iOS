@@ -45,15 +45,15 @@ public struct CategoryDetailFeature {
             }
             return identifiedArray
         }
-        var contents: IdentifiedArrayOf<BaseContent> {
-            var identifiedArray = IdentifiedArrayOf<BaseContent>()
+        var contents: IdentifiedArrayOf<BaseContentItem> {
+            var identifiedArray = IdentifiedArrayOf<BaseContentItem>()
             domain.contentList.data.forEach { content in
                 identifiedArray.append(content)
             }
             return identifiedArray
         }
         var kebobSelectedType: PokitDeleteBottomSheet.SheetType?
-        var selectedContentItem: BaseContent?
+        var selectedContentItem: BaseContentItem?
         /// sheet Presented
         var isCategorySheetPresented: Bool = false
         var isCategorySelectSheetPresented: Bool = false
@@ -78,11 +78,11 @@ public struct CategoryDetailFeature {
             /// - Binding
             case binding(BindingAction<State>)
             /// - Button Tapped
-            case categoryKebobButtonTapped(PokitDeleteBottomSheet.SheetType, selectedItem: BaseContent?)
+            case categoryKebobButtonTapped(PokitDeleteBottomSheet.SheetType, selectedItem: BaseContentItem?)
             case categorySelectButtonTapped
             case categorySelected(BaseCategory)
             case filterButtonTapped
-            case contentItemTapped(BaseContent)
+            case contentItemTapped(BaseContentItem)
             case dismiss
             case onAppear
         }
@@ -108,7 +108,7 @@ public struct CategoryDetailFeature {
         }
         
         public enum DelegateAction: Equatable {
-            case contentItemTapped(BaseContent)
+            case contentItemTapped(BaseContentItem)
             case linkCopyDetected(URL?)
             case 링크수정(contentId: Int)
             case 포킷삭제

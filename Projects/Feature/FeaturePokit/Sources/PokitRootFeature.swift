@@ -30,8 +30,8 @@ public struct PokitRootFeature {
             }
             return identifiedArray
         }
-        var unclassifiedContents: IdentifiedArrayOf<BaseContent> {
-            var identifiedArray = IdentifiedArrayOf<BaseContent>()
+        var unclassifiedContents: IdentifiedArrayOf<BaseContentItem> {
+            var identifiedArray = IdentifiedArrayOf<BaseContentItem>()
             domain.unclassifiedContentList.data.forEach { content in
                 identifiedArray.append(content)
             }
@@ -39,7 +39,7 @@ public struct PokitRootFeature {
         }
         
         var selectedKebobItem: BaseCategory?
-        var selectedUnclassifiedItem: BaseContent?
+        var selectedUnclassifiedItem: BaseContentItem?
         
         var isKebobSheetPresented: Bool = false
         var isPokitDeleteSheetPresented: Bool = false
@@ -70,10 +70,10 @@ public struct PokitRootFeature {
             case sortButtonTapped
             /// - Kebob
             case kebobButtonTapped(BaseCategory)
-            case unclassifiedKebobButtonTapped(BaseContent)
+            case unclassifiedKebobButtonTapped(BaseContentItem)
             
             case categoryTapped(BaseCategory)
-            case contentItemTapped(BaseContent)
+            case contentItemTapped(BaseContentItem)
             
             case pokitRootViewOnAppeared
 
@@ -105,7 +105,7 @@ public struct PokitRootFeature {
             case 수정하기(BaseCategory)
             case 링크수정하기(contentId: Int)
             /// 링크상세로 이동
-            case contentDetailTapped(BaseContent)
+            case contentDetailTapped(BaseContentItem)
         }
     }
     

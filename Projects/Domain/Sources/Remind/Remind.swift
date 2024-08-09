@@ -12,7 +12,7 @@ import Util
 public struct Remind: Equatable {
     // - MARK: Response
     /// 오늘의 추천 콘텐츠(링크) 리스트
-    public var recommendedList: [BaseContent]
+    public var recommendedList: [BaseContentItem]
     /// 읽지 않은 콘텐츠(링크) 리스트
     public var unreadList: BaseContentListInquiry
     public var unreadListPageable: BasePageable
