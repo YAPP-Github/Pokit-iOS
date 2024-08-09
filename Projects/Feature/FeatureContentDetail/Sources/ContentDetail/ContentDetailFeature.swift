@@ -77,12 +77,14 @@ public struct ContentDetailFeature {
             case 즐겨찾기(id: Int)
             case 즐겨찾기_취소(id: Int)
             case 카테고리_상세_조회(id: Int)
+            case 컨텐츠_삭제(contentId: Int)
         }
         
         public enum ScopeAction: Equatable { case doNothing }
         
         public enum DelegateAction: Equatable {
             case editButtonTapped(contentId: Int)
+            case 컨텐츠_삭제_완료(contentId: Int)
         }
     }
     
@@ -140,10 +142,10 @@ private extension ContentDetailFeature {
             state.showAlert = true
             return .none
         case .deleteAlertConfirmTapped:
-            return .run { send in
+            return .run { [id = state.domain.contentId] send in
                 //TODO: 링크 삭제
                 await send(.inner(.dismissAlert))
-                await dismiss()
+                await send(.async(.컨텐츠_삭제(contentId: id)))
             }
         case .binding:
             return .none
@@ -226,6 +228,11 @@ private extension ContentDetailFeature {
             return .run { [id] send in
                 let category = try await categoryClient.카테고리_상세_조회("\(id)").toDomain()
                 await send(.inner(.카테고리_갱신(category)))
+            }
+        case .컨텐츠_삭제(contentId: let id):
+            return .run { [id] send in
+                let _ = try await contentClient.컨텐츠_삭제("\(id)")
+                await send(.delegate(.컨텐츠_삭제_완료(contentId: id)))
             }
         }
     }
