@@ -42,7 +42,7 @@ let project = Project(
                 ],
                 configurations: [
                     .debug(name: "Debug", xcconfig: .relativeToRoot("xcconfig/Secret.xcconfig")),
-                    .debug(name: "Release", xcconfig: .relativeToRoot("xcconfig/Secret.xcconfig"))
+                    .release(name: "Release", xcconfig: .relativeToRoot("xcconfig/Secret.xcconfig"))
                 ]
             )
         )
