@@ -17,7 +17,11 @@ public enum ContentEndpoint {
     case 즐겨찾기_취소(contentId: String)
     case 즐겨찾기(contentId: String)
     case 컨텐츠_추가(model: ContentBaseRequest)
-    case 카태고리_내_컨텐츠_목록_조회(contentId: String, model: BasePageableRequest)
+    case 카태고리_내_컨텐츠_목록_조회(
+        contentId: String,
+        pageable: BasePageableRequest,
+        condition: BaseConditionRequest
+    )
 }
 
 extension ContentEndpoint: TargetType {
@@ -39,7 +43,7 @@ extension ContentEndpoint: TargetType {
             return "/\(contentId)/bookmark"
         case .컨텐츠_추가:
             return ""
-        case let .카태고리_내_컨텐츠_목록_조회(contentId, _):
+        case let .카태고리_내_컨텐츠_목록_조회(contentId, _, _):
             return "/\(contentId)"
         }
     }
@@ -77,12 +81,17 @@ extension ContentEndpoint: TargetType {
             return .requestPlain
         case let .컨텐츠_추가(model):
             return .requestJSONEncodable(model)
-        case let .카태고리_내_컨텐츠_목록_조회(_, model):
+        case let .카태고리_내_컨텐츠_목록_조회(id, pageable, condition):
             return .requestParameters(
                 parameters: [
-                    "page": model.page,
-                    "size": model.size,
-                    "sort": model.sort
+                    "page": pageable.page,
+                    "size": pageable.size,
+                    "sort": pageable.sort,
+                    "isRead": condition.isUnreadFiltered ? condition.isUnreadFiltered : "",
+                    "favorites": condition.isFavoriteFlitered ? condition.isFavoriteFlitered : "",
+                    "startDate": condition.startDate ?? "",
+                    "endDate": condition.endDate ?? "",
+                    "categoryIds": condition.categoryIds
                 ],
                 encoding: URLEncoding.default
             )

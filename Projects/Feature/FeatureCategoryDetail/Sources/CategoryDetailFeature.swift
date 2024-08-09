@@ -18,6 +18,8 @@ public struct CategoryDetailFeature {
     @Dependency(\.dismiss) var dismiss
     @Dependency(\.pasteboard) var pasteboard
     @Dependency(\.categoryClient) var categoryClient
+    @Dependency(\.contentClient)
+    private var contentClient
     /// - State
     @ObservableState
     public struct State: Equatable {
@@ -25,6 +27,16 @@ public struct CategoryDetailFeature {
         fileprivate var domain: CategoryDetail
         var category: BaseCategory {
             get { domain.category }
+        }
+        var isUnreadFiltered: Bool {
+            get { domain.condition.isUnreadFlitered }
+        }
+        var isFavoriteFiltered: Bool {
+            get { domain.condition.isFavoriteFlitered }
+        }
+        // - TODO: 더 구체적인 처리 필요
+        var sortType: SortType {
+            get { domain.pageable.sort == ["DESC"] ? .최신순 : .오래된순 }
         }
         var categories: IdentifiedArrayOf<BaseCategory> {
             var identifiedArray = IdentifiedArrayOf<BaseCategory>()
@@ -80,9 +92,12 @@ public struct CategoryDetailFeature {
             case pokitCategorySelectSheetPresented(Bool)
             case pokitDeleteSheetPresented(Bool)
             case 카테고리_목록_조회_결과(BaseCategoryListInquiry)
+            case 카테고리_내_컨텐츠_목록_갱신(BaseContentListInquiry)
         }
         
-        public enum AsyncAction: Equatable { case doNothing }
+        public enum AsyncAction: Equatable {
+            case 카테고리_내_컨텐츠_목록_조회
+        }
         
         public enum ScopeAction: Equatable {
             case categoryBottomSheet(PokitBottomSheet.Delegate)
@@ -166,12 +181,10 @@ private extension CategoryDetailFeature {
             return .run { _ in await dismiss() }
             
         case .onAppear:
-            // - MARK: 목업 데이터 조회
-//            state.domain.categoryListInQuiry = CategoryListInquiryResponse.mock.toDomain()
-//            state.domain.contentList = ContentListInquiryResponse.mock.toDomain()
             return .run { send in
                 let request = BasePageableRequest(page: 0, size: 100, sort: ["desc"])
                 let response = try await categoryClient.카테고리_목록_조회(request, true).toDomain()
+                await send(.async(.카테고리_내_컨텐츠_목록_조회))
                 await send(.inner(.카테고리_목록_조회_결과(response)))
                 
                 for await _ in self.pasteboard.changes() {
@@ -204,12 +217,37 @@ private extension CategoryDetailFeature {
             }) else { return .none }
             state.domain.category = first
             return .none
+        case .카테고리_내_컨텐츠_목록_갱신(let contentList):
+            state.domain.contentList = contentList
+            return .none
         }
     }
     
     /// - Async Effect
     func handleAsyncAction(_ action: Action.AsyncAction, state: inout State) -> Effect<Action> {
-        return .none
+        switch action {
+        case .카테고리_내_컨텐츠_목록_조회:
+            return .run { [
+                id = state.domain.category.id,
+                pageable = state.domain.pageable,
+                condition = state.domain.condition
+            ] send in
+                let contentList = try await contentClient.카테고리_내_컨텐츠_목록_조회(
+                    "\(id)",
+                    .init(
+                        page: pageable.page,
+                        size: pageable.size,
+                        sort: pageable.sort
+                    ),
+                    .init(
+                        categoryIds: condition.categoryIds,
+                        isRead: condition.isUnreadFlitered,
+                        favorites: condition.isFavoriteFlitered
+                    )
+                ).toDomain()
+                await send(.inner(.카테고리_내_컨텐츠_목록_갱신(contentList)))
+            }
+        }
     }
     
     /// - Scope Effect
@@ -292,7 +330,13 @@ private extension CategoryDetailFeature {
                 return .none
             case let .okButtonTapped(type, bookMarkSelected, unReadSelected):
                 state.isFilterSheetPresented.toggle()
-                return .none
+                state.domain.pageable.sort = [
+                    "createdAt",
+                    type == .최신순 ? "DESC" : "ASC"
+                ]
+                state.domain.condition.isFavoriteFlitered = bookMarkSelected
+                state.domain.condition.isUnreadFlitered = unReadSelected
+                return .send(.async(.카테고리_내_컨텐츠_목록_조회))
             }
         }
     }

@@ -39,7 +39,8 @@ public struct ContentClient {
     ) async throws -> EmptyResponse
     public var 카테고리_내_컨텐츠_목록_조회: @Sendable (
         _ contentId: String,
-        _ model: BasePageableRequest
+        _ pageable: BasePageableRequest,
+        _ condition: BaseConditionRequest
     ) async throws -> ContentListInquiryResponse
 }
 
@@ -66,8 +67,12 @@ extension ContentClient: DependencyKey {
             즐겨찾기_취소: { id in
                 try await provider.request(.즐겨찾기_취소(contentId: id))
             },
-            카테고리_내_컨텐츠_목록_조회: { id, model in
-                try await provider.request(.카태고리_내_컨텐츠_목록_조회(contentId: id, model: model))
+            카테고리_내_컨텐츠_목록_조회: { id, pageable, condition in
+                try await provider.request(.카태고리_내_컨텐츠_목록_조회(
+                    contentId: id,
+                    pageable: pageable,
+                    condition: condition
+                ))
             }
         )
     }()
@@ -80,7 +85,7 @@ extension ContentClient: DependencyKey {
             컨텐츠_추가: { _ in .mock },
             즐겨찾기: { _ in .mock },
             즐겨찾기_취소: { _ in .init() },
-            카테고리_내_컨텐츠_목록_조회: { _, _ in .mock }
+            카테고리_내_컨텐츠_목록_조회: { _, _, _ in .mock }
         )
     }()
 }

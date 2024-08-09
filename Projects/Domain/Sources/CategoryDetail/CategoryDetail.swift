@@ -18,6 +18,8 @@ public struct CategoryDetail: Equatable {
     // - MARK: Request
     /// 조회할 페이징 정보
     public var pageable: BasePageable
+    /// - 조회 필터
+    public var condition: BaseCondition
     
     public init(categpry: BaseCategory) {
         self.category = categpry
@@ -39,7 +41,12 @@ public struct CategoryDetail: Equatable {
         self.pageable = .init(
             page: 0,
             size: 10,
-            sort: []
+            sort: ["desc"]
+        )
+        self.condition = .init(
+            categoryIds: [],
+            isUnreadFlitered: false,
+            isFavoriteFlitered: false
         )
     }
 }
