@@ -16,6 +16,9 @@ public struct PokitSettingFeature {
     @Dependency(\.dismiss) var dismiss
     @Dependency(\.openSettings) var openSetting
     @Dependency(\.pasteboard) var pasteboard
+    @Dependency(\.keychain) var keychain
+    @Dependency(\.userDefaults) var userDefaults
+    @Dependency(\.authClient) var authClient
     /// - State
     @ObservableState
     public struct State: Equatable {
@@ -51,7 +54,10 @@ public struct PokitSettingFeature {
             case onAppear
         }
         
-        public enum InnerAction: Equatable { case doNothing }
+        public enum InnerAction: Equatable {
+            case 로그아웃_팝업(isPresented: Bool)
+            case 회원탈퇴_팝업(isPresented: Bool)
+        }
         
         public enum AsyncAction: Equatable { case doNothing }
         
@@ -61,6 +67,8 @@ public struct PokitSettingFeature {
         
         public enum DelegateAction: Equatable {
             case linkCopyDetected(URL?)
+            case 로그아웃
+            case 회원탈퇴
         }
     }
     
@@ -132,18 +140,32 @@ private extension PokitSettingFeature {
             return .none
             
         case .로그아웃:
-            state.isLogoutPresented.toggle()
-            return .none
+            return .send(.inner(.로그아웃_팝업(isPresented: true)))
         
         case .로그아웃수행:
-            return .none
+            return .run { send in
+                await send(.inner(.로그아웃_팝업(isPresented: false)))
+                await send(.delegate(.로그아웃))
+            }
             
         case .회원탈퇴:
-            state.isWithdrawPresented.toggle()
-            return .none
+            return .send(.inner(.회원탈퇴_팝업(isPresented: true)))
         
         case .회원탈퇴수행:
-            return .none
+            return .run { send in
+                guard let refreshToken = keychain.read(.refreshToken) else { return }
+                guard let platform = userDefaults.stringKey(.authPlatform) else { return }
+                
+                let request = WithdrawRequest(refreshToken: refreshToken, authPlatform: platform)
+                try await authClient.회원탈퇴(request)
+                
+                keychain.delete(.accessToken)
+                keychain.delete(.refreshToken)
+                await userDefaults.removeString(.authPlatform)
+
+                await send(.inner(.회원탈퇴_팝업(isPresented: false)))
+                await send(.delegate(.회원탈퇴))
+            }
             
         case .dismiss:
             return .run { _ in await dismiss() }
@@ -160,7 +182,15 @@ private extension PokitSettingFeature {
     
     /// - Inner Effect
     func handleInnerAction(_ action: Action.InnerAction, state: inout State) -> Effect<Action> {
-        return .none
+        switch action {
+        case let .로그아웃_팝업(isPresented):
+            state.isLogoutPresented = isPresented
+            return .none
+            
+        case let .회원탈퇴_팝업(isPresented):
+            state.isWithdrawPresented = isPresented
+            return .none
+        }
     }
     
     /// - Async Effect
