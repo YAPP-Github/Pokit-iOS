@@ -93,10 +93,12 @@ public struct CategoryDetailFeature {
             case pokitDeleteSheetPresented(Bool)
             case 카테고리_목록_조회_결과(BaseCategoryListInquiry)
             case 카테고리_내_컨텐츠_목록_갱신(BaseContentListInquiry)
+            case 컨텐츠_삭제_반영(contentId: Int)
         }
         
         public enum AsyncAction: Equatable {
             case 카테고리_내_컨텐츠_목록_조회
+            case 컨텐츠_삭제(contentId: Int)
         }
         
         public enum ScopeAction: Equatable {
@@ -220,6 +222,12 @@ private extension CategoryDetailFeature {
         case .카테고리_내_컨텐츠_목록_갱신(let contentList):
             state.domain.contentList = contentList
             return .none
+        case .컨텐츠_삭제_반영(contentId: let id):
+            state.domain.contentList.data.removeAll { $0.id == id }
+            state.selectedContentItem = nil
+            state.isPokitDeleteSheetPresented = false
+            state.kebobSelectedType = nil
+            return .none
         }
     }
     
@@ -246,6 +254,11 @@ private extension CategoryDetailFeature {
                     )
                 ).toDomain()
                 await send(.inner(.카테고리_내_컨텐츠_목록_갱신(contentList)))
+            }
+        case .컨텐츠_삭제(contentId: let id):
+            return .run { [id] send in
+                let _ = try await contentClient.컨텐츠_삭제("\(id)")
+                await send(.inner(.컨텐츠_삭제_반영(contentId: id)), animation: .pokitSpring)
             }
         }
     }
@@ -304,13 +317,7 @@ private extension CategoryDetailFeature {
                         state.isPokitDeleteSheetPresented = false
                         return .none
                     }
-                    guard let index = state.domain.contentList.data.firstIndex(of: selectedItem) else {
-                        return .none
-                    }
-                    state.domain.contentList.data.remove(at: index)
-                    state.isPokitDeleteSheetPresented = false
-                    state.kebobSelectedType = nil
-                    return .none
+                    return .send(.async(.컨텐츠_삭제(contentId: selectedItem.id)))
                     
                 case .포킷삭제:
                     state.isPokitDeleteSheetPresented = false
