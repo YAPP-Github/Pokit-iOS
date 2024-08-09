@@ -20,7 +20,7 @@ extension DependencyValues {
 public struct ContentClient {
     public var 컨텐츠_삭제: @Sendable (
         _ categoryId: String
-    ) async throws -> EmptyResponse
+    ) async throws -> Void
     public var 컨텐츠_상세_조회: @Sendable (
         _ contentId: String
     ) async throws -> ContentDetailResponse
@@ -53,7 +53,7 @@ extension ContentClient: DependencyKey {
 
         return Self(
             컨텐츠_삭제: { id in
-                try await provider.request(.컨텐츠_삭제(contentId: id))
+                try await provider.requestNoBody(.컨텐츠_삭제(contentId: id))
             },
             컨텐츠_상세_조회: { id in
                 try await provider.request(.컨텐츠_상세_조회(contentId: id))
@@ -85,7 +85,7 @@ extension ContentClient: DependencyKey {
 
     public static let previewValue: Self = {
         Self(
-            컨텐츠_삭제: { _ in .init() },
+            컨텐츠_삭제: { _ in },
             컨텐츠_상세_조회: { _ in .mock },
             컨텐츠_수정: { _, _ in .mock },
             컨텐츠_추가: { _ in .mock },
