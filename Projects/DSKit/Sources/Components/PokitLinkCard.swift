@@ -103,6 +103,7 @@ public struct PokitLinkCard<Item: PokitLinkCardItem>: View {
         AsyncImage(url: .init(string: link.thumbNail)) { image in
             image
                 .resizable()
+                .aspectRatio(contentMode: .fill)
         } placeholder: {
             Color.pokit(.bg(.disable))
         }
