@@ -21,7 +21,11 @@ public struct PokitSpinner: View {
                         .rotationEffect(value)
                 } keyframes: { _ in
                     KeyframeTrack(\.degrees) {
-                        SpringKeyframe(360, duration: 1, spring: .snappy(duration: 1))
+                        SpringKeyframe(
+                            360,
+                            duration: 1,
+                            spring: .smooth(duration: 1)
+                        )
                     }
                 }
             
