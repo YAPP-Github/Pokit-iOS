@@ -9,7 +9,7 @@ import Foundation
 
 import CoreKit
 
-public struct BaseCategoryDetail: Equatable {
+public struct BaseCategory: Equatable {
     public let categoryId: Int
     public let categoryName: String
     public let categoryImage: BaseCategoryImage

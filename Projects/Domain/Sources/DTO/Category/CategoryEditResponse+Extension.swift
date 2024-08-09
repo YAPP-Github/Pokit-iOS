@@ -10,7 +10,7 @@ import Foundation
 import CoreKit
 
 public extension CategoryEditResponse {
-    func toDomain() -> BaseCategoryDetail {
+    func toDomain() -> BaseCategory {
         return .init(
             categoryId: self.categoryId,
             categoryName: self.categoryName,

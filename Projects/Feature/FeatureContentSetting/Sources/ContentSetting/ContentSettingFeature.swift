@@ -92,7 +92,7 @@ public struct ContentSettingFeature {
             case showPopup
             case updateURLText(String?)
             case 컨텐츠_갱신(content: BaseContentDetail)
-            case 카테고리_갱신(category: BaseCategoryDetail)
+            case 카테고리_갱신(category: BaseCategory)
             case 카테고리_목록_갱신(categoryList: BaseCategoryListInquiry)
         }
 

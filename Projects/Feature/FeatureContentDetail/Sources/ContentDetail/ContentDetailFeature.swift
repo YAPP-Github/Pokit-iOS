@@ -32,7 +32,7 @@ public struct ContentDetailFeature {
         var content: BaseContentDetail? {
             get { domain.content }
         }
-        var category: BaseCategoryDetail? {
+        var category: BaseCategory? {
             get { domain.category }
         }
         var linkTitle: String? = nil
@@ -69,7 +69,7 @@ public struct ContentDetailFeature {
             case dismissAlert
             case 컨텐츠_상세_조회(content: BaseContentDetail)
             case 즐겨찾기_갱신(Bool)
-            case 카테고리_갱신(BaseCategoryDetail)
+            case 카테고리_갱신(BaseCategory)
         }
         
         public enum AsyncAction: Equatable {
