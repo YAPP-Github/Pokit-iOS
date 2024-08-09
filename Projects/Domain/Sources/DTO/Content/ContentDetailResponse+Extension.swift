@@ -11,7 +11,7 @@ import CoreKit
 import Util
 
 public extension ContentDetailResponse {
-    func toDomain() -> ContentDetail.Content {
+    func toDomain() -> BaseContentDetail {
         return .init(
             id: self.contentId,
             categoryId: self.categoryId,
@@ -20,6 +20,6 @@ public extension ContentDetailResponse {
             memo: self.memo,
             createdAt: DateFormatter.stringToDate(string: self.createdAt),
             favorites: self.favorites,
-            alertYn: ContentDetail.Content.RemindState(rawValue: self.alertYn) ?? .no)
+            alertYn: BaseContentDetail.RemindState(rawValue: self.alertYn) ?? .no)
     }
 }

@@ -47,11 +47,11 @@ public struct ContentSettingFeature {
             get { domain.memo }
             set { domain.memo = newValue }
         }
-        var isRemind: ContentDetail.Content.RemindState {
+        var isRemind: BaseContentDetail.RemindState {
             get { domain.alertYn }
             set { domain.alertYn = newValue }
         }
-        var content: ContentDetail.Content? {
+        var content: BaseContentDetail? {
             get { domain.content }
         }
         var pokitList: [BaseCategory] {
@@ -91,7 +91,7 @@ public struct ContentSettingFeature {
             case parsingURL
             case showPopup
             case updateURLText(String?)
-            case 컨텐츠_갱신(content: ContentDetail.Content)
+            case 컨텐츠_갱신(content: BaseContentDetail)
             case 카테고리_갱신(category: BaseCategoryDetail)
             case 카테고리_목록_갱신(categoryList: BaseCategoryListInquiry)
         }

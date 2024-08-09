@@ -76,7 +76,7 @@ public extension ContentDetailView {
 //MARK: - Configure View
 private extension ContentDetailView {
     @ViewBuilder
-    func remindAndBadge(content: ContentDetail.Content) -> some View {
+    func remindAndBadge(content: BaseContentDetail) -> some View {
         HStack(spacing: 4) {
             if content.alertYn == .yes {
                 Image(.icon(.bell))
@@ -99,7 +99,7 @@ private extension ContentDetailView {
     }
     
     @ViewBuilder
-    func title(content: ContentDetail.Content) -> some View {
+    func title(content: BaseContentDetail) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             Group {
                 remindAndBadge(content: content)
@@ -127,7 +127,7 @@ private extension ContentDetailView {
     }
     
     @ViewBuilder
-    func contentLinkPreview(content: ContentDetail.Content) -> some View {
+    func contentLinkPreview(content: BaseContentDetail) -> some View {
         VStack(spacing: 16) {
             if let title = store.linkTitle,
                let image = store.linkImage {
@@ -145,7 +145,7 @@ private extension ContentDetailView {
     }
     
     @ViewBuilder
-    func contentMemo(content: ContentDetail.Content) -> some View {
+    func contentMemo(content: BaseContentDetail) -> some View {
         HStack {
             VStack {
                 Text(content.memo)
@@ -167,7 +167,7 @@ private extension ContentDetailView {
     }
     
     @ViewBuilder
-    func favorite(content: ContentDetail.Content) -> some View {
+    func favorite(content: BaseContentDetail) -> some View {
         Button(action: { send(.favoriteButtonTapped, animation: .smooth) }) {
             let isFavorite = content.favorites
             
@@ -180,7 +180,7 @@ private extension ContentDetailView {
     }
     
     @ViewBuilder
-    func bottomToolbar(content: ContentDetail.Content) -> some View {
+    func bottomToolbar(content: BaseContentDetail) -> some View {
         HStack(spacing: 12) {
             favorite(content: content)
             

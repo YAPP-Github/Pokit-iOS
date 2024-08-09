@@ -29,7 +29,7 @@ public struct ContentDetailFeature {
             self.domain = .init(contentId: contentId)
         }
         fileprivate var domain: ContentDetail
-        var content: ContentDetail.Content? {
+        var content: BaseContentDetail? {
             get { domain.content }
         }
         var category: BaseCategoryDetail? {
@@ -67,7 +67,7 @@ public struct ContentDetailFeature {
             case parsingInfo(title: String?, image: UIImage?)
             case parsingURL
             case dismissAlert
-            case 컨텐츠_상세_조회(content: ContentDetail.Content)
+            case 컨텐츠_상세_조회(content: BaseContentDetail)
             case 즐겨찾기_갱신(Bool)
             case 카테고리_갱신(BaseCategoryDetail)
         }
