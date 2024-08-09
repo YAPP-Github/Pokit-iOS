@@ -22,7 +22,7 @@ public extension CategoryListInquiryResponse {
 }
 
 public extension CategoryItemInquiryResponse {
-    func toDomain() -> BaseCategory {
+    func toDomain() -> BaseCategoryItem {
         return .init(
             id: self.categoryId,
             userId: self.userId,

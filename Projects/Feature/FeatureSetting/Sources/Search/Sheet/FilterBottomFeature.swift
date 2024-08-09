@@ -21,7 +21,7 @@ public struct FilterBottomFeature {
     public struct State: Equatable {
         public init(
             filterType currentType: FilterType,
-            pokitFilter selectedPokit: IdentifiedArrayOf<BaseCategory>,
+            pokitFilter selectedPokit: IdentifiedArrayOf<BaseCategoryItem>,
             favoriteFilter isFavorite: Bool,
             unreadFilter isUnread: Bool,
             startDateFilter startDate: Date?,
@@ -38,7 +38,7 @@ public struct FilterBottomFeature {
         
         var currentType: FilterType
         
-        var selectedCategories = IdentifiedArrayOf<BaseCategory>()
+        var selectedCategories = IdentifiedArrayOf<BaseCategoryItem>()
         var isFavorite: Bool
         var isUnread: Bool
         var dateSelected: Bool
@@ -56,7 +56,7 @@ public struct FilterBottomFeature {
         }
         
         fileprivate var domain = FilterBottom()
-        var pokitList: [BaseCategory] {
+        var pokitList: [BaseCategoryItem] {
             get { domain.categoryList.data }
         }
     }
@@ -74,9 +74,9 @@ public struct FilterBottomFeature {
             /// - Binding
             case binding(BindingAction<State>)
             /// - Button Tapped
-            case pokitListCellTapped(pokit: BaseCategory)
+            case pokitListCellTapped(pokit: BaseCategoryItem)
             case searchButtonTapped
-            case pokitChipTapped(BaseCategory)
+            case pokitChipTapped(BaseCategoryItem)
             case favoriteChipTapped
             case unreadChipTapped
             case dateChipTapped
@@ -94,7 +94,7 @@ public struct FilterBottomFeature {
         
         public enum DelegateAction: Equatable {
             case searchButtonTapped(
-                categories: IdentifiedArrayOf<BaseCategory>,
+                categories: IdentifiedArrayOf<BaseCategoryItem>,
                 isFavorite: Bool,
                 isUnread: Bool,
                 startDate: Date?,

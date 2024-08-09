@@ -23,8 +23,8 @@ public struct PokitRootFeature {
         var sortType: PokitRootFilterType = .sort(.최신순)
         
         fileprivate var domain = Pokit()
-        var categories: IdentifiedArrayOf<BaseCategory> {
-            var identifiedArray = IdentifiedArrayOf<BaseCategory>()
+        var categories: IdentifiedArrayOf<BaseCategoryItem> {
+            var identifiedArray = IdentifiedArrayOf<BaseCategoryItem>()
             domain.categoryList.data.forEach { category in
                 identifiedArray.append(category)
             }
@@ -38,7 +38,7 @@ public struct PokitRootFeature {
             return identifiedArray
         }
         
-        var selectedKebobItem: BaseCategory?
+        var selectedKebobItem: BaseCategoryItem?
         var selectedUnclassifiedItem: BaseContentItem?
         
         var isKebobSheetPresented: Bool = false
@@ -69,10 +69,10 @@ public struct PokitRootFeature {
             case filterButtonTapped(PokitRootFilterType.Folder)
             case sortButtonTapped
             /// - Kebob
-            case kebobButtonTapped(BaseCategory)
+            case kebobButtonTapped(BaseCategoryItem)
             case unclassifiedKebobButtonTapped(BaseContentItem)
             
-            case categoryTapped(BaseCategory)
+            case categoryTapped(BaseCategoryItem)
             case contentItemTapped(BaseContentItem)
             
             case pokitRootViewOnAppeared
@@ -101,8 +101,8 @@ public struct PokitRootFeature {
             case alertButtonTapped
             case settingButtonTapped
             
-            case categoryTapped(BaseCategory)
-            case 수정하기(BaseCategory)
+            case categoryTapped(BaseCategoryItem)
+            case 수정하기(BaseCategoryItem)
             case 링크수정하기(contentId: Int)
             /// 링크상세로 이동
             case contentDetailTapped(BaseContentItem)

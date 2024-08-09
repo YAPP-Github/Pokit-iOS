@@ -25,7 +25,7 @@ public struct CategoryDetailFeature {
     public struct State: Equatable {
         /// Domain
         fileprivate var domain: CategoryDetail
-        var category: BaseCategory {
+        var category: BaseCategoryItem {
             get { domain.category }
         }
         var isUnreadFiltered: Bool {
@@ -38,8 +38,8 @@ public struct CategoryDetailFeature {
         var sortType: SortType {
             get { domain.pageable.sort == ["DESC"] ? .최신순 : .오래된순 }
         }
-        var categories: IdentifiedArrayOf<BaseCategory> {
-            var identifiedArray = IdentifiedArrayOf<BaseCategory>()
+        var categories: IdentifiedArrayOf<BaseCategoryItem> {
+            var identifiedArray = IdentifiedArrayOf<BaseCategoryItem>()
             domain.categoryListInQuiry.data.forEach { category in
                 identifiedArray.append(category)
             }
@@ -60,7 +60,7 @@ public struct CategoryDetailFeature {
         var isPokitDeleteSheetPresented: Bool = false
         var isFilterSheetPresented: Bool = false
         
-        public init(category: BaseCategory) {
+        public init(category: BaseCategoryItem) {
             self.domain = .init(categpry: category)
         }
     }
@@ -80,7 +80,7 @@ public struct CategoryDetailFeature {
             /// - Button Tapped
             case categoryKebobButtonTapped(PokitDeleteBottomSheet.SheetType, selectedItem: BaseContentItem?)
             case categorySelectButtonTapped
-            case categorySelected(BaseCategory)
+            case categorySelected(BaseCategoryItem)
             case filterButtonTapped
             case contentItemTapped(BaseContentItem)
             case dismiss
@@ -112,7 +112,7 @@ public struct CategoryDetailFeature {
             case linkCopyDetected(URL?)
             case 링크수정(contentId: Int)
             case 포킷삭제
-            case 포킷수정(BaseCategory)
+            case 포킷수정(BaseCategoryItem)
             case 포킷공유
         }
     }

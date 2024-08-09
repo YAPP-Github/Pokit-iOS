@@ -54,10 +54,10 @@ public struct ContentSettingFeature {
         var content: BaseContentDetail? {
             get { domain.content }
         }
-        var pokitList: [BaseCategory] {
+        var pokitList: [BaseCategoryItem] {
             get { domain.categoryListInQuiry.data }
         }
-        var selectedPokit: BaseCategory? = nil
+        var selectedPokit: BaseCategoryItem? = nil
         var linkTitle: String? = nil
         var linkImage: UIImage? = nil
         var showPopup: Bool = false
@@ -77,7 +77,7 @@ public struct ContentSettingFeature {
             case binding(BindingAction<State>)
             /// - Button Tapped
             case pokitSelectButtonTapped
-            case pokitSelectItemButtonTapped(pokit: BaseCategory)
+            case pokitSelectItemButtonTapped(pokit: BaseCategoryItem)
             case contentSettingViewOnAppeared
             case saveBottomButtonTapped
             case addPokitButtonTapped

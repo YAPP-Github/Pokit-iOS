@@ -134,14 +134,14 @@ private extension CategoryDetailView {
     
     struct PokitCategorySheet: View {
         @State private var height: CGFloat = 0
-        var action: (BaseCategory) -> Void
-        var selectedItem: BaseCategory?
-        var list: [BaseCategory]
+        var action: (BaseCategoryItem) -> Void
+        var selectedItem: BaseCategoryItem?
+        var list: [BaseCategoryItem]
         
         public init(
-            selectedItem: BaseCategory?,
-            list: [BaseCategory],
-            action: @escaping (BaseCategory) -> Void
+            selectedItem: BaseCategoryItem?,
+            list: [BaseCategoryItem],
+            action: @escaping (BaseCategoryItem) -> Void
         ) {
             self.selectedItem = selectedItem
             self.list = list

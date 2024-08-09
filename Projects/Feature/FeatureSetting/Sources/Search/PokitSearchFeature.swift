@@ -41,7 +41,7 @@ public struct PokitSearchFeature {
         var isAutoSaveSearch: Bool = false
         var isSearching: Bool = false
         var isFiltered: Bool = false
-        var categoryFilter = IdentifiedArrayOf<BaseCategory>()
+        var categoryFilter = IdentifiedArrayOf<BaseCategoryItem>()
         var dateFilterText = "기간"
         var isResultAscending = true
         
@@ -96,7 +96,7 @@ public struct PokitSearchFeature {
             case unreadChipTapped
             case dateFilterButtonTapped
             case categoryFilterButtonTapped
-            case categoryFilterChipTapped(category: BaseCategory)
+            case categoryFilterChipTapped(category: BaseCategoryItem)
             case recentSearchAllRemoveButtonTapped
             case recentSearchChipIconTapped(searchText: String)
             case linkCardTapped(content: BaseContentItem)
