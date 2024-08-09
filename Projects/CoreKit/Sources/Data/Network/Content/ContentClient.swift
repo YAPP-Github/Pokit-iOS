@@ -50,7 +50,7 @@ public struct ContentClient {
 extension ContentClient: DependencyKey {
     public static let liveValue: Self = {
         let provider = MoyaProvider<ContentEndpoint>.build()
-
+        
         return Self(
             컨텐츠_삭제: { id in
                 try await provider.requestNoBody(.컨텐츠_삭제(contentId: id))
@@ -71,11 +71,13 @@ extension ContentClient: DependencyKey {
                 try await provider.request(.즐겨찾기_취소(contentId: id))
             },
             카테고리_내_컨텐츠_목록_조회: { id, pageable, condition in
-                try await provider.request(.카태고리_내_컨텐츠_목록_조회(
-                    contentId: id,
-                    pageable: pageable,
-                    condition: condition
-                ))
+                try await provider.request(
+                    .카태고리_내_컨텐츠_목록_조회(
+                        contentId: id,
+                        pageable: pageable,
+                        condition: condition
+                    )
+                )
             },
             미분류_카테고리_컨텐츠_조회: { model in
                 try await provider.request(.미분류_카테고리_컨텐츠_조회(model: model))

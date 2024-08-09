@@ -15,9 +15,12 @@ import Util
 @Reducer
 public struct CategoryDetailFeature {
     /// - Dependency
-    @Dependency(\.dismiss) var dismiss
-    @Dependency(\.pasteboard) var pasteboard
-    @Dependency(\.categoryClient) var categoryClient
+    @Dependency(\.dismiss)
+    private var dismiss
+    @Dependency(\.pasteboard)
+    private var pasteboard
+    @Dependency(\.categoryClient)
+    private var categoryClient
     @Dependency(\.contentClient)
     private var contentClient
     /// - State
@@ -110,7 +113,7 @@ public struct CategoryDetailFeature {
         public enum DelegateAction: Equatable {
             case contentItemTapped(BaseContentItem)
             case linkCopyDetected(URL?)
-            case 링크수정(id: Int)
+            case 링크수정(contentId: Int)
             case 포킷삭제
             case 포킷수정(BaseCategoryItem)
             case 포킷공유
@@ -285,7 +288,7 @@ private extension CategoryDetailFeature {
                     case .링크삭제:
                         guard let content else { return }
                         await send(.inner(.pokitCategorySheetPresented(false)))
-                        await send(.delegate(.링크수정(id: content.id)))
+                        await send(.delegate(.링크수정(contentId: content.id)))
                     case .포킷삭제:
                         await send(.inner(.pokitCategorySheetPresented(false)))
                         await send(.delegate(.포킷수정(category)))

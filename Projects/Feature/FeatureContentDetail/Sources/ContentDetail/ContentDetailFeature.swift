@@ -83,8 +83,8 @@ public struct ContentDetailFeature {
         public enum ScopeAction: Equatable { case doNothing }
         
         public enum DelegateAction: Equatable {
-            case editButtonTapped(id: Int)
-            case 컨텐츠_삭제_완료(id: Int)
+            case editButtonTapped(contentId: Int)
+            case 컨텐츠_삭제_완료(contentId: Int)
         }
     }
     
@@ -135,7 +135,7 @@ private extension ContentDetailFeature {
         case .editButtonTapped:
             guard let content = state.domain.content else { return .none }
             return .run { [content] send in
-                await send(.delegate(.editButtonTapped(id: content.id)))
+                await send(.delegate(.editButtonTapped(contentId: content.id)))
             }
         case .deleteButtonTapped:
             state.showAlert = true
@@ -231,7 +231,7 @@ private extension ContentDetailFeature {
         case .컨텐츠_삭제(id: let id):
             return .run { [id] send in
                 let _ = try await contentClient.컨텐츠_삭제("\(id)")
-                await send(.delegate(.컨텐츠_삭제_완료(id: id)))
+                await send(.delegate(.컨텐츠_삭제_완료(contentId: id)))
             }
         }
     }
