@@ -48,7 +48,14 @@ public extension ProfileBottomSheet {
                             }
                             .buttonStyle(.plain)
                         default:
-                            RoundedRectangle(cornerRadius: 12)
+                            ZStack {
+                                Color.pokit(.bg(.disable))
+                                
+                                PokitSpinner()
+                                    .foregroundStyle(.pokit(.icon(.brand)))
+                                    .frame(width: 48, height: 48)
+                            }
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
                         }
                     }
                     .frame(width: 66, height: 66)

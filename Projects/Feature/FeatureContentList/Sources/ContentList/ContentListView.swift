@@ -48,7 +48,7 @@ public extension ContentListView {
                     confirmText: "삭제"
                 ) { send(.deleteAlertConfirmTapped(content: content)) }
             }
-            .task { await send(.contentListViewOnAppeared).finish() }
+            .task { await send(.contentListViewOnAppeared, animation: .smooth).finish() }
         }
     }
 }
@@ -75,7 +75,7 @@ private extension ContentListView {
         Group {
             if let contents = store.contents {
                 ScrollView {
-                    VStack(spacing: 0) {
+                    LazyVStack(spacing: 0) {
                         ForEach(contents) { content in
                             let isFirst = content == contents.first
                             let isLast = content == contents.last
@@ -86,15 +86,13 @@ private extension ContentListView {
                                 kebabAction: { send(.kebabButtonTapped(content: content)) }
                             )
                             .divider(isFirst: isFirst, isLast: isLast)
-                            .pokitScrollTransition(.opacity)
+//                            .pokitScrollTransition(.opacity)
                         }
                     }
                     .padding(.horizontal, 20)
                 }
-                .pokitBlurReplaceTransition(.smooth)
             } else {
                 PokitLoading()
-                    .pokitBlurReplaceTransition(.smooth)
             }
         }
     }

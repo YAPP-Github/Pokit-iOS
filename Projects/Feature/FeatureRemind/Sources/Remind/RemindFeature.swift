@@ -190,9 +190,9 @@ private extension RemindFeature {
             return .none
         case .컨텐츠_삭제_반영(id: let contentId):
             state.alertItem = nil
-            state.domain.recommendedList.removeAll { $0.id == contentId }
-            state.domain.unreadList.data.removeAll { $0.id == contentId }
-            state.domain.favoriteList.data.removeAll { $0.id == contentId }
+            state.domain.recommendedList?.removeAll { $0.id == contentId }
+            state.domain.unreadList.data?.removeAll { $0.id == contentId }
+            state.domain.favoriteList.data?.removeAll { $0.id == contentId }
             return .none
         }
     }

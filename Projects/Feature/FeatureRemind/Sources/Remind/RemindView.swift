@@ -80,8 +80,10 @@ extension RemindView {
                     }
                     .padding(.horizontal, 20)
                 }
+                .pokitBlurReplaceTransition(.smooth)
             } else {
                 PokitLoading()
+                    .pokitBlurReplaceTransition(.smooth)
             }
         }
     }
@@ -101,7 +103,13 @@ extension RemindView {
                 image
                     .resizable()
             } placeholder: {
-                Color.pokit(.bg(.disable))
+                ZStack {
+                    Color.pokit(.bg(.disable))
+                    
+                    PokitSpinner()
+                        .foregroundStyle(.pokit(.icon(.brand)))
+                        .frame(width: 48, height: 48)
+                }
             }
             
             LinearGradient(
@@ -198,8 +206,10 @@ extension RemindView {
                     )
                     .divider(isFirst: isFirst, isLast: isLast)
                 }
+                .pokitBlurReplaceTransition(.smooth)
             } else {
                 PokitLoading()
+                    .pokitBlurReplaceTransition(.smooth)
             }
         }
     }
@@ -222,8 +232,10 @@ extension RemindView {
                     )
                     .divider(isFirst: isFirst, isLast: isLast)
                 }
+                .pokitBlurReplaceTransition(.smooth)
             } else {
                 PokitLoading()
+                    .pokitBlurReplaceTransition(.smooth)
             }
         }
     }

@@ -38,19 +38,7 @@ public extension ContentDetailView {
                         bottomToolbar(content: content)
                     }
                 } else {
-                    Spacer()
-                    
-                    HStack {
-                        Spacer()
-                        
-                        ProgressView()
-                            .progressViewStyle(.circular)
-                            .tint(.pokit(.icon(.brand)))
-                        
-                        Spacer()
-                    }
-                    
-                    Spacer()
+                    PokitLoading()
                 }
             }
             .padding(.top, 28)

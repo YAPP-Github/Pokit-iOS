@@ -10,6 +10,8 @@ import SwiftUI
 public struct PokitSpinner: View {
     @State private var isAnimating = false
     
+    public init() {}
+    
     public var body: some View {
         if #available(iOS 17.0, *) {
             Image(.icon(.spinner))

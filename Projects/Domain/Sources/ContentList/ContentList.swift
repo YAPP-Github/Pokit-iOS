@@ -15,7 +15,6 @@ public struct ContentList: Equatable {
     
     public init() {
         self.contentList = .init(
-            data: [],
             page: 0,
             size: 0,
             sort: [],

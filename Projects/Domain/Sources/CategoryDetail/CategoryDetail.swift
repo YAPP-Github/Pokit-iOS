@@ -32,7 +32,6 @@ public struct CategoryDetail: Equatable {
         )
         self.categoryListInQuiry = categoryListInquiry
         self.contentList = .init(
-            data: [],
             page: 0,
             size: 0,
             sort: [],

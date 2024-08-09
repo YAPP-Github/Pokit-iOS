@@ -105,7 +105,13 @@ public struct PokitLinkCard<Item: PokitLinkCardItem>: View {
                 .resizable()
                 .aspectRatio(contentMode: .fill)
         } placeholder: {
-            Color.pokit(.bg(.disable))
+            ZStack {
+                Color.pokit(.bg(.disable))
+                
+                PokitSpinner()
+                    .foregroundStyle(.pokit(.icon(.brand)))
+                    .frame(width: 48, height: 48)
+            }
         }
         .frame(width: 124, height: 94)
         .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
