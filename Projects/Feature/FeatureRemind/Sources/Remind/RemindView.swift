@@ -70,14 +70,18 @@ extension RemindView {
                 .foregroundStyle(.pokit(.text(.primary)))
                 .padding(.horizontal, 20)
             
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 12) {
-                    ForEach(store.recommendedContents, id: \.id) { content in
-                        recommendedContentCell(content: content)
-                        
+            if let recommendedContents = store.recommendedContents {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 12) {
+                        ForEach(recommendedContents, id: \.id) { content in
+                            recommendedContentCell(content: content)
+                            
+                        }
                     }
+                    .padding(.horizontal, 20)
                 }
-                .padding(.horizontal, 20)
+            } else {
+                PokitLoading()
             }
         }
     }
@@ -182,17 +186,20 @@ extension RemindView {
                 send(.unreadNavigationLinkTapped)
             }
             .padding(.bottom, 16)
-            
-            ForEach(store.unreadContents, id: \.id) { content in
-                let isFirst = content == store.unreadContents.elements.first
-                let isLast = content == store.unreadContents.elements.last
-                
-                PokitLinkCard(
-                    link: content,
-                    action: { send(.linkCardTapped(content: content)) },
-                    kebabAction: { send(.kebabButtonTapped(content: content)) }
-                )
-                .divider(isFirst: isFirst, isLast: isLast)
+            if let unreadContents = store.unreadContents {
+                ForEach(unreadContents, id: \.id) { content in
+                    let isFirst = content == unreadContents.elements.first
+                    let isLast = content == unreadContents.elements.last
+                    
+                    PokitLinkCard(
+                        link: content,
+                        action: { send(.linkCardTapped(content: content)) },
+                        kebabAction: { send(.kebabButtonTapped(content: content)) }
+                    )
+                    .divider(isFirst: isFirst, isLast: isLast)
+                }
+            } else {
+                PokitLoading()
             }
         }
     }
@@ -203,17 +210,20 @@ extension RemindView {
                 send(.favoriteNavigationLinkTapped)
             }
             .padding(.bottom, 16)
-            
-            ForEach(store.favoriteContents, id: \.id) { content in
-                let isFirst = content == store.favoriteContents.elements.first
-                let isLast = content == store.favoriteContents.elements.last
-                
-                PokitLinkCard(
-                    link: content,
-                    action: { send(.linkCardTapped(content: content)) },
-                    kebabAction: { send(.kebabButtonTapped(content: content)) }
-                )
-                .divider(isFirst: isFirst, isLast: isLast)
+            if let favoriteContents = store.favoriteContents {
+                ForEach(favoriteContents, id: \.id) { content in
+                    let isFirst = content == favoriteContents.elements.first
+                    let isLast = content == favoriteContents.elements.last
+                    
+                    PokitLinkCard(
+                        link: content,
+                        action: { send(.linkCardTapped(content: content)) },
+                        kebabAction: { send(.kebabButtonTapped(content: content)) }
+                    )
+                    .divider(isFirst: isFirst, isLast: isLast)
+                }
+            } else {
+                PokitLoading()
             }
         }
     }

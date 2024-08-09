@@ -111,7 +111,7 @@ private extension PokitRootView {
         .padding(.top, 20)
         .scrollIndicators(.hidden)
         .animation(.smooth, value: store.categories.elements)
-        .animation(.smooth, value: store.unclassifiedContents.elements)
+        .animation(.smooth, value: store.unclassifiedContents?.elements)
         .animation(.spring, value: store.folderType)
     }
     
@@ -128,20 +128,28 @@ private extension PokitRootView {
         .padding(.bottom, 150)
     }
     var unclassifiedView: some View {
-        VStack(spacing: 0) {
-            ForEach(store.unclassifiedContents) { content in
-                let isFirst = content == store.unclassifiedContents.first
-                let isLast = content == store.unclassifiedContents.last
-                
-                PokitLinkCard(
-                    link: content,
-                    action: { send(.contentItemTapped(content)) },
-                    kebabAction: { send(.unclassifiedKebobButtonTapped(content)) }
-                )
-                .divider(isFirst: isFirst, isLast: isLast)
+        Group {
+            if let unclassifiedContents = store.unclassifiedContents {
+                VStack(spacing: 0) {
+                    ForEach(unclassifiedContents) { content in
+                        let isFirst = content == unclassifiedContents.first
+                        let isLast = content == unclassifiedContents.last
+                        
+                        PokitLinkCard(
+                            link: content,
+                            action: { send(.contentItemTapped(content)) },
+                            kebabAction: { send(.unclassifiedKebobButtonTapped(content)) }
+                        )
+                        .divider(isFirst: isFirst, isLast: isLast)
+                    }
+                }
+                .padding(.bottom, 150)
+                .pokitBlurReplaceTransition(.smooth)
+            } else {
+                PokitLoading()
+                    .pokitBlurReplaceTransition(.smooth)
             }
         }
-        .padding(.bottom, 150)
     }
 }
 

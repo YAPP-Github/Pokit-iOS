@@ -56,7 +56,7 @@ public extension ContentListView {
 private extension ContentListView {
     var listHeader: some View {
         HStack {
-            Text("링크 \(store.contents.count)개")
+            Text("링크 \(store.contents?.count ?? 0)개")
                 .pokitFont(.detail1)
                 .foregroundStyle(.pokit(.text(.secondary)))
             
@@ -72,22 +72,30 @@ private extension ContentListView {
     }
     
     var list: some View {
-        ScrollView {
-            VStack(spacing: 0) {
-                ForEach(store.contents, id: \.id) { content in
-                    let isFirst = content == store.contents.first
-                    let isLast = content == store.contents.last
-                    
-                    PokitLinkCard(
-                        link: content,
-                        action: { send(.linkCardTapped(content: content)) },
-                        kebabAction: { send(.kebabButtonTapped(content: content)) }
-                    )
-                    .divider(isFirst: isFirst, isLast: isLast)
-                    .pokitScrollTransition(.opacity)
+        Group {
+            if let contents = store.contents {
+                ScrollView {
+                    VStack(spacing: 0) {
+                        ForEach(contents) { content in
+                            let isFirst = content == contents.first
+                            let isLast = content == contents.last
+                            
+                            PokitLinkCard(
+                                link: content,
+                                action: { send(.linkCardTapped(content: content)) },
+                                kebabAction: { send(.kebabButtonTapped(content: content)) }
+                            )
+                            .divider(isFirst: isFirst, isLast: isLast)
+                            .pokitScrollTransition(.opacity)
+                        }
+                    }
+                    .padding(.horizontal, 20)
                 }
+                .pokitBlurReplaceTransition(.smooth)
+            } else {
+                PokitLoading()
+                    .pokitBlurReplaceTransition(.smooth)
             }
-            .padding(.horizontal, 20)
         }
     }
     

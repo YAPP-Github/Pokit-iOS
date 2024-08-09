@@ -115,21 +115,29 @@ private extension CategoryDetailView {
     }
     
     var contentScrollView: some View {
-        ScrollView(showsIndicators: false) {
-            ForEach(store.contents) { content in
-                let isFirst = content == store.contents.first
-                let isLast = content == store.contents.last
-                
-                PokitLinkCard(
-                    link: content,
-                    action: { send(.contentItemTapped(content)) }, 
-                    kebabAction: { send(.categoryKebobButtonTapped(.링크삭제, selectedItem: content)) }
-                )
-                .divider(isFirst: isFirst, isLast: isLast)
-                .pokitScrollTransition(.opacity)
+        Group {
+            if let contents = store.contents {
+                ScrollView(showsIndicators: false) {
+                    ForEach(contents) { content in
+                        let isFirst = content == contents.first
+                        let isLast = content == contents.last
+                        
+                        PokitLinkCard(
+                            link: content,
+                            action: { send(.contentItemTapped(content)) },
+                            kebabAction: { send(.categoryKebobButtonTapped(.링크삭제, selectedItem: content)) }
+                        )
+                        .divider(isFirst: isFirst, isLast: isLast)
+                        .pokitScrollTransition(.opacity)
+                    }
+                }
+                .animation(.spring, value: contents.elements)
+                .pokitBlurReplaceTransition(.smooth)
+            } else {
+                PokitLoading()
+                    .pokitBlurReplaceTransition(.smooth)
             }
         }
-        .animation(.spring, value: store.contents.elements)
     }
     
     struct PokitCategorySheet: View {

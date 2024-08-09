@@ -25,19 +25,28 @@ public struct RemindFeature {
         public init() {}
         
         fileprivate var domain = Remind()
-        var recommendedContents: IdentifiedArrayOf<BaseContentItem> {
+        var recommendedContents: IdentifiedArrayOf<BaseContentItem>? {
+            guard let recommendedList = domain.recommendedList else {
+                return nil
+            }
             var identifiedArray = IdentifiedArrayOf<BaseContentItem>()
-            domain.recommendedList.forEach { identifiedArray.append($0) }
+            recommendedList.forEach { identifiedArray.append($0) }
             return identifiedArray
         }
-        var unreadContents: IdentifiedArrayOf<BaseContentItem> {
+        var unreadContents: IdentifiedArrayOf<BaseContentItem>? {
+            guard let unreadList = domain.unreadList.data else {
+                return nil
+            }
             var identifiedArray = IdentifiedArrayOf<BaseContentItem>()
-            domain.unreadList.data.forEach { identifiedArray.append($0) }
+            unreadList.forEach { identifiedArray.append($0) }
             return identifiedArray
         }
-        var favoriteContents: IdentifiedArrayOf<BaseContentItem> {
+        var favoriteContents: IdentifiedArrayOf<BaseContentItem>? {
+            guard let favoriteList = domain.favoriteList.data else {
+                return nil
+            }
             var identifiedArray = IdentifiedArrayOf<BaseContentItem>()
-            domain.favoriteList.data.forEach { identifiedArray.append($0) }
+            favoriteList.forEach { identifiedArray.append($0) }
             return identifiedArray
         }
         /// sheet item

@@ -33,9 +33,12 @@ public struct PokitRootFeature {
             }
             return identifiedArray
         }
-        var unclassifiedContents: IdentifiedArrayOf<BaseContentItem> {
+        var unclassifiedContents: IdentifiedArrayOf<BaseContentItem>? {
+            guard let unclassifiedContentList = domain.unclassifiedContentList.data else {
+                return nil
+            }
             var identifiedArray = IdentifiedArrayOf<BaseContentItem>()
-            domain.unclassifiedContentList.data.forEach { content in
+            unclassifiedContentList.forEach { content in
                 identifiedArray.append(content)
             }
             return identifiedArray
@@ -228,7 +231,7 @@ private extension PokitRootFeature {
                 /// `포킷`의 이름순 정렬일 때
                 state.folderType == .folder(.포킷)
                 ? state.domain.categoryList.data.sort { $0.categoryName < $1.categoryName }
-                : state.domain.unclassifiedContentList.data.sort { $0.title < $1.title }
+                : state.domain.unclassifiedContentList.data?.sort { $0.title < $1.title }
                 
             case .sort(.최신순):
                 /// `포킷`의 최신순 정렬일 때
@@ -243,7 +246,7 @@ private extension PokitRootFeature {
                         ignoreCase: false
                     )
                 ]
-                : state.domain.unclassifiedContentList.data.sort { $0.createdAt < $1.createdAt }
+                : state.domain.unclassifiedContentList.data?.sort { $0.createdAt < $1.createdAt }
             default: return .none
             }
             return .none
@@ -356,10 +359,10 @@ private extension PokitRootFeature {
                     /// 🚨 Error Case [1]: 항목을 삭제하려는데 항목이 없을 때
                     return .none
                 }
-                guard let index = state.domain.unclassifiedContentList.data.firstIndex(of: selectedItem) else {
+                guard let index = state.domain.unclassifiedContentList.data?.firstIndex(of: selectedItem) else {
                     return .none
                 }
-                state.domain.unclassifiedContentList.data.remove(at: index)
+                state.domain.unclassifiedContentList.data?.remove(at: index)
                 state.isPokitDeleteSheetPresented = false
                 return .none
                 

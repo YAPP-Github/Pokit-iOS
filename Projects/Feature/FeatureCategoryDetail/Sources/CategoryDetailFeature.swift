@@ -48,9 +48,12 @@ public struct CategoryDetailFeature {
             }
             return identifiedArray
         }
-        var contents: IdentifiedArrayOf<BaseContentItem> {
+        var contents: IdentifiedArrayOf<BaseContentItem>? {
+            guard let contentList = domain.contentList.data else {
+                return nil
+            }
             var identifiedArray = IdentifiedArrayOf<BaseContentItem>()
-            domain.contentList.data.forEach { content in
+            contentList.forEach { content in
                 identifiedArray.append(content)
             }
             return identifiedArray
@@ -228,7 +231,7 @@ private extension CategoryDetailFeature {
             state.domain.contentList = contentList
             return .none
         case .컨텐츠_삭제_반영(id: let id):
-            state.domain.contentList.data.removeAll { $0.id == id }
+            state.domain.contentList.data?.removeAll { $0.id == id }
             state.selectedContentItem = nil
             state.isPokitDeleteSheetPresented = false
             state.kebobSelectedType = nil
@@ -323,7 +326,6 @@ private extension CategoryDetailFeature {
                         return .none
                     }
                     return .send(.async(.컨텐츠_삭제(id: selectedItem.id)))
-                    
                 case .포킷삭제:
                     state.isPokitDeleteSheetPresented = false
                     state.kebobSelectedType = nil

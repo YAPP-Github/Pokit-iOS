@@ -32,9 +32,12 @@ public struct ContentListFeature {
         
         let contentType: ContentType
         fileprivate var domain = ContentList()
-        var contents: IdentifiedArrayOf<BaseContentItem> {
+        var contents: IdentifiedArrayOf<BaseContentItem>? {
+            guard let contentList = domain.contentList.data else {
+                return nil
+            }
             var identifiedArray = IdentifiedArrayOf<BaseContentItem>()
-            domain.contentList.data.forEach { identifiedArray.append($0) }
+            contentList.forEach { identifiedArray.append($0) }
             return identifiedArray
         }
         var isListAscending = true

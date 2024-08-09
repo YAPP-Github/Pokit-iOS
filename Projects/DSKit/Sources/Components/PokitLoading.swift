@@ -8,6 +8,8 @@
 import SwiftUI
 
 public struct PokitLoading: View {
+    public init() {}
+    
     public var body: some View {
         VStack {
             Spacer()
