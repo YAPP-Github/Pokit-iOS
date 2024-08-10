@@ -15,5 +15,11 @@ public enum Constants {
     public static let contentPath: String = "/api/v1/content"
     public static let remindPath: String = "api/v1/remind"
     
+    public static let 공지사항_주소: URL = URL(string: "https://www.naver.com")!
+    public static let 서비스_이용약관_주소: URL = URL(string: "https://www.naver.com")!
+    public static let 개인정보_처리방침_주소: URL = URL(string: "https://www.naver.com")!
+    public static let 고객문의_주소: URL = URL(string: "https://www.naver.com")!
+    
+    
     public static var mockImageUrl: String { "https://picsum.photos/\(Int.random(in: 150...250))" }
 }

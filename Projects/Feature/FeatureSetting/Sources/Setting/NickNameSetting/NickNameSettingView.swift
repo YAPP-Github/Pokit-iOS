@@ -34,12 +34,14 @@ public extension NickNameSettingView {
                     equals: true
                 )
                 Spacer()
+            }
+            .overlay(alignment: .bottom) {
                 PokitBottomButton(
                     "저장",
                     state: store.buttonState,
                     action: { send(.saveButtonTapped) }
                 )
-                .padding(.top, 16)
+                .setKeyboardHeight()
             }
             .padding(.top, 16)
             .padding(.horizontal, 20)

@@ -14,6 +14,8 @@ import Util
 public struct NickNameSettingFeature {
     /// - Dependency
     @Dependency(\.dismiss) var dismiss
+    @Dependency(\.userClient) var userClient
+    @Dependency(\.mainQueue) var mainQueue
     /// - State
     @ObservableState
     public struct State: Equatable {
@@ -22,6 +24,8 @@ public struct NickNameSettingFeature {
             get { self.domain.nickname }
             set { self.domain.nickname = newValue }
         }
+        
+        var textfieldState: PokitInputStyle.State = .default
         var buttonState: PokitButtonStyle.State = .disable
         var textInpuState: PokitInputStyle.State = .default
         
@@ -43,9 +47,14 @@ public struct NickNameSettingFeature {
             case saveButtonTapped
         }
         
-        public enum InnerAction: Equatable { case doNothing }
+        public enum InnerAction: Equatable {
+            case textChanged
+            case 닉네임_중복_체크_네트워크_결과(Bool)
+        }
         
-        public enum AsyncAction: Equatable { case doNothing }
+        public enum AsyncAction: Equatable {
+            case 닉네임_중복_체크_네트워크
+        }
         
         public enum ScopeAction: Equatable { case doNothing }
         
@@ -79,7 +88,7 @@ public struct NickNameSettingFeature {
             return handleDelegateAction(delegateAction, state: &state)
         }
     }
-    
+    public enum CancelID { case response }
     /// - Reducer body
     public var body: some ReducerOf<Self> {
         BindingReducer(action: \.view)
@@ -91,6 +100,15 @@ private extension NickNameSettingFeature {
     /// - View Effect
     func handleViewAction(_ action: Action.View, state: inout State) -> Effect<Action> {
         switch action {
+        case .binding(\.text):
+            state.buttonState = .disable
+            return .run { send in
+                await send(.inner(.textChanged))
+            }
+            .debounce(
+                id: CancelID.response,
+                for: 3.0, scheduler: mainQueue
+            )
         case .binding:
             // - MARK: 목업 데이터 조회
             state.domain.isDuplicate = NicknameCheckResponse.mock.toDomain()
@@ -100,18 +118,47 @@ private extension NickNameSettingFeature {
             return .run { _ in await dismiss() }
             
         case .saveButtonTapped:
-            return .none
+            return .run { [nickName = state.text] send in
+                let request = NicknameEditRequest(nickname: nickName)
+                let _ = try await userClient.닉네임_수정(request)
+                await dismiss()
+            }
         }
     }
     
     /// - Inner Effect
     func handleInnerAction(_ action: Action.InnerAction, state: inout State) -> Effect<Action> {
-        return .none
+        switch action {
+        case .textChanged:
+            if state.text.isEmpty || state.text.count > 10 {
+                state.buttonState = .disable
+                return .none
+            } else {
+                return .run { send in
+                    await send(.async(.닉네임_중복_체크_네트워크))
+                }
+            }
+        case let .닉네임_중복_체크_네트워크_결과(isDuplicate):
+            if isDuplicate {
+                state.textfieldState = .error
+                state.buttonState = .disable
+            } else {
+                state.textfieldState = .active
+                state.buttonState = .filled(.primary)
+            }
+            return .none
+        }
     }
     
     /// - Async Effect
     func handleAsyncAction(_ action: Action.AsyncAction, state: inout State) -> Effect<Action> {
-        return .none
+        switch action {
+        case .닉네임_중복_체크_네트워크:
+            return .run { [nickName = state.text] send in
+                let result = try await userClient.닉네임_중복_체크(nickName)
+                await send(.inner(.닉네임_중복_체크_네트워크_결과(result.isDuplicate)))
+            }
+        }
     }
     
     /// - Scope Effect

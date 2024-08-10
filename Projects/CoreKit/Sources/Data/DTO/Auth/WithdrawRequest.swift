@@ -9,6 +9,11 @@ import Foundation
 /// 회원탈퇴 API Request
 /// 📌 회원탈퇴는 Response가 없음
 public struct WithdrawRequest: Encodable {
-    let authorizationCode: String
-    let authPlatform: String
+    public let refreshToken: String
+    public let authPlatform: String
+    
+    public init(refreshToken: String, authPlatform: String) {
+        self.refreshToken = refreshToken
+        self.authPlatform = authPlatform
+    }
 }
