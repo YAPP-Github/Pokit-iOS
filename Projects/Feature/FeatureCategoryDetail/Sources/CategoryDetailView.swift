@@ -132,10 +132,8 @@ private extension CategoryDetailView {
                     }
                 }
                 .animation(.spring, value: contents.elements)
-                .pokitBlurReplaceTransition(.smooth)
             } else {
                 PokitLoading()
-                    .pokitBlurReplaceTransition(.smooth)
             }
         }
     }

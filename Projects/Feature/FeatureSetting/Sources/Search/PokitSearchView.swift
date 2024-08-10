@@ -298,10 +298,8 @@ private extension PokitSearchView {
                     }
                     .padding(.horizontal, 20)
                 }
-                .pokitBlurReplaceTransition(.smooth)
             } else {
                 PokitLoading()
-                    .pokitBlurReplaceTransition(.smooth)
             }
         }
         .padding(.vertical, 24)

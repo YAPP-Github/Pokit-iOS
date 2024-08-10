@@ -80,10 +80,8 @@ extension RemindView {
                     }
                     .padding(.horizontal, 20)
                 }
-                .pokitBlurReplaceTransition(.smooth)
             } else {
                 PokitLoading()
-                    .pokitBlurReplaceTransition(.smooth)
             }
         }
     }
@@ -206,10 +204,8 @@ extension RemindView {
                     )
                     .divider(isFirst: isFirst, isLast: isLast)
                 }
-                .pokitBlurReplaceTransition(.smooth)
             } else {
                 PokitLoading()
-                    .pokitBlurReplaceTransition(.smooth)
             }
         }
     }
@@ -232,10 +228,8 @@ extension RemindView {
                     )
                     .divider(isFirst: isFirst, isLast: isLast)
                 }
-                .pokitBlurReplaceTransition(.smooth)
             } else {
                 PokitLoading()
-                    .pokitBlurReplaceTransition(.smooth)
             }
         }
     }

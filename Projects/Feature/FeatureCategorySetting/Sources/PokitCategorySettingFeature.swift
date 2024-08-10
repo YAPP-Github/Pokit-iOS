@@ -7,6 +7,7 @@
 import Foundation
 
 import ComposableArchitecture
+import DSKit
 import Domain
 import CoreKit
 import Util
@@ -43,9 +44,10 @@ public struct PokitCategorySettingFeature {
             }
             return identifiedArray
         }
+        
         let type: SettingType
         var isProfileSheetPresented: Bool = false
-        
+        var pokitNameTextInpuState: PokitInputStyle.State = .default
         /// - 포킷 수정 API / 추가 API
         /// categoryName
         /// categoryImageId

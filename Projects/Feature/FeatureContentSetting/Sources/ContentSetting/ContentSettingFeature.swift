@@ -7,6 +7,7 @@
 import UIKit
 
 import ComposableArchitecture
+import DSKit
 import Domain
 import CoreKit
 import DSKit
@@ -57,6 +58,10 @@ public struct ContentSettingFeature {
         var pokitList: [BaseCategoryItem] {
             get { domain.categoryListInQuiry.data }
         }
+        
+        var linkTextInputState: PokitInputStyle.State = .default
+        var titleTextInpuState: PokitInputStyle.State = .default
+        var memoTextAreaState: PokitInputStyle.State = .default
         var selectedPokit: BaseCategoryItem? = nil
         var linkTitle: String? = nil
         var linkImage: UIImage? = nil

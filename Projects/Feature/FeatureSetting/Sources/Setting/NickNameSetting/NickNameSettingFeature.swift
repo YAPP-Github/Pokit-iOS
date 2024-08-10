@@ -23,6 +23,7 @@ public struct NickNameSettingFeature {
             set { self.domain.nickname = newValue }
         }
         var buttonState: PokitButtonStyle.State = .disable
+        var textInpuState: PokitInputStyle.State = .default
         
         public init() {}
     }

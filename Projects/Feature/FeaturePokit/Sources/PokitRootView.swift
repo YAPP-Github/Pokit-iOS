@@ -144,10 +144,8 @@ private extension PokitRootView {
                     }
                 }
                 .padding(.bottom, 150)
-                .pokitBlurReplaceTransition(.smooth)
             } else {
                 PokitLoading()
-                    .pokitBlurReplaceTransition(.smooth)
             }
         }
     }

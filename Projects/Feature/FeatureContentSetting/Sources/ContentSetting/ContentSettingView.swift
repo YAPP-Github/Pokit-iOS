@@ -97,7 +97,7 @@ private extension ContentSettingView {
             PokitTextInput(
                 text: $store.urlText,
                 label: "링크", 
-                state: .constant(.active),
+                state: $store.linkTextInputState,
                 focusState: $focusedType,
                 equals: .link
             )
@@ -108,7 +108,7 @@ private extension ContentSettingView {
         PokitTextInput(
             text: $store.title,
             label: "제목", 
-            state: .constant(.active),
+            state: $store.titleTextInpuState,
             maxLetter: 20,
             focusState: $focusedType,
             equals: .title) { }
@@ -136,6 +136,7 @@ private extension ContentSettingView {
         PokitTextArea(
             text: $store.memo,
             label: "메모",
+            state: $store.memoTextAreaState,
             focusState: $focusedType,
             equals: .memo
         )

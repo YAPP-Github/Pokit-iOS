@@ -204,7 +204,7 @@ private extension MainTabView {
     }
 
     var bottomTabBar: some View {
-        HStack(spacing: 0) {
+        HStack(alignment: .bottom, spacing: 0) {
             ForEach(MainTab.allCases, id: \.self) { tab in
                 let isSelected: Bool = store.selectedTab == tab
 

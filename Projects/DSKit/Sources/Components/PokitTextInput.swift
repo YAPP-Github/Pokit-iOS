@@ -17,7 +17,6 @@ public struct PokitTextInput<Value: Hashable>: View {
     
     private let equals: Value
     private let label: String?
-    private let errorMessage: String?
     private let placeholder: String
     private let info: String?
     private let maxLetter: Int?
@@ -27,7 +26,6 @@ public struct PokitTextInput<Value: Hashable>: View {
         text: Binding<String>,
         label: String? = nil,
         state: Binding<PokitInputStyle.State>,
-        errorMessage: String? = nil,
         placeholder: String = "내용을 입력해주세요.",
         info: String? = nil,
         maxLetter: Int? = nil,
@@ -40,7 +38,6 @@ public struct PokitTextInput<Value: Hashable>: View {
         self._state = state
         self.focusState = focusState
         self.equals = equals
-        self.errorMessage = errorMessage
         self.placeholder = placeholder
         self.info = info
         self.maxLetter = maxLetter
@@ -91,24 +88,22 @@ public struct PokitTextInput<Value: Hashable>: View {
     
     private var infoLabel: some View {
         HStack(spacing: 4) {
-            if state == .error {
-                Image(.icon(.info))
-                    .resizable()
-                    .foregroundStyle(.pokit(.icon(.error)))
-                    .frame(width: 20, height: 20)
-                    .pokitBlurReplaceTransition(.smooth)
-            }
-            
             Group {
-                if let maxLetter, isMaxLetters {
-                    Text("최대 \(maxLetter)자까지 입력가능합니다.")
+                switch state {
+                case .error(let message):
+                    Image(.icon(.info))
+                        .resizable()
+                        .foregroundStyle(.pokit(.icon(.error)))
+                        .frame(width: 20, height: 20)
+                        .pokitBlurReplaceTransition(.smooth)
+                    
+                    Text(message)
                         .foregroundStyle(.pokit(.text(.error)))
-                } else if state == .error, let errorMessage {
-                    Text(errorMessage)
-                        .foregroundStyle(.pokit(.text(.error)))
-                } else if let info {
-                    Text(info)
-                        .foregroundStyle(.pokit(.text(.tertiary)))
+                default:
+                    if let info {
+                        Text(info)
+                            .foregroundStyle(.pokit(.text(.tertiary)))
+                    }
                 }
             }
             .pokitFont(.detail1)
@@ -117,13 +112,19 @@ public struct PokitTextInput<Value: Hashable>: View {
             Spacer()
             
             if let maxLetter {
-                Text("\(text.count > maxLetter ? maxLetter : text.count)/\(maxLetter)")
-                    .pokitFont(.detail1)
-                    .foregroundStyle(
-                        state == .error ? .pokit(.text(.error)) : .pokit(.text(.tertiary))
-                    )
-                    .contentTransition(.numericText())
-                    .animation(.smooth, value: text)
+                Group {
+                    switch state {
+                    case .error:
+                        Text("\(text.count > maxLetter ? maxLetter : text.count)/\(maxLetter)")
+                            .foregroundStyle(.pokit(.text(.error)))
+                    default:
+                        Text("\(text.count > maxLetter ? maxLetter : text.count)/\(maxLetter)")
+                            .foregroundStyle(.pokit(.text(.tertiary)))
+                    }
+                }
+                .pokitFont(.detail1)
+                .contentTransition(.numericText())
+                .animation(.smooth, value: text)
             }
         }
         .padding(.top, 4)
@@ -139,14 +140,23 @@ public struct PokitTextInput<Value: Hashable>: View {
     }
     
     private func onChangedIsMaxLetters(_ newValue: Bool) {
-        if isMaxLetters {
-            state = .error
+        if isMaxLetters, let maxLetter {
+            state = .error(message: "최대 \(maxLetter)자까지 입력가능합니다.")
         } else {
             state = .active
         }
     }
     
     private func onChangedFocuseState(_ newValue: Value) {
-        state = newValue == equals ? .active : state == .error ? .error : .default
+        if newValue == equals {
+            state = .active
+        } else {
+            switch state {
+            case .error(message: let message):
+                state = .error(message: message)
+            default:
+                state = .default
+            }
+        }
     }
 }

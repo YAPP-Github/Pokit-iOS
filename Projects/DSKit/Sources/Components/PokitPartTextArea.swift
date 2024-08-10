@@ -69,6 +69,15 @@ public struct PokitPartTextArea<Value: Hashable>: View {
     }
     
     private func onChangedFocuseState(_ newValue: Value) {
-        state = newValue == equals ? .active : state == .error ? .error : .default
+        if newValue == equals {
+            state = .active
+        } else {
+            switch state {
+            case .error(message: let message):
+                state = .error(message: message)
+            default:
+                state = .default
+            }
+        }
     }
 }
