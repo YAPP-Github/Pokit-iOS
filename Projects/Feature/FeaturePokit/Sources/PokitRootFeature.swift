@@ -282,7 +282,7 @@ private extension PokitRootFeature {
                 let contentList = try await contentClient.미분류_카테고리_컨텐츠_조회(
                     request
                 ).toDomain()
-                await send(.inner(.미분류_카테고리_컨텐츠_갱신(contentList: contentList)))
+                await send(.inner(.미분류_카테고리_컨텐츠_갱신(contentList: contentList)), animation: .smooth)
             }
         }
     }

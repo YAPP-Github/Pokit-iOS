@@ -56,7 +56,7 @@ public extension PokitRootView {
     }
 }
 //MARK: - Configure View
-private extension PokitRootView {    
+private extension PokitRootView {
     var filterHeader: some View {
         HStack(spacing: 8) {
             PokitIconLButton(
@@ -131,16 +131,28 @@ private extension PokitRootView {
         Group {
             if let unclassifiedContents = store.unclassifiedContents {
                 VStack(spacing: 0) {
-                    ForEach(unclassifiedContents) { content in
-                        let isFirst = content == unclassifiedContents.first
-                        let isLast = content == unclassifiedContents.last
-                        
-                        PokitLinkCard(
-                            link: content,
-                            action: { send(.contentItemTapped(content)) },
-                            kebabAction: { send(.unclassifiedKebobButtonTapped(content)) }
+                    if unclassifiedContents.isEmpty {
+                        PokitCaution(
+                            image: .empty,
+                            titleKey: "저장된 링크가 없어요!",
+                            message: "다양한 링크를 한 곳에 저장해보세요"
                         )
-                        .divider(isFirst: isFirst, isLast: isLast)
+                        .padding(.top, 36)
+                        
+                        Spacer()
+                    } else {
+                        
+                        ForEach(unclassifiedContents) { content in
+                            let isFirst = content == unclassifiedContents.first
+                            let isLast = content == unclassifiedContents.last
+                            
+                            PokitLinkCard(
+                                link: content,
+                                action: { send(.contentItemTapped(content)) },
+                                kebabAction: { send(.unclassifiedKebobButtonTapped(content)) }
+                            )
+                            .divider(isFirst: isFirst, isLast: isLast)
+                        }
                     }
                 }
                 .padding(.bottom, 150)
