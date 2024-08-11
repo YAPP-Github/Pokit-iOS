@@ -90,13 +90,9 @@ public struct PokitCard<Item: PokitCardItem>: View {
             image
                 .resizable()
         } placeholder: {
-            ZStack {
-                Color.pokit(.bg(.disable))
-                
-                PokitSpinner()
-                    .foregroundStyle(.pokit(.icon(.brand)))
-                    .frame(width: 48, height: 48)
-            }
+            PokitSpinner()
+                .foregroundStyle(.pokit(.icon(.brand)))
+                .frame(width: 48, height: 48)
         }
         .frame(width: 68, height: 68)
     }

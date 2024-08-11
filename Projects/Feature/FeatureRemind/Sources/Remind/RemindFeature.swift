@@ -167,9 +167,9 @@ private extension RemindFeature {
             return .none
         case .remindViewOnAppeared:
             return .run { send in
-                await send(.async(.오늘의_리마인드_조회))
-                await send(.async(.읽지않음_컨텐츠_조회))
-                await send(.async(.즐겨찾기_링크모음_조회))
+                await send(.async(.오늘의_리마인드_조회), animation: .smooth)
+                await send(.async(.읽지않음_컨텐츠_조회), animation: .smooth)
+                await send(.async(.즐겨찾기_링크모음_조회), animation: .smooth)
             }
         }
     }

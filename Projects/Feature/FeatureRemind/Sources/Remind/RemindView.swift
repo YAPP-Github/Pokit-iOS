@@ -44,7 +44,7 @@ public extension RemindView {
                         confirmText: "삭제"
                     ) { send(.deleteAlertConfirmTapped(content: content)) }
                 }
-                .task { await send(.remindViewOnAppeared).finish() }
+                .task { await send(.remindViewOnAppeared, animation: .smooth).finish() }
         }
     }
 }
@@ -94,7 +94,7 @@ extension RemindView {
     
     @ViewBuilder
     private func recommededContentList(
-        _ recommendedContents: [BaseContentItem]
+        _ recommendedContents: IdentifiedArrayOf<BaseContentItem>
     ) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("오늘 이 링크는 어때요?")

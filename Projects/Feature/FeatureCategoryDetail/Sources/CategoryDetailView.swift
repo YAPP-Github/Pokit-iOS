@@ -43,12 +43,17 @@ public extension CategoryDetailView {
                 )
             }
             .sheet(isPresented: $store.isCategorySelectSheetPresented) {
-                PokitCategorySheet(
-                    selectedItem: nil,
-                    list: store.categories.elements,
-                    action: { send(.categorySelected($0)) }
-                )
-                .presentationDragIndicator(.visible)
+                if let categories = store.categories {
+                    PokitCategorySheet(
+                        selectedItem: nil,
+                        list: categories.elements,
+                        action: { send(.categorySelected($0)) }
+                    )
+                    .presentationDragIndicator(.visible)
+                } else {
+                    PokitLoading()
+                        .presentationDragIndicator(.visible)
+                }
             }
             .sheet(isPresented: $store.isPokitDeleteSheetPresented) {
                 PokitDeleteBottomSheet(
@@ -117,6 +122,18 @@ private extension CategoryDetailView {
     var contentScrollView: some View {
         Group {
             if let contents = store.contents {
+                if contents.isEmpty {
+                    VStack {
+                        PokitCaution(
+                            image: .empty,
+                            titleKey: "저장된 링크가 없어요!",
+                            message: "다양한 링크를 한 곳에 저장해보세요"
+                        )
+                        .padding(.top, 20)
+                        
+                        Spacer()
+                    }
+                }
                 ScrollView(showsIndicators: false) {
                     ForEach(contents) { content in
                         let isFirst = content == contents.first
