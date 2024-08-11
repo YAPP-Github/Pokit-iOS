@@ -86,10 +86,11 @@ private extension ContentListView {
                                 kebabAction: { send(.kebabButtonTapped(content: content)) }
                             )
                             .divider(isFirst: isFirst, isLast: isLast)
-//                            .pokitScrollTransition(.opacity)
+                            .pokitScrollTransition(.opacity)
                         }
                     }
                     .padding(.horizontal, 20)
+                    .padding(.bottom, 36)
                 }
             } else {
                 PokitLoading()
