@@ -52,7 +52,7 @@ public struct PokitList<Item: PokitSelectItem>: View {
     
     @ViewBuilder
     private func listCell(_ item: Item) -> some View {
-        let isSelected = self.selectedItem == item
+        let isSelected = self.selectedItem?.id == item.id
         
         Button {
             action(item)
