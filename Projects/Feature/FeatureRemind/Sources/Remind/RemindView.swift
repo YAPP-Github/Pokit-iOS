@@ -231,22 +231,24 @@ extension RemindView {
         Group {
             if !unreadContents.isEmpty {
                 VStack(spacing: 0) {
-                    listNavigationLink("한번도 읽지 않았어요") {
-                        send(.unreadNavigationLinkTapped)
+                    VStack(spacing: 0) {
+                        listNavigationLink("한번도 읽지 않았어요") {
+                            send(.unreadNavigationLinkTapped)
+                        }
+                        .padding(.bottom, 16)
                     }
-                    .padding(.bottom, 16)
-                }
-                
-                ForEach(unreadContents, id: \.id) { content in
-                    let isFirst = content == unreadContents.elements.first
-                    let isLast = content == unreadContents.elements.last
                     
-                    PokitLinkCard(
-                        link: content,
-                        action: { send(.linkCardTapped(content: content)) },
-                        kebabAction: { send(.kebabButtonTapped(content: content)) }
-                    )
-                    .divider(isFirst: isFirst, isLast: isLast)
+                    ForEach(unreadContents, id: \.id) { content in
+                        let isFirst = content == unreadContents.elements.first
+                        let isLast = content == unreadContents.elements.last
+                        
+                        PokitLinkCard(
+                            link: content,
+                            action: { send(.linkCardTapped(content: content)) },
+                            kebabAction: { send(.kebabButtonTapped(content: content)) }
+                        )
+                        .divider(isFirst: isFirst, isLast: isLast)
+                    }
                 }
             }
         }

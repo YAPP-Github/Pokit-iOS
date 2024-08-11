@@ -37,7 +37,7 @@ public extension ProfileBottomSheet {
                 ForEach(images) { item in
                     AsyncImage(
                         url: URL(string: item.imageURL),
-                        transaction: .init(animation: .spring)
+                        transaction: .init(animation: .smooth)
                     ) { phase in
                         switch phase {
                         case .success(let image):
@@ -48,14 +48,9 @@ public extension ProfileBottomSheet {
                             }
                             .buttonStyle(.plain)
                         default:
-                            ZStack {
-                                Color.pokit(.bg(.disable))
-                                
-                                PokitSpinner()
-                                    .foregroundStyle(.pokit(.icon(.brand)))
-                                    .frame(width: 48, height: 48)
-                            }
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                            PokitSpinner()
+                                .foregroundStyle(.pokit(.icon(.brand)))
+                                .frame(width: 48, height: 48)
                         }
                     }
                     .frame(width: 66, height: 66)

@@ -100,18 +100,23 @@ public struct PokitLinkCard<Item: PokitLinkCardItem>: View {
     }
     
     private var thumbleNail: some View {
-        AsyncImage(url: .init(string: link.thumbNail)) { image in
-            image
-                .resizable()
-                .aspectRatio(contentMode: .fill)
-        } placeholder: {
-            ZStack {
-                Color.pokit(.bg(.disable))
-                
-                PokitSpinner()
-                    .foregroundStyle(.pokit(.icon(.brand)))
-                    .frame(width: 48, height: 48)
+        AsyncImage(url: .init(string: link.thumbNail)) { phase in
+            Group {
+                if let image = phase.image {
+                    image
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                } else {
+                    ZStack {
+                        Color.pokit(.bg(.disable))
+                        
+                        PokitSpinner()
+                            .foregroundStyle(.pokit(.icon(.brand)))
+                            .frame(width: 48, height: 48)
+                    }
+                }
             }
+            .animation(.smooth, value: phase.image)
         }
         .frame(width: 124, height: 94)
         .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))

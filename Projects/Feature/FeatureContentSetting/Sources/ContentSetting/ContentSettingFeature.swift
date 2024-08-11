@@ -67,6 +67,7 @@ public struct ContentSettingFeature {
         var linkImage: UIImage? = nil
         var showPopup: Bool = false
         var contentLoading: Bool = false
+        var saveIsLoading: Bool = false
     }
 
     /// - Action

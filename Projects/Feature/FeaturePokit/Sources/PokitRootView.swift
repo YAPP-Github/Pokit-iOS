@@ -110,22 +110,28 @@ private extension PokitRootView {
         }
         .padding(.top, 20)
         .scrollIndicators(.hidden)
-        .animation(.smooth, value: store.categories.elements)
+        .animation(.smooth, value: store.categories?.elements)
         .animation(.smooth, value: store.unclassifiedContents?.elements)
         .animation(.spring, value: store.folderType)
     }
     
     var pokitView: some View {
-        LazyVGrid(columns: column, spacing: 12) {
-            ForEach(store.categories, id: \.id) { item in
-                PokitCard(
-                    category: item,
-                    action: { send(.categoryTapped(item)) },
-                    kebabAction: { send(.kebobButtonTapped(item)) }
-                )
+        Group {
+            if let categories = store.categories {
+                LazyVGrid(columns: column, spacing: 12) {
+                    ForEach(categories, id: \.id) { item in
+                        PokitCard(
+                            category: item,
+                            action: { send(.categoryTapped(item)) },
+                            kebabAction: { send(.kebobButtonTapped(item)) }
+                        )
+                    }
+                }
+                .padding(.bottom, 150)
+            } else {
+                PokitLoading()
             }
         }
-        .padding(.bottom, 150)
     }
     var unclassifiedView: some View {
         Group {

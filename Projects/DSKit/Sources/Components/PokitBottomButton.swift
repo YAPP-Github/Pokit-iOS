@@ -8,6 +8,9 @@
 import SwiftUI
 
 public struct PokitBottomButton: View {
+    @Binding
+    private var isLoading: Bool
+    
     private let labelText: String
     private let state: PokitButtonStyle.State
     private let size: PokitButtonStyle.Size = .large
@@ -16,15 +19,20 @@ public struct PokitBottomButton: View {
     public init(
         _ labelText: String,
         state: PokitButtonStyle.State,
+        isLoading: Binding<Bool> = .constant(false),
         action: @escaping () -> Void
     ) {
         self.labelText = labelText
         self.state = state
+        self._isLoading = isLoading
         self.action = action
     }
     
     public var body: some View {
-        Button(action: action) {
+        Button {
+            isLoading = true
+            action()
+        } label: {
             label
         }
         .disabled(state == .disable)
@@ -36,10 +44,16 @@ public struct PokitBottomButton: View {
         HStack {
             Spacer()
             
-            Text(self.labelText)
-                .pokitFont(self.size.font)
-                .foregroundStyle(self.state.textColor)
-                .padding(.vertical, self.size.vPadding)
+            if isLoading {
+                PokitSpinner()
+                    .frame(width: 48, height: 48)
+                    .foregroundStyle(.pokit(.icon(.inverseWh)))
+            } else {
+                Text(self.labelText)
+                    .pokitFont(self.size.font)
+                    .foregroundStyle(self.state.textColor)
+                    .padding(.vertical, self.size.vPadding)
+            }
             
             Spacer()
         }

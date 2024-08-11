@@ -29,11 +29,7 @@ public extension PokitCategorySettingView {
             VStack(spacing: 0) {
                 thumbnailSection
                 pokitNameSection
-                if !store.itemList.isEmpty {
-                    myPokitSection
-                } else {
-                    Spacer()
-                }
+                myPokitSection
                 saveButton
             }
             .padding(.horizontal, 20)
@@ -133,19 +129,28 @@ private extension PokitCategorySettingView {
     /// 내포킷 리스트( ScrollView)
     var myPokitSection: some View {
         VStack(spacing: 8) {
-            HStack {
-                Text("내 포킷")
-                    .pokitFont(.b2(.m))
-                    .foregroundStyle(.pokit(.text(.secondary)))
-                Spacer()
-            }
-            
-            ScrollView {
-                ForEach(store.itemList, id: \.id) { item in
-                    PokitItem(item: item)
+            if let itemList = store.itemList {
+                if itemList.isEmpty {
+                    Spacer()
+                } else {
+                    HStack {
+                        Text("내 포킷")
+                            .pokitFont(.b2(.m))
+                            .foregroundStyle(.pokit(.text(.secondary)))
+                        Spacer()
+                    }
+                    
+                    
+                    ScrollView {
+                        ForEach(itemList, id: \.id) { item in
+                            PokitItem(item: item)
+                        }
+                    }
+                    .scrollIndicators(.hidden)
                 }
+            } else {
+                PokitLoading()
             }
-            .scrollIndicators(.hidden)
         }
         .padding(.top, 28)
     }

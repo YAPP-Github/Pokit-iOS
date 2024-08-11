@@ -15,6 +15,7 @@ public struct PokitSpinner: View {
     public var body: some View {
         if #available(iOS 17.0, *) {
             Image(.icon(.spinner))
+                .resizable()
                 .keyframeAnimator(
                     initialValue: Angle.zero,
                     repeating: true
@@ -33,6 +34,7 @@ public struct PokitSpinner: View {
             
         } else {
             Image(.icon(.spinner))
+                .resizable()
                 .rotationEffect(Angle(degrees: isAnimating ? 360 : 0))
                 .animation(
                     Animation

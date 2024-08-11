@@ -86,13 +86,18 @@ public struct PokitCard<Item: PokitCardItem>: View {
     }
     
     private var thumbNail: some View {
-        AsyncImage(url: .init(string: category.categoryImage.imageURL)) { image in
-            image
-                .resizable()
-        } placeholder: {
-            PokitSpinner()
-                .foregroundStyle(.pokit(.icon(.brand)))
-                .frame(width: 48, height: 48)
+        AsyncImage(url: .init(string: category.categoryImage.imageURL)) { phase in
+            Group {
+                if let image = phase.image {
+                    image
+                        .resizable()
+                } else {
+                    PokitSpinner()
+                        .foregroundStyle(.pokit(.icon(.brand)))
+                        .frame(width: 48, height: 48)
+                }
+            }
+            .animation(.smooth, value: phase.image)
         }
         .frame(width: 68, height: 68)
     }

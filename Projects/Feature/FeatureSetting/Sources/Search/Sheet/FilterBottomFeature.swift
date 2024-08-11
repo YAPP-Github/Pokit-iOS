@@ -56,7 +56,7 @@ public struct FilterBottomFeature {
         }
         
         fileprivate var domain = FilterBottom()
-        var pokitList: [BaseCategoryItem] {
+        var pokitList: [BaseCategoryItem]? {
             get { domain.categoryList.data }
         }
     }

@@ -66,6 +66,7 @@ public extension ContentSettingView {
                 PokitBottomButton(
                     "저장하기",
                     state: isDisable ? .disable : .filled(.primary),
+                    isLoading: $store.saveIsLoading,
                     action: { send(.saveBottomButtonTapped) }
                 )
                 .padding(.horizontal, 20)

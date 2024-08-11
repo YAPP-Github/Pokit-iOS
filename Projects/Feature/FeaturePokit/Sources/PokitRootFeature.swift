@@ -26,9 +26,12 @@ public struct PokitRootFeature {
         var sortType: PokitRootFilterType = .sort(.최신순)
         
         fileprivate var domain = Pokit()
-        var categories: IdentifiedArrayOf<BaseCategoryItem> {
+        var categories: IdentifiedArrayOf<BaseCategoryItem>? {
+            guard let categoryList = domain.categoryList.data else {
+                return nil
+            }
             var identifiedArray = IdentifiedArrayOf<BaseCategoryItem>()
-            domain.categoryList.data.forEach { category in
+            categoryList.forEach { category in
                 identifiedArray.append(category)
             }
             return identifiedArray
@@ -230,7 +233,7 @@ private extension PokitRootFeature {
             case .sort(.이름순):
                 /// `포킷`의 이름순 정렬일 때
                 state.folderType == .folder(.포킷)
-                ? state.domain.categoryList.data.sort { $0.categoryName < $1.categoryName }
+                ? state.domain.categoryList.data?.sort { $0.categoryName < $1.categoryName }
                 : state.domain.unclassifiedContentList.data?.sort { $0.title < $1.title }
                 
             case .sort(.최신순):
@@ -371,10 +374,10 @@ private extension PokitRootFeature {
                     /// 🚨 Error Case [1]: 항목을 삭제하려는데 항목이 없을 때
                     return .none
                 }
-                guard let index = state.domain.categoryList.data.firstIndex(of: selectedItem) else {
+                guard let index = state.domain.categoryList.data?.firstIndex(of: selectedItem) else {
                     return .none
                 }
-                state.domain.categoryList.data.remove(at: index)
+                state.domain.categoryList.data?.remove(at: index)
                 state.isPokitDeleteSheetPresented = false
                 
                 return .run { send in await send(.async(.포킷삭제(categoryId: selectedItem.id))) }

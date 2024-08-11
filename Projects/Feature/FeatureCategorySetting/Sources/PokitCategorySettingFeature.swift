@@ -37,9 +37,12 @@ public struct PokitCategorySettingFeature {
         var profileImages: [BaseCategoryImage] {
             get { domain.imageList }
         }
-        var itemList: IdentifiedArrayOf<BaseCategoryItem> {
+        var itemList: IdentifiedArrayOf<BaseCategoryItem>? {
+            guard let categoryList = domain.categoryListInQuiry.data else {
+                return nil
+            }
             var identifiedArray = IdentifiedArrayOf<BaseCategoryItem>()
-            domain.categoryListInQuiry.data.forEach { category in
+            categoryList.forEach { category in
                 identifiedArray.append(category)
             }
             return identifiedArray
