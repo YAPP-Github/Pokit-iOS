@@ -1,7 +1,7 @@
 {
   "images" : [
     {
-      "filename" : "empty_character.png",
+      "filename" : "character_empty.png",
       "idiom" : "universal",
       "scale" : "1x"
     },

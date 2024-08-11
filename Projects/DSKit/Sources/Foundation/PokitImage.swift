@@ -88,8 +88,8 @@ public enum PokitImage {
             switch name {
             case .empty:
                 return DSKitAsset.characterEmpty.swiftUIImage
-            case .error:
-                return DSKitAsset.characterError.swiftUIImage
+            case .sad:
+                return DSKitAsset.characterSad.swiftUIImage
             }
         }
     }
@@ -136,6 +136,6 @@ public extension PokitImage {
     
     enum Character {
         case empty
-        case error
+        case sad
     }
 }
