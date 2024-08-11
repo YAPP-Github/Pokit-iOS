@@ -94,7 +94,7 @@ extension RemindView {
     
     @ViewBuilder
     private func recommededContentList(
-        _ recommendedContents: IdentifiedArrayOf<BaseContentItem>
+        _ recommendedContents: [BaseContentItem]
     ) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("오늘 이 링크는 어때요?")
