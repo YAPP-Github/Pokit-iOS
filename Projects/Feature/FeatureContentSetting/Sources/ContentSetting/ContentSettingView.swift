@@ -28,32 +28,36 @@ public extension ContentSettingView {
     var body: some View {
         WithPerceptionTracking {
             VStack(spacing: 0) {
-                ScrollView {
-                    VStack(spacing: 24) {
-                        
-                        linkTextField
-                        
-                        titleTextField
-                        
-                        HStack(alignment: .bottom, spacing: 8) {
-                            pokitSelectButton
+                if store.contentLoading {
+                    PokitLoading()
+                } else {
+                    ScrollView {
+                        VStack(spacing: 24) {
                             
-                            addPokitButton
+                            linkTextField
+                            
+                            titleTextField
+                            
+                            HStack(alignment: .bottom, spacing: 8) {
+                                pokitSelectButton
+                                
+                                addPokitButton
+                            }
+                            
+                            memoTextArea
+                            
+                            remindSwitchRadio
                         }
-                        
-                        memoTextArea
-                        
-                        remindSwitchRadio
+                        .padding(.horizontal, 20)
                     }
-                    .padding(.horizontal, 20)
-                }
-                .overlay(alignment: .bottom) {
-                    if store.state.showPopup {
-                        PokitLinkPopup(
-                            "최대 30개의 포킷을 생성할 수 있습니다. \n포킷을 삭제한 뒤에 추가해주세요.",
-                            isPresented: $store.showPopup,
-                            type: .text
-                        )
+                    .overlay(alignment: .bottom) {
+                        if store.state.showPopup {
+                            PokitLinkPopup(
+                                "최대 30개의 포킷을 생성할 수 있습니다. \n포킷을 삭제한 뒤에 추가해주세요.",
+                                isPresented: $store.showPopup,
+                                type: .text
+                            )
+                        }
                     }
                 }
                 

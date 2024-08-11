@@ -55,7 +55,7 @@ public struct ContentSettingFeature {
         var content: BaseContentDetail? {
             get { domain.content }
         }
-        var pokitList: [BaseCategoryItem] {
+        var pokitList: [BaseCategoryItem]? {
             get { domain.categoryListInQuiry.data }
         }
         
@@ -66,6 +66,7 @@ public struct ContentSettingFeature {
         var linkTitle: String? = nil
         var linkImage: UIImage? = nil
         var showPopup: Bool = false
+        var contentLoading: Bool = false
     }
 
     /// - Action
@@ -248,6 +249,7 @@ private extension ContentSettingFeature {
             state.domain.categoryId = content.categoryId
             state.domain.memo = content.memo
             state.domain.alertYn = content.alertYn
+            state.contentLoading = false
             return .run { [id = content.categoryId] send in
                 await send(.inner(.parsingURL))
                 await send(.async(.카테고리_상세_조회(id: id)))
@@ -271,6 +273,7 @@ private extension ContentSettingFeature {
     func handleAsyncAction(_ action: Action.AsyncAction, state: inout State) -> Effect<Action> {
         switch action {
         case .컨텐츠_상세_조회(id: let id):
+            state.contentLoading = true
             return .run { [id] send in
                 let content = try await contentClient.컨텐츠_상세_조회("\(id)").toDomain()
                 await send(.inner(.컨텐츠_갱신(content: content)))
@@ -290,7 +293,7 @@ private extension ContentSettingFeature {
                     ),
                     true
                 ).toDomain()
-                await send(.inner(.카테고리_목록_갱신(categoryList: categoryList)))
+                await send(.inner(.카테고리_목록_갱신(categoryList: categoryList)), animation: .smooth)
             }
         case .컨텐츠_수정:
             guard let contentId = state.domain.contentId else {
