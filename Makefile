@@ -55,8 +55,9 @@ download-privates:
 	@if [ -f "Pokit_iOS_Private/xcconfig/Secret.xcconfig" ]; then \
 		mkdir -p xcconfig; \
 		cp Pokit_iOS_Private/xcconfig/Secret.xcconfig xcconfig/Secret.xcconfig; \
+		cp Pokit_iOS_Private/auth/AuthKey.p8 Projects/CoreKit/Resources/AuthKey.p8; \
 		rm -rf Pokit_iOS_Private; \
-		echo "✅ Secret.xcconfig 파일을 성공적으로 다운로드하고 Pokit_iOS_Private 폴더를 삭제했습니다."; \
+		echo "✅ Secret 파일을 성공적으로 다운로드하고 Pokit_iOS_Private 폴더를 삭제했습니다."; \
 	else \
 		echo "❌ Secret.xcconfig 파일을 찾을 수 없습니다."; \
 	fi

@@ -82,6 +82,9 @@ fastlane/key.json
 *.ipa
 *.app.dSYM.zip
 
+### Auth Key
+*.p8
+
 ### fastlane environment
 fastlane/.env
 fastlane/.env.default

@@ -25,13 +25,23 @@ let coreKit: Target = .target(
     deploymentTargets: .appMinimunTarget,
     infoPlist: .file(path: .relativeToRoot("Projects/App/Resources/Pokit-info.plist")),
     sources: ["Sources/**"],
+    resources: ["Resources/**"],
     dependencies: [
         .project(target: "Util", path: .relativeToRoot("Projects/Util")),
         .project(target: "SharedThirdPartyLib", path: .relativeToRoot("Projects/SharedThirdPartyLib")),
         .external(name: "Moya"),
-        .external(name: "GoogleSignIn")
+        .external(name: "GoogleSignIn"),
+        .external(name: "SwiftJWT")
     ],
-    settings: .settings
+    settings: .settings(
+        base: [
+            "OTHER_LDFLAGS": "$(inherited) -ObjC",
+        ],
+        configurations: [
+            .debug(name: "Debug", xcconfig: .relativeToRoot("xcconfig/Secret.xcconfig")),
+            .release(name: "Release", xcconfig: .relativeToRoot("xcconfig/Secret.xcconfig"))
+        ]
+    )
 )
 
 let project = Project(
