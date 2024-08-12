@@ -8,5 +8,9 @@
 import Foundation
 /// 닉네임 수정 API Request
 public struct NicknameEditRequest: Encodable {
-    let nickname: String
+    public let nickname: String
+    
+    public init(nickname: String) {
+        self.nickname = nickname
+    }
 }

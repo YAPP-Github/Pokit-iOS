@@ -47,6 +47,9 @@ public struct LoginRootFeature {
             case pushRegisterNicknameView
             case pushSelectFieldView(nickname: String)
             case pushSignUpDoneView
+            case 애플로그인(SocialLoginInfo)
+            case 구글로그인(SocialLoginInfo)
+            case 로그인_이후_화면이동(isRegistered: Bool)
         }
         public enum AsyncAction: Equatable {
             case 회원가입
@@ -125,6 +128,53 @@ private extension LoginRootFeature {
         case .pushSignUpDoneView:
             state.path.append(.signUpDone(.init()))
             return .none
+        case let .애플로그인(response):
+            return .run { send in
+                guard let idToken = response.idToken else { return }
+                guard let authCode = response.authCode else { return }
+                guard let jwt = response.jwt else { return }
+                
+                let platform = response.provider.description
+                let request = SignInRequest(authPlatform: platform, idToken: idToken)
+                let tokenResponse = try await authClient.로그인(request)
+                
+                /// [1]. UserDefaults에 최근 로그인한 애플로그인 `정보`저장
+                await userDefaults.setString(platform, .authPlatform)
+                await userDefaults.setString(authCode, .authCode)
+                await userDefaults.setString(jwt, .jwt)
+                /// [2]. Keychain에 `access`, `refresh` 저장
+                keychain.save(.accessToken, tokenResponse.accessToken)
+                keychain.save(.refreshToken, tokenResponse.refreshToken)
+                
+                let appleTokenRequest = AppleTokenRequest(authCode: authCode, jwt: jwt)
+                let appleTokenResponse = try await authClient.apple(appleTokenRequest)
+                keychain.save(.serverRefresh, appleTokenResponse.refresh_token)
+                
+                await send(.inner(.로그인_이후_화면이동(isRegistered: tokenResponse.isRegistered)))
+            }
+        case let .구글로그인(response):
+            return .run { send in
+                guard let idToken = response.idToken else { return }
+                let platform = response.provider.description
+                let request = SignInRequest(authPlatform: platform, idToken: idToken)
+                let tokenResponse = try await authClient.로그인(request)
+                
+                /// [1]. UserDefaults에 최근 로그인한 소셜로그인 `타입`저장
+                await userDefaults.setString(platform, .authPlatform)
+                /// [2]. Keychain에 `access`, `refresh` 저장
+                keychain.save(.accessToken, tokenResponse.accessToken)
+                keychain.save(.refreshToken, tokenResponse.refreshToken)
+                keychain.save(.serverRefresh, response.serverRefreshToken)
+                
+                await send(.inner(.로그인_이후_화면이동(isRegistered: tokenResponse.isRegistered)))
+            }
+        case let .로그인_이후_화면이동(isRegistered):
+            /// [3]. 이미 회원가입했던 유저라면 `메인`이동
+            if isRegistered {
+                return .run { send in await send(.delegate(.dismissLoginRootView)) }
+            } else {
+                return .run { send in await send(.inner(.pushAgreeToTermsView)) }
+            }
         }
     }
     /// - Async Effect
@@ -141,23 +191,11 @@ private extension LoginRootFeature {
             }
         
         case .로그인(let response):
-            return .run { send in
-                guard let idToken = response.idToken else { return }
-                let platform = response.provider.description
-                let request = SignInRequest(authPlatform: platform, idToken: idToken)
-                let tokenResponse = try await authClient.로그인(request)
-                
-                /// [1]. UserDefaults에 최근 로그인한 소셜로그인 `타입`저장
-                await userDefaults.setString(platform, .authPlatform)
-                /// [2]. Keychain에 `access`, `refresh` 저장
-                keychain.save(.accessToken, tokenResponse.accessToken)
-                keychain.save(.refreshToken, tokenResponse.refreshToken)
-                /// [3]. 이미 회원가입했던 유저라면 `메인`이동
-                if tokenResponse.isRegistered {
-                    await send(.delegate(.dismissLoginRootView))
-                } else {
-                    await send(.inner(.pushAgreeToTermsView))
-                }
+            switch response.provider {
+            case .apple:
+                return .run { send in await send(.inner(.애플로그인(response))) }
+            case .google:
+                return .run { send in await send(.inner(.구글로그인(response))) }
             }
         }
     }

@@ -65,6 +65,8 @@ public struct MainTabFeature {
         public enum DelegateAction: Equatable {
             case 링크추가하기
             case 포킷추가하기
+            case 로그아웃
+            case 회원탈퇴
         }
     }
     /// initiallizer

@@ -105,7 +105,11 @@ private extension RegisterNicknameFeature {
             return .run { send in
                 await send(.inner(.textChanged))
             }
-            .throttle(id: CancelID.response, for: 3.0, scheduler: mainQueue, latest: true)
+            .debounce(
+                id: CancelID.response,
+                for: 3.0,
+                scheduler: mainQueue
+            )
         case .binding:
             return .none
         }

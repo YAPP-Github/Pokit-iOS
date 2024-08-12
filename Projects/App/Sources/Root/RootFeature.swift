@@ -42,6 +42,16 @@ public struct RootFeature {
             state.intro = nil
             state.mainTab = MainTabFeature.State()
             return .none
+            
+        case .mainTab(.delegate(.로그아웃)):
+            state.intro = .login()
+            state.mainTab = nil
+            return .none
+        case .mainTab(.delegate(.회원탈퇴)):
+            state.intro = .login()
+            state.mainTab = nil
+            return .none
+            
         case .appDelegate, .intro, .mainTab:
             return .none
         }

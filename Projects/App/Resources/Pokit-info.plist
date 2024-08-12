@@ -33,6 +33,12 @@
 	<string>1</string>
 	<key>GIDClientID</key>
 	<string>$(GIDClientID)</string>
+	<key>AppleKeyID</key>
+	<string>$(AppleKeyID)</string>
+	<key>TeamID</key>
+	<string>$(TeamID)</string>
+	<key>AuthKey</key>
+	<string>$(AuthKey)</string>
 	<key>LSApplicationCategoryType</key>
 	<string></string>
 	<key>LSRequiresIPhoneOS</key>

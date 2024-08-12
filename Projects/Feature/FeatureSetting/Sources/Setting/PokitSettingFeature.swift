@@ -16,6 +16,10 @@ public struct PokitSettingFeature {
     @Dependency(\.dismiss) var dismiss
     @Dependency(\.openSettings) var openSetting
     @Dependency(\.pasteboard) var pasteboard
+    @Dependency(\.keychain) var keychain
+    @Dependency(\.userDefaults) var userDefaults
+    @Dependency(\.authClient) var authClient
+    @Dependency(\.openURL) var openURL
     /// - State
     @ObservableState
     public struct State: Equatable {
@@ -51,9 +55,15 @@ public struct PokitSettingFeature {
             case onAppear
         }
         
-        public enum InnerAction: Equatable { case doNothing }
+        public enum InnerAction: Equatable {
+            case 로그아웃_팝업(isPresented: Bool)
+            case 회원탈퇴_팝업(isPresented: Bool)
+        }
         
-        public enum AsyncAction: Equatable { case doNothing }
+        public enum AsyncAction: Equatable {
+            case 회원탈퇴_네트워크
+            case 키_제거
+        }
         
         public enum ScopeAction: Equatable {
             case doNothing
@@ -61,6 +71,8 @@ public struct PokitSettingFeature {
         
         public enum DelegateAction: Equatable {
             case linkCopyDetected(URL?)
+            case 로그아웃
+            case 회원탈퇴
         }
     }
     
@@ -120,30 +132,40 @@ private extension PokitSettingFeature {
             return .run { _ in await openSetting() }
             
         case .공지사항:
-            return .none
+            let url = Constants.공지사항_주소
+            return .run { _ in await openURL(url) }
             
         case .서비스_이용약관:
-            return .none
+            let url = Constants.서비스_이용약관_주소
+            return .run { _ in await openURL(url) }
             
         case .개인정보_처리방침:
-            return .none
+            let url = Constants.개인정보_처리방침_주소
+            return .run { _ in await openURL(url) }
             
         case .고객문의:
-            return .none
+            let url = Constants.고객문의_주소
+            return .run { _ in await openURL(url) }
             
         case .로그아웃:
-            state.isLogoutPresented.toggle()
-            return .none
+            return .send(.inner(.로그아웃_팝업(isPresented: true)))
         
         case .로그아웃수행:
-            return .none
+            return .run { send in
+                await send(.async(.키_제거))
+                await send(.inner(.로그아웃_팝업(isPresented: false)))
+                await send(.delegate(.로그아웃))
+            }
             
         case .회원탈퇴:
-            state.isWithdrawPresented.toggle()
-            return .none
+            return .send(.inner(.회원탈퇴_팝업(isPresented: true)))
         
         case .회원탈퇴수행:
-            return .none
+            return .run { send in
+                await send(.async(.회원탈퇴_네트워크))
+                await send(.inner(.회원탈퇴_팝업(isPresented: false)))
+                await send(.delegate(.회원탈퇴))
+            }
             
         case .dismiss:
             return .run { _ in await dismiss() }
@@ -160,12 +182,48 @@ private extension PokitSettingFeature {
     
     /// - Inner Effect
     func handleInnerAction(_ action: Action.InnerAction, state: inout State) -> Effect<Action> {
-        return .none
+        switch action {
+        case let .로그아웃_팝업(isPresented):
+            state.isLogoutPresented = isPresented
+            return .none
+            
+        case let .회원탈퇴_팝업(isPresented):
+            state.isWithdrawPresented = isPresented
+            return .none
+        }
     }
     
     /// - Async Effect
     func handleAsyncAction(_ action: Action.AsyncAction, state: inout State) -> Effect<Action> {
-        return .none
+        switch action {
+        case .회원탈퇴_네트워크:
+            return .run { send in
+                guard let refreshToken = keychain.read(.refreshToken) else {
+                    print("refresh가 없어서 벗어남")
+                    return
+                }
+                guard let platform = userDefaults.stringKey(.authPlatform) else {
+                    print("platform이 없어서 벗어남")
+                    return
+                }
+                
+                guard let serverRefreshToken = keychain.read(.serverRefresh) else { return }
+                
+                let request = WithdrawRequest(refreshToken: serverRefreshToken, authPlatform: platform)
+                try await authClient.회원탈퇴(request)
+                await send(.async(.키_제거))
+            }
+            
+        case .키_제거:
+            keychain.delete(.accessToken)
+            keychain.delete(.refreshToken)
+            keychain.delete(.serverRefresh)
+            return .run { _ in
+                await userDefaults.removeString(.authCode)
+                await userDefaults.removeString(.jwt)
+                await userDefaults.removeString(.authPlatform)
+            }
+        }
     }
     
     /// - Scope Effect

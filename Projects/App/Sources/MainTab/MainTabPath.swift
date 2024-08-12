@@ -156,6 +156,11 @@ public extension MainTabFeature {
             case .remind(.delegate(.링크목록_즐겨찾기)):
                 state.path.append(.링크목록(ContentListFeature.State(contentType: .favorite)))
                 return .none
+                
+            case .path(.element(_, action: .설정(.delegate(.로그아웃)))):
+                return .send(.delegate(.로그아웃))
+            case .path(.element(_, action: .설정(.delegate(.회원탈퇴)))):
+                return .send(.delegate(.회원탈퇴))
             default: return .none
             }
         }
