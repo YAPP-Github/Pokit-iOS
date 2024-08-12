@@ -104,8 +104,8 @@ extension AppleLoginController {
         
         var myJWT = JWT(header: header, claims: claims)
         let bundle = Bundle(for: type(of: self))
-        guard let authKeyName = Bundle.main.object(forInfoDictionaryKey: "AuthKey") as? String else { return "" }
-        guard let url = bundle.url(forResource: authKeyName, withExtension: "p8") else {
+//        guard let authKeyName = Bundle.main.object(forInfoDictionaryKey: "AuthKey") as? String else { return "" }
+        guard let url = bundle.url(forResource: "AuthKey", withExtension: "p8") else {
             return "못찾음"
         }
         let privateKey: Data = try! Data(contentsOf: url, options: .alwaysMapped)
