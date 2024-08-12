@@ -29,18 +29,22 @@ public extension SignUpDoneView {
                     logo
                     
                     title
-                        .padding(.top, 28)
+                        .padding(.top, 4)
                 }
                 
-                Spacer()
-                
+                images
+                    .padding(.top, 78)
+            }
+            .padding(.horizontal, 20)
+            .overlay(alignment: .bottom) {
                 PokitBottomButton(
                     "시작하기",
                     state: .filled(.primary),
                     action: { send(.startButtonTapped) }
                 )
+                .padding(.horizontal, 20)
+                .background(.pokit(.bg(.base)))
             }
-            .padding(.horizontal, 20)
             .background(.pokit(.bg(.base)))
             .ignoresSafeArea(edges: .bottom)
             .pokitNavigationBar(title: "")
@@ -60,23 +64,56 @@ extension SignUpDoneView {
         HStack {
             Spacer()
             
-            Text("🎉")
-                .font(.system(size: 70))
+            Image(.image(.firecracker))
+                .resizable()
+                .frame(width: 90, height: 90)
+                .scaleEffect(
+                    store.firecrackIsAppear ? 1 : 0,
+                    anchor: .bottomTrailing
+                )
+                .onAppear { send(.firecrackerOnAppeared, animation: .pokitSpring) }
             
             Spacer()
         }
     }
     
     private var title: some View {
-        VStack(spacing: 12) {
-            Text("회원가입이 완료되었습니다!")
+        VStack(spacing: 8) {
+            Text("회원가입 완료!")
                 .pokitFont(.title1)
-                .foregroundStyle(.pokit(.text(.primary)))
+                .foregroundStyle(.pokit(.text(.brand)))
             
-            Text("POKIT을 통해 많은 링크를\n간편하게 관리하세요")
-                .pokitFont(.title3)
+            Text("다양한 링크를 포킷에 저장해보세요")
+                .pokitFont(.b1(.b))
                 .foregroundStyle(.pokit(.text(.secondary)))
                 .multilineTextAlignment(.center)
+        }
+        .opacity(store.titleIsAppear ? 1 : 0)
+        .onAppear { send(.titleOnAppeared, animation: .smooth) }
+    }
+    
+    private var images: some View {
+        ZStack(alignment: .bottom) {
+            Image(.image(.confetti))
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .frame(width: 308, height: 345)
+                .padding(.bottom, 74)
+                .scaleEffect(
+                    store.confettiIsAppear ? 1 : 0,
+                    anchor: .bottom
+                )
+                .onAppear { send(.confettiOnAppeared, animation: .pokitSpring) }
+            
+            Image(.character(.pooki))
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: 308, height: 345)
+                .scaleEffect(
+                    store.pookiIsAppear ? 1 : 0,
+                    anchor: .bottom
+                )
+                .onAppear{ send(.pookiOnAppeared, animation: .pokitSpring) }
         }
     }
 }
