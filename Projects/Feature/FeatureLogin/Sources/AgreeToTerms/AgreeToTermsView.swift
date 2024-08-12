@@ -92,24 +92,21 @@ extension AgreeToTermsView {
         VStack(spacing: 12) {
             termsButton(
                 "(필수)개인정보 수집 및 이용 동의",
-                isSelected: $store.isPersonalAndUsageArgee
-            ) {
-                
-            }
+                isSelected: $store.isPersonalAndUsageArgee,
+                action: {}
+            )
             
             termsButton(
                 "(필수)서비스 이용약관",
-                isSelected: $store.isServiceAgree
-            ) {
-                
-            }
+                isSelected: $store.isServiceAgree,
+                action: {}
+            )
             
             termsButton(
                 "(선택)마케팅 정보 수신",
-                isSelected: $store.isMarketingAgree
-            ) {
-                
-            }
+                isSelected: $store.isMarketingAgree,
+                action: {}
+            )
         }
         .padding(.leading, 20)
         .padding(.trailing, 12)
@@ -152,7 +149,7 @@ extension AgreeToTermsView {
         AgreeToTermsView(
             store: Store(
                 initialState: .init(),
-                reducer: { AgreeToTermsFeature() }
+                reducer: { AgreeToTermsFeature()._printChanges() }
             )
         )
     }
