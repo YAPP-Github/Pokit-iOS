@@ -83,17 +83,12 @@ private extension PokitRootView {
             
             Spacer()
             
-            Button(action: { send(.sortButtonTapped) }) {
-                HStack(spacing: 2) {
-                    Image(.icon(.align))
-                        .resizable()
-                        .frame(width: 18, height: 18)
-                    Text(store.sortType == .sort(.최신순) ? "최신순" : "이름순")
-                        .pokitFont(.b3(.m))
-                        .foregroundStyle(.pokit(.text(.secondary)))
-                }
-            }
-            .buttonStyle(.plain)
+            PokitIconLTextLink(
+                store.sortType == .sort(.최신순) ? "최신순" : "이름순",
+                icon: .icon(.align),
+                action: { send(.sortButtonTapped) }
+            )
+            .contentTransition(.numericText())
         }
         .animation(.snappy(duration: 0.7), value: store.folderType)
     }
