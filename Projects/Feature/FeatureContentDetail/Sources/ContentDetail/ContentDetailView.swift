@@ -42,6 +42,7 @@ public extension ContentDetailView {
                 }
             }
             .padding(.top, 28)
+            .padding(.bottom, 36)
             .background(.pokit(.bg(.base)))
             .pokitPresentationBackground()
             .pokitPresentationCornerRadius()
