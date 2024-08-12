@@ -12,6 +12,7 @@ import Dependencies
 public enum KeychainKey: String {
     case accessToken
     case refreshToken
+    case serverRefresh
 }
 
 // MARK: - Dependency Values

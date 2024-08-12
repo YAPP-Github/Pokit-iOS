@@ -163,7 +163,6 @@ private extension PokitSettingFeature {
         case .회원탈퇴수행:
             return .run { send in
                 await send(.async(.회원탈퇴_네트워크))
-                await send(.async(.키_제거))
                 await send(.inner(.회원탈퇴_팝업(isPresented: false)))
                 await send(.delegate(.회원탈퇴))
             }
@@ -198,18 +197,32 @@ private extension PokitSettingFeature {
     func handleAsyncAction(_ action: Action.AsyncAction, state: inout State) -> Effect<Action> {
         switch action {
         case .회원탈퇴_네트워크:
-            return .run { _ in
-                guard let refreshToken = keychain.read(.refreshToken) else { return }
-                guard let platform = userDefaults.stringKey(.authPlatform) else { return }
+            return .run { send in
+                guard let refreshToken = keychain.read(.refreshToken) else {
+                    print("refresh가 없어서 벗어남")
+                    return
+                }
+                guard let platform = userDefaults.stringKey(.authPlatform) else {
+                    print("platform이 없어서 벗어남")
+                    return
+                }
                 
-                let request = WithdrawRequest(refreshToken: refreshToken, authPlatform: platform)
+                guard let serverRefreshToken = keychain.read(.serverRefresh) else { return }
+                
+                let request = WithdrawRequest(refreshToken: serverRefreshToken, authPlatform: platform)
                 try await authClient.회원탈퇴(request)
+                await send(.async(.키_제거))
             }
             
         case .키_제거:
             keychain.delete(.accessToken)
             keychain.delete(.refreshToken)
-            return .run { _ in await userDefaults.removeString(.authPlatform) }
+            keychain.delete(.serverRefresh)
+            return .run { _ in
+                await userDefaults.removeString(.authCode)
+                await userDefaults.removeString(.jwt)
+                await userDefaults.removeString(.authPlatform)
+            }
         }
     }
     

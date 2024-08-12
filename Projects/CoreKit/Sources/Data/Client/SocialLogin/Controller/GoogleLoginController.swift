@@ -40,6 +40,8 @@ public final class GoogleLoginController {
                 return
             }
             
+            let serverRefreshToken = result.user.refreshToken.tokenString
+            
             guard let idToken = result.user.idToken else {
                 continuation?.resume(throwing: SocialLoginError.googleLoginError(.invalidIdToken))
                 continuation = nil
@@ -49,7 +51,10 @@ public final class GoogleLoginController {
 
             let info = SocialLoginInfo(
                 idToken: idToken.tokenString,
-                provider: .google
+                provider: .google,
+                serverRefreshToken: serverRefreshToken,
+                jwt: nil,
+                authCode: nil
             )
             continuation?.resume(returning: info)
         }

@@ -14,5 +14,7 @@ public enum UserDefaultsKey {
     public enum StringKey: String {
         /// `구글` or `애플`
         case authPlatform
+        case authCode
+        case jwt
     }
 }
