@@ -113,16 +113,29 @@ private extension PokitRootView {
     var pokitView: some View {
         Group {
             if let categories = store.categories {
-                LazyVGrid(columns: column, spacing: 12) {
-                    ForEach(categories, id: \.id) { item in
-                        PokitCard(
-                            category: item,
-                            action: { send(.categoryTapped(item)) },
-                            kebabAction: { send(.kebobButtonTapped(item)) }
+                if categories.isEmpty {
+                    VStack {
+                        PokitCaution(
+                            image: .empty,
+                            titleKey: "저장된 포킷이 없어요!",
+                            message: "포킷을 생성해 링크를 저장해보세요"
                         )
+                        .padding(.top, 36)
+                        
+                        Spacer()
                     }
+                } else {
+                    LazyVGrid(columns: column, spacing: 12) {
+                        ForEach(categories, id: \.id) { item in
+                            PokitCard(
+                                category: item,
+                                action: { send(.categoryTapped(item)) },
+                                kebabAction: { send(.kebobButtonTapped(item)) }
+                            )
+                        }
+                    }
+                    .padding(.bottom, 150)
                 }
-                .padding(.bottom, 150)
             } else {
                 PokitLoading()
             }

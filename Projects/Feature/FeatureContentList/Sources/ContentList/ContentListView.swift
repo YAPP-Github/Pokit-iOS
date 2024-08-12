@@ -74,23 +74,34 @@ private extension ContentListView {
     var list: some View {
         Group {
             if let contents = store.contents {
-                ScrollView {
-                    LazyVStack(spacing: 0) {
-                        ForEach(contents) { content in
-                            let isFirst = content == contents.first
-                            let isLast = content == contents.last
-                            
-                            PokitLinkCard(
-                                link: content,
-                                action: { send(.linkCardTapped(content: content)) },
-                                kebabAction: { send(.kebabButtonTapped(content: content)) }
-                            )
-                            .divider(isFirst: isFirst, isLast: isLast)
-                            .pokitScrollTransition(.opacity)
+                if contents.isEmpty {
+                    PokitCaution(
+                        image: .empty,
+                        titleKey: "즐겨찾기 링크가 없어요!",
+                        message: "링크를 즐겨찾기로 관리해보세요"
+                    )
+                    .padding(.top, 100)
+                    
+                    Spacer()
+                } else {
+                    ScrollView {
+                        LazyVStack(spacing: 0) {
+                            ForEach(contents) { content in
+                                let isFirst = content == contents.first
+                                let isLast = content == contents.last
+                                
+                                PokitLinkCard(
+                                    link: content,
+                                    action: { send(.linkCardTapped(content: content)) },
+                                    kebabAction: { send(.kebabButtonTapped(content: content)) }
+                                )
+                                .divider(isFirst: isFirst, isLast: isLast)
+                                .pokitScrollTransition(.opacity)
+                            }
                         }
+                        .padding(.horizontal, 20)
+                        .padding(.bottom, 36)
                     }
-                    .padding(.horizontal, 20)
-                    .padding(.bottom, 36)
                 }
             } else {
                 PokitLoading()
