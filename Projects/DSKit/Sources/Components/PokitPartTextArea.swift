@@ -44,6 +44,7 @@ public struct PokitPartTextArea<Value: Hashable>: View {
         TextEditor(text: $text)
             .autocorrectionDisabled()
             .textInputAutocapitalization(.never)
+            .foregroundStyle(.pokit(.text(.primary)))
             .scrollContentBackground(.hidden)
             .focused(focusState, equals: equals)
             .disabled(state == .disable || state == .readOnly)
