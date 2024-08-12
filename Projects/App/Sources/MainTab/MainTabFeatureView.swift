@@ -138,8 +138,10 @@ private extension MainTabView {
             switch store.selectedTab {
             case .pokit:
                 PokitRootView(store: store.scope(state: \.pokit, action: \.pokit))
+                    .toolbarBackground(.hidden, for: .tabBar)
             case .remind:
                 RemindView(store: store.scope(state: \.remind, action: \.remind))
+                    .toolbarBackground(.hidden, for: .tabBar)
             }
         }
     }
