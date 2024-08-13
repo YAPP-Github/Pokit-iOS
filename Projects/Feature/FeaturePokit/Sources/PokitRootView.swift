@@ -133,6 +133,11 @@ private extension PokitRootView {
                                 kebabAction: { send(.kebobButtonTapped(item)) }
                             )
                         }
+                        
+                        if store.hasNext {
+                            PokitLoading()
+                                .onAppear { send(.분류_pagenation) }
+                        }
                     }
                     .padding(.bottom, 150)
                 }
@@ -166,6 +171,11 @@ private extension PokitRootView {
                                 kebabAction: { send(.unclassifiedKebobButtonTapped(content)) }
                             )
                             .divider(isFirst: isFirst, isLast: isLast)
+                        }
+                        
+                        if store.unclassifiedHasNext {
+                            PokitLoading()
+                                .onAppear(perform: { send(.미분류_pagenation) })
                         }
                     }
                 }
