@@ -16,6 +16,8 @@ public struct FilterBottomFeature {
     /// - Dependency
     @Dependency(\.dismiss)
     private var dismiss
+    @Dependency(\.categoryClient)
+    private var categoryClient
     /// - State
     @ObservableState
     public struct State: Equatable {
@@ -83,12 +85,16 @@ public struct FilterBottomFeature {
             case favoriteButtonTapped
             case unreadButtonTapped
             
-            case filterBottomSheetOnAppeard
+            case pokitListOnAppeared
         }
         
-        public enum InnerAction: Equatable { case doNothing }
+        public enum InnerAction: Equatable {
+            case 카테고리_목록_갱신(categoryList: BaseCategoryListInquiry)
+        }
         
-        public enum AsyncAction: Equatable { case doNothing }
+        public enum AsyncAction: Equatable {
+            case 카테고리_목록_조회
+        }
         
         public enum ScopeAction: Equatable { case doNothing }
         
@@ -191,21 +197,36 @@ private extension FilterBottomFeature {
         case .unreadButtonTapped:
             state.isUnread.toggle()
             return .none
-        case .filterBottomSheetOnAppeard:
-            // - MARK: 더미 조회
-            state.domain.categoryList = CategoryListInquiryResponse.mock.toDomain()
-            return .none
+        case .pokitListOnAppeared:
+            return .send(.async(.카테고리_목록_조회))
         }
     }
     
     /// - Inner Effect
     func handleInnerAction(_ action: Action.InnerAction, state: inout State) -> Effect<Action> {
-        return .none
+        switch action {
+        case .카테고리_목록_갱신(categoryList: let categoryList):
+            state.domain.categoryList = categoryList
+            return .none
+        }
     }
     
     /// - Async Effect
     func handleAsyncAction(_ action: Action.AsyncAction, state: inout State) -> Effect<Action> {
-        return .none
+        switch action {
+        case .카테고리_목록_조회:
+            return .run { [pageable = state.domain.pageable] send in
+                let categoryList = try await categoryClient.카테고리_목록_조회(
+                    .init(
+                        page: pageable.page,
+                        size: pageable.size,
+                        sort: pageable.sort
+                    ),
+                    true
+                ).toDomain()
+                await send(.inner(.카테고리_목록_갱신(categoryList: categoryList)), animation: .smooth)
+            }
+        }
     }
     
     /// - Scope Effect
