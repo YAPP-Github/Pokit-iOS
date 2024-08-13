@@ -10,6 +10,8 @@ import SwiftUI
 public enum PokitImage {
     case icon(Self.Icon)
     case logo(Self.Logo)
+    case character(Self.Character)
+    case image(Self.PokitImage)
     
     public var image: Image {
         switch self {
@@ -75,11 +77,29 @@ public enum PokitImage {
                 return DSKitAsset.iconCheck.swiftUIImage
             case .google:
                 return DSKitAsset.iconGoogle.swiftUIImage
+            case .spinner:
+                return DSKitAsset.iconSpinner.swiftUIImage
             }
         case .logo(let name):
             switch name {
             case .pokit:
                 return DSKitAsset.logoPokit.swiftUIImage
+            }
+        case .character(let name):
+            switch name {
+            case .empty:
+                return DSKitAsset.characterEmpty.swiftUIImage
+            case .sad:
+                return DSKitAsset.characterSad.swiftUIImage
+            case .pooki:
+                return DSKitAsset.characterPooki.swiftUIImage
+            }
+        case .image(let name):
+            switch name {
+            case .confetti:
+                return DSKitAsset.imageConfetti.swiftUIImage
+            case .firecracker:
+                return DSKitAsset.imageFirecracker.swiftUIImage
             }
         }
     }
@@ -117,9 +137,21 @@ public extension PokitImage {
         case x
         case check
         case google
+        case spinner
     }
     
     enum Logo {
         case pokit
+    }
+    
+    enum Character {
+        case empty
+        case sad
+        case pooki
+    }
+    
+    enum PokitImage {
+        case confetti
+        case firecracker
     }
 }

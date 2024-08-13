@@ -32,9 +32,12 @@ public struct ContentListFeature {
         
         let contentType: ContentType
         fileprivate var domain = ContentList()
-        var contents: IdentifiedArrayOf<BaseContentItem> {
+        var contents: IdentifiedArrayOf<BaseContentItem>? {
+            guard let contentList = domain.contentList.data else {
+                return nil
+            }
             var identifiedArray = IdentifiedArrayOf<BaseContentItem>()
-            domain.contentList.data.forEach { identifiedArray.append($0) }
+            contentList.forEach { identifiedArray.append($0) }
             return identifiedArray
         }
         var isListAscending = true
@@ -159,10 +162,10 @@ private extension ContentListFeature {
             return .run { [type = state.contentType] send in
                 switch type {
                 case .unread:
-                    await send(.async(.읽지않음_컨텐츠_조회))
+                    await send(.async(.읽지않음_컨텐츠_조회), animation: .smooth)
                     break
                 case .favorite:
-                    await send(.async(.즐겨찾기_링크모음_조회))
+                    await send(.async(.즐겨찾기_링크모음_조회), animation: .smooth)
                     break
                 }
                 
@@ -185,7 +188,7 @@ private extension ContentListFeature {
             return .none
         case .컨텐츠_삭제_반영(id: let id):
             state.alertItem = nil
-            state.domain.contentList.data.removeAll { $0.id == id }
+            state.domain.contentList.data?.removeAll { $0.id == id }
             return .none
         }
     }
@@ -202,7 +205,7 @@ private extension ContentListFeature {
                         sort: pageable.sort
                     )
                 ).toDomain()
-                await send(.inner(.컨텐츠_목록_조회(contentList)))
+                await send(.inner(.컨텐츠_목록_조회(contentList)), animation: .smooth)
             }
         case .즐겨찾기_링크모음_조회:
             return .run { [pageable = state.domain.pageable] send in
@@ -213,7 +216,7 @@ private extension ContentListFeature {
                         sort: pageable.sort
                     )
                 ).toDomain()
-                await send(.inner(.컨텐츠_목록_조회(contentList)))
+                await send(.inner(.컨텐츠_목록_조회(contentList)), animation: .smooth)
             }
         case .컨텐츠_삭제(id: let id):
             return .run { [id] send in

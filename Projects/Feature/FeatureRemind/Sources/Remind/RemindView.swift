@@ -27,57 +27,99 @@ public struct RemindView: View {
 public extension RemindView {
     var body: some View {
         WithPerceptionTracking {
-            ScrollView {
-                VStack(spacing: 32) {
-                    recommededContentList
-                    
-                    Group {
-                        unreadContentList
-                        
-                        favoriteContentList
-                    }
-                    .padding(.horizontal, 20)
+            contents
+                .background(.pokit(.bg(.base)))
+                .ignoresSafeArea(edges: .bottom)
+                .pokitNavigationBar(title: "")
+                .sheet(item: $store.bottomSheetItem) { content in
+                    PokitBottomSheet(
+                        items: [.share, .edit, .delete],
+                        height: 224
+                    ) { send(.bottomSheetButtonTapped(delegate: $0, content: content)) }
                 }
-                .padding(.top, 16)
-                .padding(.bottom, 150)
-            }
-            .background(.pokit(.bg(.base)))
-            .ignoresSafeArea(edges: .bottom)
-            .pokitNavigationBar(title: "")
-            .sheet(item: $store.bottomSheetItem) { content in
-                PokitBottomSheet(
-                    items: [.share, .edit, .delete],
-                    height: 224
-                ) { send(.bottomSheetButtonTapped(delegate: $0, content: content)) }
-            }
-            .sheet(item: $store.alertItem) { content in
-                PokitAlert(
-                    "링크를 정말 삭제하시겠습니까?",
-                    message: "함께 저장한 모든 정보가 삭제되며, \n복구하실 수 없습니다.",
-                    confirmText: "삭제"
-                ) { send(.deleteAlertConfirmTapped(content: content)) }
-            }
-            .task { await send(.remindViewOnAppeared).finish() }
+                .sheet(item: $store.alertItem) { content in
+                    PokitAlert(
+                        "링크를 정말 삭제하시겠습니까?",
+                        message: "함께 저장한 모든 정보가 삭제되며, \n복구하실 수 없습니다.",
+                        confirmText: "삭제"
+                    ) { send(.deleteAlertConfirmTapped(content: content)) }
+                }
+                .task { await send(.remindViewOnAppeared, animation: .smooth).finish() }
         }
     }
 }
 //MARK: - Configure View
 extension RemindView {
-    private var recommededContentList: some View {
+    private var contents: some View {
+        Group {
+            if let recommendedContents = store.recommendedContents,
+               let unreadContents = store.unreadContents,
+               let favoriteContents = store.favoriteContents {
+                if recommendedContents.isEmpty &&
+                   unreadContents.isEmpty &&
+                   favoriteContents.isEmpty {
+                    VStack {
+                        PokitCaution(
+                            image: .sad,
+                            titleKey: "링크가 부족해요!",
+                            message: "링크를 5개 이상 저장하고 추천을 받아보세요"
+                        )
+                        .padding(.top, 100)
+                        
+                        Spacer()
+                    }
+                } else {
+                    ScrollView {
+                        VStack(spacing: 32) {
+                            recommededContentList(recommendedContents)
+                            
+                            Group {
+                                unreadContentList(unreadContents)
+                                
+                                favoriteContentList(favoriteContents)
+                            }
+                            .padding(.horizontal, 20)
+                            
+                            Spacer()
+                        }
+                        .padding(.top, 16)
+                        .padding(.bottom, 150)
+                    }
+                }
+            } else {
+                PokitLoading()
+            }
+        }
+    }
+    
+    @ViewBuilder
+    private func recommededContentList(
+        _ recommendedContents: IdentifiedArrayOf<BaseContentItem>
+    ) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("오늘 이 링크는 어때요?")
                 .pokitFont(.title2)
                 .foregroundStyle(.pokit(.text(.primary)))
                 .padding(.horizontal, 20)
             
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 12) {
-                    ForEach(store.recommendedContents, id: \.id) { content in
-                        recommendedContentCell(content: content)
-                        
+            if recommendedContents.isEmpty {
+                PokitCaution(
+                    image: .sad,
+                    titleKey: "링크가 부족해요!",
+                    message: "링크를 5개 이상 저장하고 추천을 받아보세요"
+                )
+                .padding(.top, 24)
+                .padding(.bottom, 32)
+            } else {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 12) {
+                        ForEach(recommendedContents, id: \.id) { content in
+                            recommendedContentCell(content: content)
+                            
+                        }
                     }
+                    .padding(.horizontal, 20)
                 }
-                .padding(.horizontal, 20)
             }
         }
     }
@@ -97,7 +139,13 @@ extension RemindView {
                 image
                     .resizable()
             } placeholder: {
-                Color.pokit(.bg(.disable))
+                ZStack {
+                    Color.pokit(.bg(.disable))
+                    
+                    PokitSpinner()
+                        .foregroundStyle(.pokit(.icon(.brand)))
+                        .frame(width: 48, height: 48)
+                }
             }
             
             LinearGradient(
@@ -176,44 +224,65 @@ extension RemindView {
         }
     }
     
-    private var unreadContentList: some View {
-        VStack(spacing: 0) {
-            listNavigationLink("한번도 읽지 않았어요") {
-                send(.unreadNavigationLinkTapped)
-            }
-            .padding(.bottom, 16)
-            
-            ForEach(store.unreadContents, id: \.id) { content in
-                let isFirst = content == store.unreadContents.elements.first
-                let isLast = content == store.unreadContents.elements.last
-                
-                PokitLinkCard(
-                    link: content,
-                    action: { send(.linkCardTapped(content: content)) },
-                    kebabAction: { send(.kebabButtonTapped(content: content)) }
-                )
-                .divider(isFirst: isFirst, isLast: isLast)
+    @ViewBuilder
+    private func unreadContentList(
+        _ unreadContents: IdentifiedArrayOf<BaseContentItem>
+    ) -> some View {
+        Group {
+            if !unreadContents.isEmpty {
+                VStack(spacing: 0) {
+                    VStack(spacing: 0) {
+                        listNavigationLink("한번도 읽지 않았어요") {
+                            send(.unreadNavigationLinkTapped)
+                        }
+                        .padding(.bottom, 16)
+                    }
+                    
+                    ForEach(unreadContents, id: \.id) { content in
+                        let isFirst = content == unreadContents.elements.first
+                        let isLast = content == unreadContents.elements.last
+                        
+                        PokitLinkCard(
+                            link: content,
+                            action: { send(.linkCardTapped(content: content)) },
+                            kebabAction: { send(.kebabButtonTapped(content: content)) }
+                        )
+                        .divider(isFirst: isFirst, isLast: isLast)
+                    }
+                }
             }
         }
     }
     
-    private var favoriteContentList: some View {
+    @ViewBuilder
+    private func favoriteContentList(
+        _ favoriteContents: IdentifiedArrayOf<BaseContentItem>
+    ) -> some View {
         VStack(spacing: 0) {
             listNavigationLink("즐겨찾기 링크만 모았어요") {
                 send(.favoriteNavigationLinkTapped)
             }
             .padding(.bottom, 16)
             
-            ForEach(store.favoriteContents, id: \.id) { content in
-                let isFirst = content == store.favoriteContents.elements.first
-                let isLast = content == store.favoriteContents.elements.last
-                
-                PokitLinkCard(
-                    link: content,
-                    action: { send(.linkCardTapped(content: content)) },
-                    kebabAction: { send(.kebabButtonTapped(content: content)) }
+            if favoriteContents.isEmpty {
+                PokitCaution(
+                    image: .empty,
+                    titleKey: "즐겨찾기 링크가 없어요!",
+                    message: "링크를 즐겨찾기로 관리해보세요"
                 )
-                .divider(isFirst: isFirst, isLast: isLast)
+                .padding(.top, 16)
+            } else {
+                ForEach(favoriteContents, id: \.id) { content in
+                    let isFirst = content == favoriteContents.elements.first
+                    let isLast = content == favoriteContents.elements.last
+                    
+                    PokitLinkCard(
+                        link: content,
+                        action: { send(.linkCardTapped(content: content)) },
+                        kebabAction: { send(.kebabButtonTapped(content: content)) }
+                    )
+                    .divider(isFirst: isFirst, isLast: isLast)
+                }
             }
         }
     }

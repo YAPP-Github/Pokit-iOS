@@ -138,8 +138,10 @@ private extension MainTabView {
             switch store.selectedTab {
             case .pokit:
                 PokitRootView(store: store.scope(state: \.pokit, action: \.pokit))
+                    .toolbarBackground(.hidden, for: .tabBar)
             case .remind:
                 RemindView(store: store.scope(state: \.remind, action: \.remind))
+                    .toolbarBackground(.hidden, for: .tabBar)
             }
         }
     }
@@ -204,7 +206,7 @@ private extension MainTabView {
     }
 
     var bottomTabBar: some View {
-        HStack(spacing: 0) {
+        HStack(alignment: .bottom, spacing: 0) {
             ForEach(MainTab.allCases, id: \.self) { tab in
                 let isSelected: Bool = store.selectedTab == tab
 

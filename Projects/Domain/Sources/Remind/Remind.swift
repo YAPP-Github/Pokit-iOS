@@ -12,7 +12,7 @@ import Util
 public struct Remind: Equatable {
     // - MARK: Response
     /// 오늘의 추천 콘텐츠(링크) 리스트
-    public var recommendedList: [BaseContentItem]
+    public var recommendedList: [BaseContentItem]?
     /// 읽지 않은 콘텐츠(링크) 리스트
     public var unreadList: BaseContentListInquiry
     public var unreadListPageable: BasePageable
@@ -21,9 +21,8 @@ public struct Remind: Equatable {
     public var favoriteListPageable: BasePageable
     
     public init() {
-        self.recommendedList = []
+        self.recommendedList = nil
         self.unreadList = .init(
-            data: [],
             page: 0,
             size: 3,
             sort: [],
@@ -35,7 +34,6 @@ public struct Remind: Equatable {
             sort: ["desc"]
         )
         self.favoriteList = .init(
-            data: [],
             page: 0,
             size: 3,
             sort: [],

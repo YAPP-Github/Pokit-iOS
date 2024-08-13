@@ -26,16 +26,22 @@ public struct PokitRootFeature {
         var sortType: PokitRootFilterType = .sort(.최신순)
         
         fileprivate var domain = Pokit()
-        var categories: IdentifiedArrayOf<BaseCategoryItem> {
+        var categories: IdentifiedArrayOf<BaseCategoryItem>? {
+            guard let categoryList = domain.categoryList.data else {
+                return nil
+            }
             var identifiedArray = IdentifiedArrayOf<BaseCategoryItem>()
-            domain.categoryList.data.forEach { category in
+            categoryList.forEach { category in
                 identifiedArray.append(category)
             }
             return identifiedArray
         }
-        var unclassifiedContents: IdentifiedArrayOf<BaseContentItem> {
+        var unclassifiedContents: IdentifiedArrayOf<BaseContentItem>? {
+            guard let unclassifiedContentList = domain.unclassifiedContentList.data else {
+                return nil
+            }
             var identifiedArray = IdentifiedArrayOf<BaseContentItem>()
-            domain.unclassifiedContentList.data.forEach { content in
+            unclassifiedContentList.forEach { content in
                 identifiedArray.append(content)
             }
             return identifiedArray
@@ -227,8 +233,8 @@ private extension PokitRootFeature {
             case .sort(.이름순):
                 /// `포킷`의 이름순 정렬일 때
                 state.folderType == .folder(.포킷)
-                ? state.domain.categoryList.data.sort { $0.categoryName < $1.categoryName }
-                : state.domain.unclassifiedContentList.data.sort { $0.title < $1.title }
+                ? state.domain.categoryList.data?.sort { $0.categoryName < $1.categoryName }
+                : state.domain.unclassifiedContentList.data?.sort { $0.title < $1.title }
                 
             case .sort(.최신순):
                 /// `포킷`의 최신순 정렬일 때
@@ -243,7 +249,7 @@ private extension PokitRootFeature {
                         ignoreCase: false
                     )
                 ]
-                : state.domain.unclassifiedContentList.data.sort { $0.createdAt < $1.createdAt }
+                : state.domain.unclassifiedContentList.data?.sort { $0.createdAt < $1.createdAt }
             default: return .none
             }
             return .none
@@ -279,7 +285,7 @@ private extension PokitRootFeature {
                 let contentList = try await contentClient.미분류_카테고리_컨텐츠_조회(
                     request
                 ).toDomain()
-                await send(.inner(.미분류_카테고리_컨텐츠_갱신(contentList: contentList)))
+                await send(.inner(.미분류_카테고리_컨텐츠_갱신(contentList: contentList)), animation: .smooth)
             }
         }
     }
@@ -356,10 +362,10 @@ private extension PokitRootFeature {
                     /// 🚨 Error Case [1]: 항목을 삭제하려는데 항목이 없을 때
                     return .none
                 }
-                guard let index = state.domain.unclassifiedContentList.data.firstIndex(of: selectedItem) else {
+                guard let index = state.domain.unclassifiedContentList.data?.firstIndex(of: selectedItem) else {
                     return .none
                 }
-                state.domain.unclassifiedContentList.data.remove(at: index)
+                state.domain.unclassifiedContentList.data?.remove(at: index)
                 state.isPokitDeleteSheetPresented = false
                 return .none
                 
@@ -368,10 +374,10 @@ private extension PokitRootFeature {
                     /// 🚨 Error Case [1]: 항목을 삭제하려는데 항목이 없을 때
                     return .none
                 }
-                guard let index = state.domain.categoryList.data.firstIndex(of: selectedItem) else {
+                guard let index = state.domain.categoryList.data?.firstIndex(of: selectedItem) else {
                     return .none
                 }
-                state.domain.categoryList.data.remove(at: index)
+                state.domain.categoryList.data?.remove(at: index)
                 state.isPokitDeleteSheetPresented = false
                 
                 return .run { send in await send(.async(.포킷삭제(categoryId: selectedItem.id))) }

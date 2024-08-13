@@ -4,6 +4,8 @@
 //
 //  Created by 김도형 on 7/5/24.
 
+import Foundation
+
 import ComposableArchitecture
 import Util
 
@@ -15,6 +17,11 @@ public struct SignUpDoneFeature {
     @ObservableState
     public struct State: Equatable {
         public init() {}
+        
+        var firecrackIsAppear = false
+        var titleIsAppear = false
+        var confettiIsAppear = false
+        var pookiIsAppear = false
     }
     /// - Action
     public enum Action: FeatureAction, ViewAction {
@@ -29,6 +36,11 @@ public struct SignUpDoneFeature {
             /// - Button Tapped
             case startButtonTapped
             case backButtonTapped
+            
+            case firecrackerOnAppeared
+            case titleOnAppeared
+            case confettiOnAppeared
+            case pookiOnAppeared
         }
         public enum InnerAction: Equatable { case doNothing }
         public enum AsyncAction: Equatable { case doNothing }
@@ -73,6 +85,18 @@ private extension SignUpDoneFeature {
             return .send(.delegate(.dismissLoginRootView), animation: .spring)
         case .backButtonTapped:
             return .run { _ in await self.dismiss() }
+        case .firecrackerOnAppeared:
+            state.firecrackIsAppear = true
+            return .none
+        case .titleOnAppeared:
+            state.titleIsAppear = true
+            return .none
+        case .confettiOnAppeared:
+            state.confettiIsAppear = true
+            return .none
+        case .pookiOnAppeared:
+            state.pookiIsAppear = true
+            return .none
         }
     }
     /// - Inner Effect

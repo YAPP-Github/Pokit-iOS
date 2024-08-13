@@ -7,6 +7,7 @@
 import Foundation
 
 import ComposableArchitecture
+import DSKit
 import Domain
 import CoreKit
 import Util
@@ -36,16 +37,20 @@ public struct PokitCategorySettingFeature {
         var profileImages: [BaseCategoryImage] {
             get { domain.imageList }
         }
-        var itemList: IdentifiedArrayOf<BaseCategoryItem> {
+        var itemList: IdentifiedArrayOf<BaseCategoryItem>? {
+            guard let categoryList = domain.categoryListInQuiry.data else {
+                return nil
+            }
             var identifiedArray = IdentifiedArrayOf<BaseCategoryItem>()
-            domain.categoryListInQuiry.data.forEach { category in
+            categoryList.forEach { category in
                 identifiedArray.append(category)
             }
             return identifiedArray
         }
+        
         let type: SettingType
         var isProfileSheetPresented: Bool = false
-        
+        var pokitNameTextInpuState: PokitInputStyle.State = .default
         /// - 포킷 수정 API / 추가 API
         /// categoryName
         /// categoryImageId

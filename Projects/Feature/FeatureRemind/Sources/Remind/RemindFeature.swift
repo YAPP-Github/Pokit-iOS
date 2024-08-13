@@ -25,19 +25,28 @@ public struct RemindFeature {
         public init() {}
         
         fileprivate var domain = Remind()
-        var recommendedContents: IdentifiedArrayOf<BaseContentItem> {
+        var recommendedContents: IdentifiedArrayOf<BaseContentItem>? {
+            guard let recommendedList = domain.recommendedList else {
+                return nil
+            }
             var identifiedArray = IdentifiedArrayOf<BaseContentItem>()
-            domain.recommendedList.forEach { identifiedArray.append($0) }
+            recommendedList.forEach { identifiedArray.append($0) }
             return identifiedArray
         }
-        var unreadContents: IdentifiedArrayOf<BaseContentItem> {
+        var unreadContents: IdentifiedArrayOf<BaseContentItem>? {
+            guard let unreadList = domain.unreadList.data else {
+                return nil
+            }
             var identifiedArray = IdentifiedArrayOf<BaseContentItem>()
-            domain.unreadList.data.forEach { identifiedArray.append($0) }
+            unreadList.forEach { identifiedArray.append($0) }
             return identifiedArray
         }
-        var favoriteContents: IdentifiedArrayOf<BaseContentItem> {
+        var favoriteContents: IdentifiedArrayOf<BaseContentItem>? {
+            guard let favoriteList = domain.favoriteList.data else {
+                return nil
+            }
             var identifiedArray = IdentifiedArrayOf<BaseContentItem>()
-            domain.favoriteList.data.forEach { identifiedArray.append($0) }
+            favoriteList.forEach { identifiedArray.append($0) }
             return identifiedArray
         }
         /// sheet item
@@ -158,9 +167,9 @@ private extension RemindFeature {
             return .none
         case .remindViewOnAppeared:
             return .run { send in
-                await send(.async(.오늘의_리마인드_조회))
-                await send(.async(.읽지않음_컨텐츠_조회))
-                await send(.async(.즐겨찾기_링크모음_조회))
+                await send(.async(.오늘의_리마인드_조회), animation: .smooth)
+                await send(.async(.읽지않음_컨텐츠_조회), animation: .smooth)
+                await send(.async(.즐겨찾기_링크모음_조회), animation: .smooth)
             }
         }
     }
@@ -181,9 +190,9 @@ private extension RemindFeature {
             return .none
         case .컨텐츠_삭제_반영(id: let contentId):
             state.alertItem = nil
-            state.domain.recommendedList.removeAll { $0.id == contentId }
-            state.domain.unreadList.data.removeAll { $0.id == contentId }
-            state.domain.favoriteList.data.removeAll { $0.id == contentId }
+            state.domain.recommendedList?.removeAll { $0.id == contentId }
+            state.domain.unreadList.data?.removeAll { $0.id == contentId }
+            state.domain.favoriteList.data?.removeAll { $0.id == contentId }
             return .none
         }
     }
@@ -193,7 +202,7 @@ private extension RemindFeature {
         case .오늘의_리마인드_조회:
             return .run { send in
                 let contents = try await remindClient.오늘의_리마인드_조회().map { $0.toDomain() }
-                await send(.inner(.오늘의_리마인드_조회(contents: contents)))
+                await send(.inner(.오늘의_리마인드_조회(contents: contents)), animation: .smooth)
             }
         case .읽지않음_컨텐츠_조회:
             return .run { [pageable = state.domain.unreadListPageable] send in
@@ -204,7 +213,7 @@ private extension RemindFeature {
                         sort: pageable.sort
                     )
                 ).toDomain()
-                await send(.inner(.읽지않음_컨텐츠_조회(contentList: contentList)))
+                await send(.inner(.읽지않음_컨텐츠_조회(contentList: contentList)), animation: .smooth)
             }
         case .즐겨찾기_링크모음_조회:
             return .run { [pageable = state.domain.favoriteListPageable] send in
@@ -215,7 +224,7 @@ private extension RemindFeature {
                         sort: pageable.sort
                     )
                 ).toDomain()
-                await send(.inner(.즐겨찾기_링크모음_조회(contentList: contentList)))
+                await send(.inner(.즐겨찾기_링크모음_조회(contentList: contentList)), animation: .smooth)
             }
         case .컨텐츠_삭제(id: let id):
             return .run { [id] send in

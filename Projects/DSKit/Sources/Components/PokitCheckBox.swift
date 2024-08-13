@@ -45,7 +45,7 @@ public struct PokitCheckBox: View {
                 .aspectRatio(contentMode: .fit)
                 .foregroundStyle(self.state.iconColor)
         }
-        .disabled(self.state == .iconOnly || self.state == .disable)
+        .disabled(self.state == .disable)
         .background(background)
         .frame(width: 24, height: 24)
         .onChange(of: isSelected) { onChangedIsSelected($0) }

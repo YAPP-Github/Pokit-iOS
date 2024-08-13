@@ -46,9 +46,12 @@ public struct PokitSearchFeature {
         var isResultAscending = true
         
         fileprivate var domain = Search()
-        var resultMock: IdentifiedArrayOf<BaseContentItem> {
+        var resultMock: IdentifiedArrayOf<BaseContentItem>? {
+            guard let contentList = domain.contentList.data else {
+                return nil
+            }
             var identifiedArray = IdentifiedArrayOf<BaseContentItem>()
-            domain.contentList.data.forEach { identifiedArray.append($0) }
+            contentList.forEach { identifiedArray.append($0) }
             return identifiedArray
         }
         var favoriteFilter: Bool {

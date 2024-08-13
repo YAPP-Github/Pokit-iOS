@@ -28,32 +28,36 @@ public extension ContentSettingView {
     var body: some View {
         WithPerceptionTracking {
             VStack(spacing: 0) {
-                ScrollView {
-                    VStack(spacing: 24) {
-                        
-                        linkTextField
-                        
-                        titleTextField
-                        
-                        HStack(alignment: .bottom, spacing: 8) {
-                            pokitSelectButton
+                if store.contentLoading {
+                    PokitLoading()
+                } else {
+                    ScrollView {
+                        VStack(spacing: 24) {
                             
-                            addPokitButton
+                            linkTextField
+                            
+                            titleTextField
+                            
+                            HStack(alignment: .bottom, spacing: 8) {
+                                pokitSelectButton
+                                
+                                addPokitButton
+                            }
+                            
+                            memoTextArea
+                            
+                            remindSwitchRadio
                         }
-                        
-                        memoTextArea
-                        
-                        remindSwitchRadio
+                        .padding(.horizontal, 20)
                     }
-                    .padding(.horizontal, 20)
-                }
-                .overlay(alignment: .bottom) {
-                    if store.state.showPopup {
-                        PokitLinkPopup(
-                            "최대 30개의 포킷을 생성할 수 있습니다. \n포킷을 삭제한 뒤에 추가해주세요.",
-                            isPresented: $store.showPopup,
-                            type: .text
-                        )
+                    .overlay(alignment: .bottom) {
+                        if store.state.showPopup {
+                            PokitLinkPopup(
+                                "최대 30개의 포킷을 생성할 수 있습니다. \n포킷을 삭제한 뒤에 추가해주세요.",
+                                isPresented: $store.showPopup,
+                                type: .text
+                            )
+                        }
                     }
                 }
                 
@@ -62,6 +66,7 @@ public extension ContentSettingView {
                 PokitBottomButton(
                     "저장하기",
                     state: isDisable ? .disable : .filled(.primary),
+                    isLoading: $store.saveIsLoading,
                     action: { send(.saveBottomButtonTapped) }
                 )
                 .padding(.horizontal, 20)
@@ -97,7 +102,7 @@ private extension ContentSettingView {
             PokitTextInput(
                 text: $store.urlText,
                 label: "링크", 
-                state: .constant(.active),
+                state: $store.linkTextInputState,
                 focusState: $focusedType,
                 equals: .link
             )
@@ -108,7 +113,7 @@ private extension ContentSettingView {
         PokitTextInput(
             text: $store.title,
             label: "제목", 
-            state: .constant(.active),
+            state: $store.titleTextInpuState,
             maxLetter: 20,
             focusState: $focusedType,
             equals: .title) { }
@@ -136,6 +141,7 @@ private extension ContentSettingView {
         PokitTextArea(
             text: $store.memo,
             label: "메모",
+            state: $store.memoTextAreaState,
             focusState: $focusedType,
             equals: .memo
         )

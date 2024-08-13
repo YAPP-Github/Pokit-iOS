@@ -48,7 +48,7 @@ public extension ContentListView {
                     confirmText: "삭제"
                 ) { send(.deleteAlertConfirmTapped(content: content)) }
             }
-            .task { await send(.contentListViewOnAppeared).finish() }
+            .task { await send(.contentListViewOnAppeared, animation: .smooth).finish() }
         }
     }
 }
@@ -56,7 +56,7 @@ public extension ContentListView {
 private extension ContentListView {
     var listHeader: some View {
         HStack {
-            Text("링크 \(store.contents.count)개")
+            Text("링크 \(store.contents?.count ?? 0)개")
                 .pokitFont(.detail1)
                 .foregroundStyle(.pokit(.text(.secondary)))
             
@@ -72,22 +72,40 @@ private extension ContentListView {
     }
     
     var list: some View {
-        ScrollView {
-            VStack(spacing: 0) {
-                ForEach(store.contents, id: \.id) { content in
-                    let isFirst = content == store.contents.first
-                    let isLast = content == store.contents.last
-                    
-                    PokitLinkCard(
-                        link: content,
-                        action: { send(.linkCardTapped(content: content)) },
-                        kebabAction: { send(.kebabButtonTapped(content: content)) }
+        Group {
+            if let contents = store.contents {
+                if contents.isEmpty {
+                    PokitCaution(
+                        image: .empty,
+                        titleKey: "즐겨찾기 링크가 없어요!",
+                        message: "링크를 즐겨찾기로 관리해보세요"
                     )
-                    .divider(isFirst: isFirst, isLast: isLast)
-                    .pokitScrollTransition(.opacity)
+                    .padding(.top, 100)
+                    
+                    Spacer()
+                } else {
+                    ScrollView {
+                        LazyVStack(spacing: 0) {
+                            ForEach(contents) { content in
+                                let isFirst = content == contents.first
+                                let isLast = content == contents.last
+                                
+                                PokitLinkCard(
+                                    link: content,
+                                    action: { send(.linkCardTapped(content: content)) },
+                                    kebabAction: { send(.kebabButtonTapped(content: content)) }
+                                )
+                                .divider(isFirst: isFirst, isLast: isLast)
+                                .pokitScrollTransition(.opacity)
+                            }
+                        }
+                        .padding(.horizontal, 20)
+                        .padding(.bottom, 36)
+                    }
                 }
+            } else {
+                PokitLoading()
             }
-            .padding(.horizontal, 20)
         }
     }
     

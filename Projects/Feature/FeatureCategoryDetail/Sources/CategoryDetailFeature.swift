@@ -41,16 +41,22 @@ public struct CategoryDetailFeature {
         var sortType: SortType {
             get { domain.pageable.sort == ["desc"] ? .최신순 : .오래된순 }
         }
-        var categories: IdentifiedArrayOf<BaseCategoryItem> {
+        var categories: IdentifiedArrayOf<BaseCategoryItem>? {
+            guard let categoryList = domain.categoryListInQuiry.data else {
+                return nil
+            }
             var identifiedArray = IdentifiedArrayOf<BaseCategoryItem>()
-            domain.categoryListInQuiry.data.forEach { category in
+            categoryList.forEach { category in
                 identifiedArray.append(category)
             }
             return identifiedArray
         }
-        var contents: IdentifiedArrayOf<BaseContentItem> {
+        var contents: IdentifiedArrayOf<BaseContentItem>? {
+            guard let contentList = domain.contentList.data else {
+                return nil
+            }
             var identifiedArray = IdentifiedArrayOf<BaseContentItem>()
-            domain.contentList.data.forEach { content in
+            contentList.forEach { content in
                 identifiedArray.append(content)
             }
             return identifiedArray
@@ -171,6 +177,7 @@ private extension CategoryDetailFeature {
             return .send(.inner(.pokitCategorySelectSheetPresented(true)))
             
         case .categorySelected(let item):
+            state.domain.contentList.data = nil
             state.domain.category = item
             return .run { send in
                 await send(.async(.카테고리_내_컨텐츠_목록_조회))
@@ -219,7 +226,7 @@ private extension CategoryDetailFeature {
             
         case let .카테고리_목록_조회_결과(response):
             state.domain.categoryListInQuiry = response
-            guard let first = response.data.first(where: { item in
+            guard let first = response.data?.first(where: { item in
                 item.id == state.domain.category.id
             }) else { return .none }
             state.domain.category = first
@@ -228,7 +235,7 @@ private extension CategoryDetailFeature {
             state.domain.contentList = contentList
             return .none
         case .컨텐츠_삭제_반영(id: let id):
-            state.domain.contentList.data.removeAll { $0.id == id }
+            state.domain.contentList.data?.removeAll { $0.id == id }
             state.selectedContentItem = nil
             state.isPokitDeleteSheetPresented = false
             state.kebobSelectedType = nil
@@ -258,7 +265,7 @@ private extension CategoryDetailFeature {
                         favorites: condition.isFavoriteFlitered
                     )
                 ).toDomain()
-                await send(.inner(.카테고리_내_컨텐츠_목록_갱신(contentList)))
+                await send(.inner(.카테고리_내_컨텐츠_목록_갱신(contentList)), animation: .smooth)
             }
         case .컨텐츠_삭제(id: let id):
             return .run { [id] send in
@@ -323,7 +330,6 @@ private extension CategoryDetailFeature {
                         return .none
                     }
                     return .send(.async(.컨텐츠_삭제(id: selectedItem.id)))
-                    
                 case .포킷삭제:
                     state.isPokitDeleteSheetPresented = false
                     state.kebobSelectedType = nil
@@ -342,13 +348,14 @@ private extension CategoryDetailFeature {
                 return .none
             case let .okButtonTapped(type, bookMarkSelected, unReadSelected):
                 state.isFilterSheetPresented.toggle()
+                state.domain.contentList.data = nil
                 state.domain.pageable.sort = [
                     "createdAt",
                     type == .최신순 ? "desc" : "asc"
                 ]
                 state.domain.condition.isFavoriteFlitered = bookMarkSelected
                 state.domain.condition.isUnreadFlitered = unReadSelected
-                return .send(.async(.카테고리_내_컨텐츠_목록_조회))
+                return .send(.async(.카테고리_내_컨텐츠_목록_조회), animation: .smooth)
             }
         }
     }

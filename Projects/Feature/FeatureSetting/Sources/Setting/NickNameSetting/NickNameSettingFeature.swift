@@ -27,6 +27,7 @@ public struct NickNameSettingFeature {
         
         var textfieldState: PokitInputStyle.State = .default
         var buttonState: PokitButtonStyle.State = .disable
+        var textInpuState: PokitInputStyle.State = .default
         
         public init() {}
     }
@@ -139,7 +140,7 @@ private extension NickNameSettingFeature {
             }
         case let .닉네임_중복_체크_네트워크_결과(isDuplicate):
             if isDuplicate {
-                state.textfieldState = .error
+                state.textfieldState = .error(message: "중복된 닉네임입니다.")
                 state.buttonState = .disable
             } else {
                 state.textfieldState = .active
