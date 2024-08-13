@@ -98,6 +98,11 @@ private extension ContentListView {
                                 .divider(isFirst: isFirst, isLast: isLast)
                                 .pokitScrollTransition(.opacity)
                             }
+                            
+                            if store.hasNext {
+                                PokitLoading()
+                                    .task { await send(.pagenation).finish() }
+                            }
                         }
                         .padding(.horizontal, 20)
                         .padding(.bottom, 36)

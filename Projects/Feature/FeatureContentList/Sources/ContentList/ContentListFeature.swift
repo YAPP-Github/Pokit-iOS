@@ -44,6 +44,10 @@ public struct ContentListFeature {
         /// sheet item
         var bottomSheetItem: BaseContentItem? = nil
         var alertItem: BaseContentItem? = nil
+        /// pagenation
+        var hasNext: Bool {
+            domain.contentList.hasNext
+        }
     }
     
     /// - Action
@@ -70,18 +74,21 @@ public struct ContentListFeature {
             case backButtonTapped
             /// - On Appeared
             case contentListViewOnAppeared
+            case pagenation
         }
         
         public enum InnerAction: Equatable {
             case dismissBottomSheet
             case 컨텐츠_목록_조회(BaseContentListInquiry)
             case 컨텐츠_삭제_반영(id: Int)
+            case pagenation_네트워크_결과(BaseContentListInquiry)
         }
         
         public enum AsyncAction: Equatable {
             case 읽지않음_컨텐츠_조회
             case 즐겨찾기_링크모음_조회
             case 컨텐츠_삭제(id: Int)
+            case pagenation_네트워크
         }
         
         public enum ScopeAction: Equatable {
@@ -174,6 +181,9 @@ private extension ContentListFeature {
                     await send(.delegate(.linkCopyDetected(url)), animation: .pokitSpring)
                 }
             }
+            
+        case .pagenation:
+            return .run { send in await send(.async(.pagenation_네트워크)) }
         }
     }
     
@@ -189,6 +199,9 @@ private extension ContentListFeature {
         case .컨텐츠_삭제_반영(id: let id):
             state.alertItem = nil
             state.domain.contentList.data?.removeAll { $0.id == id }
+            return .none
+        case .pagenation_네트워크_결과(let contentList):
+            state.domain.contentList = contentList
             return .none
         }
     }
@@ -223,6 +236,22 @@ private extension ContentListFeature {
                 let _ = try await contentClient.컨텐츠_삭제("\(id)")
                 await send(.inner(.컨텐츠_삭제_반영(id: id)), animation: .pokitSpring)
             }
+        
+        case .pagenation_네트워크:
+            if state.hasNext {
+                state.domain.pageable.page += 1
+                return .run { [type = state.contentType] send in
+                    switch type {
+                    case .unread:
+                        await send(.async(.읽지않음_컨텐츠_조회), animation: .smooth)
+                        break
+                    case .favorite:
+                        await send(.async(.즐겨찾기_링크모음_조회), animation: .smooth)
+                        break
+                    }
+                }
+            }
+            return .none
         }
     }
     

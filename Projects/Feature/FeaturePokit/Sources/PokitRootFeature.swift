@@ -222,8 +222,6 @@ private extension PokitRootFeature {
                     let classified = try await categoryClient.카테고리_목록_조회(request, true).toDomain()
                     await send(.inner(.분류_페이지네이션_결과(contentList: classified)))
                 }
-            } else {
-                print("???? ㅇ")
             }
             return .none
             
