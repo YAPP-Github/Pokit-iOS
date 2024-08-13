@@ -19,10 +19,13 @@ extension DependencyValues {
 public struct UserDefaultsClient {
     public var boolKey: @Sendable (UserDefaultsKey.BoolKey) -> Bool = { _ in false }
     public var stringKey: @Sendable (UserDefaultsKey.StringKey) -> String? = { _ in "" }
+    public var stringArrayKey: @Sendable (UserDefaultsKey.ArrayKey) -> [String]? = { _ in [] }
     public var removeBool: @Sendable (UserDefaultsKey.BoolKey) async -> Void
     public var removeString: @Sendable (UserDefaultsKey.StringKey) async -> Void
+    public var removeStringArray: @Sendable (UserDefaultsKey.ArrayKey) async -> Void
     public var setBool: @Sendable (Bool, UserDefaultsKey.BoolKey) async -> Void
     public var setString: @Sendable (String, UserDefaultsKey.StringKey) async -> Void
+    public var setStringArray: @Sendable ([String], UserDefaultsKey.ArrayKey) async -> Void
 }
 
 extension UserDefaultsClient: DependencyKey {
@@ -32,12 +35,15 @@ extension UserDefaultsClient: DependencyKey {
         return Self(
             boolKey: { defaults().bool(forKey: $0.rawValue) },
             stringKey: { defaults().string(forKey: $0.rawValue) },
+            stringArrayKey: { defaults().stringArray(forKey: $0.rawValue) },
             
             removeBool: { defaults().removeObject(forKey: $0.rawValue) },
             removeString: { defaults().removeObject(forKey: $0.rawValue) },
+            removeStringArray: { defaults().removeObject(forKey: $0.rawValue) },
             
             setBool: { defaults().set($0, forKey: $1.rawValue) },
-            setString: { defaults().set($0, forKey: $1.rawValue) }
+            setString: { defaults().set($0, forKey: $1.rawValue) },
+            setStringArray: { defaults().set($0, forKey: $1.rawValue) }
         )
     }()
     
@@ -45,8 +51,10 @@ extension UserDefaultsClient: DependencyKey {
         Self(
             removeBool: { _ in },
             removeString: { _ in },
+            removeStringArray: { _ in },
             setBool: { _, _ in },
-            setString: { _, _ in }
+            setString: { _, _ in },
+            setStringArray: {_, _ in }
         )
     }()
 }
