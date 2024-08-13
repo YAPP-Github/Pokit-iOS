@@ -11,15 +11,15 @@ public struct BaseConditionRequest: Decodable {
     public var categoryIds: [Int]
     public var isUnreadFiltered: Bool
     public var isFavoriteFlitered: Bool
-    public var startDate: Date?
-    public var endDate: Date?
+    public var startDate: String?
+    public var endDate: String?
     
     public init(
         categoryIds: [Int],
         isRead: Bool,
         favorites: Bool,
-        startDate: Date? = nil,
-        endDate: Date? = nil
+        startDate: String? = nil,
+        endDate: String? = nil
     ) {
         self.categoryIds = categoryIds
         self.isUnreadFiltered = isRead

@@ -14,6 +14,8 @@ public struct Search: Equatable {
     // - MARK: Request
     /// 검색 조건
     public var condition: Condition
+    /// 조회할 페이징 정보
+    public var pageable: BasePageable
     
     public init() {
         self.contentList = .init(
@@ -26,8 +28,13 @@ public struct Search: Equatable {
         self.condition = .init(
             searchWord: "",
             categoryIds: [],
-            isRead: true,
+            isRead: false,
             favorites: false
+        )
+        self.pageable = .init(
+            page: 0,
+            size: 10,
+            sort: ["desc"]
         )
     }
 }
