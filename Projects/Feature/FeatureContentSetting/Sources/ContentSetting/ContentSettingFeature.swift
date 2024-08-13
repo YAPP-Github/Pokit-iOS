@@ -289,7 +289,7 @@ private extension ContentSettingFeature {
                 let categoryList = try await categoryClient.카테고리_목록_조회(
                     .init(
                         page: pageable.page,
-                        size: pageable.size,
+                        size: 100,
                         sort: pageable.sort
                     ),
                     true
