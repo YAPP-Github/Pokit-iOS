@@ -69,15 +69,6 @@ public struct PokitInput<Value: Hashable>: View {
     }
     
     private func onChangedFocuseState(_ newValue: Value) {
-        if newValue == equals {
-            state = .active
-        } else {
-            switch state {
-            case .error(message: let message):
-                state = .error(message: message)
-            default:
-                state = .default
-            }
-        }
+        state = newValue == equals ? .active : state == .error ? .error : .default
     }
 }

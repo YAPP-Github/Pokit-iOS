@@ -6,8 +6,6 @@
 
 import SwiftUI
 
-import DSKit
-
 import ComposableArchitecture
 
 @ViewAction(for: SplashFeature.self)
@@ -24,25 +22,19 @@ public extension SplashView {
     var body: some View {
         WithPerceptionTracking {
             VStack {
+                Spacer()
+                
                 HStack {
                     Spacer()
                     
-                    Image(.logo(.pokit))
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(height: 72)
-                        .foregroundStyle(.pokit(.icon(.inverseWh)))
+                    Text("Splash")
+                        .font(.largeTitle)
+                        .foregroundStyle(.black)
                     
                     Spacer()
                 }
-                .padding(.top, 254)
                 
                 Spacer()
-            }
-            .background {
-                Color
-                    .pokit(.bg(.brand))
-                    .ignoresSafeArea()
             }
             .onAppear { send(.onAppear) }
         }

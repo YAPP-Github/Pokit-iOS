@@ -44,7 +44,6 @@ public struct PokitPartTextArea<Value: Hashable>: View {
         TextEditor(text: $text)
             .autocorrectionDisabled()
             .textInputAutocapitalization(.never)
-            .foregroundStyle(.pokit(.text(.primary)))
             .scrollContentBackground(.hidden)
             .focused(focusState, equals: equals)
             .disabled(state == .disable || state == .readOnly)
@@ -70,15 +69,6 @@ public struct PokitPartTextArea<Value: Hashable>: View {
     }
     
     private func onChangedFocuseState(_ newValue: Value) {
-        if newValue == equals {
-            state = .active
-        } else {
-            switch state {
-            case .error(message: let message):
-                state = .error(message: message)
-            default:
-                state = .default
-            }
-        }
+        state = newValue == equals ? .active : state == .error ? .error : .default
     }
 }

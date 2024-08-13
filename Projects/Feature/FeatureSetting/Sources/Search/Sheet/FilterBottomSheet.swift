@@ -33,15 +33,11 @@ public extension FilterBottomSheet {
                 
                 switch store.currentType {
                 case .pokit:
-                    if let pokitList = store.pokitList {
-                        PokitList(
-                            selectedItem: nil,
-                            list: pokitList,
-                            action: { send(.pokitListCellTapped(pokit: $0), animation: .pokitSpring) }
-                        )
-                    } else {
-                        PokitLoading()
-                    }
+                    PokitList(
+                        selectedItem: nil,
+                        list: store.pokitList,
+                        action: { send(.pokitListCellTapped(pokit: $0), animation: .pokitSpring) }
+                    )
                 case .contentType:
                     contentTypes
                 case .date:

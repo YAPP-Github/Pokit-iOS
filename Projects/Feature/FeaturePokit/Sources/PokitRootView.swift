@@ -56,7 +56,7 @@ public extension PokitRootView {
     }
 }
 //MARK: - Configure View
-private extension PokitRootView {
+private extension PokitRootView {    
     var filterHeader: some View {
         HStack(spacing: 8) {
             PokitIconLButton(
@@ -83,12 +83,17 @@ private extension PokitRootView {
             
             Spacer()
             
-            PokitIconLTextLink(
-                store.sortType == .sort(.최신순) ? "최신순" : "이름순",
-                icon: .icon(.align),
-                action: { send(.sortButtonTapped) }
-            )
-            .contentTransition(.numericText())
+            Button(action: { send(.sortButtonTapped) }) {
+                HStack(spacing: 2) {
+                    Image(.icon(.align))
+                        .resizable()
+                        .frame(width: 18, height: 18)
+                    Text(store.sortType == .sort(.최신순) ? "최신순" : "이름순")
+                        .pokitFont(.b3(.m))
+                        .foregroundStyle(.pokit(.text(.secondary)))
+                }
+            }
+            .buttonStyle(.plain)
         }
         .animation(.snappy(duration: 0.7), value: store.folderType)
     }
@@ -105,75 +110,38 @@ private extension PokitRootView {
         }
         .padding(.top, 20)
         .scrollIndicators(.hidden)
-        .animation(.smooth, value: store.categories?.elements)
-        .animation(.smooth, value: store.unclassifiedContents?.elements)
+        .animation(.smooth, value: store.categories.elements)
+        .animation(.smooth, value: store.unclassifiedContents.elements)
         .animation(.spring, value: store.folderType)
     }
     
     var pokitView: some View {
-        Group {
-            if let categories = store.categories {
-                if categories.isEmpty {
-                    VStack {
-                        PokitCaution(
-                            image: .empty,
-                            titleKey: "저장된 포킷이 없어요!",
-                            message: "포킷을 생성해 링크를 저장해보세요"
-                        )
-                        .padding(.top, 36)
-                        
-                        Spacer()
-                    }
-                } else {
-                    LazyVGrid(columns: column, spacing: 12) {
-                        ForEach(categories, id: \.id) { item in
-                            PokitCard(
-                                category: item,
-                                action: { send(.categoryTapped(item)) },
-                                kebabAction: { send(.kebobButtonTapped(item)) }
-                            )
-                        }
-                    }
-                    .padding(.bottom, 150)
-                }
-            } else {
-                PokitLoading()
+        LazyVGrid(columns: column, spacing: 12) {
+            ForEach(store.categories, id: \.id) { item in
+                PokitCard(
+                    category: item,
+                    action: { send(.categoryTapped(item)) },
+                    kebabAction: { send(.kebobButtonTapped(item)) }
+                )
             }
         }
+        .padding(.bottom, 150)
     }
     var unclassifiedView: some View {
-        Group {
-            if let unclassifiedContents = store.unclassifiedContents {
-                VStack(spacing: 0) {
-                    if unclassifiedContents.isEmpty {
-                        PokitCaution(
-                            image: .empty,
-                            titleKey: "저장된 링크가 없어요!",
-                            message: "다양한 링크를 한 곳에 저장해보세요"
-                        )
-                        .padding(.top, 36)
-                        
-                        Spacer()
-                    } else {
-                        
-                        ForEach(unclassifiedContents) { content in
-                            let isFirst = content == unclassifiedContents.first
-                            let isLast = content == unclassifiedContents.last
-                            
-                            PokitLinkCard(
-                                link: content,
-                                action: { send(.contentItemTapped(content)) },
-                                kebabAction: { send(.unclassifiedKebobButtonTapped(content)) }
-                            )
-                            .divider(isFirst: isFirst, isLast: isLast)
-                        }
-                    }
-                }
-                .padding(.bottom, 150)
-            } else {
-                PokitLoading()
+        VStack(spacing: 0) {
+            ForEach(store.unclassifiedContents) { content in
+                let isFirst = content == store.unclassifiedContents.first
+                let isLast = content == store.unclassifiedContents.last
+                
+                PokitLinkCard(
+                    link: content,
+                    action: { send(.contentItemTapped(content)) },
+                    kebabAction: { send(.unclassifiedKebobButtonTapped(content)) }
+                )
+                .divider(isFirst: isFirst, isLast: isLast)
             }
         }
+        .padding(.bottom, 150)
     }
 }
 

@@ -43,7 +43,7 @@ public struct ContentSetting: Equatable {
         )
         
         self.categoryListInQuiry = categoryListInquiry
-        self.categoryTotalCount = categoryListInquiry.data?.count ?? 0
+        self.categoryTotalCount = categoryListInquiry.data.count
         self.data = content?.data ?? data ?? ""
         self.title = content?.title ?? ""
         self.categoryId = content?.categoryId

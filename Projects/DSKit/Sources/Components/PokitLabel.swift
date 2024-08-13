@@ -22,7 +22,6 @@ public struct PokitLabel: View {
     public var body: some View {
         Text(label)
             .pokitFont(size == .large ? .b2(.m) : .b3(.r))
-            .foregroundStyle(.pokit(.text(.secondary)))
     }
 }
 

@@ -7,14 +7,14 @@
 
 import SwiftUI
 
-public enum PokitInputStyle: Equatable {
-    public enum State: Equatable {
+public enum PokitInputStyle {
+    public enum State {
         case `default`
         case input
         case active
         case disable
         case readOnly
-        case error(message: String)
+        case error
         
         var infoColor: Color {
             switch self {
@@ -65,7 +65,7 @@ public enum PokitInputStyle: Equatable {
         }
     }
     
-    public enum Shape: Equatable {
+    public enum Shape {
         case rectangle
         case round
         

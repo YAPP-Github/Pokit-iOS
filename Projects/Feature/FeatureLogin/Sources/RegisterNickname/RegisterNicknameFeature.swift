@@ -126,7 +126,7 @@ private extension RegisterNicknameFeature {
             }
         case let .닉네임_중복_체크_네트워크_결과(isDuplicate):
             if isDuplicate {
-                state.textfieldState = .error(message: "중복된 닉네임입니다.")
+                state.textfieldState = .error
                 state.buttonActive = false
             } else {
                 state.textfieldState = .active

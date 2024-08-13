@@ -9,9 +9,9 @@ import SwiftUI
 
 public struct PokitTextArea<Value: Hashable>: View {
     @Binding private var text: String
-    @Binding private var state: PokitInputStyle.State
     
     @State private var isMaxLetters: Bool = false
+    @State private var state: PokitInputStyle.State
     
     private var focusState: FocusState<Value>.Binding
     
@@ -26,7 +26,7 @@ public struct PokitTextArea<Value: Hashable>: View {
     public init(
         text: Binding<String>,
         label: String,
-        state: Binding<PokitInputStyle.State>,
+        state: PokitInputStyle.State = .default,
         errorMessage: String? = nil,
         placeholder: String = "내용을 입력해주세요.",
         info: String? = nil,
@@ -37,7 +37,7 @@ public struct PokitTextArea<Value: Hashable>: View {
     ) {
         self._text = text
         self.label = label
-        self._state = state
+        self._state = State(initialValue: state)
         self.errorMessage = errorMessage
         self.focusState = focusState
         self.equals = equals
@@ -71,21 +71,15 @@ public struct PokitTextArea<Value: Hashable>: View {
     private var infoLabel: some View {
         HStack {
             Group {
-                switch state {
-                case .error(let message):
-                    Image(.icon(.info))
-                        .resizable()
-                        .foregroundStyle(.pokit(.icon(.error)))
-                        .frame(width: 20, height: 20)
-                        .pokitBlurReplaceTransition(.smooth)
-                    
-                    Text(message)
+                if isMaxLetters {
+                    Text("최대 \(maxLetter)자까지 입력가능합니다.")
                         .foregroundStyle(.pokit(.text(.error)))
-                default:
-                    if let info {
-                        Text(info)
-                            .foregroundStyle(.pokit(.text(.tertiary)))
-                    }
+                } else if state == .error, let errorMessage {
+                    Text(errorMessage)
+                        .foregroundStyle(.pokit(.text(.error)))
+                } else if let info {
+                    Text(info)
+                        .foregroundStyle(.pokit(.text(.tertiary)))
                 }
             }
             .pokitFont(.detail1)
@@ -93,19 +87,13 @@ public struct PokitTextArea<Value: Hashable>: View {
             
             Spacer()
             
-            Group {
-                switch state {
-                case .error:
-                    Text("\(text.count > maxLetter ? maxLetter : text.count)/\(maxLetter)")
-                        .foregroundStyle(.pokit(.text(.error)))
-                default:
-                    Text("\(text.count > maxLetter ? maxLetter : text.count)/\(maxLetter)")
-                        .foregroundStyle(.pokit(.text(.tertiary)))
-                }
-            }
-            .pokitFont(.detail1)
-            .contentTransition(.numericText())
-            .animation(.smooth, value: text)
+            Text("\(text.count > maxLetter ? maxLetter : text.count)/\(maxLetter)")
+                .pokitFont(.detail1)
+                .foregroundStyle(
+                    state == .error ? .pokit(.text(.error)) : .pokit(.text(.tertiary))
+                )
+                .contentTransition(.numericText())
+                .animation(.smooth, value: text)
         }
         .padding(.top, 4)
     }
@@ -118,20 +106,11 @@ public struct PokitTextArea<Value: Hashable>: View {
     }
     
     private func onChangedIsMaxLetters(_ newValue: Bool) {
-        state = newValue ? .error(message: "최대 \(maxLetter)자까지 입력가능합니다.") : .active
+        state = newValue ? .error : .active
     }
     
     private func onChangedFocuseState(_ newValue: Value) {
-        if newValue == equals {
-            state = .active
-        } else {
-            switch state {
-            case .error(message: let message):
-                state = .error(message: message)
-            default:
-                state = .default
-            }
-        }
+        state = newValue == equals ? .active : state == .error ? .error : .default
     }
 }
 

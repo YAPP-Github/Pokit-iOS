@@ -18,14 +18,14 @@ public struct PokitSelect<Item: PokitSelectItem>: View {
     private var showSheet: Bool = false
     
     private let label: String
-    private let list: [Item]?
+    private let list: [Item]
     private let action: (Item) -> Void
     
     public init(
         selectedItem: Binding<Item?> = .constant(nil),
         state: PokitSelect.SelectState = .default,
         label: String,
-        list: [Item]?,
+        list: [Item],
         action: @escaping (Item) -> Void
     ) {
         self._selectedItem = selectedItem
@@ -94,21 +94,15 @@ public struct PokitSelect<Item: PokitSelectItem>: View {
     }
     
     private var listSheet: some View {
-        Group {
-            if let list {
-                PokitList(
-                    selectedItem: selectedItem,
-                    list: list
-                ) { item in
-                    action(item)
-                    listCellTapped(item)
-                }
-                .padding(.top, 24)
-                .padding(.bottom, 20)
-            } else {
-                PokitLoading()
-            }
+        PokitList(
+            selectedItem: selectedItem,
+            list: list
+        ) { item in
+            action(item)
+            listCellTapped(item)
         }
+        .padding(.top, 24)
+        .padding(.bottom, 20)
     }
     
     private func partSelectButtonTapped() {

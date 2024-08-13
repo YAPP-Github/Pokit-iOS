@@ -8,14 +8,14 @@
 import Foundation
 
 public struct BaseCategoryListInquiry: Equatable {
-    public var data: [BaseCategoryItem]?
+    public var data: [BaseCategoryItem]
     public var page: Int
     public var size: Int
     public var sort: [BaseItemInquirySort]
     public var hasNext: Bool
     
     public init(
-        data: [BaseCategoryItem]? = nil,
+        data: [BaseCategoryItem],
         page: Int,
         size: Int,
         sort: [BaseItemInquirySort],

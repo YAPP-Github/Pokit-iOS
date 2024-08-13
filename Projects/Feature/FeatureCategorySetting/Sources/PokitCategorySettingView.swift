@@ -29,7 +29,11 @@ public extension PokitCategorySettingView {
             VStack(spacing: 0) {
                 thumbnailSection
                 pokitNameSection
-                myPokitSection
+                if !store.itemList.isEmpty {
+                    myPokitSection
+                } else {
+                    Spacer()
+                }
                 saveButton
             }
             .padding(.horizontal, 20)
@@ -70,16 +74,7 @@ private extension PokitCategorySettingView {
                     .resizable()
                     .roundedCorner(12, corners: .allCorners)
             default:
-                ZStack {
-                    Color.pokit(.bg(.disable))
-                    
-                    if store.selectedProfile?.imageURL != nil {
-                        PokitSpinner()
-                            .foregroundStyle(.pokit(.icon(.brand)))
-                            .frame(width: 48, height: 48)
-                    }
-                }
-                .clipShape(RoundedRectangle(cornerRadius: 12))
+                RoundedRectangle(cornerRadius: 12)
             }
         }
         .frame(width: 80, height: 80)
@@ -118,7 +113,7 @@ private extension PokitCategorySettingView {
                 .foregroundStyle(.pokit(.text(.secondary)))
             PokitTextInput(
                 text: $store.categoryName,
-                state: $store.pokitNameTextInpuState,
+                state: .constant(.active),
                 placeholder: "포킷명을 입력해주세요.",
                 maxLetter: 10,
                 focusState: $isFocused,
@@ -129,28 +124,19 @@ private extension PokitCategorySettingView {
     /// 내포킷 리스트( ScrollView)
     var myPokitSection: some View {
         VStack(spacing: 8) {
-            if let itemList = store.itemList {
-                if itemList.isEmpty {
-                    Spacer()
-                } else {
-                    HStack {
-                        Text("내 포킷")
-                            .pokitFont(.b2(.m))
-                            .foregroundStyle(.pokit(.text(.secondary)))
-                        Spacer()
-                    }
-                    
-                    
-                    ScrollView {
-                        ForEach(itemList, id: \.id) { item in
-                            PokitItem(item: item)
-                        }
-                    }
-                    .scrollIndicators(.hidden)
-                }
-            } else {
-                PokitLoading()
+            HStack {
+                Text("내 포킷")
+                    .pokitFont(.b2(.m))
+                    .foregroundStyle(.pokit(.text(.secondary)))
+                Spacer()
             }
+            
+            ScrollView {
+                ForEach(store.itemList, id: \.id) { item in
+                    PokitItem(item: item)
+                }
+            }
+            .scrollIndicators(.hidden)
         }
         .padding(.top, 28)
     }

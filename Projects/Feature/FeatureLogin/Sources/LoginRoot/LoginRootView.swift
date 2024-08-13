@@ -42,6 +42,8 @@ public extension LoginRootView {
             NavigationStack(path: $store.scope(state: \.path, action: \.path)) {
                 WithPerceptionTracking {
                     VStack(spacing: 8) {
+                        Spacer()
+                        
                         logo
                         
                         Spacer()
@@ -74,24 +76,10 @@ public extension LoginRootView {
 //MARK: - Configure View
 extension LoginRootView {
     private var logo: some View {
-        HStack {
-            Spacer()
-            
-            VStack(spacing: 24) {
-                Image(.logo(.pokit))
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(height: 72)
-                    .foregroundStyle(.pokit(.icon(.brand)))
-                
-                Text("다양한 링크들을 한 곳에")
-                    .pokitFont(.b1(.b))
-                    .foregroundStyle(.pokit(.text(.secondary)))
-            }
-            
-            Spacer()
-        }
-        .padding(.top, 254)
+        Text("Pokit")
+            .pokitFont(.title1)
+            .foregroundStyle(.pokit(.text(.brand)))
+            .frame(height: 171)
     }
     
     private var appleLoginButton: some View {

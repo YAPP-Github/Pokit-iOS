@@ -35,7 +35,9 @@ public extension PokitSearchView {
                 PokitDivider()
                     .padding(.top, 28)
                 
-                resultList
+                if !store.resultMock.isEmpty {
+                    resultList
+                }
                 
                 Spacer()
             }
@@ -281,25 +283,21 @@ private extension PokitSearchView {
             .contentTransition(.numericText())
             .padding(.horizontal, 20)
             
-            if let results = store.resultMock {
-                ScrollView {
-                    LazyVStack {
-                        ForEach(results, id: \.id) { content in
-                            let isFirst = content == results.first
-                            let isLast = content == results.last
-                            
-                            PokitLinkCard(
-                                link: content,
-                                action: { send(.linkCardTapped(content: content)) },
-                                kebabAction: { send(.kebabButtonTapped(content: content)) }
-                            )
-                            .divider(isFirst: isFirst, isLast: isLast)
-                        }
+            ScrollView {
+                LazyVStack {
+                    ForEach(store.resultMock) { content in
+                        let isFirst = content == store.resultMock.first
+                        let isLast = content == store.resultMock.last
+                        
+                        PokitLinkCard(
+                            link: content,
+                            action: { send(.linkCardTapped(content: content)) },
+                            kebabAction: { send(.kebabButtonTapped(content: content)) }
+                        )
+                        .divider(isFirst: isFirst, isLast: isLast)
                     }
-                    .padding(.horizontal, 20)
                 }
-            } else {
-                PokitLoading()
+                .padding(.horizontal, 20)
             }
         }
         .padding(.vertical, 24)

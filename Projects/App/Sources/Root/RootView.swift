@@ -25,10 +25,12 @@ extension RootView {
             Group {
                 if let store = store.scope(state: \.intro, action: \.intro) {
                     IntroView(store: store)
+                        .pokitBlurReplaceTransition(.smooth)
                 }
                 
                 if let store = store.scope(state: \.mainTab, action: \.mainTab) {
                     MainTabView(store: store)
+                        .pokitBlurReplaceTransition(.smooth)
                 }
             }
             .background(.pokit(.bg(.base)))

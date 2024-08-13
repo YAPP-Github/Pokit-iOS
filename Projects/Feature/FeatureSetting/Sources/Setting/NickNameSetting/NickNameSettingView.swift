@@ -28,7 +28,8 @@ public extension NickNameSettingView {
             VStack(spacing: 0) {
                 PokitTextInput(
                     text: $store.text,
-                    state: $store.textInpuState,
+                    state: $store.textfieldState,
+                    errorMessage: "사용중인 닉네임입니다.",
                     info: "한글, 영어, 숫자로만 입력이 가능합니다.",
                     focusState: $isFocused,
                     equals: true

@@ -24,6 +24,7 @@ public struct CategoryDetail: Equatable {
     public init(categpry: BaseCategoryItem) {
         self.category = categpry
         let categoryListInquiry = BaseCategoryListInquiry(
+            data: [],
             page: 0,
             size: 0,
             sort: [],
@@ -31,6 +32,7 @@ public struct CategoryDetail: Equatable {
         )
         self.categoryListInQuiry = categoryListInquiry
         self.contentList = .init(
+            data: [],
             page: 0,
             size: 0,
             sort: [],

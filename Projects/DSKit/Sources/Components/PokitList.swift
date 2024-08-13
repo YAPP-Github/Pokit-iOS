@@ -28,23 +28,11 @@ public struct PokitList<Item: PokitSelectItem>: View {
     }
     
     public var body: some View {
-        if list.isEmpty {
-            VStack {
-                PokitCaution(
-                    image: .empty,
-                    titleKey: "저장된 포킷이 없어요!",
-                    message: "포킷을 생성해 링크를 저장해보세요"
-                )
-                
-                Spacer()
-            }
-        } else {
-            ScrollView {
-                VStack(spacing: 0) {
-                    ForEach(self.list) { item in
-                        listCell(item)
-                            .pokitScrollTransition(.opacity)
-                    }
+        ScrollView {
+            VStack(spacing: 0) {
+                ForEach(self.list) { item in
+                    listCell(item)
+                        .pokitScrollTransition(.opacity)
                 }
             }
         }
@@ -52,7 +40,7 @@ public struct PokitList<Item: PokitSelectItem>: View {
     
     @ViewBuilder
     private func listCell(_ item: Item) -> some View {
-        let isSelected = self.selectedItem?.id == item.id
+        let isSelected = self.selectedItem == item
         
         Button {
             action(item)

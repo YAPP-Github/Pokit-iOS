@@ -43,17 +43,12 @@ public extension CategoryDetailView {
                 )
             }
             .sheet(isPresented: $store.isCategorySelectSheetPresented) {
-                if let categories = store.categories {
-                    PokitCategorySheet(
-                        selectedItem: nil,
-                        list: categories.elements,
-                        action: { send(.categorySelected($0)) }
-                    )
-                    .presentationDragIndicator(.visible)
-                } else {
-                    PokitLoading()
-                        .presentationDragIndicator(.visible)
-                }
+                PokitCategorySheet(
+                    selectedItem: nil,
+                    list: store.categories.elements,
+                    action: { send(.categorySelected($0)) }
+                )
+                .presentationDragIndicator(.visible)
             }
             .sheet(isPresented: $store.isPokitDeleteSheetPresented) {
                 PokitDeleteBottomSheet(
@@ -120,39 +115,21 @@ private extension CategoryDetailView {
     }
     
     var contentScrollView: some View {
-        Group {
-            if let contents = store.contents {
-                if contents.isEmpty {
-                    VStack {
-                        PokitCaution(
-                            image: .empty,
-                            titleKey: "저장된 링크가 없어요!",
-                            message: "다양한 링크를 한 곳에 저장해보세요"
-                        )
-                        .padding(.top, 20)
-                        
-                        Spacer()
-                    }
-                }
-                ScrollView(showsIndicators: false) {
-                    ForEach(contents) { content in
-                        let isFirst = content == contents.first
-                        let isLast = content == contents.last
-                        
-                        PokitLinkCard(
-                            link: content,
-                            action: { send(.contentItemTapped(content)) },
-                            kebabAction: { send(.categoryKebobButtonTapped(.링크삭제, selectedItem: content)) }
-                        )
-                        .divider(isFirst: isFirst, isLast: isLast)
-                        .pokitScrollTransition(.opacity)
-                    }
-                }
-                .animation(.spring, value: contents.elements)
-            } else {
-                PokitLoading()
+        ScrollView(showsIndicators: false) {
+            ForEach(store.contents) { content in
+                let isFirst = content == store.contents.first
+                let isLast = content == store.contents.last
+                
+                PokitLinkCard(
+                    link: content,
+                    action: { send(.contentItemTapped(content)) }, 
+                    kebabAction: { send(.categoryKebobButtonTapped(.링크삭제, selectedItem: content)) }
+                )
+                .divider(isFirst: isFirst, isLast: isLast)
+                .pokitScrollTransition(.opacity)
             }
         }
+        .animation(.spring, value: store.contents.elements)
     }
     
     struct PokitCategorySheet: View {
