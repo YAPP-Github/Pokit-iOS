@@ -23,6 +23,10 @@ public enum ContentEndpoint {
         condition: BaseConditionRequest
     )
     case 미분류_카테고리_컨텐츠_조회(model: BasePageableRequest)
+    case 컨텐츠_검색(
+        pageable: BasePageableRequest,
+        condition: BaseConditionRequest
+    )
 }
 
 extension ContentEndpoint: TargetType {
@@ -48,6 +52,8 @@ extension ContentEndpoint: TargetType {
             return "/\(contentId)"
         case .미분류_카테고리_컨텐츠_조회:
             return "/uncategorized"
+        case .컨텐츠_검색(model: let model):
+            return ""
         }
     }
     
@@ -66,7 +72,8 @@ extension ContentEndpoint: TargetType {
             return .patch
             
         case .카태고리_내_컨텐츠_목록_조회,
-             .미분류_카테고리_컨텐츠_조회:
+             .미분류_카테고리_컨텐츠_조회,
+             .컨텐츠_검색:
             return .get
         }
     }
@@ -105,6 +112,20 @@ extension ContentEndpoint: TargetType {
                     "page": model.page,
                     "size": model.size,
                     "sort": model.sort
+                ],
+                encoding: URLEncoding.default
+            )
+        case let .컨텐츠_검색(pageable, condition):
+            return .requestParameters(
+                parameters: [
+                    "page": pageable.page,
+                    "size": pageable.size,
+                    "sort": pageable.sort,
+                    "isRead": condition.isUnreadFiltered ? condition.isUnreadFiltered : "",
+                    "favorites": condition.isFavoriteFlitered ? condition.isFavoriteFlitered : "",
+                    "startDate": condition.startDate ?? "",
+                    "endDate": condition.endDate ?? "",
+                    "categoryIds": condition.categoryIds
                 ],
                 encoding: URLEncoding.default
             )
