@@ -236,6 +236,7 @@ private extension CategoryDetailFeature {
             return .none
         case .컨텐츠_삭제_반영(id: let id):
             state.domain.contentList.data?.removeAll { $0.id == id }
+            state.domain.category.contentCount -= 1
             state.selectedContentItem = nil
             state.isPokitDeleteSheetPresented = false
             state.kebobSelectedType = nil
