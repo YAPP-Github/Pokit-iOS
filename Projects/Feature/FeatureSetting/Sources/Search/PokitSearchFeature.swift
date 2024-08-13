@@ -219,32 +219,21 @@ private extension PokitSearchFeature {
                 /// 🚨 Error Case [1]: 빈 문자열 일 때
                 return .send(.inner(.disableIsSearching))
             }
-            return .run { send in
-                await send(.async(.컨텐츠_검색))
-            }
-            .debounce(
-                id: CancelID.response,
-                for: 1.0,
-                scheduler: mainQueue
-            )
+            return .none
         case .binding:
             return .none
         case .autoSaveButtonTapped:
             state.isAutoSaveSearch.toggle()
             return .none
         case .searchTextInputOnSubmitted:
-            return .run { send in
-                await send(.async(.컨텐츠_검색))
-            }
+            return .send(.async(.컨텐츠_검색))
         case .searchTextInputIconTapped:
             /// - 검색 중일 경우 `문자열 지우기 버튼 동작`
             if state.isSearching {
                 state.domain.condition.searchWord = ""
                 return .send(.inner(.disableIsSearching))
             } else {
-                return .run { send in
-                    await send(.async(.컨텐츠_검색))
-                }
+                return .send(.async(.컨텐츠_검색))
             }
         case .searchTextChipButtonTapped(text: let text):
             state.searchText = text
