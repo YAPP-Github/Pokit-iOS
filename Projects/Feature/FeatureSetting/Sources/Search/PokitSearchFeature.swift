@@ -21,6 +21,8 @@ public struct PokitSearchFeature {
     private var mainQueue
     @Dependency(\.pasteboard)
     private var pasteboard
+    @Dependency(\.userDefaults)
+    private var userDefaults
     @Dependency(\.contentClient)
     private var contentClient
     /// - State
@@ -30,19 +32,7 @@ public struct PokitSearchFeature {
         @Presents
         var filterBottomSheet: FilterBottomFeature.State?
         
-        var recentSearchTexts: [String] = [
-            "샤프 노트북",
-            "아이패드",
-            "맥북",
-            "LG 그램",
-            "LG 그램1",
-            "LG 그램2",
-            "LG 그램3",
-            "LG 그램4",
-            "LG 그램5",
-            "LG 그램6",
-            "LG 그램7"
-        ]
+        var recentSearchTexts: [String] = []
         var isAutoSaveSearch: Bool = false
         var isSearching: Bool = false
         var isFiltered: Bool = false
@@ -146,10 +136,15 @@ public struct PokitSearchFeature {
             case updateIsFiltered
             case updateCategoryIds
             case 컨텐츠_목록_갱신(BaseContentListInquiry)
+            case 최근검색어_불러오기
+            case 자동저장_켜기_불러오기
+            case 최근검색어_추가
         }
         
         public enum AsyncAction: Equatable {
             case 컨텐츠_검색
+            case 최근검색어_갱신
+            case 자동저장_켜기_갱신
         }
         
         public enum ScopeAction: Equatable {
@@ -224,16 +219,22 @@ private extension PokitSearchFeature {
             return .none
         case .autoSaveButtonTapped:
             state.isAutoSaveSearch.toggle()
-            return .none
+            return .send(.async(.자동저장_켜기_갱신))
         case .searchTextInputOnSubmitted:
-            return .send(.async(.컨텐츠_검색))
+            return .run { send in
+                await send(.inner(.최근검색어_추가))
+                await send(.async(.컨텐츠_검색))
+            }
         case .searchTextInputIconTapped:
             /// - 검색 중일 경우 `문자열 지우기 버튼 동작`
             if state.isSearching {
                 state.domain.condition.searchWord = ""
                 return .send(.inner(.disableIsSearching))
             } else {
-                return .send(.async(.컨텐츠_검색))
+                return .run { send in
+                    await send(.inner(.최근검색어_추가))
+                    await send(.async(.컨텐츠_검색))
+                }
             }
         case .searchTextChipButtonTapped(text: let text):
             state.searchText = text
@@ -257,13 +258,13 @@ private extension PokitSearchFeature {
             return .send(.inner(.showFilterBottomSheet(filterType: .pokit)))
         case .recentSearchAllRemoveButtonTapped:
             state.recentSearchTexts.removeAll()
-            return .none
+            return .send(.async(.최근검색어_갱신))
         case .recentSearchChipIconTapped(searchText: let searchText):
             guard let predicate = state.recentSearchTexts.firstIndex(of: searchText) else {
                 return .none
             }
             state.recentSearchTexts.remove(at: predicate)
-            return .none
+            return .send(.async(.최근검색어_갱신))
         case .linkCardTapped(content: let content):
             return .send(.delegate(.linkCardTapped(content: content)))
         case .kebabButtonTapped(content: let content):
@@ -288,6 +289,8 @@ private extension PokitSearchFeature {
             
         case .onAppear:
             return .run { send in
+                await send(.inner(.자동저장_켜기_불러오기))
+                await send(.inner(.최근검색어_불러오기))
                 for await _ in self.pasteboard.changes() {
                     let url = try await pasteboard.probableWebURL()
                     await send(.delegate(.linkCopyDetected(url)), animation: .pokitSpring)
@@ -369,6 +372,24 @@ private extension PokitSearchFeature {
         case .컨텐츠_목록_갱신(let contentList):
             state.domain.contentList = contentList
             return .send(.inner(.enableIsSearching))
+        case .최근검색어_불러오기:
+            guard state.isAutoSaveSearch else {
+                return .none
+            }
+            state.recentSearchTexts = userDefaults.stringArrayKey(.searchWords) ?? []
+            return .none
+        case .자동저장_켜기_불러오기:
+            state.isAutoSaveSearch = userDefaults.boolKey(.autoSaveSearch)
+            return .none
+            
+        case .최근검색어_추가:
+            guard state.isAutoSaveSearch else {
+                return .none
+            }
+            if !state.recentSearchTexts.contains(state.domain.condition.searchWord) {
+                state.recentSearchTexts.append(state.domain.condition.searchWord)
+            }
+            return .send(.async(.최근검색어_갱신))
         }
     }
     
@@ -409,6 +430,22 @@ private extension PokitSearchFeature {
                     )
                 ).toDomain()
                 await send(.inner(.컨텐츠_목록_갱신(contentList)), animation: .smooth)
+            }
+        case .최근검색어_갱신:
+            guard state.isAutoSaveSearch else {
+                return .none
+            }
+            return .run { [ searchWords = state.recentSearchTexts ] _ in
+                await userDefaults.setStringArray(
+                    searchWords,
+                    .searchWords
+                )
+            }
+        case .자동저장_켜기_갱신:
+            return .run { [
+                isAutoSaveSearch = state.isAutoSaveSearch
+            ] send in
+                await userDefaults.setBool(isAutoSaveSearch, .autoSaveSearch)
             }
         }
     }

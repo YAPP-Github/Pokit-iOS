@@ -9,12 +9,15 @@ import Foundation
 
 public enum UserDefaultsKey {
     public enum BoolKey: String {
-        case doNothing
+        case autoSaveSearch
     }
     public enum StringKey: String {
         /// `구글` or `애플`
         case authPlatform
         case authCode
         case jwt
+    }
+    public enum ArrayKey: String {
+        case searchWords
     }
 }
