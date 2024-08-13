@@ -33,15 +33,8 @@ public extension FilterBottomSheet {
                 
                 switch store.currentType {
                 case .pokit:
-                    if let pokitList = store.pokitList {
-                        PokitList(
-                            selectedItem: nil,
-                            list: pokitList,
-                            action: { send(.pokitListCellTapped(pokit: $0), animation: .pokitSpring) }
-                        )
-                    } else {
-                        PokitLoading()
-                    }
+                    pokitList
+                        .onAppear { send(.pokitListOnAppeared) }
                 case .contentType:
                     contentTypes
                 case .date:
@@ -70,7 +63,6 @@ public extension FilterBottomSheet {
             .pokitPresentationCornerRadius()
             .presentationDragIndicator(.visible)
             .presentationDetents([.height(664)])
-            .onAppear { send(.filterBottomSheetOnAppeard) }
         }
     }
 }
@@ -98,6 +90,20 @@ private extension FilterBottomSheet {
                 to: .date
             )
             .matchedGeometryEffectBackground(id: heroEffect)
+        }
+    }
+    
+    var pokitList: some View {
+        Group {
+            if let pokitList = store.pokitList {
+                PokitList(
+                    selectedItem: nil,
+                    list: pokitList,
+                    action: { send(.pokitListCellTapped(pokit: $0), animation: .pokitSpring) }
+                )
+            } else {
+                PokitLoading()
+            }
         }
     }
     
