@@ -74,7 +74,7 @@ extension CategoryEndpoint: TargetType {
                 parameters: [
                     "page": model.page,
                     "size": model.size,
-                    "sort": model.sort,
+                    "sort": model.sort.map { String($0) }.joined(separator: ","),
                     "filterUncategorized": categorized
                 ],
                 encoding: URLEncoding.default
