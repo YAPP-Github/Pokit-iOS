@@ -159,7 +159,7 @@ public struct PokitSearchFeature {
         
         public enum DelegateAction: Equatable {
             case linkCardTapped(content: BaseContentItem)
-            case bottomSheetEditCellButtonTapped(content: BaseContentItem)
+            case 링크수정(contentId: Int)
             case linkCopyDetected(URL?)
         }
     }
@@ -487,7 +487,7 @@ private extension PokitSearchFeature {
                 state.alertItem = content
                 return .none
             case .editCellButtonTapped:
-                return .send(.delegate(.bottomSheetEditCellButtonTapped(content: content)))
+                return .send(.delegate(.링크수정(contentId: content.id)))
             case .favoriteCellButtonTapped:
                 return .none
             case .shareCellButtonTapped:
