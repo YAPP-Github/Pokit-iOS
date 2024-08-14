@@ -97,12 +97,11 @@ extension ContentEndpoint: TargetType {
                 parameters: [
                     "page": pageable.page,
                     "size": pageable.size,
-                    "sort": pageable.sort,
+                    "sort": pageable.sort.map { String($0) }.joined(separator: ","),
                     "isRead": condition.isUnreadFiltered ? condition.isUnreadFiltered : "",
                     "favorites": condition.isFavoriteFlitered ? condition.isFavoriteFlitered : "",
                     "startDate": condition.startDate ?? "",
-                    "endDate": condition.endDate ?? "",
-                    "categoryIds": condition.categoryIds
+                    "endDate": condition.endDate ?? ""
                 ],
                 encoding: URLEncoding.default
             )
@@ -111,7 +110,7 @@ extension ContentEndpoint: TargetType {
                 parameters: [
                     "page": model.page,
                     "size": model.size,
-                    "sort": model.sort
+                    "sort": model.sort.map { String($0) }.joined(separator: ",")
                 ],
                 encoding: URLEncoding.default
             )
@@ -120,12 +119,12 @@ extension ContentEndpoint: TargetType {
                 parameters: [
                     "page": pageable.page,
                     "size": pageable.size,
-                    "sort": pageable.sort,
+                    "sort": pageable.sort.map { String($0) }.joined(separator: ","),
                     "isRead": condition.isUnreadFiltered ? condition.isUnreadFiltered : "",
                     "favorites": condition.isFavoriteFlitered ? condition.isFavoriteFlitered : "",
                     "startDate": condition.startDate ?? "",
                     "endDate": condition.endDate ?? "",
-                    "categoryIds": condition.categoryIds,
+                    "categoryIds": condition.categoryIds.map { String($0) }.joined(separator: ","),
                     "searchWord": condition.searchWord
                 ],
                 encoding: URLEncoding.default
