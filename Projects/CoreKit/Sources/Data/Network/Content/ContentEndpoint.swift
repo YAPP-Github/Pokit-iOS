@@ -125,7 +125,8 @@ extension ContentEndpoint: TargetType {
                     "favorites": condition.isFavoriteFlitered ? condition.isFavoriteFlitered : "",
                     "startDate": condition.startDate ?? "",
                     "endDate": condition.endDate ?? "",
-                    "categoryIds": condition.categoryIds
+                    "categoryIds": condition.categoryIds,
+                    "searchWord": condition.searchWord
                 ],
                 encoding: URLEncoding.default
             )

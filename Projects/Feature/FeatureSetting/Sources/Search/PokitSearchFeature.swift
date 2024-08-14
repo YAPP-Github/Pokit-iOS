@@ -431,6 +431,7 @@ private extension PokitSearchFeature {
                         sort: pageable.sort
                     ),
                     .init(
+                        searchWord: condition.searchWord,
                         categoryIds: condition.categoryIds,
                         isRead: condition.isRead,
                         favorites: condition.favorites,
