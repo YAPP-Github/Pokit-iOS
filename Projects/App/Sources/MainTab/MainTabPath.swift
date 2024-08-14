@@ -106,7 +106,8 @@ public extension MainTabFeature {
             case let .path(.element(_, action: .카테고리상세(.delegate(.contentItemTapped(content))))),
                  let .pokit(.delegate(.contentDetailTapped(content))),
                  let .remind(.delegate(.링크상세(content))),
-                 let .path(.element(_, action: .링크목록(.delegate(.링크상세(content: content))))):
+                 let .path(.element(_, action: .링크목록(.delegate(.링크상세(content: content))))),
+                 let .path(.element(_, action: .검색(.delegate(.linkCardTapped(content: content))))):
                 // TODO: 링크상세 모델과 링크수정 모델 일치시키기
                 state.contentDetail = ContentDetailFeature.State(contentId: content.id)
                 return .none
