@@ -116,7 +116,7 @@ public struct PokitSearchFeature {
                 delegate: PokitBottomSheet.Delegate,
                 content: BaseContentItem
             )
-            case deleteAlertConfirmTapped(content: BaseContentItem)
+            case deleteAlertConfirmTapped
             case sortTextLinkTapped
             case backButtonTapped
             /// - TextInput OnSubmitted
@@ -139,12 +139,14 @@ public struct PokitSearchFeature {
             case 최근검색어_불러오기
             case 자동저장_켜기_불러오기
             case 최근검색어_추가
+            case 컨텐츠_삭제_반영(id: Int)
         }
         
         public enum AsyncAction: Equatable {
             case 컨텐츠_검색
             case 최근검색어_갱신
             case 자동저장_켜기_갱신
+            case 컨텐츠_삭제(id: Int)
         }
         
         public enum ScopeAction: Equatable {
@@ -275,9 +277,12 @@ private extension PokitSearchFeature {
                 await send(.inner(.dismissBottomSheet))
                 await send(.scope(.bottomSheet(delegate: delegate, content: content)))
             }
-        case .deleteAlertConfirmTapped(content: let content):
+        case .deleteAlertConfirmTapped:
+            guard let id = state.alertItem?.id else { return .none }
             state.alertItem = nil
-            return .none
+            return .run { [id] send in
+                await send(.async(.컨텐츠_삭제(id: id)))
+            }
         case .sortTextLinkTapped:
             state.isResultAscending.toggle()
             // - TODO: 정렬
@@ -390,6 +395,10 @@ private extension PokitSearchFeature {
                 state.recentSearchTexts.append(state.domain.condition.searchWord)
             }
             return .send(.async(.최근검색어_갱신))
+        case .컨텐츠_삭제_반영(id: let id):
+            state.alertItem = nil
+            state.domain.contentList.data?.removeAll { $0.id == id }
+            return .none
         }
     }
     
@@ -446,6 +455,11 @@ private extension PokitSearchFeature {
                 isAutoSaveSearch = state.isAutoSaveSearch
             ] send in
                 await userDefaults.setBool(isAutoSaveSearch, .autoSaveSearch)
+            }
+        case .컨텐츠_삭제(id: let id):
+            return .run { [id] send in
+                let _ = try await contentClient.컨텐츠_삭제("\(id)")
+                await send(.inner(.컨텐츠_삭제_반영(id: id)), animation: .pokitSpring)
             }
         }
     }
