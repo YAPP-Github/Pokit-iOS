@@ -54,6 +54,13 @@ public struct PokitRootFeature {
         var isPokitDeleteSheetPresented: Bool = false
         /// 목록조회 시 호출용
         var listResponse = BasePageableRequest(page: 0, size: 10, sort: ["desc"])
+        var hasNext: Bool {
+            domain.categoryList.hasNext
+        }
+        
+        var unclassifiedHasNext: Bool {
+            domain.unclassifiedContentList.hasNext
+        }
         
         public init() { }
     }
@@ -85,6 +92,8 @@ public struct PokitRootFeature {
             case contentItemTapped(BaseContentItem)
             
             case pokitRootViewOnAppeared
+            case 분류_pagenation
+            case 미분류_pagenation
 
         }
         
@@ -93,13 +102,15 @@ public struct PokitRootFeature {
             case pokitDeleteSheetPresented(Bool)
             case sort
             case onAppearResult(classified: BaseCategoryListInquiry)
-            case 목록조회_갱신용
             case 미분류_카테고리_컨텐츠_갱신(contentList: BaseContentListInquiry)
+            case 분류_페이지네이션_결과(contentList: BaseCategoryListInquiry)
+            case 미분류_페이지네이션_결과(contentList: BaseContentListInquiry)
         }
         
         public enum AsyncAction: Equatable {
             case 포킷삭제(categoryId: Int)
             case 미분류_카테고리_컨텐츠_조회
+            case 목록조회_갱신용
         }
         
         public enum ScopeAction: Equatable {
@@ -201,18 +212,30 @@ private extension PokitRootFeature {
         case .contentItemTapped(let selectedItem):
             return .run { send in await send(.delegate(.contentDetailTapped(selectedItem))) }
         case .pokitRootViewOnAppeared:
-            return .run { [domain = state.domain.categoryList,
-                           sortType = state.sortType] send in
-                if domain.hasNext {
+            return .run { send in await send(.async(.목록조회_갱신용)) }
+        case .분류_pagenation:
+            if state.domain.categoryList.hasNext {
+                return .run { [domain = state.domain.categoryList,
+                               sortType = state.sortType] send in
                     let sort = sortType == .sort(.최신순) ? "desc" : "asc"
-                    let request = BasePageableRequest(page: domain.page + 1, size: domain.size, sort: [sort])
+                    let request = BasePageableRequest(page: domain.page + 1, size: 10, sort: [sort])
                     let classified = try await categoryClient.카테고리_목록_조회(request, true).toDomain()
-                    await send(.inner(.onAppearResult(classified: classified)))
-                    await send(.inner(.sort))
-                } else {
-                    await send(.inner(.목록조회_갱신용))
+                    await send(.inner(.분류_페이지네이션_결과(contentList: classified)))
                 }
             }
+            return .none
+            
+        case .미분류_pagenation:
+            if state.domain.unclassifiedContentList.hasNext {
+                return .run { [domain = state.domain.unclassifiedContentList,
+                               sortType = state.sortType] send in
+                    let sort = sortType == .sort(.최신순) ? "desc" : "asc"
+                    let request = BasePageableRequest(page: domain.page + 1, size: 10, sort: [sort])
+                    let unclassified = try await contentClient.미분류_카테고리_컨텐츠_조회(request).toDomain()
+                    await send(.inner(.미분류_페이지네이션_결과(contentList: unclassified)))
+                }
+            }
+            return .none
         }
     }
     
@@ -222,12 +245,15 @@ private extension PokitRootFeature {
         case let .pokitCategorySheetPresented(presented):
             state.isKebobSheetPresented = presented
             return .none
+            
         case let .pokitDeleteSheetPresented(presented):
             state.isPokitDeleteSheetPresented = presented
             return .none
+            
         case let .onAppearResult(classified):
             state.domain.categoryList = classified
             return .none
+            
         case .sort:
             switch state.sortType {
             case .sort(.이름순):
@@ -253,17 +279,27 @@ private extension PokitRootFeature {
             default: return .none
             }
             return .none
-        case .목록조회_갱신용:
-            return .run { [domain = state.domain.categoryList,
-                           sortType = state.sortType] send in
-                let sort = sortType == .sort(.최신순) ? "desc" : "asc"
-                let request = BasePageableRequest(page: 0, size: domain.size, sort: [sort])
-                let classified = try await categoryClient.카테고리_목록_조회(request, true).toDomain()
-                await send(.inner(.onAppearResult(classified: classified)))
-                await send(.inner(.sort))
-            }
+            
         case .미분류_카테고리_컨텐츠_갱신(contentList: let contentList):
             state.domain.unclassifiedContentList = contentList
+            return .none
+            
+        case let .분류_페이지네이션_결과(contentList):
+            guard var list = state.domain.categoryList.data else { return .none }
+            guard let newList = contentList.data else { return .none }
+            
+            newList.forEach { list.append($0) }
+            state.domain.categoryList = contentList
+            state.domain.categoryList.data = list
+            return .none
+            
+        case let .미분류_페이지네이션_결과(contentList):
+            guard var list = state.domain.unclassifiedContentList.data else { return .none }
+            guard let newList = contentList.data else { return .none }
+            
+            newList.forEach { list.append($0) }
+            state.domain.unclassifiedContentList = contentList
+            state.domain.unclassifiedContentList.data = list
             return .none
         }
     }
@@ -286,6 +322,15 @@ private extension PokitRootFeature {
                     request
                 ).toDomain()
                 await send(.inner(.미분류_카테고리_컨텐츠_갱신(contentList: contentList)), animation: .smooth)
+            }
+        case .목록조회_갱신용:
+            return .run { [domain = state.domain.categoryList,
+                           sortType = state.sortType] send in
+                let sort = sortType == .sort(.최신순) ? "desc" : "asc"
+                let request = BasePageableRequest(page: 0, size: domain.size, sort: [sort])
+                let classified = try await categoryClient.카테고리_목록_조회(request, true).toDomain()
+                await send(.inner(.onAppearResult(classified: classified)))
+                await send(.inner(.sort))
             }
         }
     }

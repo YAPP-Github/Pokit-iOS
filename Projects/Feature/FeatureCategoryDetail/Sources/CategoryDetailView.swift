@@ -100,12 +100,15 @@ private extension CategoryDetailView {
                     Image(.icon(.arrowDown))
                         .resizable()
                         .frame(width: 24, height: 24)
+                        .foregroundStyle(.pokit(.icon(.primary)))
                     Spacer()
                 }
                 .buttonStyle(.plain)
             }
             HStack {
                 Text("링크 \(store.category.contentCount)개")
+                    .foregroundStyle(.pokit(.text(.secondary)))
+                    .pokitFont(.detail1)
                 Spacer()
                 PokitIconLButton(
                     "필터",

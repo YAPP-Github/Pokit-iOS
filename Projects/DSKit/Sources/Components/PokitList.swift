@@ -47,6 +47,7 @@ public struct PokitList<Item: PokitSelectItem>: View {
                     }
                 }
             }
+            .background(Color.pokit(.bg(.base)))
         }
     }
     
