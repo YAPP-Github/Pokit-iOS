@@ -61,7 +61,7 @@ public extension PokitSearchView {
                     "링크를 정말 삭제하시겠습니까?",
                     message: "함께 저장한 모든 정보가 삭제되며, \n복구하실 수 없습니다.",
                     confirmText: "삭제"
-                ) { send(.deleteAlertConfirmTapped(content: content)) }
+                ) { send(.deleteAlertConfirmTapped) }
             }
             .onAppear { send(.onAppear) }
         }
