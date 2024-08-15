@@ -32,7 +32,10 @@ let coreKit: Target = .target(
         .external(name: "Moya"),
         .external(name: "GoogleSignIn"),
         .external(name: "SwiftJWT"),
-        .external(name: "SwiftSoup")
+        .external(name: "SwiftSoup"),
+        .external(name: "KakaoSDKCommon"),
+        .external(name: "KakaoSDKShare"),
+        .external(name: "KakaoSDKTemplate")\
     ],
     settings: .settings(
         base: [
