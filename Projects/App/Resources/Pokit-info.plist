@@ -2,6 +2,12 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>AppleKeyID</key>
+	<string>$(AppleKeyID)</string>
+	<key>AuthKey</key>
+	<string>$(AuthKey)</string>
+	<key>BGTaskSchedulerPermittedIdentifiers</key>
+	<string>com.pokitmons.pokit.taskidentifier</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
@@ -26,6 +32,7 @@
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>$(GIDClientID_reversed)</string>
+				<string>kakao$(KAKAO_NATIVE_APP_KEY)</string>
 			</array>
 		</dict>
 	</array>
@@ -33,16 +40,19 @@
 	<string>1</string>
 	<key>GIDClientID</key>
 	<string>$(GIDClientID)</string>
-	<key>AppleKeyID</key>
-	<string>$(AppleKeyID)</string>
-	<key>TeamID</key>
-	<string>$(TeamID)</string>
-	<key>AuthKey</key>
-	<string>$(AuthKey)</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>LSApplicationCategoryType</key>
 	<string></string>
+	<key>LSApplicationQuerySchemes</key>
+	<array>
+		<string>kakaokompassauth</string>
+		<string>kakaolink</string>
+	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>TeamID</key>
+	<string>$(TeamID)</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
@@ -75,9 +85,5 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
-	<key>BGTaskSchedulerPermittedIdentifiers</key>
-	<string>com.pokitmons.pokit.taskidentifier</string>
-	<key>ITSAppUsesNonExemptEncryption</key>
-	<false/>
 </dict>
 </plist>
