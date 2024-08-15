@@ -388,9 +388,8 @@ private extension PokitSearchFeature {
             return .none
             
         case .최근검색어_추가:
-            guard state.isAutoSaveSearch else {
-                return .none
-            }
+            guard state.isAutoSaveSearch else { return .none }
+            guard !state.domain.condition.searchWord.isEmpty else { return .none }
             if !state.recentSearchTexts.contains(state.domain.condition.searchWord) {
                 state.recentSearchTexts.append(state.domain.condition.searchWord)
             }
@@ -442,9 +441,7 @@ private extension PokitSearchFeature {
                 await send(.inner(.컨텐츠_목록_갱신(contentList)), animation: .smooth)
             }
         case .최근검색어_갱신:
-            guard state.isAutoSaveSearch else {
-                return .none
-            }
+            guard state.isAutoSaveSearch else { return .none }
             return .run { [ searchWords = state.recentSearchTexts ] _ in
                 await userDefaults.setStringArray(
                     searchWords,
