@@ -93,6 +93,7 @@ public extension MainTabView {
                     }
                 }
             }
+            .onOpenURL { send(.onOpenURL(url: $0)) }
         }
     }
 }

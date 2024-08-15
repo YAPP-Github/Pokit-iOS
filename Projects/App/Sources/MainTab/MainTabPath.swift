@@ -101,6 +101,11 @@ public extension MainTabFeature {
                 /// Todo: id값을 받아와 삭제API 보내기
                 state.path.removeLast()
                 return .none
+            
+            /// URL Scheme으로 링크 상세보기
+            case let .delegate(.링크상세보기(userId: userId, contentId: contentId)):
+                state.contentDetail = ContentDetailFeature.State(contentId: contentId)
+                return .none
 
             /// - 링크 상세
             case let .path(.element(_, action: .카테고리상세(.delegate(.contentItemTapped(content))))),

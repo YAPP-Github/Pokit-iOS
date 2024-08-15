@@ -19,6 +19,9 @@ public struct RemindFeature {
     private var remindClient
     @Dependency(\.contentClient)
     private var contentClient
+    @Dependency(\.kakaoShareClient)
+    private var kakaoShareClient
+    
     /// - State
     @ObservableState
     public struct State: Equatable {
@@ -247,6 +250,17 @@ private extension RemindFeature {
             case .favoriteCellButtonTapped:
                 return .none
             case .shareCellButtonTapped:
+                kakaoShareClient.컨텐츠_카카오톡_공유(
+                    .init(
+                        title: content.title,
+                        description: content.data,
+                        imageURL: content.thumbNail,
+                        userId: 0,
+                        contentId: content.id
+                    )
+                ) { url in
+                    
+                }
                 return .none
             }
         }

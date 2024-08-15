@@ -55,6 +55,7 @@ public struct MainTabFeature {
             case addSheetTypeSelected(TabAddSheetType)
             case linkCopyButtonTapped
             case onAppear
+            case onOpenURL(url: URL)
         }
         public enum InnerAction: Equatable {
             case 링크추가및수정이동(contentId: Int)
@@ -67,6 +68,7 @@ public struct MainTabFeature {
             case 포킷추가하기
             case 로그아웃
             case 회원탈퇴
+            case 링크상세보기(userId: Int, contentId: Int)
         }
     }
     /// initiallizer
@@ -142,6 +144,20 @@ private extension MainTabFeature {
                     await send(.inner(.linkCopySuccess(url)), animation: .pokitSpring)
                 }
             }
+        case .onOpenURL(url: let url):
+            guard let components = URLComponents(url: url, resolvingAgainstBaseURL: false) else {
+                return .none
+            }
+            
+            let queryItems = components.queryItems ?? []
+            guard let userIdString = queryItems.first(where: { $0.name == "userId" })?.value,
+                  let contentIdString = queryItems.first(where: { $0.name == "contentId" })?.value,
+                  let userId = Int(userIdString),
+                  let contentId = Int(contentIdString) else {
+                return .none
+            }
+            
+            return .send(.delegate(.링크상세보기(userId: userId, contentId: contentId)))
         }
     }
     /// - Inner Effect

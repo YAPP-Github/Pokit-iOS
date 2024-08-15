@@ -9,6 +9,7 @@ import Foundation
 
 import ComposableArchitecture
 import CoreKit
+import KakaoSDKCommon
 
 @Reducer
 public struct AppDelegateFeature {
@@ -39,6 +40,10 @@ public struct AppDelegateFeature {
             switch action {
             case .didFinishLaunching:
                 let userNotificationsEventStream = self.userNotifications.delegate()
+                if let kakaoAppKey = Bundle.main.object(forInfoDictionaryKey: "KAKAO_NATIVE_APP_KEY") as? String {
+                    print("카카오 네이티브 앱 키: \(kakaoAppKey)")
+                    KakaoSDK.initSDK(appKey: kakaoAppKey)
+                }
                 return .run { send in
                     await withThrowingTaskGroup(of: Void.self) { group in
                         group.addTask {
