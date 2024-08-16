@@ -9,6 +9,7 @@ import SwiftUI
 import ComposableArchitecture
 import Domain
 import DSKit
+import NukeUI
 import Util
 
 @ViewAction(for: RemindFeature.self)
@@ -135,16 +136,18 @@ extension RemindView {
     @ViewBuilder
     private func recommendedContentCellLabel(content: BaseContentItem) -> some View {
         ZStack(alignment: .bottom) {
-            AsyncImage(url: .init(string: content.thumbNail)) { image in
-                image
-                    .resizable()
-            } placeholder: {
-                ZStack {
-                    Color.pokit(.bg(.disable))
-                    
-                    PokitSpinner()
-                        .foregroundStyle(.pokit(.icon(.brand)))
-                        .frame(width: 48, height: 48)
+            LazyImage(url: .init(string: content.thumbNail)) { phase in
+                if let image = phase.image {
+                    image
+                        .resizable()
+                } else {
+                    ZStack {
+                        Color.pokit(.bg(.disable))
+                        
+                        PokitSpinner()
+                            .foregroundStyle(.pokit(.icon(.brand)))
+                            .frame(width: 48, height: 48)
+                    }
                 }
             }
             

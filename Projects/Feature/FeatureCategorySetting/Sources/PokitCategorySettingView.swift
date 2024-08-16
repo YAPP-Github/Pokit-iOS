@@ -9,6 +9,7 @@ import SwiftUI
 import ComposableArchitecture
 import Domain
 import DSKit
+import NukeUI
 
 @ViewAction(for: PokitCategorySettingFeature.self)
 public struct PokitCategorySettingView: View {
@@ -59,17 +60,17 @@ private extension PokitCategorySettingView {
         }
     }
     /// 썸네일이미지 +프로필 설정
+    @MainActor
     var thumbnailSection: some View {
-        AsyncImage(
+        LazyImage(
             url: URL(string: store.selectedProfile?.imageURL ?? ""),
             transaction: .init(animation: .spring)
         ) { phase in
-            switch phase {
-            case .success(let image):
+            if let image = phase.image {
                 image
                     .resizable()
                     .roundedCorner(12, corners: .allCorners)
-            default:
+            } else {
                 ZStack {
                     Color.pokit(.bg(.disable))
                     

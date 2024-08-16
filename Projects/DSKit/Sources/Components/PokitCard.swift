@@ -8,6 +8,7 @@
 import SwiftUI
 
 import Util
+import NukeUI
 
 public struct PokitCard<Item: PokitCardItem>: View {
     private let category: Item
@@ -30,6 +31,7 @@ public struct PokitCard<Item: PokitCardItem>: View {
         }
     }
     
+    @MainActor
     private var buttonLabel: some View {
         VStack(spacing: 0) {
             HStack {
@@ -84,11 +86,12 @@ public struct PokitCard<Item: PokitCardItem>: View {
             .pokitFont(.detail2)
             .foregroundStyle(.pokit(.text(.tertiary)))
     }
-    
+
+    @MainActor
     private var thumbNail: some View {
-        AsyncImage(url: .init(string: category.categoryImage.imageURL)) { phase in
+        LazyImage(url: URL(string: category.categoryImage.imageURL)) { state in
             Group {
-                if let image = phase.image {
+                if let image = state.image {
                     image
                         .resizable()
                 } else {
@@ -97,7 +100,7 @@ public struct PokitCard<Item: PokitCardItem>: View {
                         .frame(width: 48, height: 48)
                 }
             }
-            .animation(.smooth, value: phase.image)
+            .animation(.smooth, value: state.image)
         }
         .frame(width: 68, height: 68)
     }

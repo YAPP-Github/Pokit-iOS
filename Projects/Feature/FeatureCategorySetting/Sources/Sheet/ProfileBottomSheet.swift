@@ -9,6 +9,7 @@ import SwiftUI
 import Domain
 import CoreKit
 import DSKit
+import NukeUI
 
 public struct ProfileBottomSheet: View {
     @State private var height: CGFloat = 0
@@ -31,23 +32,23 @@ public struct ProfileBottomSheet: View {
 }
 //MARK: - View
 public extension ProfileBottomSheet {
+    @MainActor
     var body: some View {
         ScrollView {
             LazyVGrid(columns: colmumns, spacing: 12) {
                 ForEach(images) { item in
-                    AsyncImage(
+                    LazyImage(
                         url: URL(string: item.imageURL),
                         transaction: .init(animation: .smooth)
                     ) { phase in
-                        switch phase {
-                        case .success(let image):
+                        if let image = phase.image {
                             Button(action: { delegateSend?(.imageSelected(item)) }) {
                                 image
                                     .resizable()
                                     .roundedCorner(12, corners: .allCorners)
                             }
                             .buttonStyle(.plain)
-                        default:
+                        } else {
                             PokitSpinner()
                                 .foregroundStyle(.pokit(.icon(.brand)))
                                 .frame(width: 48, height: 48)
