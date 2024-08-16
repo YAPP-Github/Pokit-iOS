@@ -107,7 +107,7 @@ private extension RegisterNicknameFeature {
             }
             .debounce(
                 id: CancelID.response,
-                for: 3.0,
+                for: 0.5,
                 scheduler: mainQueue
             )
         case .binding:

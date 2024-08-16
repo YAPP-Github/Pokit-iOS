@@ -106,7 +106,8 @@ private extension NickNameSettingFeature {
             }
             .debounce(
                 id: CancelID.response,
-                for: 3.0, scheduler: mainQueue
+                for: 0.5,
+                scheduler: mainQueue
             )
         case .binding:
             // - MARK: 목업 데이터 조회
