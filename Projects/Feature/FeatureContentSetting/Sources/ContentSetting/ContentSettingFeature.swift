@@ -266,7 +266,23 @@ private extension ContentSettingFeature {
             )
             return .none
         case .카테고리_목록_갱신(categoryList: let categoryList):
-            state.domain.categoryListInQuiry = categoryList
+            /// - `카테고리_목록_조회`의 filter 옵션을 `false`로 해두었기 때문에 `미분류` 카테고리 또한 항목에서 조회가 가능함
+
+            /// [1]. `미분류`에 해당하는 인덱스 번호와 항목을 체크, 없다면 목록갱신이 불가함
+            guard let unclassifiedItemIdx = categoryList.data?.firstIndex(where: { $0.categoryName == "미분류" }) else { return .none }
+            guard let unclassifiedItem = categoryList.data?.first(where: { $0.categoryName == "미분류" }) else { return .none }
+            
+            /// [2]. 새로운 list변수를 만들어주고 카테고리 항목 순서를 재배치 (최신순 정렬 시  미분류는 항상 맨 마지막)
+            var list = categoryList
+            list.data?.remove(at: unclassifiedItemIdx)
+            list.data?.insert(unclassifiedItem, at: 0)
+            
+            /// [3]. 도메인 항목 리스트에 list 할당
+            state.domain.categoryListInQuiry = list
+            
+            /// [4]. 선택한 카테고리는 최초 진입시 항상 `미분류`이므로 설정 추가
+            state.selectedPokit = unclassifiedItem
+            
             return .none
         }
     }
@@ -293,7 +309,7 @@ private extension ContentSettingFeature {
                         size: 100,
                         sort: pageable.sort
                     ),
-                    true
+                    false
                 ).toDomain()
                 await send(.inner(.카테고리_목록_갱신(categoryList: categoryList)), animation: .smooth)
             }
@@ -328,6 +344,7 @@ private extension ContentSettingFeature {
             guard let categoryId = state.selectedPokit?.id else {
                 return .none
             }
+            
             return .run { [
                 data = state.domain.data,
                 title = state.domain.title,
