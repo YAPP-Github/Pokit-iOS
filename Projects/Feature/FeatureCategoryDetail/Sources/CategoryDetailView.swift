@@ -194,7 +194,8 @@ private extension CategoryDetailView {
                         userId: 0,
                         categoryName: "포킷",
                         categoryImage: .init(imageId: 0, imageURL: ""),
-                        contentCount: 16
+                        contentCount: 16, 
+                        createdAt: ""
                     )
                 ),
                 reducer: { CategoryDetailFeature() }

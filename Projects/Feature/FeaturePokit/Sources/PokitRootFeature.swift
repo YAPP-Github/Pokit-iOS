@@ -270,15 +270,7 @@ private extension PokitRootFeature {
                 /// `포킷`의 최신순 정렬일 때
                 state.folderType == .folder(.포킷)
                 // - TODO: 정렬 조회 필요
-                ? state.domain.categoryList.sort = [
-                    .init(
-                        direction: "",
-                        nullHandling: "",
-                        ascending: true,
-                        property: "",
-                        ignoreCase: false
-                    )
-                ]
+                ? state.domain.categoryList.data?.sort { $0.createdAt < $1.createdAt }
                 : state.domain.unclassifiedContentList.data?.sort { $0.createdAt < $1.createdAt }
             default: return .none
             }

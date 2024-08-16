@@ -261,7 +261,8 @@ private extension ContentSettingFeature {
                 userId: 0,
                 categoryName: category.categoryName,
                 categoryImage: category.categoryImage,
-                contentCount: 0
+                contentCount: 0,
+                createdAt: ""
             )
             return .none
         case .카테고리_목록_갱신(categoryList: let categoryList):

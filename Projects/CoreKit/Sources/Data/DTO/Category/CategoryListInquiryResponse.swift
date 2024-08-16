@@ -24,6 +24,7 @@ public struct CategoryItemInquiryResponse: Decodable {
     public let categoryName: String
     public let categoryImage: CategoryImageResponse
     public let contentCount: Int
+    public let createdAt: String
 }
 /// Sort
 public struct ItemInquirySortResponse: Decodable {
@@ -43,7 +44,8 @@ public extension CategoryItemInquiryResponse {
             imageId: 22312,
             imageUrl: Constants.mockImageUrl
         ),
-        contentCount: 90
+        contentCount: 90,
+        createdAt: ""
     )
 }
 
@@ -58,7 +60,8 @@ extension CategoryListInquiryResponse {
                     imageId: 22312,
                     imageUrl: Constants.mockImageUrl
                 ),
-                contentCount: 90
+                contentCount: 90,
+                createdAt: ""
             ),
             CategoryItemInquiryResponse(
                 categoryId: 2,
@@ -68,7 +71,8 @@ extension CategoryListInquiryResponse {
                     imageId: 22312,
                     imageUrl: Constants.mockImageUrl
                 ),
-                contentCount: 90
+                contentCount: 90,
+                createdAt: ""
             ),
             CategoryItemInquiryResponse(
                 categoryId: 3,
@@ -78,7 +82,8 @@ extension CategoryListInquiryResponse {
                     imageId: 22312,
                     imageUrl: Constants.mockImageUrl
                 ),
-                contentCount: 90
+                contentCount: 90,
+                createdAt: ""
             )
         ],
         page: 1,

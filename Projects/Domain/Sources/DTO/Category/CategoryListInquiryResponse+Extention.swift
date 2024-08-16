@@ -28,7 +28,8 @@ public extension CategoryItemInquiryResponse {
             userId: self.userId,
             categoryName: self.categoryName,
             categoryImage: self.categoryImage.toDomain(),
-            contentCount: self.contentCount
+            contentCount: self.contentCount,
+            createdAt: self.createdAt
         )
     }
 }
