@@ -31,7 +31,8 @@ let coreKit: Target = .target(
         .project(target: "SharedThirdPartyLib", path: .relativeToRoot("Projects/SharedThirdPartyLib")),
         .external(name: "Moya"),
         .external(name: "GoogleSignIn"),
-        .external(name: "SwiftJWT")
+        .external(name: "SwiftJWT"),
+        .external(name: "SwiftSoup")
     ],
     settings: .settings(
         base: [
