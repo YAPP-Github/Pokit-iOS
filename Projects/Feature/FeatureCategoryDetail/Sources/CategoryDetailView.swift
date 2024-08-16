@@ -63,7 +63,7 @@ public extension CategoryDetailView {
             }
             .sheet(isPresented: $store.isFilterSheetPresented) {
                 CategoryFilterSheet(
-                    sortType: store.sortType,
+                    sortType: $store.sortType,
                     isBookMarkSelected: store.isFavoriteFiltered,
                     isUnreadSeleected: store.isUnreadFiltered,
                     delegateSend: { store.send(.scope(.filterBottomSheet($0))) }
