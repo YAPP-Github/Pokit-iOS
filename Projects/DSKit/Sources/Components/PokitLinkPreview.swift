@@ -13,16 +13,16 @@ public struct PokitLinkPreview: View {
     
     private let title: String
     private let url: String
-    private let image: UIImage
+    private let imageURL: String
     
     public init(
         title: String,
         url: String,
-        image: UIImage
+        imageURL: String
     ) {
         self.title = title
         self.url = url
-        self.image = image
+        self.imageURL = imageURL
     }
     
     public var body: some View {
@@ -33,9 +33,20 @@ public struct PokitLinkPreview: View {
     
     private var buttonLabel: some View {
         HStack(spacing: 16) {
-            Image(uiImage: image)
-                .resizable()
+            AsyncImage(url: .init(string: imageURL)) { phase in
+                Group {
+                    if let image = phase.image {
+                        image
+                            .resizable()
+                    } else {
+                        PokitSpinner()
+                            .foregroundStyle(.pokit(.icon(.brand)))
+                            .frame(width: 48, height: 48)
+                    }
+                }
                 .frame(width: 124, height: 108)
+                .animation(.smooth, value: phase.image)
+            }
             
             info(title: title)
             

@@ -18,8 +18,8 @@ public struct ContentSettingFeature {
     /// - Dependency
     @Dependency(\.dismiss)
     private var dismiss
-    @Dependency(\.linkPresentation)
-    private var linkPresentation
+    @Dependency(\.swiftSoup)
+    private var swiftSoup
     @Dependency(\.pasteboard)
     private var pasteboard
     @Dependency(\.contentClient)
@@ -64,7 +64,7 @@ public struct ContentSettingFeature {
         var memoTextAreaState: PokitInputStyle.State = .default
         var selectedPokit: BaseCategoryItem? = nil
         var linkTitle: String? = nil
-        var linkImage: UIImage? = nil
+        var linkImageURL: String? = nil
         var showPopup: Bool = false
         var contentLoading: Bool = false
         var saveIsLoading: Bool = false
@@ -94,7 +94,7 @@ public struct ContentSettingFeature {
 
         public enum InnerAction: Equatable {
             case fetchMetadata(url: URL)
-            case parsingInfo(title: String?, image: UIImage?)
+            case parsingInfo(title: String?, imageURL: String?)
             case parsingURL
             case showPopup
             case updateURLText(String?)
@@ -214,24 +214,21 @@ private extension ContentSettingFeature {
         switch action {
         case .fetchMetadata(url: let url):
             return .run { send in
-                /// - 링크에 대한 메타데이터의 제목 및 썸네일 항목 파싱
-                let (title, item) = await linkPresentation.provideMetadata(url)
-                /// - 썸네일을 `UIImage`로 변환
-                let image = linkPresentation.convertImage(item)
+                let (title, imageURL) = await swiftSoup.parseOGTitleAndImage(url)
                 await send(
-                    .inner(.parsingInfo(title: title, image: image)),
+                    .inner(.parsingInfo(title: title, imageURL: imageURL)),
                     animation: .smooth
                 )
             }
-        case .parsingInfo(title: let title, image: let image):
+        case let .parsingInfo(title: title, imageURL: imageURL):
             state.linkTitle = title
-            state.linkImage = image
+            state.linkImageURL = imageURL
             return .none
         case .parsingURL:
             guard let url = URL(string: state.domain.data) else {
                 /// 🚨 Error Case [1]: 올바른 링크가 아닐 때
                 state.linkTitle = nil
-                state.linkImage = nil
+                state.linkImageURL = nil
                 return .none
             }
             return .send(.inner(.fetchMetadata(url: url)), animation: .smooth)

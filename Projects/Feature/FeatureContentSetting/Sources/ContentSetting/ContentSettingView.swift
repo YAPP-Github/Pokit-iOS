@@ -90,11 +90,11 @@ private extension ContentSettingView {
     var linkTextField: some View {
         VStack(spacing: 16) {
             if let title = store.linkTitle,
-               let image = store.linkImage {
+               let imageURL = store.linkImageURL {
                 PokitLinkPreview(
                     title: title,
                     url: store.urlText,
-                    image: image
+                    imageURL: imageURL
                 )
                 .pokitBlurReplaceTransition(.smooth)
             }

@@ -14,8 +14,8 @@ import Util
 @Reducer
 public struct ContentDetailFeature {
     /// - Dependency
-    @Dependency(\.linkPresentation)
-    private var linkPresentation
+    @Dependency(\.swiftSoup)
+    private var swiftSoup
     @Dependency(\.dismiss)
     private var dismiss
     @Dependency(\.contentClient)
@@ -36,7 +36,7 @@ public struct ContentDetailFeature {
             get { domain.category }
         }
         var linkTitle: String? = nil
-        var linkImage: UIImage? = nil
+        var linkImageURL: String? = nil
         var showAlert: Bool = false
     }
     
@@ -64,7 +64,7 @@ public struct ContentDetailFeature {
         
         public enum InnerAction: Equatable {
             case fetchMetadata(url: URL)
-            case parsingInfo(title: String?, image: UIImage?)
+            case parsingInfo(title: String?, imageURL: String?)
             case parsingURL
             case dismissAlert
             case 컨텐츠_상세_조회(content: BaseContentDetail)
@@ -168,24 +168,22 @@ private extension ContentDetailFeature {
         case .fetchMetadata(url: let url):
             return .run { send in
                 /// - 링크에 대한 메타데이터의 제목 및 썸네일 항목 파싱
-                let (title, item) = await linkPresentation.provideMetadata(url)
-                /// - 썸네일을 `UIImage`로 변환
-                let image = linkPresentation.convertImage(item)
+                let (title, imageURL) = await swiftSoup.parseOGTitleAndImage(url)
                 await send(
-                    .inner(.parsingInfo(title: title, image: image)),
+                    .inner(.parsingInfo(title: title, imageURL: imageURL)),
                     animation: .smooth
                 )
             }
-        case .parsingInfo(title: let title, image: let image):
+        case let .parsingInfo(title: title, imageURL: imageURL):
             state.linkTitle = title
-            state.linkImage = image
+            state.linkImageURL = imageURL
             return .none
         case .parsingURL:
             guard let urlString = state.domain.content?.data,
                   let url = URL(string: urlString) else {
                 /// 🚨 Error Case [1]: 올바른 링크가 아닐 때
                 state.linkTitle = nil
-                state.linkImage = nil
+                state.linkImageURL = nil
                 return .none
             }
             return .send(.inner(.fetchMetadata(url: url)), animation: .smooth)
