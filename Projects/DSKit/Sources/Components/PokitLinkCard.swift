@@ -8,6 +8,7 @@
 import SwiftUI
 
 import Util
+import NukeUI
 
 public struct PokitLinkCard<Item: PokitLinkCardItem>: View {
     private let link: Item
@@ -30,6 +31,7 @@ public struct PokitLinkCard<Item: PokitLinkCardItem>: View {
         }
     }
     
+    @MainActor
     private var buttonLabel: some View {
         HStack(spacing: 12) {
             thumbleNail
@@ -99,8 +101,9 @@ public struct PokitLinkCard<Item: PokitLinkCardItem>: View {
         }
     }
     
+    @MainActor
     private var thumbleNail: some View {
-        AsyncImage(url: .init(string: link.thumbNail)) { phase in
+        LazyImage(url: .init(string: link.thumbNail)) { phase in
             Group {
                 if let image = phase.image {
                     image
