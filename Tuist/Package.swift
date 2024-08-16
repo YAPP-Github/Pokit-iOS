@@ -27,6 +27,7 @@ let package = Package(
         .package(url: "https://github.com/Moya/Moya", from: "15.0.0"),
         .package(url: "https://github.com/firebase/firebase-ios-sdk", "10.28.0" ..< "10.28.1"),
         .package(url: "https://github.com/Kitura/Swift-JWT", from: "4.0.1"),
-        .package(url: "https://github.com/kean/Nuke", from: "12.8.0")
+        .package(url: "https://github.com/kean/Nuke", from: "12.8.0"),
+        .package(url: "https://github.com/scinfu/SwiftSoup", from: "2.7.4")
     ]
 )
