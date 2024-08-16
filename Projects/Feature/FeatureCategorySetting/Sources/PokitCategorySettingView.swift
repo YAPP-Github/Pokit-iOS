@@ -41,6 +41,7 @@ public extension PokitCategorySettingView {
             .pokitNavigationBar(title: store.type.title)
             .sheet(isPresented: $store.isProfileSheetPresented) {
                 ProfileBottomSheet(
+                    selectedImage: store.selectedProfile,
                     images: store.profileImages,
                     delegateSend: { store.send(.scope(.profile($0))) }
                 )

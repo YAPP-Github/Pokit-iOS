@@ -156,7 +156,8 @@ private extension PokitCategorySettingFeature {
             
         case .profileSettingButtonTapped:
             /// [Profile 🎨]1. 프로필 목록 조회 API 호출
-            return .run { send in await send(.async(.프로필_목록_조회)) }
+            state.isProfileSheetPresented.toggle()
+            return .none
 
         case .saveButtonTapped:
             return .run { [domain = state.domain,
@@ -195,6 +196,7 @@ private extension PokitCategorySettingFeature {
                 let pageRequest = BasePageableRequest(page: 0, size: 100, sort: ["desc"])
                 let response = try await categoryClient.카테고리_목록_조회(pageRequest, true).toDomain()
                 await send(.inner(.카테고리_목록_조회_결과(response)))
+                await send(.async(.프로필_목록_조회))
                 
                 for await _ in self.pasteboard.changes() {
                     let url = try await pasteboard.probableWebURL()
@@ -210,8 +212,9 @@ private extension PokitCategorySettingFeature {
         case let .프로필_목록_조회_결과(images):
             /// [Profile 🎨] 2. 프로필 목록들을 profileImages에 할당
             state.domain.imageList = images
+            state.selectedProfile = images.first
             /// [Profile 🎨] 3. 토글 on
-            state.isProfileSheetPresented.toggle()
+//            state.isProfileSheetPresented.toggle()
             return .none
         case let .카테고리_목록_조회_결과(response):
             state.domain.categoryListInQuiry = response
