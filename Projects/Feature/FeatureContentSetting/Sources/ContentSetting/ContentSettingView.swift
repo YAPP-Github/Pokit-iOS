@@ -113,7 +113,6 @@ private extension ContentSettingView {
             text: $store.title,
             label: "제목", 
             state: $store.titleTextInpuState,
-            maxLetter: 20,
             focusState: $focusedType,
             equals: .title) { }
     }
