@@ -7,6 +7,8 @@
 
 import SwiftUI
 
+import NukeUI
+
 public struct PokitLinkPreview: View {
     @Environment(\.openURL)
     private var openURL
@@ -33,7 +35,7 @@ public struct PokitLinkPreview: View {
     
     private var buttonLabel: some View {
         HStack(spacing: 16) {
-            AsyncImage(url: .init(string: imageURL)) { phase in
+            LazyImage(url: URL(string: imageURL)) { phase in
                 Group {
                     if let image = phase.image {
                         image
