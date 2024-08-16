@@ -28,6 +28,8 @@ public struct ContentSetting: Equatable {
     public var memo: String
     /// 등록 또는 수정할 콘텐츠(링크) 리마인드 여부
     public var alertYn: BaseContentDetail.RemindState
+    /// 등록 도는 수정할 콘텐츠(링크) 썸네일
+    public var thumbNail: String?
     /// 카테고리 리스트의 조회할 페이징 정보
     public var pageable: BasePageable
     

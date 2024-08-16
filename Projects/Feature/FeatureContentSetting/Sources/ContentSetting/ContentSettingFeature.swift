@@ -223,12 +223,18 @@ private extension ContentSettingFeature {
         case let .parsingInfo(title: title, imageURL: imageURL):
             state.linkTitle = title
             state.linkImageURL = imageURL
+            if let title, state.domain.title.isEmpty {
+                state.domain.title = title
+            }
+            state.domain.thumbNail = imageURL
             return .none
         case .parsingURL:
             guard let url = URL(string: state.domain.data) else {
                 /// 🚨 Error Case [1]: 올바른 링크가 아닐 때
                 state.linkTitle = nil
+                state.domain.title = ""
                 state.linkImageURL = nil
+                state.domain.thumbNail = nil
                 return .none
             }
             return .send(.inner(.fetchMetadata(url: url)), animation: .smooth)
@@ -323,7 +329,8 @@ private extension ContentSettingFeature {
                 title = state.domain.title,
                 categoryId = categoryId,
                 memo = state.domain.memo,
-                alertYn = state.domain.alertYn
+                alertYn = state.domain.alertYn,
+                thumbNail = state.domain.thumbNail
             ] send in
                 let _ = try await contentClient.컨텐츠_수정(
                     "\(id)",
@@ -332,7 +339,8 @@ private extension ContentSettingFeature {
                         title: title,
                         categoryId: categoryId,
                         memo: memo,
-                        alertYn: alertYn.rawValue
+                        alertYn: alertYn.rawValue,
+                        thumbNail: thumbNail
                     )
                 )
                 await send(.delegate(.저장하기_완료))
@@ -347,7 +355,8 @@ private extension ContentSettingFeature {
                 title = state.domain.title,
                 categoryId = categoryId,
                 memo = state.domain.memo,
-                alertYn = state.domain.alertYn
+                alertYn = state.domain.alertYn,
+                thumbNail = state.domain.thumbNail
             ] send in
                 let _ = try await contentClient.컨텐츠_추가(
                     ContentBaseRequest(
@@ -355,7 +364,8 @@ private extension ContentSettingFeature {
                         title: title,
                         categoryId: categoryId,
                         memo: memo,
-                        alertYn: alertYn.rawValue
+                        alertYn: alertYn.rawValue,
+                        thumbNail: thumbNail
                     )
                 )
                 await send(.delegate(.저장하기_완료))
