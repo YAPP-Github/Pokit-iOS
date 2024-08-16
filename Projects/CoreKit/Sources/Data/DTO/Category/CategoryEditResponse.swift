@@ -35,7 +35,7 @@ extension CategoryImageResponse {
     public static var mock: [Self] = [
         Self(
             imageId: 2312,
-            imageUrl: Constants.mockImageUrl
+            imageUrl: "https://pokit-storage.s3.ap-northeast-2.amazonaws.com/logo/pokit.png"
         ),
         Self(
             imageId: 23122,
