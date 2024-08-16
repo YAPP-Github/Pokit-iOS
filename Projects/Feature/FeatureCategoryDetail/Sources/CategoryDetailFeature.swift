@@ -38,9 +38,10 @@ public struct CategoryDetailFeature {
             get { domain.condition.isFavoriteFlitered }
         }
         // - TODO: 더 구체적인 처리 필요
-        var sortType: SortType {
-            get { domain.pageable.sort == ["desc"] ? .최신순 : .오래된순 }
-        }
+//        var sortType: SortType {
+//            get { domain.pageable.sort == ["desc"] ? .최신순 : .오래된순 }
+//        }
+        var sortType: SortType = .최신순
         var categories: IdentifiedArrayOf<BaseCategoryItem>? {
             guard let categoryList = domain.categoryListInQuiry.data else {
                 return nil
@@ -354,6 +355,7 @@ private extension CategoryDetailFeature {
                     "createdAt",
                     type == .최신순 ? "desc" : "asc"
                 ]
+                state.sortType = type
                 state.domain.condition.isFavoriteFlitered = bookMarkSelected
                 state.domain.condition.isUnreadFlitered = unReadSelected
                 return .send(.async(.카테고리_내_컨텐츠_목록_조회), animation: .smooth)

@@ -11,18 +11,18 @@ import DSKit
 public struct CategoryFilterSheet: View {
     
     @State private var height: CGFloat = 0
-    @State private var sortType: SortType
+    @Binding private var sortType: SortType
     @State private var isBookMarkSelected: Bool
     @State private var isUnReadSelected: Bool
     private let delegateSend: ((CategoryFilterSheet.Delegate) -> Void)?
     
     public init(
-        sortType: SortType,
+        sortType: Binding<SortType>,
         isBookMarkSelected: Bool,
         isUnreadSeleected: Bool,
         delegateSend: ((CategoryFilterSheet.Delegate) -> Void)?
     ) {
-        self._sortType = .init(initialValue: sortType)
+        self._sortType = sortType
         self._isBookMarkSelected = .init(initialValue: isBookMarkSelected)
         self._isUnReadSelected = .init(initialValue: isUnreadSeleected)
         self.delegateSend = delegateSend
@@ -181,7 +181,7 @@ public extension CategoryFilterSheet {
 //MARK: - Preview
 #Preview {
     CategoryFilterSheet(
-        sortType: .최신순,
+        sortType: .constant(.최신순),
         isBookMarkSelected: true,
         isUnreadSeleected: true,
         delegateSend: nil
