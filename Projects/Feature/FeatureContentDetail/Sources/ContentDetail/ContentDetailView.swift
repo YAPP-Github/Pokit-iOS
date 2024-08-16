@@ -118,12 +118,11 @@ private extension ContentDetailView {
     @ViewBuilder
     func contentLinkPreview(content: BaseContentDetail) -> some View {
         VStack(spacing: 16) {
-            if let title = store.linkTitle,
-               let imageURL = store.linkImageURL {
+            if let title = store.linkTitle {
                 PokitLinkPreview(
                     title: title,
                     url: content.data,
-                    imageURL: imageURL
+                    imageURL: store.linkImageURL ?? "https://pokit-storage.s3.ap-northeast-2.amazonaws.com/logo/pokit.png"
                 )
                 .pokitBlurReplaceTransition(.smooth)
             }
