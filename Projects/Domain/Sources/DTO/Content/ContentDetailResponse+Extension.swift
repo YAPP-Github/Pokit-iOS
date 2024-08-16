@@ -14,7 +14,10 @@ public extension ContentDetailResponse {
     func toDomain() -> BaseContentDetail {
         return .init(
             id: self.contentId,
-            categoryId: self.categoryId,
+            category: BaseCategoryInfo(
+                categoryId: self.category.categoryId,
+                categoryName: self.category.categoryName
+            ),
             title: self.title,
             data: self.data,
             memo: self.memo,

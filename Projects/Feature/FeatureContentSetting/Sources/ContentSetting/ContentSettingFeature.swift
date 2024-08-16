@@ -247,11 +247,11 @@ private extension ContentSettingFeature {
             state.domain.data = content.data
             state.domain.contentId = content.id
             state.domain.title = content.title
-            state.domain.categoryId = content.categoryId
+            state.domain.categoryId = content.category.categoryId
             state.domain.memo = content.memo
             state.domain.alertYn = content.alertYn
             state.contentLoading = false
-            return .run { [id = content.categoryId] send in
+            return .run { [id = content.category.categoryId] send in
                 await send(.inner(.parsingURL))
                 await send(.async(.카테고리_상세_조회(id: id)))
             }

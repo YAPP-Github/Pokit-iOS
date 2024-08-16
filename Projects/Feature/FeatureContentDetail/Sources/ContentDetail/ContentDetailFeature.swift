@@ -211,7 +211,7 @@ private extension ContentDetailFeature {
             return .run { [id] send in
                 let contentResponse = try await contentClient.컨텐츠_상세_조회("\(id)").toDomain()
                 await send(.inner(.컨텐츠_상세_조회(content: contentResponse)))
-                await send(.async(.카테고리_상세_조회(id: contentResponse.categoryId)))
+                await send(.async(.카테고리_상세_조회(id: contentResponse.category.categoryId)))
             }
         case .즐겨찾기(id: let id):
             return .run { [id] send in

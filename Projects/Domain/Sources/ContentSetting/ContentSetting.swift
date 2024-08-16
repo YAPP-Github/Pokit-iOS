@@ -46,7 +46,7 @@ public struct ContentSetting: Equatable {
         self.categoryTotalCount = categoryListInquiry.data?.count ?? 0
         self.data = content?.data ?? data ?? ""
         self.title = content?.title ?? ""
-        self.categoryId = content?.categoryId
+        self.categoryId = content?.category.categoryId
         self.memo = content?.memo ?? ""
         self.alertYn = content?.alertYn ?? .no
         self.pageable = .init(
