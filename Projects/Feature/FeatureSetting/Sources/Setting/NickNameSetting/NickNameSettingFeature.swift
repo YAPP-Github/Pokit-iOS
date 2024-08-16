@@ -27,7 +27,6 @@ public struct NickNameSettingFeature {
         
         var textfieldState: PokitInputStyle.State = .default
         var buttonState: PokitButtonStyle.State = .disable
-        var textInpuState: PokitInputStyle.State = .default
         
         public init() {}
     }
@@ -130,13 +129,25 @@ private extension NickNameSettingFeature {
     func handleInnerAction(_ action: Action.InnerAction, state: inout State) -> Effect<Action> {
         switch action {
         case .textChanged:
-            if state.text.isEmpty || state.text.count > 10 {
+            /// [1]. 닉네임 텍스트필드가 비어있을 때
+            if state.text.isEmpty {
                 state.buttonState = .disable
                 return .none
+            }
+            /// [2]. 닉네임이 10자를 넘을 때
+            if state.text.count > 10 {
+                state.buttonState = .disable
+                state.textfieldState = .error(message: "최대 10자까지 입력 가능합니다.")
+                return .none
+            }
+            /// [3]. 닉네임에 특수문자가 포함되어 있을 때
+            if !state.text.isNickNameValid {
+                state.buttonState = .disable
+                state.textfieldState = .error(message: "한글, 영어, 숫자만 입력이 가능합니다.")
+                return .none
             } else {
-                return .run { send in
-                    await send(.async(.닉네임_중복_체크_네트워크))
-                }
+                /// [4]. 정상 케이스일 때
+                return .run { send in await send(.async(.닉네임_중복_체크_네트워크)) }
             }
         case let .닉네임_중복_체크_네트워크_결과(isDuplicate):
             if isDuplicate {
