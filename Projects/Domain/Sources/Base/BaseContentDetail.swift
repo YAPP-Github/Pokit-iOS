@@ -9,7 +9,7 @@ import Foundation
 
 public struct BaseContentDetail: Equatable {
     public let id: Int
-    public let categoryId: Int
+    public let category: BaseCategoryInfo
     public let title: String
     public let data: String
     public let memo: String
@@ -19,7 +19,7 @@ public struct BaseContentDetail: Equatable {
     
     public init(
         id: Int,
-        categoryId: Int,
+        category: BaseCategoryInfo,
         title: String,
         data: String,
         memo: String,
@@ -28,7 +28,7 @@ public struct BaseContentDetail: Equatable {
         alertYn: RemindState
     ) {
         self.id = id
-        self.categoryId = categoryId
+        self.category = category
         self.title = title
         self.data = data
         self.memo = memo
@@ -43,4 +43,10 @@ public extension BaseContentDetail {
         case yes = "YES"
         case no = "NO"
     }
+}
+
+/// CategoryId & CategoryName
+public struct BaseCategoryInfo: Equatable {
+    public let categoryId: Int
+    public let categoryName: String
 }
