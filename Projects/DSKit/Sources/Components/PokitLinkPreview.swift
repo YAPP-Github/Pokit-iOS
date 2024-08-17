@@ -46,9 +46,9 @@ public struct PokitLinkPreview: View {
                             .frame(width: 48, height: 48)
                     }
                 }
-                .frame(width: 124, height: 108)
                 .animation(.smooth, value: phase.image)
             }
+            .frame(width: 124, height: 108)
             
             info(title: title)
             
