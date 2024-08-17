@@ -33,6 +33,7 @@ public struct PokitLinkPreview: View {
         }
     }
     
+    @MainActor
     private var buttonLabel: some View {
         HStack(spacing: 16) {
             LazyImage(url: URL(string: imageURL)) { phase in
