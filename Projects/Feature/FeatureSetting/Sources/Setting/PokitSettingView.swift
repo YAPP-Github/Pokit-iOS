@@ -149,6 +149,7 @@ private extension PokitSettingView {
                     Spacer()
                     Image(.icon(.arrowRight))
                         .resizable()
+                        .foregroundStyle(.black)
                         .frame(width: 24, height: 24)
                 }
             }
