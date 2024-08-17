@@ -210,11 +210,12 @@ private extension PokitCategorySettingFeature {
     func handleInnerAction(_ action: Action.InnerAction, state: inout State) -> Effect<Action> {
         switch action {
         case let .프로필_목록_조회_결과(images):
-            /// [Profile 🎨] 2. 프로필 목록들을 profileImages에 할당
             state.domain.imageList = images
-            state.selectedProfile = images.first
-            /// [Profile 🎨] 3. 토글 on
-//            state.isProfileSheetPresented.toggle()
+
+            guard let _ = state.selectedProfile else {
+                state.selectedProfile = images.first
+                return .none
+            }
             return .none
         case let .카테고리_목록_조회_결과(response):
             state.domain.categoryListInQuiry = response
