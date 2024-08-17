@@ -14,6 +14,7 @@ public enum Constants {
     public static let categoryPath: String = "/api/v1/category"
     public static let contentPath: String = "/api/v1/content"
     public static let remindPath: String = "api/v1/remind"
+    public static let alertPath: String = "/api/v1/alert"
     
     public static let 공지사항_주소: URL = URL(string: "https://www.naver.com")!
     public static let 서비스_이용약관_주소: URL = URL(string: "https://www.naver.com")!
