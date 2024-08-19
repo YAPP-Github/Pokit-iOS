@@ -8,6 +8,7 @@ import SwiftUI
 
 import ComposableArchitecture
 import DSKit
+import Domain
 
 @ViewAction(for: PokitAlertBoxFeature.self)
 public struct PokitAlertBoxView: View {
@@ -25,15 +26,33 @@ public extension PokitAlertBoxView {
         WithPerceptionTracking {
             VStack(alignment: .leading, spacing: 0) {
                 List {
-                    ForEach(store.mock, id: \.id) { item in
-                        Button(action: { send(.itemSelected(item: item)) }) {
-                            AlertItem(item: item)
+                    Group {
+                        if let alertContents = store.alertContents {
+                            if alertContents.isEmpty {
+                                VStack {
+                                    PokitCaution(
+                                        image: .empty,
+                                        titleKey: "알람이 없어요!",
+                                        message: "메세지"
+                                    )
+                                    .padding(.top, 36)
+                                    Spacer()
+                                }
+                            } else {
+                                ForEach(alertContents, id: \.id) { item in
+                                    Button(action: { send(.itemSelected(item: item)) }) {
+                                        AlertContent(item: item)
+                                    }
+                                    .listRowSeparator(.hidden)
+                                    .listRowInsets(EdgeInsets())
+                                    .onDelete(deleteAction: { delete(item) })
+                                }
+                                .listRowBackground(Color.pokit(.bg(.base)))
+                            }
+                        } else {
+                            PokitLoading()
                         }
-                        .listRowSeparator(.hidden)
-                        .listRowInsets(EdgeInsets())
-                        .onDelete(deleteAction: { delete(item) })
                     }
-                    .listRowBackground(Color.pokit(.bg(.base)))
                 }
                 .listStyle(.plain)
             }
@@ -42,7 +61,7 @@ public extension PokitAlertBoxView {
             .ignoresSafeArea(edges: .bottom)
             .pokitNavigationBar(title: "알림함")
             .toolbar { navigationBar }
-            .onAppear { send(.onAppear) }
+            .task { await send(.onAppear).finish() }
         }
     }
 }
@@ -58,14 +77,14 @@ private extension PokitAlertBoxView {
         }
     }
     
-    func delete(_ item: AlertMock) {
+    func delete(_ item: AlertItem) {
         send(.deleteSwiped(item: item),animation: .spring)
     }
 
-    struct AlertItem: View {
-        var item: AlertMock
+    struct AlertContent: View {
+        var item: AlertItem
         
-        init(item: AlertMock) {
+        init(item: AlertItem) {
             self.item = item
         }
         
@@ -80,11 +99,11 @@ private extension PokitAlertBoxView {
                             .foregroundStyle(.pokit(.text(.primary)))
                             .lineLimit(1)
                             .padding(.bottom, 4)
-                        Text(item.contents)
+                        Text("여긴뭘적음?")
                             .pokitFont(.detail2)
                             .foregroundStyle(.pokit(.text(.secondary)))
                             .padding(.bottom, 8)
-                        Text(item.ago)
+                        Text(item.createdAt)
                             .pokitFont(.detail2)
                             .foregroundStyle(.pokit(.text(.tertiary)))
                     }
@@ -103,7 +122,7 @@ private extension PokitAlertBoxView {
     NavigationStack {
         PokitAlertBoxView(
             store: Store(
-                initialState: .init(alertItems: AlertMock.mock),
+                initialState: .init(),
                 reducer: { PokitAlertBoxFeature() }
             )
         )

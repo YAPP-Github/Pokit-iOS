@@ -56,7 +56,7 @@ public extension MainTabFeature {
             /// - 네비게이션 바 `알림`버튼 눌렀을 때
             case .pokit(.delegate(.alertButtonTapped)),
                  .remind(.delegate(.alertButtonTapped)):
-                state.path.append(.알림함(PokitAlertBoxFeature.State(alertItems: AlertMock.mock)))
+                state.path.append(.알림함(PokitAlertBoxFeature.State()))
                 return .none
 
             /// - 네비게이션 바 `검색`버튼 눌렀을 때

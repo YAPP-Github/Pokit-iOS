@@ -7,6 +7,7 @@
 import Foundation
 
 import ComposableArchitecture
+import Domain
 import Util
 import CoreKit
 
@@ -15,12 +16,22 @@ public struct PokitAlertBoxFeature {
     /// - Dependency
     @Dependency(\.dismiss) var dismiss
     @Dependency(\.pasteboard) var pasteboard
+    @Dependency(\.alertClient) var alertClient
     /// - State
     @ObservableState
     public struct State: Equatable {
+        public init() {}
+        
+        fileprivate var domain = Alert()
         var mock: IdentifiedArrayOf<AlertMock> = []
-        public init(alertItems: [AlertMock]) {
-            alertItems.forEach { self.mock.append($0) }
+        
+        var alertContents: IdentifiedArrayOf<AlertItem>? {
+            guard let list = domain.alertList.data else {
+                return nil
+            }
+            var identifiedArray = IdentifiedArrayOf<AlertItem>()
+            list.forEach { identifiedArray.append($0) }
+            return identifiedArray
         }
     }
     
@@ -34,20 +45,25 @@ public struct PokitAlertBoxFeature {
         
         @CasePathable
         public enum View: Equatable {
-            case deleteSwiped(item: AlertMock)
-            case itemSelected(item: AlertMock)
+            case deleteSwiped(item: AlertItem)
+            case itemSelected(item: AlertItem)
             case dismiss
             case onAppear
+            case pagenation
         }
         
-        public enum InnerAction: Equatable { case doNothing }
+        public enum InnerAction: Equatable {
+            case onAppearResult(AlertListInquiry)
+            case pagenation_result(AlertListInquiry)
+            case 삭제결과(item: AlertItem)
+        }
         
         public enum AsyncAction: Equatable { case doNothing }
         
         public enum ScopeAction: Equatable { case doNothing }
         
         public enum DelegateAction: Equatable {
-            case moveToContentEdit(item: AlertMock)
+            case moveToContentEdit(item: AlertItem)
             case linkCopyDetected(URL?)
         }
     }
@@ -94,26 +110,67 @@ private extension PokitAlertBoxFeature {
         switch action {
         /// - 스와이프를 통해 아이템 삭제를 눌렀을 때
         case .deleteSwiped(let item):
-            state.mock.remove(id: item.id)
-            return .none
+//            state.mock.remove(id: item.id)
+            return .run { send in
+                try await alertClient.알람_삭제("\(item.id)")
+                await send(.inner(.삭제결과(item: item)))
+            }
         /// - 선택한 항목을 `링크수정`화면으로 이동해 수정
         case .itemSelected(let item):
             return .run { send in await send(.delegate(.moveToContentEdit(item: item))) }
         case .dismiss:
             return .run { _ in await dismiss() }
         case .onAppear:
-            return .run { send in
+            return .run { [domain = state.domain.alertList] send in
+                let sort: [String] = ["createdAt", "desc"]
+                let request = BasePageableRequest(page: 0, size: domain.size, sort: sort)
+                let result = try await alertClient.알람_목록_조회(request).toDomain()
+                await send(.inner(.onAppearResult(result)))
+                
                 for await _ in self.pasteboard.changes() {
                     let url = try await pasteboard.probableWebURL()
                     await send(.delegate(.linkCopyDetected(url)), animation: .pokitSpring)
                 }
             }
+        case .pagenation:
+            if state.domain.alertList.hasNext {
+                return .run { [domain = state.domain.alertList] send in
+                    let sort: [String] = ["createdAt", "desc"]
+                    let request = BasePageableRequest(
+                        page: domain.page + 1,
+                        size: 10,
+                        sort: sort
+                    )
+                    let result = try await alertClient.알람_목록_조회(request).toDomain()
+                    await send(.inner(.pagenation_result(result)))
+                }
+            }
+            return .none
         }
     }
     
     /// - Inner Effect
     func handleInnerAction(_ action: Action.InnerAction, state: inout State) -> Effect<Action> {
-        return .none
+        switch action {
+        case let .onAppearResult(list):
+            state.domain.alertList = list
+            return .none
+            
+        case let .pagenation_result(alertList):
+            guard var list = state.domain.alertList.data else { return .none }
+            guard let newList = alertList.data else { return .none }
+            
+            newList.forEach { list.append($0) }
+            state.domain.alertList = alertList
+            state.domain.alertList.data = list
+            return .none
+            
+        case let .삭제결과(item):
+            //TODO: 삭제연결
+            guard let idx = state.domain.alertList.data?.firstIndex(where: { $0 == item }) else { return .none }
+            state.domain.alertList.data?.remove(at: idx)
+            return .none
+        }
     }
     
     /// - Async Effect
