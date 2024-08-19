@@ -124,6 +124,7 @@ public struct CategoryDetailFeature {
             case 포킷삭제
             case 포킷수정(BaseCategoryItem)
             case 포킷공유
+            case 카테고리_내_컨텐츠_목록_조회
         }
     }
     
@@ -365,6 +366,11 @@ private extension CategoryDetailFeature {
     
     /// - Delegate Effect
     func handleDelegateAction(_ action: Action.DelegateAction, state: inout State) -> Effect<Action> {
-        return .none
+        switch action {
+        case .카테고리_내_컨텐츠_목록_조회:
+            return .send(.async(.카테고리_내_컨텐츠_목록_조회))
+        default:
+            return .none
+        }
     }
 }

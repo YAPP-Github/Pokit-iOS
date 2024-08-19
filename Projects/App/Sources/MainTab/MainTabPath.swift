@@ -126,6 +126,11 @@ public extension MainTabFeature {
                 state.contentDetail = nil
                 // - TODO: 컨텐츠 상세를 띄운 뷰에 컨텐츠 삭제 반영
                 return .none
+            
+            /// - 컨텐츠 상세보기 닫힘
+            case .contentDetail(.dismiss):
+                guard state.path.isEmpty else { return .none }
+                return .send(.remind(.delegate(.컨텐츠목록_조회)))
 
             case let .inner(.링크추가및수정이동(contentId: id)):
                 state.path.append(.링크추가및수정(
@@ -142,7 +147,25 @@ public extension MainTabFeature {
             /// - 링크추가 및 수정에서 저장하기 눌렀을 때
             case .path(.element(_, action: .링크추가및수정(.delegate(.저장하기_완료)))):
                 state.path.removeLast()
-                return .send(.remind(.delegate(.컨텐츠목록_조회)))
+                guard let stackElementId = state.path.ids.last else {
+                    return .send(.remind(.delegate(.컨텐츠목록_조회)))
+                }
+                switch state.path.last {
+                case .링크목록:
+                    return .send(.path(.element(
+                        id: stackElementId,
+                        action: .링크목록(.delegate(.컨텐츠_목록_조회))
+                    )))
+                case .카테고리상세:
+                    return .send(.path(.element(
+                        id: stackElementId,
+                        action: .카테고리상세(.delegate(.카테고리_내_컨텐츠_목록_조회))
+                    )))
+                case nil:
+                     return .send(.remind(.delegate(.컨텐츠목록_조회)))
+                default:
+                    return .none
+                }
             /// - 각 화면에서 링크 복사 감지했을 때 (링크 추가 및 수정 화면 제외)
             case let .path(.element(_, action: .알림함(.delegate(.linkCopyDetected(url))))),
                  let .path(.element(_, action: .검색(.delegate(.linkCopyDetected(url))))),

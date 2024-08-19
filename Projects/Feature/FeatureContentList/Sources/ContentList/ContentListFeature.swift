@@ -102,6 +102,7 @@ public struct ContentListFeature {
             case 링크상세(content: BaseContentItem)
             case 링크수정(contentId: Int)
             case linkCopyDetected(URL?)
+            case 컨텐츠_목록_조회
         }
     }
     
@@ -276,7 +277,17 @@ private extension ContentListFeature {
     
     /// - Delegate Effect
     func handleDelegateAction(_ action: Action.DelegateAction, state: inout State) -> Effect<Action> {
-        return .none
+        switch action {
+        case .컨텐츠_목록_조회:
+            switch state.contentType {
+            case .favorite:
+                return .send(.async(.즐겨찾기_링크모음_조회))
+            case .unread:
+                return .send(.async(.읽지않음_컨텐츠_조회))
+            }
+        default:
+            return .none
+        }
     }
 }
 
