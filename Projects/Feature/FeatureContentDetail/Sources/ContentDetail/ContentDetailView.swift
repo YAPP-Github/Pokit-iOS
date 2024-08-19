@@ -42,7 +42,8 @@ public extension ContentDetailView {
                 }
             }
             .padding(.top, 28)
-            .padding(.bottom, 36)
+            .ignoresSafeArea(edges: .bottom)
+            .padding(.bottom, 40)
             .background(.pokit(.bg(.base)))
             .pokitPresentationBackground()
             .pokitPresentationCornerRadius()
@@ -169,7 +170,7 @@ private extension ContentDetailView {
     
     @ViewBuilder
     func bottomToolbar(content: BaseContentDetail) -> some View {
-        HStack(spacing: 12) {
+        HStack(spacing: 14) {
             favorite(content: content)
             
             Spacer()
@@ -189,7 +190,7 @@ private extension ContentDetailView {
                 action: { send(.deleteButtonTapped) }
             )
         }
-        .padding(.vertical, 12)
+        .padding(.top, 12)
         .padding(.horizontal, 16)
         .background(.pokit(.bg(.base)))
         .overlay(alignment: .top) {
