@@ -33,7 +33,7 @@ struct FeatureSettingDemoApp: App {
                     NavigationLink("알림함") {
                         PokitAlertBoxView(
                             store: Store(
-                                initialState: .init(alertItems: AlertMock.mock),
+                                initialState: .init(),
                                 reducer: { PokitAlertBoxFeature() }
                             )
                         )

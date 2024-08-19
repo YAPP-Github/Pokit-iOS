@@ -26,36 +26,34 @@ public extension PokitAlertBoxView {
     var body: some View {
         WithPerceptionTracking {
             VStack(alignment: .leading, spacing: 0) {
-                List {
-                    Group {
-                        if let alertContents = store.alertContents {
-                            if alertContents.isEmpty {
-                                VStack {
-                                    PokitCaution(
-                                        image: .empty,
-                                        titleKey: "알람이 없어요!",
-                                        message: "메세지"
-                                    )
-                                    .padding(.top, 36)
-                                    Spacer()
-                                }
-                            } else {
-                                ForEach(alertContents, id: \.id) { item in
-                                    Button(action: { send(.itemSelected(item: item)) }) {
-                                        AlertContent(item: item)
-                                    }
-                                    .listRowSeparator(.hidden)
-                                    .listRowInsets(EdgeInsets())
-                                    .onDelete(deleteAction: { delete(item) })
-                                }
-                                .listRowBackground(Color.pokit(.bg(.base)))
-                            }
-                        } else {
-                            PokitLoading()
+                if let alertContents = store.alertContents {
+                    if alertContents.isEmpty {
+                        VStack {
+                            PokitCaution(
+                                image: .pooki,
+                                titleKey: "알람이 없어요",
+                                message: "리마인드 알림을 설정하세요"
+                            )
+                            .padding(.top, 84)
+                            Spacer()
                         }
+                    } else {
+                        List {
+                            ForEach(alertContents, id: \.id) { item in
+                                Button(action: { send(.itemSelected(item: item)) }) {
+                                    AlertContent(item: item)
+                                }
+                                .listRowSeparator(.hidden)
+                                .listRowInsets(EdgeInsets())
+                                .onDelete(deleteAction: { delete(item) })
+                            }
+                            .listRowBackground(Color.pokit(.bg(.base)))
+                        }
+                        .listStyle(.plain)
                     }
+                } else {
+                    PokitLoading()
                 }
-                .listStyle(.plain)
             }
             .padding(.top, 16)
             .background(.pokit(.bg(.base)))
