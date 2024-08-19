@@ -69,7 +69,7 @@ public extension CategoryDetailView {
                     delegateSend: { store.send(.scope(.filterBottomSheet($0))) }
                 )
             }
-            .onAppear { send(.onAppear) }
+            .task { await send(.onAppear).finish() }
         }
     }
 }

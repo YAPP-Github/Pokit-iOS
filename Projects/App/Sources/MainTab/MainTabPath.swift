@@ -129,7 +129,9 @@ public extension MainTabFeature {
             
             /// - 컨텐츠 상세보기 닫힘
             case .contentDetail(.dismiss):
-                guard state.path.isEmpty else { return .none }
+                guard state.path.isEmpty && state.selectedTab == .remind else {
+                    return .none
+                }
                 return .send(.remind(.delegate(.컨텐츠목록_조회)))
 
             case let .inner(.링크추가및수정이동(contentId: id)):
@@ -147,22 +149,22 @@ public extension MainTabFeature {
             /// - 링크추가 및 수정에서 저장하기 눌렀을 때
             case .path(.element(_, action: .링크추가및수정(.delegate(.저장하기_완료)))):
                 state.path.removeLast()
-                guard let stackElementId = state.path.ids.last else {
-                    return .send(.remind(.delegate(.컨텐츠목록_조회)))
+                guard let stackElementId = state.path.ids.last,
+                      let lastPath = state.path.last else {
+                    switch state.selectedTab {
+                    case .pokit:
+                        return .send(.pokit(.delegate(.카테고리_또는_컨텐츠_조회)))
+                    case .remind:
+                        return .send(.remind(.delegate(.컨텐츠목록_조회)))
+                    }
                 }
-                switch state.path.last {
+                switch lastPath {
                 case .링크목록:
-                    return .send(.path(.element(
-                        id: stackElementId,
-                        action: .링크목록(.delegate(.컨텐츠_목록_조회))
-                    )))
+                    return .send(.path(.element(id: stackElementId, action: .링크목록(.delegate(.컨텐츠_목록_조회)))))
                 case .카테고리상세:
-                    return .send(.path(.element(
-                        id: stackElementId,
-                        action: .카테고리상세(.delegate(.카테고리_내_컨텐츠_목록_조회))
-                    )))
-                case nil:
-                     return .send(.remind(.delegate(.컨텐츠목록_조회)))
+                    return .send(.path(.element(id: stackElementId, action: .카테고리상세(.delegate(.카테고리_내_컨텐츠_목록_조회)))))
+                case .검색:
+                    return .send(.path(.element(id: stackElementId, action: .검색(.delegate(.컨텐츠_검색)))))
                 default:
                     return .none
                 }

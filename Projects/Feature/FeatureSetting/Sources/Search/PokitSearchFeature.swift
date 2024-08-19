@@ -161,6 +161,7 @@ public struct PokitSearchFeature {
             case linkCardTapped(content: BaseContentItem)
             case 링크수정(contentId: Int)
             case linkCopyDetected(URL?)
+            case 컨텐츠_검색
         }
     }
     
@@ -496,6 +497,10 @@ private extension PokitSearchFeature {
     
     /// - Delegate Effect
     func handleDelegateAction(_ action: Action.DelegateAction, state: inout State) -> Effect<Action> {
-        return .none
+        switch action {
+        case .컨텐츠_검색:
+            return .send(.async(.컨텐츠_검색))
+        default: return .none
+        }
     }
 }
