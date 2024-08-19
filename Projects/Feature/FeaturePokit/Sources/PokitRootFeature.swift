@@ -128,7 +128,6 @@ public struct PokitRootFeature {
             case 링크수정하기(id: Int)
             /// 링크상세로 이동
             case contentDetailTapped(BaseContentItem)
-            case 카테고리_또는_컨텐츠_조회
         }
     }
     
@@ -213,7 +212,13 @@ private extension PokitRootFeature {
         case .contentItemTapped(let selectedItem):
             return .run { send in await send(.delegate(.contentDetailTapped(selectedItem))) }
         case .pokitRootViewOnAppeared:
-            return .run { send in await send(.async(.목록조회_갱신용)) }
+            switch state.folderType {
+            case .folder(.미분류):
+                return .send(.async(.미분류_카테고리_컨텐츠_조회))
+            case .folder(.포킷):
+                return .send(.async(.목록조회_갱신용))
+            default: return .none
+            }
         case .분류_pagenation:
             if state.domain.categoryList.hasNext {
                 return .run { [domain = state.domain.categoryList,
@@ -435,16 +440,6 @@ private extension PokitRootFeature {
     
     /// - Delegate Effect
     func handleDelegateAction(_ action: Action.DelegateAction, state: inout State) -> Effect<Action> {
-        switch action {
-        case .카테고리_또는_컨텐츠_조회:
-            switch state.folderType {
-            case .folder(.미분류):
-                return .send(.async(.미분류_카테고리_컨텐츠_조회))
-            case .folder(.포킷):
-                return .send(.async(.목록조회_갱신용))
-            default: return .none
-            }
-        default: return .none
-        }
+        return .none
     }
 }
