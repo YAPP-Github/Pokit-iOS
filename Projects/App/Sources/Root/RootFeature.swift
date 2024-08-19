@@ -17,19 +17,15 @@ public struct RootFeature {
     }
     
     @ObservableState
-    public struct State {
-        public var appDelegate: AppDelegateFeature.State
-        public var intro: IntroFeature.State?
-        public var mainTab: MainTabFeature.State?
+    public enum State {
+        case intro(IntroFeature.State = .init())
+        case mainTab(MainTabFeature.State = .init())
         
-        public init(appDelegate: AppDelegateFeature.State = AppDelegateFeature.State()) {
-            self.appDelegate = appDelegate
-            self.intro = IntroFeature.State()
-        }
+        public init() { self = .intro() }
     }
     
-    public enum Action {
-        case appDelegate(AppDelegateFeature.Action)
+    public indirect enum Action {
+        case _sceneChange(State)
         case intro(IntroFeature.Action)
         case mainTab(MainTabFeature.Action)
     }
@@ -38,32 +34,25 @@ public struct RootFeature {
     /// - Reducer Core
     private func core(into state: inout State, action: Action) -> Effect<Action> {
         switch action {
+        case let ._sceneChange(newState):
+            state = newState
+            return .none
         case .intro(.delegate(.moveToTab)):
-            state.intro = nil
-            state.mainTab = MainTabFeature.State()
-            return .none
+            return .run { send in await send(._sceneChange(.mainTab())) }
             
-        case .mainTab(.delegate(.로그아웃)):
-            state.intro = .login()
-            state.mainTab = nil
-            return .none
-        case .mainTab(.delegate(.회원탈퇴)):
-            state.intro = .login()
-            state.mainTab = nil
-            return .none
+        case .mainTab(.delegate(.로그아웃)),
+             .mainTab(.delegate(.회원탈퇴)):
+            return .run { send in await send(._sceneChange(.intro(.login()))) }
             
-        case .appDelegate, .intro, .mainTab:
+        case .intro, .mainTab:
             return .none
         }
     }
     /// - Reducer body
     public var body: some ReducerOf<Self> {
-        Scope(state: \.appDelegate, action: \.appDelegate) {
-            AppDelegateFeature()
-        }
         Reduce(self.core)
-        .ifLet(\.intro, action: \.intro) { IntroFeature() }
-        .ifLet(\.mainTab, action: \.mainTab) { MainTabFeature() }
+        .ifCaseLet(\.intro, action: \.intro) { IntroFeature() }
+        .ifCaseLet(\.mainTab, action: \.mainTab) { MainTabFeature() }
         ._printChanges()
     }
 }
