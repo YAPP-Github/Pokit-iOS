@@ -63,7 +63,7 @@ public struct PokitAlertBoxFeature {
         public enum ScopeAction: Equatable { case doNothing }
         
         public enum DelegateAction: Equatable {
-            case moveToContentEdit(item: AlertItem)
+            case moveToContentEdit(id: Int)
             case linkCopyDetected(URL?)
         }
     }
@@ -110,14 +110,13 @@ private extension PokitAlertBoxFeature {
         switch action {
         /// - 스와이프를 통해 아이템 삭제를 눌렀을 때
         case .deleteSwiped(let item):
-//            state.mock.remove(id: item.id)
             return .run { send in
                 try await alertClient.알람_삭제("\(item.id)")
                 await send(.inner(.삭제결과(item: item)))
             }
         /// - 선택한 항목을 `링크수정`화면으로 이동해 수정
         case .itemSelected(let item):
-            return .run { send in await send(.delegate(.moveToContentEdit(item: item))) }
+            return .run { send in await send(.delegate(.moveToContentEdit(id: item.contentId))) }
         case .dismiss:
             return .run { _ in await dismiss() }
         case .onAppear:

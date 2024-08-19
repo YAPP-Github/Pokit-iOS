@@ -9,6 +9,7 @@ import SwiftUI
 import ComposableArchitecture
 import DSKit
 import Domain
+import NukeUI
 
 @ViewAction(for: PokitAlertBoxFeature.self)
 public struct PokitAlertBoxView: View {
@@ -91,15 +92,24 @@ private extension PokitAlertBoxView {
         var body: some View {
             VStack(alignment: .leading, spacing: 20) {
                 HStack(spacing: 16) {
-                    RoundedRectangle(cornerRadius: 8)
-                        .frame(width: 94, height: 70)
+                    LazyImage(url: URL(string: item.thumbNail)) { state in
+                        if let image = state.image {
+                            image.resizable()
+                        } else {
+                            PokitSpinner()
+                                .foregroundStyle(.pokit(.icon(.brand)))
+                                .frame(width: 48, height: 48)
+                        }
+                    }
+                    .frame(width: 94, height: 70)
+
                     VStack(alignment: .leading, spacing: 0) {
                         Text(item.title)
                             .pokitFont(.b2(.b))
                             .foregroundStyle(.pokit(.text(.primary)))
                             .lineLimit(1)
                             .padding(.bottom, 4)
-                        Text("여긴뭘적음?")
+                        Text(item.body)
                             .pokitFont(.detail2)
                             .foregroundStyle(.pokit(.text(.secondary)))
                             .padding(.bottom, 8)
