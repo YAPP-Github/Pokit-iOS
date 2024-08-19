@@ -118,7 +118,8 @@ public extension MainTabFeature {
                  let .remind(.delegate(.링크수정(id))),
                  let .path(.element(_, action: .카테고리상세(.delegate(.링크수정(id))))),
                  let .path(.element(_, action: .링크목록(.delegate(.링크수정(id))))),
-                 let .path(.element(_, action: .검색(.delegate(.링크수정(id))))):
+                 let .path(.element(_, action: .검색(.delegate(.링크수정(id))))),
+                 let .path(.element(_, action: .알림함(.delegate(.moveToContentEdit(id))))):
                 return .run { send in await send(.inner(.링크추가및수정이동(contentId: id))) }
                 
             case let .contentDetail(.presented(.delegate(.컨텐츠_삭제_완료(contentId: id)))):
