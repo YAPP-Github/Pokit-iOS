@@ -15,7 +15,7 @@ public struct PokitRootView: View {
     @Perception.Bindable
     public var store: StoreOf<PokitRootFeature>
     private let column = [
-        GridItem(.flexible(), spacing: 0),
+        GridItem(.flexible(), spacing: 12),
         GridItem(.flexible(), spacing: 0)
     ]
     
