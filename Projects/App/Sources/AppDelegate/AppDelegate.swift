@@ -28,7 +28,7 @@ extension AppDelegate: UIApplicationDelegate {
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
-        self.store.send((.didFinishLaunching))
+        self.store.send(.didFinishLaunching)
         return true
     }
     
@@ -40,9 +40,9 @@ extension AppDelegate: UIApplicationDelegate {
         Messaging.messaging().apnsToken = deviceToken
         Messaging.messaging().token { token, error in
             if let error {
-                self.store.send((.didRegisterForRemoteNotifications(.failure(error))))
+                self.store.send(.didRegisterForRemoteNotifications(.failure(error)))
             } else if let token {
-                self.store.send((.didRegisterForRemoteNotifications(.success(token))))
+                self.store.send(.didRegisterForRemoteNotifications(.success(token)))
             }
         }
     }
