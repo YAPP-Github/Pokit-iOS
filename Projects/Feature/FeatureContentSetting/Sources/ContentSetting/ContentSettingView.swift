@@ -28,64 +28,72 @@ public extension ContentSettingView {
     var body: some View {
         WithPerceptionTracking {
             VStack(spacing: 0) {
-                if store.contentLoading {
-                    PokitLoading()
-                } else {
-                    ScrollView {
-                        VStack(spacing: 24) {
-                            
-                            linkTextField
-                            
-                            titleTextField
-                            
-                            HStack(alignment: .bottom, spacing: 8) {
-                                pokitSelectButton
+                navigationBar
+                
+                VStack(spacing: 0) {
+                    if store.contentLoading {
+                        PokitLoading()
+                    } else {
+                        ScrollView {
+                            VStack(spacing: 24) {
                                 
-                                addPokitButton
+                                linkTextField
+                                
+                                titleTextField
+                                
+                                HStack(alignment: .bottom, spacing: 8) {
+                                    pokitSelectButton
+                                    
+                                    addPokitButton
+                                }
+                                
+                                memoTextArea
+                                
+                                remindSwitchRadio
                             }
-                            
-                            memoTextArea
-                            
-                            remindSwitchRadio
+                            .padding(.horizontal, 20)
+                            .padding(.top, 16)
                         }
-                        .padding(.horizontal, 20)
-                    }
-                    .overlay(alignment: .bottom) {
-                        if store.state.showPopup {
-                            PokitLinkPopup(
-                                "최대 30개의 포킷을 생성할 수 있습니다. \n포킷을 삭제한 뒤에 추가해주세요.",
-                                isPresented: $store.showPopup,
-                                type: .text
-                            )
+                        .overlay(alignment: .bottom) {
+                            if store.state.showPopup {
+                                PokitLinkPopup(
+                                    "최대 30개의 포킷을 생성할 수 있습니다. \n포킷을 삭제한 뒤에 추가해주세요.",
+                                    isPresented: $store.showPopup,
+                                    type: .text
+                                )
+                            }
                         }
                     }
+                    
+                    let isDisable = store.urlText.isEmpty || store.title.isEmpty
+                    
+                    PokitBottomButton(
+                        "저장하기",
+                        state: isDisable ? .disable : .filled(.primary),
+                        isLoading: $store.saveIsLoading,
+                        action: { send(.saveBottomButtonTapped) }
+                    )
+                    .padding(.horizontal, 20)
                 }
-                
-                let isDisable = store.urlText.isEmpty || store.title.isEmpty
-                
-                PokitBottomButton(
-                    "저장하기",
-                    state: isDisable ? .disable : .filled(.primary),
-                    isLoading: $store.saveIsLoading,
-                    action: { send(.saveBottomButtonTapped) }
-                )
-                .padding(.horizontal, 20)
             }
-            .padding(.top, 16)
             .background(.pokit(.bg(.base)))
+            .navigationBarBackButtonHidden()
             .ignoresSafeArea(edges: focusedType == nil ? .bottom : [])
-            .pokitNavigationBar(title: store.content == nil ? "링크 추가" : "링크 수정")
-            .toolbar { navigationBar }
             .onAppear { send(.contentSettingViewOnAppeared) }
         }
     }
 }
 //MARK: - Configure View
 private extension ContentSettingView {
-    var navigationBar: some ToolbarContent {
-        ToolbarItem(placement: .topBarLeading) {
-            PokitToolbarButton(.icon(.arrowLeft), action: { send(.dismiss) })
+    var navigationBar: some View {
+        PokitHeader(title: store.content == nil ? "링크 추가" : "링크 수정") {
+            PokitHeaderItems(placement: .leading) {
+                PokitToolbarButton(.icon(.arrowLeft)) {
+                    send(.dismiss)
+                }
+            }
         }
+        .padding(.top, 8)
     }
     var linkTextField: some View {
         VStack(spacing: 16) {

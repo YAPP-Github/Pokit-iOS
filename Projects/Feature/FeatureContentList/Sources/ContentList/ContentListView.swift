@@ -24,17 +24,20 @@ public struct ContentListView: View {
 public extension ContentListView {
     var body: some View {
         WithPerceptionTracking {
-            VStack(spacing: 16) {
-                listHeader
-                    .padding(.horizontal, 20)
+            VStack(spacing: 0) {
+                toolbar
                 
-                list
+                VStack(spacing: 16) {
+                    listHeader
+                        .padding(.horizontal, 20)
+                    
+                    list
+                }
+                .padding(.top, 12)
             }
-            .padding(.top, 12)
             .background(.pokit(.bg(.base)))
             .ignoresSafeArea(edges: .bottom)
-            .pokitNavigationBar(title: store.contentType.title)
-            .toolbar { toolbar }
+            .navigationBarBackButtonHidden()
             .sheet(item: $store.bottomSheetItem) { content in
                 PokitBottomSheet(
                     items: [.share, .edit, .delete],
@@ -114,13 +117,15 @@ private extension ContentListView {
         }
     }
     
-    @ToolbarContentBuilder
-    var toolbar: some ToolbarContent {
-        ToolbarItem(placement: .topBarLeading) {
-            PokitToolbarButton(.icon(.arrowLeft)) {
-                send(.backButtonTapped)
+    var toolbar: some View {
+        PokitHeader(title: store.contentType.title) {
+            PokitHeaderItems(placement: .leading) {
+                PokitToolbarButton(.icon(.arrowLeft)) {
+                    send(.backButtonTapped)
+                }
             }
         }
+        .padding(.top, 8)
     }
 }
 //MARK: - Preview

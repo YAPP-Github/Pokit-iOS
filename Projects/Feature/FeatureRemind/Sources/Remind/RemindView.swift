@@ -31,7 +31,7 @@ public extension RemindView {
             contents
                 .background(.pokit(.bg(.base)))
                 .ignoresSafeArea(edges: .bottom)
-                .pokitNavigationBar(title: "")
+                .navigationBarBackButtonHidden(true)
                 .sheet(item: $store.bottomSheetItem) { content in
                     PokitBottomSheet(
                         items: [.share, .edit, .delete],

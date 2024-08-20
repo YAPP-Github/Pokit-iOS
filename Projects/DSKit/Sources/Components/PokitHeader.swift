@@ -8,12 +8,16 @@
 import SwiftUI
 
 public struct PokitHeader<Content: View>: View {
+    private let title: String?
+    
     @ViewBuilder
     private var toolBarItems: Content
     
     public init(
+        title: String? = nil,
         @ViewBuilder toolBarItems: () -> Content
     ) {
+        self.title = title
         self.toolBarItems = toolBarItems()
     }
     
@@ -24,6 +28,13 @@ public struct PokitHeader<Content: View>: View {
         .padding(.horizontal, 20)
         .padding(.vertical, 12)
         .background(.pokit(.bg(.base)))
+        .overlay {
+            if let title {
+                Text(title)
+                    .pokitFont(.title3)
+                    .foregroundStyle(.pokit(.text(.primary)))
+            }
+        }
     }
 }
 

@@ -25,55 +25,59 @@ public struct PokitAlertBoxView: View {
 public extension PokitAlertBoxView {
     var body: some View {
         WithPerceptionTracking {
-            VStack(alignment: .leading, spacing: 0) {
-                if let alertContents = store.alertContents {
-                    if alertContents.isEmpty {
-                        VStack {
-                            PokitCaution(
-                                image: .pooki,
-                                titleKey: "알람이 없어요",
-                                message: "리마인드 알림을 설정하세요"
-                            )
-                            .padding(.top, 84)
-                            Spacer()
+            VStack(spacing: 0) {
+                navigationBar
+                
+                VStack(alignment: .leading, spacing: 0) {
+                    if let alertContents = store.alertContents {
+                        if alertContents.isEmpty {
+                            VStack {
+                                PokitCaution(
+                                    image: .pooki,
+                                    titleKey: "알람이 없어요",
+                                    message: "리마인드 알림을 설정하세요"
+                                )
+                                .padding(.top, 84)
+                                Spacer()
+                            }
+                        } else {
+                            List {
+                                ForEach(alertContents, id: \.id) { item in
+                                    Button(action: { send(.itemSelected(item: item)) }) {
+                                        AlertContent(item: item)
+                                    }
+                                    .listRowSeparator(.hidden)
+                                    .listRowInsets(EdgeInsets())
+                                    .onDelete(deleteAction: { delete(item) })
+                                }
+                                .listRowBackground(Color.pokit(.bg(.base)))
+                                .padding(.top, 16)
+                            }
+                            .listStyle(.plain)
                         }
                     } else {
-                        List {
-                            ForEach(alertContents, id: \.id) { item in
-                                Button(action: { send(.itemSelected(item: item)) }) {
-                                    AlertContent(item: item)
-                                }
-                                .listRowSeparator(.hidden)
-                                .listRowInsets(EdgeInsets())
-                                .onDelete(deleteAction: { delete(item) })
-                            }
-                            .listRowBackground(Color.pokit(.bg(.base)))
-                        }
-                        .listStyle(.plain)
+                        PokitLoading()
                     }
-                } else {
-                    PokitLoading()
                 }
             }
-            .padding(.top, 16)
             .background(.pokit(.bg(.base)))
             .ignoresSafeArea(edges: .bottom)
-            .pokitNavigationBar(title: "알림함")
-            .toolbar { navigationBar }
+            .navigationBarBackButtonHidden()
             .task { await send(.onAppear).finish() }
         }
     }
 }
 //MARK: - Configure View
 private extension PokitAlertBoxView {
-    @ToolbarContentBuilder
-    var navigationBar: some ToolbarContent {
-        ToolbarItem(placement: .topBarLeading) {
-            PokitToolbarButton(
-                .icon(.arrowLeft),
-                action: { send(.dismiss) }
-            )
+    var navigationBar: some View {
+        PokitHeader(title: "알림함") {
+            PokitHeaderItems(placement: .leading) {
+                PokitToolbarButton(.icon(.arrowLeft)) {
+                    send(.dismiss)
+                }
+            }
         }
+        .padding(.top, 8)
     }
     
     func delete(_ item: AlertItem) {
