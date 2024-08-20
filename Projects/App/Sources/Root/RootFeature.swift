@@ -11,17 +11,10 @@ import ComposableArchitecture
 
 @Reducer
 public struct RootFeature {
-    @Reducer(state: .equatable)
-    public enum Destination {
-        
-    }
-    
     @ObservableState
     public enum State {
-        case intro(IntroFeature.State = .init())
-        case mainTab(MainTabFeature.State = .init())
-        
-        public init() { self = .intro() }
+        case intro(IntroFeature.State)
+        case mainTab(MainTabFeature.State)
     }
     
     public indirect enum Action {
@@ -38,11 +31,11 @@ public struct RootFeature {
             state = newState
             return .none
         case .intro(.delegate(.moveToTab)):
-            return .run { send in await send(._sceneChange(.mainTab())) }
+            return .send(._sceneChange(.mainTab(.init())))
             
         case .mainTab(.delegate(.로그아웃)),
              .mainTab(.delegate(.회원탈퇴)):
-            return .run { send in await send(._sceneChange(.intro(.login()))) }
+            return .send(._sceneChange(.intro(.login(.init()))))
             
         case .intro, .mainTab:
             return .none
