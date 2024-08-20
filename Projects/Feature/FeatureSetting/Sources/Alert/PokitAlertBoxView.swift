@@ -25,44 +25,41 @@ public struct PokitAlertBoxView: View {
 public extension PokitAlertBoxView {
     var body: some View {
         WithPerceptionTracking {
-            VStack(spacing: 0) {
-                navigationBar
-                
-                VStack(alignment: .leading, spacing: 0) {
-                    if let alertContents = store.alertContents {
-                        if alertContents.isEmpty {
-                            VStack {
-                                PokitCaution(
-                                    image: .pooki,
-                                    titleKey: "알람이 없어요",
-                                    message: "리마인드 알림을 설정하세요"
-                                )
-                                .padding(.top, 84)
-                                Spacer()
-                            }
-                        } else {
-                            List {
-                                ForEach(alertContents, id: \.id) { item in
-                                    Button(action: { send(.itemSelected(item: item)) }) {
-                                        AlertContent(item: item)
-                                    }
-                                    .listRowSeparator(.hidden)
-                                    .listRowInsets(EdgeInsets())
-                                    .onDelete(deleteAction: { delete(item) })
-                                }
-                                .listRowBackground(Color.pokit(.bg(.base)))
-                                .padding(.top, 16)
-                            }
-                            .listStyle(.plain)
+            VStack(alignment: .leading, spacing: 0) {
+                if let alertContents = store.alertContents {
+                    if alertContents.isEmpty {
+                        VStack {
+                            PokitCaution(
+                                image: .pooki,
+                                titleKey: "알람이 없어요",
+                                message: "리마인드 알림을 설정하세요"
+                            )
+                            .padding(.top, 84)
+                            Spacer()
                         }
                     } else {
-                        PokitLoading()
+                        List {
+                            ForEach(alertContents, id: \.id) { item in
+                                Button(action: { send(.itemSelected(item: item)) }) {
+                                    AlertContent(item: item)
+                                }
+                                .listRowSeparator(.hidden)
+                                .listRowInsets(EdgeInsets())
+                                .onDelete(deleteAction: { delete(item) })
+                            }
+                            .listRowBackground(Color.pokit(.bg(.base)))
+                            .padding(.top, 16)
+                        }
+                        .listStyle(.plain)
                     }
+                } else {
+                    PokitLoading()
                 }
             }
-            .background(.pokit(.bg(.base)))
+            .pokitNavigationBar {
+                navigationBar
+            }
             .ignoresSafeArea(edges: .bottom)
-            .navigationBarBackButtonHidden()
             .task { await send(.onAppear).finish() }
         }
     }

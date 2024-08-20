@@ -135,24 +135,18 @@ private extension MainTabView {
         TabView(selection: $store.selectedTab) {
             switch store.selectedTab {
             case .pokit:
-                VStack(spacing: 0) {
-                    pokitNavigationBar
-                    
-                    PokitRootView(store: store.scope(state: \.pokit, action: \.pokit))
-                }
-                .toolbarBackground(.hidden, for: .tabBar)
-                .background(.pokit(.bg(.base)))
-                .navigationBarBackButtonHidden(true)
+                PokitRootView(store: store.scope(state: \.pokit, action: \.pokit))
+                    .pokitNavigationBar {
+                        pokitNavigationBar
+                    }
+                    .toolbarBackground(.hidden, for: .tabBar)
                 
             case .remind:
-                VStack(spacing: 0) {
-                    remindNavigationBar
-                    
-                    RemindView(store: store.scope(state: \.remind, action: \.remind))
-                }
-                .toolbarBackground(.hidden, for: .tabBar)
-                .background(.pokit(.bg(.base)))
-                .navigationBarBackButtonHidden(true)
+                RemindView(store: store.scope(state: \.remind, action: \.remind))
+                    .pokitNavigationBar {
+                        remindNavigationBar
+                    }
+                    .toolbarBackground(.hidden, for: .tabBar)
             }
         }
     }

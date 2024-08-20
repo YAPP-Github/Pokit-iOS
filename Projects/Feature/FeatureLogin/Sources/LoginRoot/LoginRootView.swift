@@ -54,7 +54,7 @@ public extension LoginRootView {
                     .padding(.bottom, 36)
                     .background(.pokit(.bg(.base)))
                     .ignoresSafeArea(edges: .bottom)
-                    .pokitNavigationBar(title: "")
+                    .navigationBarBackButtonHidden()
                 }
             } destination: { path in
                 switch path.case {

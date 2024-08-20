@@ -24,20 +24,17 @@ public struct ContentListView: View {
 public extension ContentListView {
     var body: some View {
         WithPerceptionTracking {
-            VStack(spacing: 0) {
-                toolbar
+            VStack(spacing: 16) {
+                listHeader
+                    .padding(.horizontal, 20)
                 
-                VStack(spacing: 16) {
-                    listHeader
-                        .padding(.horizontal, 20)
-                    
-                    list
-                }
-                .padding(.top, 12)
+                list
             }
-            .background(.pokit(.bg(.base)))
+            .padding(.top, 12)
+            .pokitNavigationBar {
+                toolbar
+            }
             .ignoresSafeArea(edges: .bottom)
-            .navigationBarBackButtonHidden()
             .sheet(item: $store.bottomSheetItem) { content in
                 PokitBottomSheet(
                     items: [.share, .edit, .delete],

@@ -24,19 +24,18 @@ public struct PokitSettingView: View {
 public extension PokitSettingView {
     var body: some View {
         WithPerceptionTracking {
+            navigationBar
             VStack(spacing: 0) {
-                navigationBar
-                VStack(spacing: 0) {
-                    section1
-                    section2
-                    section3
-                    Spacer()
-                }
-                .padding(.top, 16)
+                section1
+                section2
+                section3
+                Spacer()
             }
-            .background(.pokit(.bg(.base)))
+            .padding(.top, 16)
+            .pokitNavigationBar {
+                navigationBar
+            }
             .ignoresSafeArea(edges: .bottom)
-            .navigationBarBackButtonHidden()
             .sheet(isPresented: $store.isLogoutPresented) {
                 PokitAlert(
                     "로그아웃 하시겠습니까?",

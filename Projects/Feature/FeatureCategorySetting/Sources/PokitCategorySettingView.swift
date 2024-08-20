@@ -28,19 +28,16 @@ public extension PokitCategorySettingView {
     var body: some View {
         WithPerceptionTracking {
             VStack(spacing: 0) {
-                navigationBar
-                
-                VStack(spacing: 0) {
-                    thumbnailSection
-                    pokitNameSection
-                    myPokitSection
-                    saveButton
-                }
-                .padding(.horizontal, 20)
-                .padding(.top, 16)
+                thumbnailSection
+                pokitNameSection
+                myPokitSection
+                saveButton
             }
-            .background(.pokit(.bg(.base)))
-            .navigationBarBackButtonHidden()
+            .padding(.horizontal, 20)
+            .padding(.top, 16)
+            .pokitNavigationBar {
+                navigationBar
+            }
             .ignoresSafeArea(edges: .bottom)
             .sheet(isPresented: $store.isProfileSheetPresented) {
                 ProfileBottomSheet(

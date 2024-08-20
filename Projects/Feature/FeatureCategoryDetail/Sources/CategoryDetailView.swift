@@ -26,18 +26,16 @@ public struct CategoryDetailView: View {
 public extension CategoryDetailView {
     var body: some View {
         WithPerceptionTracking {
-            VStack(spacing: 0) {
-                navigationBar
-                
-                VStack(spacing: 16) {
-                    header
-                    contentScrollView
-                }
-                .padding(.horizontal, 20)
-                .padding(.top, 12)
+            VStack(spacing: 16) {
+                header
+                contentScrollView
             }
-            .navigationBarBackButtonHidden()
-            .background(.pokit(.bg(.base)))
+            .padding(.horizontal, 20)
+            .padding(.top, 12)
+            .pokitNavigationBar {
+                navigationBar
+            }
+            .ignoresSafeArea(edges: .bottom)
             .sheet(isPresented: $store.isCategorySheetPresented) {
                 PokitBottomSheet(
                     items: [.share, .edit, .delete],

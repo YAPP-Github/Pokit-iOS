@@ -7,24 +7,28 @@
 
 import SwiftUI
 
-struct PokitNavigationBarModifier: ViewModifier {
-    private let title: String
+struct PokitNavigationBarModifier<Header: View>: ViewModifier {
+    @ViewBuilder
+    private var header: Header
     
-    init(title: String) {
-        self.title = title
+    init(@ViewBuilder header: () -> Header) {
+        self.header = header()
     }
     
     func body(content: Content) -> some View {
-        content
-            .navigationTitle(title)
-            .navigationBarTitleDisplayMode(.inline)
-            .navigationBarBackButtonHidden()
+        VStack(spacing: 0) {
+            header
+            
+            content
+        }
+        .navigationBarBackButtonHidden()
+        .background(.pokit(.bg(.base)))
     }
 }
 
 
 public extension View {
-    func pokitNavigationBar(title: String) -> some View {
-        modifier(PokitNavigationBarModifier(title: title))
+    func pokitNavigationBar<Header: View>(@ViewBuilder header: () -> Header) -> some View {
+        modifier(PokitNavigationBarModifier(header: header))
     }
 }

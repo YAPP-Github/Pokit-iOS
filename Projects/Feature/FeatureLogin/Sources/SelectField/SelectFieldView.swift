@@ -41,16 +41,16 @@ public extension SelectFieldView {
                 )
             }
             .padding(.horizontal, 20)
-            .background(.pokit(.bg(.base)))
-            .ignoresSafeArea(edges: .bottom)
-            .pokitNavigationBar(title: "")
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    PokitToolbarButton(.icon(.arrowLeft)) {
-                        send(.backButtonTapped)
+            .pokitNavigationBar {
+                PokitHeader {
+                    PokitHeaderItems(placement: .leading) {
+                        PokitToolbarButton(.icon(.arrowLeft)) {
+                            send(.backButtonTapped)
+                        }
                     }
                 }
             }
+            .ignoresSafeArea(edges: .bottom)
             .task { await send(.onAppear).finish() }
         }
     }
