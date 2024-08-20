@@ -11,10 +11,17 @@ import ComposableArchitecture
 
 @Reducer
 public struct RootFeature {
+    @Reducer(state: .equatable)
+    public enum Destination {
+        
+    }
+    
     @ObservableState
     public enum State {
-        case intro(IntroFeature.State)
-        case mainTab(MainTabFeature.State)
+        case intro(IntroFeature.State = .init())
+        case mainTab(MainTabFeature.State = .init())
+        
+        public init() { self = .intro() }
     }
     
     public indirect enum Action {
@@ -31,11 +38,11 @@ public struct RootFeature {
             state = newState
             return .none
         case .intro(.delegate(.moveToTab)):
-            return .send(._sceneChange(.mainTab(.init())))
+            return .run { send in await send(._sceneChange(.mainTab())) }
             
         case .mainTab(.delegate(.로그아웃)),
-             .mainTab(.delegate(.회원탈퇴)):
-            return .send(._sceneChange(.intro(.login(.init()))))
+                .mainTab(.delegate(.회원탈퇴)):
+            return .run { send in await send(._sceneChange(.intro(.login()))) }
             
         case .intro, .mainTab:
             return .none
@@ -44,8 +51,8 @@ public struct RootFeature {
     /// - Reducer body
     public var body: some ReducerOf<Self> {
         Reduce(self.core)
-        .ifCaseLet(\.intro, action: \.intro) { IntroFeature() }
-        .ifCaseLet(\.mainTab, action: \.mainTab) { MainTabFeature() }
-        ._printChanges()
+            .ifCaseLet(\.intro, action: \.intro) { IntroFeature() }
+            .ifCaseLet(\.mainTab, action: \.mainTab) { MainTabFeature() }
+            ._printChanges()
     }
 }

@@ -17,7 +17,7 @@ public struct AppDelegateFeature {
     
     @ObservableState
     public struct State {
-        public var root = RootFeature.State.intro(.splash(.init()))
+        public var root = RootFeature.State()
         
         public init() {}
     }

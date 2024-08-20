@@ -46,7 +46,7 @@ extension RootView {}
 #Preview {
     RootView(
         store: Store(
-            initialState: RootFeature.State.intro(.splash(.init())),
+            initialState: .init(),
             reducer: { RootFeature() }
         )
     )
