@@ -108,7 +108,7 @@ public extension MainTabFeature {
                  let .remind(.delegate(.링크상세(content))),
                  let .path(.element(_, action: .링크목록(.delegate(.링크상세(content: content))))),
                  let .path(.element(_, action: .검색(.delegate(.linkCardTapped(content: content))))):
-                // TODO: 링크상세 모델과 링크수정 모델 일치시키기
+                
                 state.contentDetail = ContentDetailFeature.State(contentId: content.id)
                 return .none
 
@@ -121,11 +121,6 @@ public extension MainTabFeature {
                  let .path(.element(_, action: .검색(.delegate(.링크수정(id))))),
                  let .path(.element(_, action: .알림함(.delegate(.moveToContentEdit(id))))):
                 return .run { send in await send(.inner(.링크추가및수정이동(contentId: id))) }
-                
-            case let .contentDetail(.presented(.delegate(.컨텐츠_삭제_완료(contentId: id)))):
-                state.contentDetail = nil
-                // - TODO: 컨텐츠 상세를 띄운 뷰에 컨텐츠 삭제 반영
-                return .none
             
             /// - 컨텐츠 상세보기 닫힘
             case .contentDetail(.dismiss):
@@ -133,7 +128,7 @@ public extension MainTabFeature {
                       let lastPath = state.path.last else {
                     switch state.selectedTab {
                     case .pokit:
-                        return .none
+                        return .send(.pokit(.delegate(.미분류_카테고리_컨텐츠_조회)))
                     case .remind:
                         return .send(.remind(.delegate(.컨텐츠목록_조회)))
                     }
@@ -145,16 +140,14 @@ public extension MainTabFeature {
                     return .send(.path(.element(id: stackElementId, action: .검색(.delegate(.컨텐츠_검색)))))
                 case .카테고리상세:
                     return .send(.path(.element(id: stackElementId, action: .카테고리상세(.delegate(.카테고리_내_컨텐츠_목록_조회)))))
-                default:
-                    return .none
+                default: return .none
                 }
 
             case let .inner(.링크추가및수정이동(contentId: id)):
                 state.path.append(.링크추가및수정(
                     ContentSettingFeature.State(contentId: id)
                 ))
-                state.contentDetail = nil
-                return .none
+                return .send(.contentDetail(.dismiss))
 
             /// - 링크 추가하기
             case .delegate(.링크추가하기):
@@ -162,11 +155,8 @@ public extension MainTabFeature {
                 return .none
 
             /// - 링크추가 및 수정에서 저장하기 눌렀을 때
-            case .path(.element(_, action: .링크추가및수정(.delegate(.저장하기_완료)))):
+            case let .path(.element(stackElementId, action: .링크추가및수정(.delegate(.저장하기_완료)))):
                 state.path.removeLast()
-                guard let stackElementId = state.path.ids.last else {
-                    return .none
-                }
                 switch state.path.last {
                 case .검색:
                     return .send(.path(.element(id: stackElementId, action: .검색(.delegate(.컨텐츠_검색)))))

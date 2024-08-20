@@ -105,6 +105,7 @@ public struct PokitRootFeature {
             case 미분류_카테고리_컨텐츠_갱신(contentList: BaseContentListInquiry)
             case 분류_페이지네이션_결과(contentList: BaseCategoryListInquiry)
             case 미분류_페이지네이션_결과(contentList: BaseContentListInquiry)
+            case 컨텐츠_삭제(contentId: Int)
         }
         
         public enum AsyncAction: Equatable {
@@ -128,6 +129,7 @@ public struct PokitRootFeature {
             case 링크수정하기(id: Int)
             /// 링크상세로 이동
             case contentDetailTapped(BaseContentItem)
+            case 미분류_카테고리_컨텐츠_조회
         }
     }
     
@@ -303,6 +305,13 @@ private extension PokitRootFeature {
             state.domain.unclassifiedContentList = contentList
             state.domain.unclassifiedContentList.data = list
             return .none
+        case let .컨텐츠_삭제(contentId: contentId):
+            guard let index = state.domain.unclassifiedContentList.data?.firstIndex(where: { $0.id == contentId }) else {
+                return .none
+            }
+            state.domain.unclassifiedContentList.data?.remove(at: index)
+            state.isPokitDeleteSheetPresented = false
+            return .none
         }
     }
     
@@ -413,12 +422,8 @@ private extension PokitRootFeature {
                     /// 🚨 Error Case [1]: 항목을 삭제하려는데 항목이 없을 때
                     return .none
                 }
-                guard let index = state.domain.unclassifiedContentList.data?.firstIndex(of: selectedItem) else {
-                    return .none
-                }
-                state.domain.unclassifiedContentList.data?.remove(at: index)
-                state.isPokitDeleteSheetPresented = false
-                return .none
+                
+                return .send(.inner(.컨텐츠_삭제(contentId: selectedItem.id)))
                 
             case .folder(.포킷):
                 guard let selectedItem = state.selectedKebobItem else {
@@ -440,6 +445,11 @@ private extension PokitRootFeature {
     
     /// - Delegate Effect
     func handleDelegateAction(_ action: Action.DelegateAction, state: inout State) -> Effect<Action> {
-        return .none
+        switch action {
+        case .미분류_카테고리_컨텐츠_조회:
+            return .send(.async(.미분류_카테고리_컨텐츠_조회))
+        default:
+            return .none
+        }
     }
 }
