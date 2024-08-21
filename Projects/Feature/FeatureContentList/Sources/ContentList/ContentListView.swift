@@ -31,9 +31,7 @@ public extension ContentListView {
                 list
             }
             .padding(.top, 12)
-            .pokitNavigationBar {
-                toolbar
-            }
+            .pokitNavigationBar { toolbar }
             .ignoresSafeArea(edges: .bottom)
             .sheet(item: $store.bottomSheetItem) { content in
                 PokitBottomSheet(

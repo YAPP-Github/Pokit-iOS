@@ -46,9 +46,7 @@ public extension NickNameSettingView {
             }
             .padding(.horizontal, 20)
             .padding(.top, 16)
-            .pokitNavigationBar {
-                navigationBar
-            }
+            .pokitNavigationBar { navigationBar }
             .ignoresSafeArea(edges: .bottom)
         }
     }

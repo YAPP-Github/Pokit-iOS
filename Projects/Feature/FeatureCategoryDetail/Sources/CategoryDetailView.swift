@@ -32,9 +32,7 @@ public extension CategoryDetailView {
             }
             .padding(.horizontal, 20)
             .padding(.top, 12)
-            .pokitNavigationBar {
-                navigationBar
-            }
+            .pokitNavigationBar { navigationBar }
             .ignoresSafeArea(edges: .bottom)
             .sheet(isPresented: $store.isCategorySheetPresented) {
                 PokitBottomSheet(

@@ -72,9 +72,7 @@ public extension ContentSettingView {
                 )
                 .padding(.horizontal, 20)
             }
-            .pokitNavigationBar {
-                navigationBar
-            }
+            .pokitNavigationBar { navigationBar }
             .ignoresSafeArea(edges: focusedType == nil ? .bottom : [])
             .onAppear { send(.contentSettingViewOnAppeared) }
         }

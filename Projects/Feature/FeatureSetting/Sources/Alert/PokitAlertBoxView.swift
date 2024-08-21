@@ -56,9 +56,7 @@ public extension PokitAlertBoxView {
                     PokitLoading()
                 }
             }
-            .pokitNavigationBar {
-                navigationBar
-            }
+            .pokitNavigationBar { navigationBar }
             .ignoresSafeArea(edges: .bottom)
             .task { await send(.onAppear).finish() }
         }

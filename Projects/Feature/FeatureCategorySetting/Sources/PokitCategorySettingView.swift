@@ -35,9 +35,7 @@ public extension PokitCategorySettingView {
             }
             .padding(.horizontal, 20)
             .padding(.top, 16)
-            .pokitNavigationBar {
-                navigationBar
-            }
+            .pokitNavigationBar { navigationBar }
             .ignoresSafeArea(edges: .bottom)
             .sheet(isPresented: $store.isProfileSheetPresented) {
                 ProfileBottomSheet(

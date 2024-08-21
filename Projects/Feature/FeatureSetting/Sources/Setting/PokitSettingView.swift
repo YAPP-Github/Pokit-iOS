@@ -24,7 +24,6 @@ public struct PokitSettingView: View {
 public extension PokitSettingView {
     var body: some View {
         WithPerceptionTracking {
-            navigationBar
             VStack(spacing: 0) {
                 section1
                 section2
@@ -32,9 +31,7 @@ public extension PokitSettingView {
                 Spacer()
             }
             .padding(.top, 16)
-            .pokitNavigationBar {
-                navigationBar
-            }
+            .pokitNavigationBar { navigationBar }
             .ignoresSafeArea(edges: .bottom)
             .sheet(isPresented: $store.isLogoutPresented) {
                 PokitAlert(
