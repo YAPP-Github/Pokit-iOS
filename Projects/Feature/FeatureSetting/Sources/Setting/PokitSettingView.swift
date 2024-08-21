@@ -31,11 +31,8 @@ public extension PokitSettingView {
                 Spacer()
             }
             .padding(.top, 16)
-            .background(.pokit(.bg(.base)))
+            .pokitNavigationBar { navigationBar }
             .ignoresSafeArea(edges: .bottom)
-            .navigationBarBackButtonHidden()
-            .pokitNavigationBar(title: "설정")
-            .toolbar { navigationBar }
             .sheet(isPresented: $store.isLogoutPresented) {
                 PokitAlert(
                     "로그아웃 하시겠습니까?",
@@ -123,14 +120,15 @@ private extension PokitSettingView {
         }
     }
     
-    @ToolbarContentBuilder
-    var navigationBar: some ToolbarContent {
-        ToolbarItem(placement: .topBarLeading) {
-            PokitToolbarButton(
-                .icon(.arrowLeft), 
-                action: { send(.dismiss) }
-            )
+    var navigationBar: some View {
+        PokitHeader(title: "설정") {
+            PokitHeaderItems(placement: .leading) {
+                PokitToolbarButton(.icon(.arrowLeft)) {
+                    send(.dismiss)
+                }
+            }
         }
+        .padding(.top, 8)
     }
     
     struct SettingItem: View {

@@ -34,11 +34,9 @@ public extension PokitCategorySettingView {
                 saveButton
             }
             .padding(.horizontal, 20)
-            .background(.pokit(.bg(.base)))
+            .padding(.top, 16)
+            .pokitNavigationBar { navigationBar }
             .ignoresSafeArea(edges: .bottom)
-            .navigationBarBackButtonHidden()
-            .toolbar { navigationBar }
-            .pokitNavigationBar(title: store.type.title)
             .sheet(isPresented: $store.isProfileSheetPresented) {
                 ProfileBottomSheet(
                     selectedImage: store.selectedProfile,
@@ -52,13 +50,15 @@ public extension PokitCategorySettingView {
 }
 //MARK: - Configure View
 private extension PokitCategorySettingView {
-    var navigationBar: some ToolbarContent {
-        ToolbarItem(placement: .topBarLeading) {
-            PokitToolbarButton(
-                .icon(.arrowLeft),
-                action: { send(.dismiss) }
-            )
+    var navigationBar: some View {
+        PokitHeader(title: store.type.title) {
+            PokitHeaderItems(placement: .leading) {
+                PokitToolbarButton(.icon(.arrowLeft)) {
+                    send(.dismiss)
+                }
+            }
         }
+        .padding(.top, 8)
     }
     /// 썸네일이미지 +프로필 설정
     @MainActor

@@ -49,6 +49,7 @@ public extension ContentSettingView {
                             remindSwitchRadio
                         }
                         .padding(.horizontal, 20)
+                        .padding(.top, 16)
                     }
                     .overlay(alignment: .bottom) {
                         if store.state.showPopup {
@@ -71,21 +72,23 @@ public extension ContentSettingView {
                 )
                 .padding(.horizontal, 20)
             }
-            .padding(.top, 16)
-            .background(.pokit(.bg(.base)))
+            .pokitNavigationBar { navigationBar }
             .ignoresSafeArea(edges: focusedType == nil ? .bottom : [])
-            .pokitNavigationBar(title: store.content == nil ? "링크 추가" : "링크 수정")
-            .toolbar { navigationBar }
             .onAppear { send(.contentSettingViewOnAppeared) }
         }
     }
 }
 //MARK: - Configure View
 private extension ContentSettingView {
-    var navigationBar: some ToolbarContent {
-        ToolbarItem(placement: .topBarLeading) {
-            PokitToolbarButton(.icon(.arrowLeft), action: { send(.dismiss) })
+    var navigationBar: some View {
+        PokitHeader(title: store.content == nil ? "링크 추가" : "링크 수정") {
+            PokitHeaderItems(placement: .leading) {
+                PokitToolbarButton(.icon(.arrowLeft)) {
+                    send(.dismiss)
+                }
+            }
         }
+        .padding(.top, 8)
     }
     var linkTextField: some View {
         VStack(spacing: 16) {

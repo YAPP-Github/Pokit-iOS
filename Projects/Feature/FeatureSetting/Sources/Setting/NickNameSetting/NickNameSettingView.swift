@@ -44,25 +44,24 @@ public extension NickNameSettingView {
                 )
                 .setKeyboardHeight()
             }
-            .padding(.top, 16)
             .padding(.horizontal, 20)
-            .background(.pokit(.bg(.base)))
+            .padding(.top, 16)
+            .pokitNavigationBar { navigationBar }
             .ignoresSafeArea(edges: .bottom)
-            .navigationBarBackButtonHidden()
-            .pokitNavigationBar(title: "닉네임 설정")
-            .toolbar { navigationBar }
         }
     }
 }
 //MARK: - Configure View
 private extension NickNameSettingView {
-    var navigationBar: some ToolbarContent {
-        ToolbarItem(placement: .topBarLeading) {
-            PokitToolbarButton(
-                .icon(.arrowLeft),
-                action: { send(.dismiss) }
-            )
+    var navigationBar: some View {
+        PokitHeader(title: "닉네임 설정") {
+            PokitHeaderItems(placement: .leading) {
+                PokitToolbarButton(.icon(.arrowLeft)) {
+                    send(.dismiss)
+                }
+            }
         }
+        .padding(.top, 8)
     }
     
 }

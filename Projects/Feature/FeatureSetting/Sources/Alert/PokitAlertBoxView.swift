@@ -48,6 +48,7 @@ public extension PokitAlertBoxView {
                                 .onDelete(deleteAction: { delete(item) })
                             }
                             .listRowBackground(Color.pokit(.bg(.base)))
+                            .padding(.top, 16)
                         }
                         .listStyle(.plain)
                     }
@@ -55,25 +56,23 @@ public extension PokitAlertBoxView {
                     PokitLoading()
                 }
             }
-            .padding(.top, 16)
-            .background(.pokit(.bg(.base)))
+            .pokitNavigationBar { navigationBar }
             .ignoresSafeArea(edges: .bottom)
-            .pokitNavigationBar(title: "알림함")
-            .toolbar { navigationBar }
             .task { await send(.onAppear).finish() }
         }
     }
 }
 //MARK: - Configure View
 private extension PokitAlertBoxView {
-    @ToolbarContentBuilder
-    var navigationBar: some ToolbarContent {
-        ToolbarItem(placement: .topBarLeading) {
-            PokitToolbarButton(
-                .icon(.arrowLeft),
-                action: { send(.dismiss) }
-            )
+    var navigationBar: some View {
+        PokitHeader(title: "알림함") {
+            PokitHeaderItems(placement: .leading) {
+                PokitToolbarButton(.icon(.arrowLeft)) {
+                    send(.dismiss)
+                }
+            }
         }
+        .padding(.top, 8)
     }
     
     func delete(_ item: AlertItem) {

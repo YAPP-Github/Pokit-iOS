@@ -30,11 +30,10 @@ public extension CategoryDetailView {
                 header
                 contentScrollView
             }
-            .padding(.top, 12)
             .padding(.horizontal, 20)
-            .background(.pokit(.bg(.base)))
-            .navigationBarBackButtonHidden()
-            .toolbar { self.navigationBar }
+            .padding(.top, 12)
+            .pokitNavigationBar { navigationBar }
+            .ignoresSafeArea(edges: .bottom)
             .sheet(isPresented: $store.isCategorySheetPresented) {
                 PokitBottomSheet(
                     items: [.share, .edit, .delete],
@@ -75,18 +74,19 @@ public extension CategoryDetailView {
 }
 //MARK: - Configure View
 private extension CategoryDetailView {
-    @ToolbarContentBuilder
-    var navigationBar: some ToolbarContent {
-        ToolbarItem(placement: .topBarLeading) {
-            PokitToolbarButton(
-                .icon(.arrowLeft),
-                action: { send(.dismiss) }
-            )
+    var navigationBar: some View {
+        PokitHeader {
+            PokitHeaderItems(placement: .leading) {
+                PokitToolbarButton(
+                    .icon(.arrowLeft),
+                    action: { send(.dismiss) }
+                )
+            }
+            PokitHeaderItems(placement: .trailing) {
+                PokitToolbarButton(.icon(.kebab), action: { send(.categoryKebobButtonTapped(.포킷삭제, selectedItem: nil)) })
+            }
         }
-        
-        ToolbarItem(placement: .topBarTrailing) {
-            PokitToolbarButton(.icon(.kebab), action: { send(.categoryKebobButtonTapped(.포킷삭제, selectedItem: nil)) })
-        }
+        .padding(.top, 8)
     }
     
     var header: some View {

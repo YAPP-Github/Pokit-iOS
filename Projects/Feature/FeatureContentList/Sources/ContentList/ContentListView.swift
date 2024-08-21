@@ -31,10 +31,8 @@ public extension ContentListView {
                 list
             }
             .padding(.top, 12)
-            .background(.pokit(.bg(.base)))
+            .pokitNavigationBar { toolbar }
             .ignoresSafeArea(edges: .bottom)
-            .pokitNavigationBar(title: store.contentType.title)
-            .toolbar { toolbar }
             .sheet(item: $store.bottomSheetItem) { content in
                 PokitBottomSheet(
                     items: [.share, .edit, .delete],
@@ -114,13 +112,15 @@ private extension ContentListView {
         }
     }
     
-    @ToolbarContentBuilder
-    var toolbar: some ToolbarContent {
-        ToolbarItem(placement: .topBarLeading) {
-            PokitToolbarButton(.icon(.arrowLeft)) {
-                send(.backButtonTapped)
+    var toolbar: some View {
+        PokitHeader(title: store.contentType.title) {
+            PokitHeaderItems(placement: .leading) {
+                PokitToolbarButton(.icon(.arrowLeft)) {
+                    send(.backButtonTapped)
+                }
             }
         }
+        .padding(.top, 8)
     }
 }
 //MARK: - Preview

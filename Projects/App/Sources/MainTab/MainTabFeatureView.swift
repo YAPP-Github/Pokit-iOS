@@ -128,8 +128,6 @@ private extension MainTabView {
             ) { store in
                 ContentDetailView(store: store)
             }
-            .pokitNavigationBar(title: "")
-            .toolbar { navigationBar }
             .task { await send(.onAppear).finish() }
     }
 
@@ -138,25 +136,27 @@ private extension MainTabView {
             switch store.selectedTab {
             case .pokit:
                 PokitRootView(store: store.scope(state: \.pokit, action: \.pokit))
+                    .pokitNavigationBar { pokitNavigationBar }
                     .toolbarBackground(.hidden, for: .tabBar)
+                
             case .remind:
                 RemindView(store: store.scope(state: \.remind, action: \.remind))
+                    .pokitNavigationBar { remindNavigationBar }
                     .toolbarBackground(.hidden, for: .tabBar)
             }
         }
     }
 
-    @ToolbarContentBuilder
-    var pokitNavigationBar: some ToolbarContent {
-        ToolbarItem(placement: .topBarLeading) {
-            Image(.logo(.pokit))
-                .resizable()
-                .frame(width: 104, height: 32)
-                .foregroundStyle(.pokit(.icon(.brand)))
-        }
-
-        ToolbarItem(placement: .topBarTrailing) {
-            HStack(spacing: 12) {
+    var pokitNavigationBar: some View {
+        PokitHeader {
+            PokitHeaderItems(placement: .leading) {
+                Image(.logo(.pokit))
+                    .resizable()
+                    .frame(width: 104, height: 32)
+                    .foregroundStyle(.pokit(.icon(.brand)))
+            }
+            
+            PokitHeaderItems(placement: .trailing) {
                 PokitToolbarButton(
                     .icon(.search),
                     action: { store.send(.pokit(.view(.searchButtonTapped))) }
@@ -171,38 +171,29 @@ private extension MainTabView {
                 )
             }
         }
+        .padding(.vertical, 8)
     }
 
-    @ToolbarContentBuilder
-    var remindNavigationBar: some ToolbarContent {
-        ToolbarItem(placement: .navigationBarLeading) {
-            Text("Remind")
-                .font(.system(size: 32, weight: .heavy))
-                .foregroundStyle(.pokit(.text(.brand)))
+    var remindNavigationBar: some View {
+        PokitHeader {
+            PokitHeaderItems(placement: .leading) {
+                Text("Remind")
+                    .font(.system(size: 32, weight: .heavy))
+                    .foregroundStyle(.pokit(.text(.brand)))
+            }
+            
+            PokitHeaderItems(placement: .trailing) {
+                PokitToolbarButton(
+                    .icon(.search),
+                    action: { store.send(.remind(.view(.searchButtonTapped))) }
+                )
+                PokitToolbarButton(
+                    .icon(.bell),
+                    action: { store.send(.remind(.view(.bellButtonTapped))) }
+                )
+            }
         }
-
-        ToolbarItem(placement: .navigationBarTrailing) {
-            PokitToolbarButton(
-                .icon(.search),
-                action: { store.send(.remind(.view(.searchButtonTapped))) }
-            )
-        }
-
-        ToolbarItem(placement: .navigationBarTrailing) {
-            PokitToolbarButton(
-                .icon(.bell),
-                action: { store.send(.remind(.view(.bellButtonTapped))) }
-            )
-        }
-
-    }
-
-    @ToolbarContentBuilder
-    var navigationBar: some ToolbarContent {
-        switch store.selectedTab {
-        case .pokit:  pokitNavigationBar
-        case .remind: remindNavigationBar
-        }
+        .padding(.vertical, 8)
     }
 
     var bottomTabBar: some View {
