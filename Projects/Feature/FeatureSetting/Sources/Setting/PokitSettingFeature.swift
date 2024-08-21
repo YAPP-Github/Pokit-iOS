@@ -210,8 +210,8 @@ private extension PokitSettingFeature {
                 guard let serverRefreshToken = keychain.read(.serverRefresh) else { return }
                 
                 let request = WithdrawRequest(refreshToken: serverRefreshToken, authPlatform: platform)
-                try await authClient.회원탈퇴(request)
                 await send(.async(.키_제거))
+                try await authClient.회원탈퇴(request)
             }
             
         case .키_제거:

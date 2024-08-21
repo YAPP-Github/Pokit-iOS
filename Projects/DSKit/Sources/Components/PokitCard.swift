@@ -63,7 +63,7 @@ public struct PokitCard<Item: PokitCardItem>: View {
         .background {
             background
         }
-        .frame(width: 161.5, height: 152)
+        .frame(height: 152)
     }
     
     private var title: some View {

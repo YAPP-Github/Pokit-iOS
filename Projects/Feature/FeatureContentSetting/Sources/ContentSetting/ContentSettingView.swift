@@ -179,6 +179,7 @@ private extension ContentSettingView {
                 .pokitFont(.detail1)
                 .foregroundStyle(.pokit(.text(.tertiary)))
         }
+        .padding(.bottom, 16)
     }
 }
 private extension ContentSettingView {
