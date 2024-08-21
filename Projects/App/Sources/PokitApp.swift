@@ -7,15 +7,17 @@
 
 import SwiftUI
 
+import ComposableArchitecture
+
 @main
 struct PokitApp: App {
     
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+    var store: StoreOf<AppDelegateFeature> { appDelegate.store }
+    
     var body: some Scene {
         WindowGroup {
-            /// - appDelegate.store -> RootFeature
-            /// - 헷갈리지 않기
-            RootView(store: self.appDelegate.store)
+            RootView(store: store.scope(state: \.root, action: \.root))
         }
     }
 }

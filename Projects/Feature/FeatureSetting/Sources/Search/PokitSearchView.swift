@@ -63,7 +63,7 @@ public extension PokitSearchView {
                     confirmText: "삭제"
                 ) { send(.deleteAlertConfirmTapped) }
             }
-            .onAppear { send(.onAppear) }
+            .task { await send(.onAppear).finish() }
         }
     }
 }

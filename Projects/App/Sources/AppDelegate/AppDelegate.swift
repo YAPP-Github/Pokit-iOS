@@ -12,8 +12,8 @@ import FirebaseMessaging
 import GoogleSignIn
 
 final class AppDelegate: NSObject {
-    let store = Store(initialState: RootFeature.State()) {
-        RootFeature()
+    let store = Store(initialState: AppDelegateFeature.State()) {
+        AppDelegateFeature()
     }
 }
 //MARK: - UIApplicationDelegate
@@ -28,7 +28,7 @@ extension AppDelegate: UIApplicationDelegate {
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
-        self.store.send(.appDelegate(.didFinishLaunching))
+        self.store.send(.didFinishLaunching)
         return true
     }
     
@@ -40,9 +40,9 @@ extension AppDelegate: UIApplicationDelegate {
         Messaging.messaging().apnsToken = deviceToken
         Messaging.messaging().token { token, error in
             if let error {
-                self.store.send(.appDelegate(.didRegisterForRemoteNotifications(.failure(error))))
+                self.store.send(.didRegisterForRemoteNotifications(.failure(error)))
             } else if let token {
-                self.store.send(.appDelegate(.didRegisterForRemoteNotifications(.success(token))))
+                self.store.send(.didRegisterForRemoteNotifications(.success(token)))
             }
         }
     }
@@ -52,6 +52,6 @@ extension AppDelegate: UIApplicationDelegate {
         _ application: UIApplication,
         didFailToRegisterForRemoteNotificationsWithError error: any Error
     ) {
-        self.store.send(.appDelegate(.didRegisterForRemoteNotifications(.failure(error))))
+        self.store.send(.didRegisterForRemoteNotifications(.failure(error)))
     }
 }

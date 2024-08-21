@@ -84,7 +84,6 @@ public struct ContentDetailFeature {
         
         public enum DelegateAction: Equatable {
             case editButtonTapped(contentId: Int)
-            case 컨텐츠_삭제_완료(contentId: Int)
         }
     }
     
@@ -142,8 +141,6 @@ private extension ContentDetailFeature {
             return .none
         case .deleteAlertConfirmTapped:
             return .run { [id = state.domain.contentId] send in
-                //TODO: 링크 삭제
-                await send(.inner(.dismissAlert))
                 await send(.async(.컨텐츠_삭제(id: id)))
             }
         case .binding:
@@ -206,30 +203,30 @@ private extension ContentDetailFeature {
     func handleAsyncAction(_ action: Action.AsyncAction, state: inout State) -> Effect<Action> {
         switch action {
         case .컨텐츠_상세_조회(id: let id):
-            return .run { [id] send in
+            return .run { send in
                 let contentResponse = try await contentClient.컨텐츠_상세_조회("\(id)").toDomain()
                 await send(.inner(.컨텐츠_상세_조회(content: contentResponse)))
                 await send(.async(.카테고리_상세_조회(id: contentResponse.category.categoryId)))
             }
         case .즐겨찾기(id: let id):
-            return .run { [id] send in
+            return .run { send in
                 let _ = try await contentClient.즐겨찾기("\(id)")
                 await send(.inner(.즐겨찾기_갱신(true)))
             }
         case .즐겨찾기_취소(id: let id):
-            return .run { [id] send in
+            return .run { send in
                 let _ = try await contentClient.즐겨찾기_취소("\(id)")
                 await send(.inner(.즐겨찾기_갱신(false)))
             }
         case .카테고리_상세_조회(id: let id):
-            return .run { [id] send in
+            return .run { send in
                 let category = try await categoryClient.카테고리_상세_조회("\(id)").toDomain()
                 await send(.inner(.카테고리_갱신(category)))
             }
         case .컨텐츠_삭제(id: let id):
-            return .run { [id] send in
-                let _ = try await contentClient.컨텐츠_삭제("\(id)")
-                await send(.delegate(.컨텐츠_삭제_완료(contentId: id)))
+            return .run { _ in
+                try await contentClient.컨텐츠_삭제("\(id)")
+                await dismiss()
             }
         }
     }

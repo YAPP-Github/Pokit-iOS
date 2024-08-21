@@ -15,7 +15,10 @@ public struct AppDelegateFeature {
     @Dependency(\.userNotifications) var userNotifications
     @Dependency(\.remoteNotifications.register) var registerForRemoteNotifications
     
-    public struct State: Equatable {
+    @ObservableState
+    public struct State {
+        public var root = RootFeature.State()
+        
         public init() {}
     }
     
@@ -23,11 +26,15 @@ public struct AppDelegateFeature {
         case didFinishLaunching
         case didRegisterForRemoteNotifications(Result<String, Error>)
         case userNotifications(UserNotificationClient.DelegateEvent)
+        case root(RootFeature.Action)
     }
     
     public init() {}
     
     public var body: some ReducerOf<Self> {
+        Scope(state: \.root, action: \.root) {
+            RootFeature()
+        }
         Reduce { state, action in
             switch action {
             case .didFinishLaunching:
@@ -68,6 +75,9 @@ public struct AppDelegateFeature {
             case let .userNotifications(.willPresentNotification(_, completionHandler)):
                 return .run { _ in completionHandler(.banner) }
             case .userNotifications:
+                return .none
+                
+            case .root:
                 return .none
             }
         }

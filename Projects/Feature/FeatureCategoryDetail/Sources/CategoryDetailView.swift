@@ -69,7 +69,7 @@ public extension CategoryDetailView {
                     delegateSend: { store.send(.scope(.filterBottomSheet($0))) }
                 )
             }
-            .onAppear { send(.onAppear) }
+            .task { await send(.onAppear).finish() }
         }
     }
 }
@@ -136,22 +136,26 @@ private extension CategoryDetailView {
                         
                         Spacer()
                     }
-                }
-                ScrollView(showsIndicators: false) {
-                    ForEach(contents) { content in
-                        let isFirst = content == contents.first
-                        let isLast = content == contents.last
-                        
-                        PokitLinkCard(
-                            link: content,
-                            action: { send(.contentItemTapped(content)) },
-                            kebabAction: { send(.categoryKebobButtonTapped(.링크삭제, selectedItem: content)) }
-                        )
-                        .divider(isFirst: isFirst, isLast: isLast)
-                        .pokitScrollTransition(.opacity)
+                } else {
+                    ScrollView(showsIndicators: false) {
+                        LazyVStack(spacing: 0) {
+                            ForEach(contents) { content in
+                                let isFirst = content == contents.first
+                                let isLast = content == contents.last
+                                
+                                PokitLinkCard(
+                                    link: content,
+                                    action: { send(.contentItemTapped(content)) },
+                                    kebabAction: { send(.categoryKebobButtonTapped(.링크삭제, selectedItem: content)) }
+                                )
+                                .divider(isFirst: isFirst, isLast: isLast)
+                                .pokitScrollTransition(.opacity)
+                            }
+                            
+                            Spacer()
+                        }
                     }
                 }
-                .animation(.spring, value: contents.elements)
             } else {
                 PokitLoading()
             }

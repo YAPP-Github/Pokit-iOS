@@ -23,12 +23,15 @@ extension RootView {
     public var body: some View {
         WithPerceptionTracking {
             Group {
-                if let store = store.scope(state: \.intro, action: \.intro) {
-                    IntroView(store: store)
-                }
-                
-                if let store = store.scope(state: \.mainTab, action: \.mainTab) {
-                    MainTabView(store: store)
+                switch store.state {
+                case .intro:
+                    if let store = store.scope(state: \.intro, action: \.intro) {
+                        IntroView(store: store)
+                    }
+                case .mainTab:
+                    if let store = store.scope(state: \.mainTab, action: \.mainTab) {
+                        MainTabView(store: store)
+                    }
                 }
             }
             .background(.pokit(.bg(.base)))
