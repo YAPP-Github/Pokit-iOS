@@ -35,7 +35,7 @@ let coreKit: Target = .target(
         .external(name: "SwiftSoup"),
         .external(name: "KakaoSDKCommon"),
         .external(name: "KakaoSDKShare"),
-        .external(name: "KakaoSDKTemplate")\
+        .external(name: "KakaoSDKTemplate"),
     ],
     settings: .settings(
         base: [
