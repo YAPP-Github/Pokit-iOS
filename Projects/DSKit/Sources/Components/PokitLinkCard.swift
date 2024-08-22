@@ -40,9 +40,7 @@ public struct PokitLinkCard<Item: PokitLinkCardItem>: View {
                 HStack {
                     title
                     
-                    if kebabAction != nil {
-                        Spacer(minLength: 24)
-                    }
+                    Spacer(minLength: kebabAction != nil ? 24 : 0)
                 }
                 
                 HStack {
