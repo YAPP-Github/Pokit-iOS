@@ -18,6 +18,8 @@ public enum CategoryEndpoint {
     case 카테고리_프로필_목록_조회
     case 유저_카테고리_개수_조회
     case 카테고리_상세_조회(categoryId: String)
+    case 공유받은_카테고리_조회(categoryId: String)
+    case 공유받은_카테고리_저장(model: CopiedCategoryRequest)
     
 }
 
@@ -41,6 +43,10 @@ extension CategoryEndpoint: TargetType {
             return ""
         case .카테고리_상세_조회(let categoryId):
             return "/\(categoryId)"
+        case let .공유받은_카테고리_조회(categoryId):
+            return "/share/\(categoryId)"
+        case .공유받은_카테고리_저장(model: let model):
+            return "/share"
         }
     }
     
@@ -55,10 +61,12 @@ extension CategoryEndpoint: TargetType {
         case .카테고리_목록_조회,
              .카테고리_프로필_목록_조회,
              .유저_카테고리_개수_조회,
-             .카테고리_상세_조회:
+             .카테고리_상세_조회,
+             .공유받은_카테고리_조회:
             return .get
             
-        case .카테고리생성:
+        case .카테고리생성,
+             .공유받은_카테고리_저장:
             return .post
         }
     }
@@ -87,6 +95,16 @@ extension CategoryEndpoint: TargetType {
             return .requestPlain
         case .카테고리_상세_조회:
             return .requestPlain
+        case .공유받은_카테고리_조회:
+            return .requestPlain
+        case let .공유받은_카테고리_저장(model):
+            return .requestParameters(
+                parameters: [
+                    "originCategoryId": model.originCategoryId,
+                    "categoryName": model.categoryName
+                ],
+                encoding: URLEncoding.default
+            )
         }
     }
     public var headers: [String: String]? {
