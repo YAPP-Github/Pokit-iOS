@@ -17,7 +17,33 @@ public extension SharedCategoryResponse {
                 categoryName: self.category.categoryName,
                 contentCount: self.category.contentCount
             ),
-            contentList: self.contents.toDomain()
+            contentList: self.contents.toDomain(categoryName: self.category.categoryName)
+        )
+    }
+}
+
+public extension SharedCategoryResponse.Content {
+    func toDomain(categoryName: String) -> CategorySharing.Content {
+        return .init(
+            id: self.contentId,
+            data: self.data,
+            domain: self.domain,
+            title: self.title,
+            thumbNail: self.thumbNail,
+            createdAt: self.createdAt,
+            categoryName: categoryName
+        )
+    }
+}
+
+public extension SharedCategoryResponse.ContentListInquiry {
+    func toDomain(categoryName: String) -> CategorySharing.ContentListInquiry {
+        return .init(
+            data: self.data.map { $0.toDomain(categoryName: categoryName) },
+            page: self.page,
+            size: self.size,
+            sort: self.sort.map { $0.toDomain() },
+            hasNext: self.hasNext
         )
     }
 }

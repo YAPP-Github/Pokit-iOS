@@ -7,6 +7,8 @@
 
 import Foundation
 
+import Util
+
 public struct CategorySharing: Equatable {
     // - MARK: Response
     /// 공유받은 카테고리(포킷)
@@ -33,7 +35,7 @@ public struct CategorySharing: Equatable {
 extension CategorySharing {
     public struct SharedCategory: Equatable {
         public let category: Category
-        public var contentList: BaseContentListInquiry
+        public var contentList: CategorySharing.ContentListInquiry
     }
     
     public struct CopiedCategory: Equatable {
@@ -56,12 +58,29 @@ extension CategorySharing {
             self.message = message
         }
     }
-}
-
-extension CategorySharing.SharedCategory {
+    
     public struct Category: Equatable {
         public let categoryId: Int
         public let categoryName: String
         public let contentCount: Int
+    }
+    
+    public struct ContentListInquiry: Equatable {
+        public let data: [CategorySharing.Content]
+        public let page: Int
+        public let size: Int
+        public let sort: [BaseItemInquirySort]
+        public let hasNext: Bool
+    }
+    
+    public struct Content: Identifiable, Equatable, PokitLinkCardItem {
+        public let id: Int
+        public let data: String
+        public let domain: String
+        public let title: String
+        public let thumbNail: String
+        public let createdAt: String
+        public let categoryName: String
+        public let isRead: Bool = false
     }
 }

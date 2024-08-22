@@ -64,7 +64,7 @@ private extension CategorySharingView {
     }
     
     @ViewBuilder
-    func header(category: CategorySharing.SharedCategory.Category) -> some View {
+    func header(category: CategorySharing.Category) -> some View {
         HStack {
             VStack(alignment: .leading, spacing: 4) {
                 Text(category.categoryName)

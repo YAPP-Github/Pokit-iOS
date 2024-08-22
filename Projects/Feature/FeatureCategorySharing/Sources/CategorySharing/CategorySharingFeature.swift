@@ -23,14 +23,14 @@ public struct CategorySharingFeature {
     @ObservableState
     public struct State: Equatable {
         fileprivate var domain: CategorySharing
-        var category: CategorySharing.SharedCategory.Category? {
+        var category: CategorySharing.Category? {
             get { domain.sharedCategory?.category }
         }
-        var contents: IdentifiedArrayOf<BaseContentItem>? {
+        var contents: IdentifiedArrayOf<CategorySharing.Content>? {
             guard let contentList = domain.sharedCategory?.contentList.data else {
                 return nil
             }
-            var identifiedArray = IdentifiedArrayOf<BaseContentItem>()
+            var identifiedArray = IdentifiedArrayOf<CategorySharing.Content>()
             contentList.forEach { content in
                 identifiedArray.append(content)
             }
@@ -60,7 +60,7 @@ public struct CategorySharingFeature {
         @CasePathable
         public enum View: Equatable, BindableAction {
             case 저장버튼_클릭
-            case 컨텐츠_아이템_클릭(BaseContentItem)
+            case 컨텐츠_아이템_클릭(CategorySharing.Content)
             case 뒤로가기버튼_클릭
             case 경고_확인버튼_클릭
             
@@ -131,7 +131,20 @@ private extension CategorySharingFeature {
         case .저장버튼_클릭:
             return .send(.async(.공유받은_카테고리_저장))
         case let .컨텐츠_아이템_클릭(content):
-            return .send(.delegate(.컨텐츠_아이템_클릭(content)))
+            guard let categoryId = state.category?.categoryId else {
+                return .none
+            }
+            return .send(.delegate(.컨텐츠_아이템_클릭(.init(
+                id: content.id,
+                categoryName: content.categoryName,
+                categoryId: categoryId,
+                title: content.title,
+                thumbNail: content.thumbNail,
+                data: content.data,
+                domain: content.domain,
+                createdAt: content.createdAt,
+                isRead: content.isRead
+            ))))
         case .뒤로가기버튼_클릭:
             return .run { _ in await dismiss() }
         case .경고_확인버튼_클릭:
