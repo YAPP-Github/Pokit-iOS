@@ -295,6 +295,7 @@ private extension CategoryDetailFeature {
                     ),
                     { _ in }
                 )
+                state.isCategorySheetPresented = false
                 return .none
                 
             case .editCellButtonTapped:

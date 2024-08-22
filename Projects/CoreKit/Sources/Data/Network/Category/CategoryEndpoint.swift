@@ -45,7 +45,7 @@ extension CategoryEndpoint: TargetType {
             return "/\(categoryId)"
         case let .공유받은_카테고리_조회(categoryId, _):
             return "/share/\(categoryId)"
-        case .공유받은_카테고리_저장(model: let model):
+        case .공유받은_카테고리_저장:
             return "/share"
         }
     }
@@ -105,13 +105,7 @@ extension CategoryEndpoint: TargetType {
                 encoding: URLEncoding.default
             )
         case let .공유받은_카테고리_저장(model):
-            return .requestParameters(
-                parameters: [
-                    "originCategoryId": model.originCategoryId,
-                    "categoryName": model.categoryName
-                ],
-                encoding: URLEncoding.default
-            )
+            return .requestJSONEncodable(model)
         }
     }
     public var headers: [String: String]? {

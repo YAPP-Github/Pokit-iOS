@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct CopiedCategoryRequest: Decodable {
+public struct CopiedCategoryRequest: Encodable {
     public let originCategoryId: Int
     public var categoryName: String
     

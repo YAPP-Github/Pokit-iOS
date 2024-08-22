@@ -221,7 +221,7 @@ private extension CategorySharingFeature {
                         message: errorResponse.message
                     )))
                 default:
-                    debugPrint(error)
+                    print(error)
                     return
                 }
             }
