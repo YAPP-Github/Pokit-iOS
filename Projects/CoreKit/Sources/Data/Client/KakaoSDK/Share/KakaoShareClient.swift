@@ -13,8 +13,8 @@ import KakaoSDKShare
 import KakaoSDKTemplate
 
 public struct KakaoShareClient {
-    public var 컨텐츠_카카오톡_공유: (
-        _ model: KakaoShareModel,
+    public var 카테고리_카카오톡_공유: (
+        _ model: CategoryKaKaoShareModel,
         _ webShare: @escaping (_ url: URL) -> Void
     ) -> Void
 }
@@ -22,17 +22,17 @@ public struct KakaoShareClient {
 extension KakaoShareClient: DependencyKey {
     public static var liveValue: KakaoShareClient {
         return Self(
-            컨텐츠_카카오톡_공유: { model, webShare in
+            카테고리_카카오톡_공유: { model, webShare in
                 /// 딥링크
                 let appLink = Link(
                     androidExecutionParams: [
-                        "userId": "\(model.userId)",
-                        "contentId": "\(model.contentId)"
+                        "categoryId": "\(model.categoryId)"
                     ], iosExecutionParams: [
-                        "userId": "\(model.userId)",
-                        "contentId": "\(model.contentId)"
+                        "categoryId": "\(model.categoryId)"
                     ]
                 )
+                
+                let serverCallbackArgs = ["categoryId": "\(model.categoryId)"]
                 
                 /// 카카오톡 메세지의 앱 이동 버튼
                 let button = Button(
@@ -42,9 +42,9 @@ extension KakaoShareClient: DependencyKey {
                 
                 /// 카카오톡 메세지 내용
                 let content = Content(
-                    title: model.title,
+                    title: "\(model.categoryName) 포킷을 공유받았어요!",
                     imageUrl: URL(string: model.imageURL),
-                    description: model.description,
+                    description: "지금바로 확인해보세요!",
                     link: appLink
                 )
                 
