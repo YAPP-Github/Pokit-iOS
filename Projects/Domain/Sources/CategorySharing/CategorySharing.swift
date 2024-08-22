@@ -10,22 +10,29 @@ import Foundation
 public struct CategorySharing: Equatable {
     // - MARK: Response
     /// 공유받은 카테고리(포킷)
-    public var category: SharedCategory?
+    public var sharedCategory: SharedCategory?
     // - MARK: Request
     /// 복제할 카테고리(포킷) 정보
     public var copiedCategory: CopiedCategory?
     /// 조회할 카테고리(포킷) id
     public let categoryId: Int
+    /// 조회할 페이징 정보
+    public var pageable: BasePageable
     
     public init(categoryId: Int) {
         self.categoryId = categoryId
+        self.pageable = .init(
+            page: 0,
+            size: 10,
+            sort: ["desc"]
+        )
     }
 }
 
 extension CategorySharing {
     public struct SharedCategory: Equatable {
         public let category: Category
-        public var contents: BaseContentListInquiry
+        public var contentList: BaseContentListInquiry
     }
     
     public struct CopiedCategory: Equatable {

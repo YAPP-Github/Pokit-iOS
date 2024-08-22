@@ -17,7 +17,7 @@ public extension SharedCategoryResponse {
                 categoryName: self.category.categoryName,
                 contentCount: self.category.contentCount
             ),
-            contents: self.contents.toDomain()
+            contentList: self.contents.toDomain()
         )
     }
 }

@@ -36,6 +36,7 @@ public struct CategoryClient {
     ) async throws -> CategoryEditResponse
     public var 공유받은_카테고리_조회: @Sendable (
         _ categoryId: String
+        _ model: BasePageableRequest
     ) async throws -> SharedCategoryResponse
     public var 공유받은_카테고리_저장: @Sendable (
         _ model: CopiedCategoryRequest
@@ -68,7 +69,7 @@ extension CategoryClient: DependencyKey {
             카테고리_상세_조회: { id in
                 try await provider.request(.카테고리_상세_조회(categoryId: id))
             },
-            공유받은_카테고리_조회: { id in
+            공유받은_카테고리_조회: { id, model in
                 try await provider.request(.공유받은_카테고리_조회(categoryId: id))
             },
             공유받은_카테고리_저장: { model in
@@ -86,7 +87,7 @@ extension CategoryClient: DependencyKey {
             카테고리_프로필_목록_조회: { CategoryImageResponse.mock },
             유저_카테고리_개수_조회: { .mock },
             카테고리_상세_조회: { _ in .mock },
-            공유받은_카테고리_조회: { _ in .mock },
+            공유받은_카테고리_조회: { _, _ in .mock },
             공유받은_카테고리_저장: { _ in }
         )
     }()

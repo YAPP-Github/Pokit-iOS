@@ -18,7 +18,7 @@ public enum CategoryEndpoint {
     case 카테고리_프로필_목록_조회
     case 유저_카테고리_개수_조회
     case 카테고리_상세_조회(categoryId: String)
-    case 공유받은_카테고리_조회(categoryId: String)
+    case 공유받은_카테고리_조회(categoryId: String, model: BasePageableRequest)
     case 공유받은_카테고리_저장(model: CopiedCategoryRequest)
     
 }
@@ -43,7 +43,7 @@ extension CategoryEndpoint: TargetType {
             return ""
         case .카테고리_상세_조회(let categoryId):
             return "/\(categoryId)"
-        case let .공유받은_카테고리_조회(categoryId):
+        case let .공유받은_카테고리_조회(categoryId, _):
             return "/share/\(categoryId)"
         case .공유받은_카테고리_저장(model: let model):
             return "/share"
@@ -95,8 +95,15 @@ extension CategoryEndpoint: TargetType {
             return .requestPlain
         case .카테고리_상세_조회:
             return .requestPlain
-        case .공유받은_카테고리_조회:
-            return .requestPlain
+        case let .공유받은_카테고리_조회(_, model):
+            return .requestParameters(
+                parameters: [
+                    "page": model.page,
+                    "size": model.size,
+                    "sort": model.sort.map { String($0) }.joined(separator: ",")
+                ],
+                encoding: URLEncoding.default
+            )
         case let .공유받은_카테고리_저장(model):
             return .requestParameters(
                 parameters: [
