@@ -35,7 +35,7 @@ public struct CategoryClient {
         _ categoryId: String
     ) async throws -> CategoryEditResponse
     public var 공유받은_카테고리_조회: @Sendable (
-        _ categoryId: String
+        _ categoryId: String,
         _ model: BasePageableRequest
     ) async throws -> SharedCategoryResponse
     public var 공유받은_카테고리_저장: @Sendable (
@@ -70,7 +70,7 @@ extension CategoryClient: DependencyKey {
                 try await provider.request(.카테고리_상세_조회(categoryId: id))
             },
             공유받은_카테고리_조회: { id, model in
-                try await provider.request(.공유받은_카테고리_조회(categoryId: id))
+                try await provider.request(.공유받은_카테고리_조회(categoryId: id, model: model))
             },
             공유받은_카테고리_저장: { model in
                 try await provider.requestNoBody(.공유받은_카테고리_저장(model: model))
