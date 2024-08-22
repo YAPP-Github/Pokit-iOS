@@ -25,7 +25,7 @@ public struct CategorySharing: Equatable {
     public init(categoryId: Int) {
         self.categoryId = categoryId
         self.pageable = .init(
-            page: 0,
+            page: -1,
             size: 10,
             sort: ["desc"]
         )

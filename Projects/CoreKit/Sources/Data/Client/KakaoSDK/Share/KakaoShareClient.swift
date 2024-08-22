@@ -59,14 +59,18 @@ extension KakaoShareClient: DependencyKey {
                       let templateJsonObject = SdkUtils.toJsonObject(templateJsonData) else {
                     /// 🚨 Error Case [1]: 카카오톡 미설치
                     /// 웹공유로 이동
-                    if let url = ShareApi.shared.makeDefaultUrl(templatable: template) {
+                    if let url = ShareApi.shared.makeDefaultUrl(
+                        templatable: template,
+                        serverCallbackArgs: serverCallbackArgs
+                    ) {
                         webShare(url)
                     }
                     return
                 }
                 
                 ShareApi.shared.shareDefault(
-                    templateObject: templateJsonObject
+                    templateObject: templateJsonObject,
+                    serverCallbackArgs: serverCallbackArgs
                 ) { linkResult, error in
                     if let error = error {
                         print("error : \(error)")
