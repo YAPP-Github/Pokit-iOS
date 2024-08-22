@@ -13,8 +13,8 @@ public struct BaseContentDetail: Equatable {
     public let title: String
     public let data: String
     public let memo: String
-    public let createdAt: Date
-    public var favorites: Bool
+    public let createdAt: String
+    public var favorites: Bool?
     public var alertYn: RemindState
     
     public init(
@@ -23,8 +23,8 @@ public struct BaseContentDetail: Equatable {
         title: String,
         data: String,
         memo: String,
-        createdAt: Date,
-        favorites: Bool,
+        createdAt: String,
+        favorites: Bool?,
         alertYn: RemindState
     ) {
         self.id = id
@@ -49,4 +49,9 @@ public extension BaseContentDetail {
 public struct BaseCategoryInfo: Equatable {
     public let categoryId: Int
     public let categoryName: String
+    
+    public init(categoryId: Int, categoryName: String) {
+        self.categoryId = categoryId
+        self.categoryName = categoryName
+    }
 }

@@ -16,6 +16,7 @@ import FeatureContentDetail
 import FeatureContentSetting
 import FeatureCategoryDetail
 import FeatureContentList
+import FeatureCategorySharing
 
 @ViewAction(for: MainTabFeature.self)
 public struct MainTabView: View {
@@ -80,6 +81,10 @@ public extension MainTabView {
                     case .링크목록:
                         if let store = store.scope(state: \.링크목록, action: \.링크목록) {
                             ContentListView(store: store)
+                        }
+                    case .링크공유:
+                        if let store = store.scope(state: \.링크공유, action: \.링크공유) {
+                            CategorySharingView(store: store)
                         }
                     }
                     

@@ -4,6 +4,8 @@
 //
 //  Created by 김도형 on 8/21/24.
 
+import Foundation
+
 import ComposableArchitecture
 import Domain
 import CoreKit
@@ -83,7 +85,7 @@ public struct CategorySharingFeature {
         public enum ScopeAction: Equatable { case doNothing }
         
         public enum DelegateAction: Equatable {
-            case 컨텐츠_아이템_클릭(BaseContentItem)
+            case 컨텐츠_아이템_클릭(categoryId: Int, content: CategorySharing.Content)
             case 공유받은_카테고리_저장(categoryName: String)
             case 공유받은_카테고리_수정(categoryName: String)
         }
@@ -134,17 +136,7 @@ private extension CategorySharingFeature {
             guard let categoryId = state.category?.categoryId else {
                 return .none
             }
-            return .send(.delegate(.컨텐츠_아이템_클릭(.init(
-                id: content.id,
-                categoryName: content.categoryName,
-                categoryId: categoryId,
-                title: content.title,
-                thumbNail: content.thumbNail,
-                data: content.data,
-                domain: content.domain,
-                createdAt: content.createdAt,
-                isRead: content.isRead
-            ))))
+            return .send(.delegate(.컨텐츠_아이템_클릭(categoryId: categoryId, content: content)))
         case .뒤로가기버튼_클릭:
             return .run { _ in await dismiss() }
         case .경고_확인버튼_클릭:

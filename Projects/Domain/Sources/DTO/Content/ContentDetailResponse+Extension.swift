@@ -21,7 +21,7 @@ public extension ContentDetailResponse {
             title: self.title,
             data: self.data,
             memo: self.memo,
-            createdAt: DateFormatter.stringToDate(string: self.createdAt),
+            createdAt: self.createdAt,
             favorites: self.favorites,
             alertYn: BaseContentDetail.RemindState(rawValue: self.alertYn) ?? .no)
     }

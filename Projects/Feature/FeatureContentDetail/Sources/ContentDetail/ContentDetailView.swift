@@ -15,7 +15,7 @@ public struct ContentDetailView: View {
     /// - Properties
     @Perception.Bindable
     public var store: StoreOf<ContentDetailFeature>
-    
+
     /// - Initializer
     public init(store: StoreOf<ContentDetailFeature>) {
         self.store = store
@@ -78,43 +78,41 @@ private extension ContentDetailView {
                             .fill(.pokit(.bg(.brand)))
                     }
             }
-            
-            if let categoryName = store.category?.categoryName {
-                PokitBadge(categoryName, state: .default)
-            }
-            
+
+            PokitBadge(content.category.categoryName, state: .default)
+
             Spacer()
         }
     }
-    
+
     @ViewBuilder
     func title(content: BaseContentDetail) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             Group {
                 remindAndBadge(content: content)
-                
+
                 Text(content.title)
                     .pokitFont(.title3)
                     .foregroundStyle(.pokit(.text(.primary)))
                     .multilineTextAlignment(.leading)
                     .lineLimit(2)
-                
+
                 HStack {
                     Spacer()
-                    
-                    Text(contentDateText)
+
+                    Text(content.createdAt)
                         .pokitFont(.detail2)
                         .foregroundStyle(.pokit(.text(.tertiary)))
                 }
             }
             .padding(.horizontal, 20)
-            
+
             Divider()
                 .foregroundStyle(.pokit(.border(.tertiary)))
                 .padding(.top, 4)
         }
     }
-    
+
     @ViewBuilder
     func contentLinkPreview(content: BaseContentDetail) -> some View {
         VStack(spacing: 16) {
@@ -126,16 +124,16 @@ private extension ContentDetailView {
                 )
                 .pokitBlurReplaceTransition(.pokitDissolve)
             }
-            
+
             contentMemo(content: content)
         }
         .padding(.horizontal, 20)
     }
-    
+
     @ViewBuilder
     func contentMemo(content: BaseContentDetail) -> some View {
         let isEmpty = content.memo.isEmpty
-        
+
         HStack {
             VStack {
                 Group {
@@ -149,11 +147,11 @@ private extension ContentDetailView {
                 }
                 .pokitFont(.b3(.r))
                 .multilineTextAlignment(.leading)
-                
+
                 Spacer()
             }
             .padding(16)
-            
+
             Spacer()
         }
         .frame(minHeight: 132)
@@ -162,41 +160,47 @@ private extension ContentDetailView {
                 .fill(Color(red: 1, green: 0.96, blue: 0.89))
         }
     }
-    
+
     @ViewBuilder
     func favorite(content: BaseContentDetail) -> some View {
         Button(action: { send(.favoriteButtonTapped, animation: .pokitDissolve) }) {
             let isFavorite = content.favorites
-            
+
             Image(isFavorite ? .icon(.starFill) : .icon(.starFill))
                 .resizable()
                 .scaledToFit()
-                .foregroundStyle(.pokit(.icon(isFavorite ? .brand : .tertiary)))
+                .foregroundStyle(.pokit(.icon(favorites ? .brand : .tertiary)))
                 .frame(width: 24, height: 24)
         }
     }
-    
+
     @ViewBuilder
     func bottomToolbar(content: BaseContentDetail) -> some View {
         HStack(spacing: 14) {
-            favorite(content: content)
-            
+            if let favorites = content.favorites {
+                favorite(favorites: favorites)
+            }
+
             Spacer()
-            
-            toolbarButton(
-                .icon(.share),
-                action: { send(.sharedButtonTapped) }
-            )
-            
-            toolbarButton(
-                .icon(.edit),
-                action: { send(.editButtonTapped) }
-            )
-            
-            toolbarButton(
-                .icon(.trash),
-                action: { send(.deleteButtonTapped) }
-            )
+
+            Group {
+                toolbarButton(
+                    .icon(.share),
+                    action: { send(.sharedButtonTapped) }
+                )
+
+                toolbarButton(
+                    .icon(.edit),
+                    action: { send(.editButtonTapped) }
+                )
+
+                toolbarButton(
+                    .icon(.trash),
+                    action: { send(.deleteButtonTapped) }
+                )
+            }
+            .disabled(store.contentId == nil)
+            .opacity(store.contentId == nil ? 0 : 1)
         }
         .padding(.top, 12)
         .padding(.bottom, 40)
@@ -207,7 +211,7 @@ private extension ContentDetailView {
                 .foregroundStyle(.pokit(.border(.tertiary)))
         }
     }
-    
+
     @ViewBuilder
     func toolbarButton(
         _ icon: PokitImage,
@@ -219,13 +223,6 @@ private extension ContentDetailView {
                 .frame(width: 24, height: 24)
                 .foregroundStyle(.pokit(.icon(.secondary)))
         }
-    }
-}
-private extension ContentDetailView {
-    var contentDateText: String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy.MM.dd hh:mm"
-        return formatter.string(from: store.content?.createdAt ?? .now)
     }
 }
 //MARK: - Preview

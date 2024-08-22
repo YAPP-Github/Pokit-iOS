@@ -29,6 +29,7 @@ public extension SharedCategoryResponse.Content {
             data: self.data,
             domain: self.domain,
             title: self.title,
+            memo: self.memo,
             thumbNail: self.thumbNail,
             createdAt: self.createdAt,
             categoryName: categoryName

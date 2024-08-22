@@ -78,6 +78,7 @@ extension CategorySharing {
         public let data: String
         public let domain: String
         public let title: String
+        public let memo: String
         public let thumbNail: String
         public let createdAt: String
         public let categoryName: String

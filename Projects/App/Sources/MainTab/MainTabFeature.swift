@@ -60,6 +60,7 @@ public struct MainTabFeature {
         public enum InnerAction: Equatable {
             case 링크추가및수정이동(contentId: Int)
             case linkCopySuccess(URL?)
+            case 공유포킷_이동(categoryId: Int)
         }
         public enum AsyncAction: Equatable { case doNothing }
         public enum ScopeAction: Equatable { case doNothing }
@@ -68,7 +69,6 @@ public struct MainTabFeature {
             case 포킷추가하기
             case 로그아웃
             case 회원탈퇴
-            case 링크상세보기(userId: Int, contentId: Int)
         }
     }
     /// initiallizer
@@ -150,14 +150,12 @@ private extension MainTabFeature {
             }
             
             let queryItems = components.queryItems ?? []
-            guard let userIdString = queryItems.first(where: { $0.name == "userId" })?.value,
-                  let contentIdString = queryItems.first(where: { $0.name == "contentId" })?.value,
-                  let userId = Int(userIdString),
-                  let contentId = Int(contentIdString) else {
+            guard let categoryIdString = queryItems.first(where: { $0.name == "categoryId" })?.value,
+                  let categoryId = Int(categoryIdString) else {
                 return .none
             }
             
-            return .send(.delegate(.링크상세보기(userId: userId, contentId: contentId)))
+            return .send(.inner(.공유포킷_이동(categoryId: categoryId)))
         }
     }
     /// - Inner Effect

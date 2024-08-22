@@ -14,6 +14,7 @@ import FeatureCategorySetting
 import FeatureContentDetail
 import FeatureContentSetting
 import FeatureContentList
+import FeatureCategorySharing
 
 @Reducer
 public struct MainTabPath {
@@ -26,6 +27,7 @@ public struct MainTabPath {
         case 링크추가및수정(ContentSettingFeature.State)
         case 카테고리상세(CategoryDetailFeature.State)
         case 링크목록(ContentListFeature.State)
+        case 링크공유(CategorySharingFeature.State)
     }
 
     public enum Action {
@@ -36,6 +38,7 @@ public struct MainTabPath {
         case 링크추가및수정(ContentSettingFeature.Action)
         case 카테고리상세(CategoryDetailFeature.Action)
         case 링크목록(ContentListFeature.Action)
+        case 링크공유(CategorySharingFeature.Action)
     }
 
     public var body: some Reducer<State, Action> {
@@ -46,6 +49,7 @@ public struct MainTabPath {
         Scope(state: \.링크추가및수정, action: \.링크추가및수정) { ContentSettingFeature() }
         Scope(state: \.카테고리상세, action: \.카테고리상세) { CategoryDetailFeature() }
         Scope(state: \.링크목록, action: \.링크목록) { ContentListFeature() }
+        Scope(state: \.링크공유, action: \.링크공유) { CategorySharingFeature() }
     }
 }
 
@@ -88,9 +92,14 @@ public extension MainTabFeature {
                 return .none
 
             /// - 포킷 `추가` or `수정`이 성공적으로 `완료`되었을 때
-            case let .path(.element(_, action: .포킷추가및수정(.delegate(.settingSuccess(categoryName, categoryId))))):
+            case let .path(.element(id: stackElementItem, action: .포킷추가및수정(.delegate(.settingSuccess(categoryName, categoryId))))):
                 state.path.removeLast()
-                return .none
+                guard let lastPath = state.path.last else { return .none }
+                switch lastPath {
+                case .링크공유:
+                    return .send(.path(.element(id: stackElementItem, action: .링크공유(.delegate(.공유받은_카테고리_저장(categoryName: categoryName))))))
+                default: return .none
+                }
 
             /// - 포킷 카테고리 아이템 눌렀을 때
             case let .pokit(.delegate(.categoryTapped(category))):
@@ -100,11 +109,6 @@ public extension MainTabFeature {
             case .path(.element(_, action: .카테고리상세(.delegate(.포킷삭제)))):
                 /// Todo: id값을 받아와 삭제API 보내기
                 state.path.removeLast()
-                return .none
-            
-            /// URL Scheme으로 링크 상세보기
-            case let .delegate(.링크상세보기(userId: userId, contentId: contentId)):
-                state.contentDetail = ContentDetailFeature.State(contentId: contentId)
                 return .none
 
             /// - 링크 상세
@@ -190,6 +194,31 @@ public extension MainTabFeature {
                 return .send(.delegate(.로그아웃))
             case .path(.element(_, action: .설정(.delegate(.회원탈퇴)))):
                 return .send(.delegate(.회원탈퇴))
+            
+            case let .inner(.공유포킷_이동(categoryId: categoryId)):
+                state.path.append(.링크공유(CategorySharingFeature.State(catgoryId: categoryId)))
+                return .none
+                
+            /// 링크 공유에서 컨텐츠 상세보기
+            case let .path(.element(_, action: .링크공유(.delegate(.컨텐츠_아이템_클릭(categoryId: categoryId, content: content))))):
+                state.contentDetail = ContentDetailFeature.State(content: .init(
+                    id: content.id,
+                    category: .init(
+                        categoryId: categoryId,
+                        categoryName: content.categoryName
+                    ),
+                    title: content.title,
+                    data: content.data,
+                    memo: content.memo,
+                    createdAt: content.createdAt,
+                    favorites: nil,
+                    alertYn: .no
+                ))
+                return .none
+            
+            case let .path(.element(_, action: .링크공유(.delegate(.공유받은_카테고리_수정(categoryName: categoryName))))):
+                state.path.append(.포킷추가및수정(.init(type: .수정, categoryName: categoryName)))
+                return .none
             default: return .none
             }
         }
