@@ -23,6 +23,8 @@ public struct CategoryDetailFeature {
     private var categoryClient
     @Dependency(\.contentClient)
     private var contentClient
+    @Dependency(\.kakaoShareClient)
+    private var kakaoShareClient
     /// - State
     @ObservableState
     public struct State: Equatable {
@@ -285,6 +287,14 @@ private extension CategoryDetailFeature {
         case .categoryBottomSheet(let delegateAction):
             switch delegateAction {
             case .shareCellButtonTapped:
+                kakaoShareClient.카테고리_카카오톡_공유(
+                    .init(
+                        categoryName: state.domain.category.categoryName,
+                        categoryId: state.domain.category.id,
+                        imageURL: state.domain.category.categoryImage.imageURL
+                    ),
+                    { _ in }
+                )
                 return .none
                 
             case .editCellButtonTapped:
