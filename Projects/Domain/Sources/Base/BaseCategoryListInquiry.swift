@@ -7,6 +7,8 @@
 
 import Foundation
 
+import Util
+
 public struct BaseCategoryListInquiry: Equatable {
     public var data: [BaseCategoryItem]?
     public var page: Int
