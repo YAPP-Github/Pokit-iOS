@@ -134,6 +134,14 @@ private extension MainTabView {
             ) { store in
                 ContentDetailView(store: store)
             }
+            .sheet(item: $store.alert) { alert in
+                PokitAlert(
+                    alert.titleKey,
+                    message: alert.message,
+                    confirmText: "확인",
+                    action: { send(.경고_확인버튼_클릭) }
+                )
+            }
             .task { await send(.onAppear).finish() }
     }
     
