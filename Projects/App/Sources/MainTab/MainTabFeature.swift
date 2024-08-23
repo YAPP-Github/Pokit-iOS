@@ -27,10 +27,12 @@ public struct MainTabFeature {
         var selectedTab: MainTab = .pokit
         var isBottomSheetPresented: Bool = false
         var isLinkSheetPresented: Bool = false
+        var isErrorSheetPresented: Bool = false
         var link: String?
         
         // - TODO: 에러 메세지 처리 의논 필요
-        var alert: CategorySharing.Alert?
+//        var alert: CategorySharing.Alert?
+        var error: BaseError?
         
         var path: StackState<MainTabPath.State> = .init()
         var pokit: PokitRootFeature.State
@@ -68,7 +70,8 @@ public struct MainTabFeature {
             case 링크추가및수정이동(contentId: Int)
             case linkCopySuccess(URL?)
             case 공유포킷_이동(sharedCategory: CategorySharing.SharedCategory)
-            case 경고_띄움(titleKey: String, message: String)
+            case 경고_띄움(BaseError)
+            case errorSheetPresented(Bool)
         }
         public enum AsyncAction: Equatable {
             case 공유받은_카테고리_조회(categoryId: Int)
@@ -167,8 +170,8 @@ private extension MainTabFeature {
             
             return .send(.async(.공유받은_카테고리_조회(categoryId: categoryId)))
         case .경고_확인버튼_클릭:
-            state.alert = nil
-            return .none
+            state.error = nil
+            return .run { send in await send(.inner(.errorSheetPresented(false))) }
         }
     }
     /// - Inner Effect
@@ -179,9 +182,15 @@ private extension MainTabFeature {
             state.isLinkSheetPresented = true
             state.link = url.absoluteString
             return .none
-        case let .경고_띄움(titleKey, message):
-            state.alert = .init(titleKey: titleKey, message: message)
+            
+        case let .경고_띄움(error):
+            state.error = error
+            return .run { send in await send(.inner(.errorSheetPresented(true))) }
+            
+        case let .errorSheetPresented(isPresented):
+            state.isErrorSheetPresented = isPresented
             return .none
+            
         default: return .none
         }
     }
@@ -190,28 +199,14 @@ private extension MainTabFeature {
         switch action {
         case let .공유받은_카테고리_조회(categoryId: categoryId):
             return .run { send in
-                let sharedCategory = try await categoryClient.공유받은_카테고리_조회(
-                    "\(categoryId)",
-                    .init(
-                        page: 0,
-                        size: 10,
-                        sort: ["desc"]
-                    )
-                ).toDomain()
-                await send(.inner(.공유포킷_이동(sharedCategory: sharedCategory)), animation: .smooth)
-            } catch: { error, send in
-                guard let errorResponse = error as? ErrorResponse else {
-                    return
-                }
-                switch errorResponse.code {
-                case "C_007":
-                    await send(.inner(.경고_띄움(
-                        titleKey: "포킷 저장 오류",
-                        message: errorResponse.message
-                    )))
-                default:
-                    print(error)
-                    return
+                do {
+                    let request = BasePageableRequest(page: 0, size: 10, sort: ["createdAt", "desc"])
+                    let sharedCategory = try await categoryClient.공유받은_카테고리_조회("\(categoryId)", request).toDomain()
+                    await send(.inner(.공유포킷_이동(sharedCategory: sharedCategory)), animation: .smooth)
+                } catch {
+                    guard let errorResponse = error as? ErrorResponse else { return }
+                    let errorDomain = BaseError(response: errorResponse)
+                    await send(.inner(.경고_띄움(errorDomain)))
                 }
             }
         }
