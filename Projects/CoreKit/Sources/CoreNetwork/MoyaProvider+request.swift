@@ -39,8 +39,12 @@ extension MoyaProvider {
         return try await withCheckedThrowingContinuation { continuation in
             self.request(target) { response in
                 switch response {
-                case .success:
-                    continuation.resume()
+                case .success(let result):
+                    guard let errorResponse = try? JSONDecoder().decode(ErrorResponse.self, from: result.data) else {
+                        continuation.resume()
+                        return
+                    }
+                    continuation.resume(throwing: errorResponse)
 
                 case .failure(let error):
                     if let response = error.response?.data {
