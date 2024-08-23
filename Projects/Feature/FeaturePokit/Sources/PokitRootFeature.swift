@@ -19,6 +19,8 @@ public struct PokitRootFeature {
     private var categoryClient
     @Dependency(\.contentClient)
     private var contentClient
+    @Dependency(\.kakaoShareClient)
+    private var kakaoShareClient
     /// - State
     @ObservableState
     public struct State: Equatable {
@@ -359,6 +361,15 @@ private extension PokitRootFeature {
                     /// 🚨 Error Case [1]: 항목을 공유하려는데 항목이 없을 때
                     return .none
                 }
+                kakaoShareClient.카테고리_카카오톡_공유(
+                    .init(
+                        categoryName: selectedItem.categoryName,
+                        categoryId: selectedItem.id,
+                        imageURL: selectedItem.categoryImage.imageURL
+                    ),
+                    { _ in }
+                )
+                state.isKebobSheetPresented = false
                 return .none
 
             default: return .none
