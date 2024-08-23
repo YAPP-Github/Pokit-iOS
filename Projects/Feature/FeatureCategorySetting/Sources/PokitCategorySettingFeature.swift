@@ -176,7 +176,17 @@ private extension PokitCategorySettingFeature {
                         )
                     )
                 case .수정:
-                    guard let categoryId = domain.categoryId else { return }
+                    guard let categoryId = domain.categoryId else {
+                        await send(
+                            .delegate(
+                                .settingSuccess(
+                                    categoryName: domain.categoryName,
+                                    categoryImageId: 0
+                                )
+                            )
+                        )
+                        return
+                    }
                     guard let image = domain.categoryImage else { return }
                     let request = CategoryEditRequest(categoryName: domain.categoryName, categoryImageId: image.id)
                     let response = try await categoryClient.카테고리_수정(categoryId, request)
