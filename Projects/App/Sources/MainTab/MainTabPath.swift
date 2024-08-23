@@ -92,12 +92,15 @@ public extension MainTabFeature {
                 return .none
 
             /// - 포킷 `추가` or `수정`이 성공적으로 `완료`되었을 때
-            case let .path(.element(id: stackElementItem, action: .포킷추가및수정(.delegate(.settingSuccess(categoryName, categoryId))))):
+            case let .path(.element(_, action: .포킷추가및수정(.delegate(.settingSuccess(categoryName, categoryId))))):
                 state.path.removeLast()
-                guard let lastPath = state.path.last else { return .none }
+                guard let lastPath = state.path.last,
+                      let stackElementId = state.path.ids.last else {
+                    return .none
+                }
                 switch lastPath {
                 case .링크공유:
-                    return .send(.path(.element(id: stackElementItem, action: .링크공유(.delegate(.공유받은_카테고리_저장(categoryName: categoryName))))))
+                    return .send(.path(.element(id: stackElementId, action: .링크공유(.delegate(.공유받은_카테고리_저장(categoryName: categoryName))))))
                 default: return .none
                 }
 
@@ -195,8 +198,8 @@ public extension MainTabFeature {
             case .path(.element(_, action: .설정(.delegate(.회원탈퇴)))):
                 return .send(.delegate(.회원탈퇴))
             
-            case let .inner(.공유포킷_이동(categoryId: categoryId)):
-                state.path.append(.링크공유(CategorySharingFeature.State(catgoryId: categoryId)))
+            case let .inner(.공유포킷_이동(sharedCategory: sharedCategory)):
+                state.path.append(.링크공유(CategorySharingFeature.State(sharedCategory: sharedCategory)))
                 return .none
                 
             /// 링크 공유에서 컨텐츠 상세보기

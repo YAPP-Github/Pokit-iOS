@@ -17,7 +17,10 @@ import CoreKit
 @Reducer
 public struct MainTabFeature {
     /// - Dependency
-    @Dependency(\.pasteboard) var pasteBoard
+    @Dependency(\.pasteboard)
+    private var pasteBoard
+    @Dependency(\.categoryClient)
+    private var categoryClient
     /// - State
     @ObservableState
     public struct State: Equatable {
@@ -60,9 +63,11 @@ public struct MainTabFeature {
         public enum InnerAction: Equatable {
             case 링크추가및수정이동(contentId: Int)
             case linkCopySuccess(URL?)
-            case 공유포킷_이동(categoryId: Int)
+            case 공유포킷_이동(sharedCategory: CategorySharing.SharedCategory)
         }
-        public enum AsyncAction: Equatable { case doNothing }
+        public enum AsyncAction: Equatable {
+            case 공유받은_카테고리_조회(categoryId: Int)
+        }
         public enum ScopeAction: Equatable { case doNothing }
         public enum DelegateAction: Equatable {
             case 링크추가하기
@@ -155,7 +160,7 @@ private extension MainTabFeature {
                 return .none
             }
             
-            return .send(.inner(.공유포킷_이동(categoryId: categoryId)))
+            return .send(.async(.공유받은_카테고리_조회(categoryId: categoryId)))
         }
     }
     /// - Inner Effect
@@ -172,7 +177,22 @@ private extension MainTabFeature {
     }
     /// - Async Effect
     func handleAsyncAction(_ action: Action.AsyncAction, state: inout State) -> Effect<Action> {
-        return .none
+        switch action {
+        case let .공유받은_카테고리_조회(categoryId: categoryId):
+            return .run { send in
+                let sharedCategory = try await categoryClient.공유받은_카테고리_조회(
+                    "\(categoryId)",
+                    .init(
+                        page: 0,
+                        size: 10,
+                        sort: ["desc"]
+                    )
+                ).toDomain()
+                await send(.inner(.공유포킷_이동(sharedCategory: sharedCategory)), animation: .smooth)
+            } catch: { error, send in
+                
+            }
+        }
     }
     /// - Scope Effect
     func handleScopeAction(_ action: Action.ScopeAction, state: inout State) -> Effect<Action> {

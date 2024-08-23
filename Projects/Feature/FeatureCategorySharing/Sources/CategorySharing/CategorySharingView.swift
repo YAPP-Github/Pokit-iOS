@@ -26,12 +26,9 @@ public extension CategorySharingView {
     var body: some View {
         WithPerceptionTracking {
             VStack(spacing: 16) {
-                if let category = store.category {
-                    header(category: category)
-                    contentScrollView
-                } else {
-                    PokitLoading()
-                }
+                header(category: store.category)
+                
+                contentScrollView
             }
             .padding(.horizontal, 20)
             .padding(.top, 12)
@@ -45,7 +42,6 @@ public extension CategorySharingView {
                     action: { send(.경고_확인버튼_클릭) }
                 )
             }
-            .task { await send(.onAppear).finish() }
         }
     }
 }
@@ -131,11 +127,15 @@ private extension CategorySharingView {
         }
     }
 }
+
 //MARK: - Preview
+import CoreKit
 #Preview {
     CategorySharingView(
         store: Store(
-            initialState: .init(catgoryId: 0),
+            initialState: CategorySharingFeature.State(
+                sharedCategory: SharedCategoryResponse.mock.toDomain()
+            ),
             reducer: { CategorySharingFeature()._printChanges() }
         )
     )

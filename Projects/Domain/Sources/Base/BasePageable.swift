@@ -11,4 +11,10 @@ public struct BasePageable: Equatable {
     public var page: Int
     public var size: Int
     public var sort: [String]
+    
+    public init(page: Int, size: Int, sort: [String]) {
+        self.page = page
+        self.size = size
+        self.sort = sort
+    }
 }

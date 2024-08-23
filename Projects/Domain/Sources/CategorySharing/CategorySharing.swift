@@ -12,22 +12,23 @@ import Util
 public struct CategorySharing: Equatable {
     // - MARK: Response
     /// 공유받은 카테고리(포킷)
-    public var sharedCategory: SharedCategory?
+    public var sharedCategory: SharedCategory
     public var alert: Self.Alert?
     // - MARK: Request
     /// 복제할 카테고리(포킷) 정보
-    public var copiedCategory: CopiedCategory?
-    /// 조회할 카테고리(포킷) id
-    public let categoryId: Int
+    public var copiedCategory: CopiedCategory
     /// 조회할 페이징 정보
     public var pageable: BasePageable
     
-    public init(categoryId: Int) {
-        self.categoryId = categoryId
-        self.pageable = .init(
-            page: -1,
-            size: 10,
-            sort: ["desc"]
+    public init(
+        sharedCategory: SharedCategory,
+        pageable: BasePageable
+    ) {
+        self.sharedCategory = sharedCategory
+        self.pageable = pageable
+        self.copiedCategory = .init(
+            originCategoryId: sharedCategory.category.categoryId,
+            categoryName: sharedCategory.category.categoryName
         )
     }
 }
