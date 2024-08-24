@@ -53,6 +53,7 @@ public struct RemindFeature {
         /// sheet item
         var bottomSheetItem: BaseContentItem? = nil
         var alertItem: BaseContentItem? = nil
+        var shareSheetItem: BaseContentItem? = nil
     }
     /// - Action
     public enum Action: FeatureAction, ViewAction {
@@ -76,6 +77,8 @@ public struct RemindFeature {
                 content: BaseContentItem
             )
             case deleteAlertConfirmTapped(content: BaseContentItem)
+            
+            case 링크_공유_완료(completed: Bool)
             
             case remindViewOnAppeared
         }
@@ -172,6 +175,10 @@ private extension RemindFeature {
                 await send(.async(.읽지않음_컨텐츠_조회), animation: .pokitDissolve)
                 await send(.async(.즐겨찾기_링크모음_조회), animation: .pokitDissolve)
             }
+        case .링크_공유_완료(completed: let completed):
+            guard completed else { return .none }
+            state.shareSheetItem = nil
+            return .none
         }
     }
     /// - Inner Effect
@@ -248,6 +255,7 @@ private extension RemindFeature {
             case .favoriteCellButtonTapped:
                 return .none
             case .shareCellButtonTapped:
+                state.shareSheetItem = content
                 return .none
             }
         }

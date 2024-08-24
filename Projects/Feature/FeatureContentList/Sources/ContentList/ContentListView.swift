@@ -48,6 +48,7 @@ public extension ContentListView {
                         items: [shareURL],
                         completion: { send(.링크_공유_완료(completed: $0)) }
                     )
+                    .presentationDetents([.medium, .large])
                 }
             }
             .sheet(item: $store.alertItem) { content in
