@@ -91,6 +91,7 @@ public struct PokitCategorySettingFeature {
         public enum InnerAction: Equatable {
             case 카테고리_목록_조회_결과(BaseCategoryListInquiry)
             case 프로필_목록_조회_결과(images: [BaseCategoryImage])
+            case 포킷_오류_핸들링(BaseError)
         }
         
         public enum AsyncAction: Equatable {
@@ -199,6 +200,11 @@ private extension PokitCategorySettingFeature {
                         )
                     )
                 }
+            } catch: { error, send in
+                guard let errorResponse = error as? ErrorResponse else {
+                    return
+                }
+                await send(.inner(.포킷_오류_핸들링(.init(response: errorResponse))))
             }
             
         case .onAppear:
@@ -230,6 +236,13 @@ private extension PokitCategorySettingFeature {
         case let .카테고리_목록_조회_결과(response):
             state.domain.categoryListInQuiry = response
             return .none
+        case let .포킷_오류_핸들링(baseError):
+            switch baseError {
+            case let .CA_001(message):
+                state.pokitNameTextInpuState = .error(message: message)
+                return .none
+            default: return .none
+            }
         }
     }
     
