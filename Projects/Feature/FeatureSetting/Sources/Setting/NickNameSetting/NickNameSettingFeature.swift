@@ -24,6 +24,9 @@ public struct NickNameSettingFeature {
             get { self.domain.nickname }
             set { self.domain.nickname = newValue }
         }
+        var user: BaseUser? {
+            get { domain.user }
+        }
         
         var textfieldState: PokitInputStyle.State = .default
         var buttonState: PokitButtonStyle.State = .disable
@@ -44,15 +47,19 @@ public struct NickNameSettingFeature {
             case binding(BindingAction<State>)
             case dismiss
             case saveButtonTapped
+            
+            case onAppear
         }
         
         public enum InnerAction: Equatable {
             case textChanged
             case 닉네임_중복_체크_네트워크_결과(Bool)
+            case 유저정보_갱신(BaseUser)
         }
         
         public enum AsyncAction: Equatable {
             case 닉네임_중복_체크_네트워크
+            case 닉네임_조회
         }
         
         public enum ScopeAction: Equatable { case doNothing }
@@ -110,8 +117,6 @@ private extension NickNameSettingFeature {
                 scheduler: mainQueue
             )
         case .binding:
-            // - MARK: 목업 데이터 조회
-            state.domain.isDuplicate = NicknameCheckResponse.mock.toDomain()
             return .none
             
         case .dismiss:
@@ -123,6 +128,8 @@ private extension NickNameSettingFeature {
                 let _ = try await userClient.닉네임_수정(request)
                 await dismiss()
             }
+        case .onAppear:
+            return .send(.async(.닉네임_조회))
         }
     }
     
@@ -159,6 +166,10 @@ private extension NickNameSettingFeature {
                 state.buttonState = .filled(.primary)
             }
             return .none
+        case let .유저정보_갱신(user):
+            state.domain.user = user
+            state.domain.nickname = user.nickname
+            return .none
         }
     }
     
@@ -169,6 +180,11 @@ private extension NickNameSettingFeature {
             return .run { [nickName = state.text] send in
                 let result = try await userClient.닉네임_중복_체크(nickName)
                 await send(.inner(.닉네임_중복_체크_네트워크_결과(result.isDuplicate)))
+            }
+        case .닉네임_조회:
+            return .run { send in
+                let user = try await userClient.닉네임_조회().toDomain()
+                await send(.inner(.유저정보_갱신(user)), animation: .easeInOut)
             }
         }
     }

@@ -26,15 +26,19 @@ public extension NickNameSettingView {
     var body: some View {
         WithPerceptionTracking {
             VStack(spacing: 0) {
-                PokitTextInput(
-                    text: $store.text,
-                    state: $store.textfieldState,
-                    info: "한글, 영어, 숫자로만 입력이 가능합니다.",
-                    maxLetter: 10,
-                    focusState: $isFocused,
-                    equals: true
-                )
-                Spacer()
+                if store.user == nil {
+                    PokitLoading()
+                } else {
+                    PokitTextInput(
+                        text: $store.text,
+                        state: $store.textfieldState,
+                        info: "한글, 영어, 숫자로만 입력이 가능합니다.",
+                        maxLetter: 10,
+                        focusState: $isFocused,
+                        equals: true
+                    )
+                    Spacer()
+                }
             }
             .overlay(alignment: .bottom) {
                 PokitBottomButton(
@@ -48,6 +52,7 @@ public extension NickNameSettingView {
             .padding(.top, 16)
             .pokitNavigationBar { navigationBar }
             .ignoresSafeArea(edges: .bottom)
+            .task { await send(.onAppear).finish() }
         }
     }
 }

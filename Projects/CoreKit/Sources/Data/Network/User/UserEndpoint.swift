@@ -15,6 +15,7 @@ public enum UserEndpoint {
     case 회원등록(model: SignupRequest)
     case 닉네임_중복_체크(nickname: String)
     case 관심사_목록_조회
+    case 닉네임_조회
 }
 
 extension UserEndpoint: TargetType {
@@ -24,7 +25,7 @@ extension UserEndpoint: TargetType {
     
     public var path: String {
         switch self {
-        case .닉네임_수정:
+        case .닉네임_수정, .닉네임_조회:
             return "/nickname"
         case .회원등록:
             return "/signup"
@@ -44,7 +45,8 @@ extension UserEndpoint: TargetType {
             return .post
         
         case .닉네임_중복_체크,
-             .관심사_목록_조회:
+             .관심사_목록_조회,
+             .닉네임_조회:
             return .get
         }
     }
@@ -56,7 +58,8 @@ extension UserEndpoint: TargetType {
         case let .회원등록(model):
             return .requestJSONEncodable(model)
         case .닉네임_중복_체크,
-             .관심사_목록_조회:
+             .관심사_목록_조회,
+             .닉네임_조회:
             return .requestPlain
         }
     }
