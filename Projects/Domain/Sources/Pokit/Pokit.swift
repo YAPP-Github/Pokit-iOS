@@ -14,20 +14,26 @@ public struct Pokit: Equatable {
     /// 컨텐트(링크) 리스트
     public var unclassifiedContentList: BaseContentListInquiry
     
+    public var pageable: BasePageable
+    
     public init() {
         self.categoryList = .init(
-            data: [],
             page: 0,
             size: 10,
             sort: [],
             hasNext: false
         )
         self.unclassifiedContentList = .init(
-            data: [],
             page: 0,
             size: 10,
             sort: [],
             hasNext: false
+        )
+        
+        self.pageable = .init(
+            page: -1,
+            size: 10,
+            sort: ["createdAt,desc"]
         )
     }
 }
