@@ -22,6 +22,7 @@ public struct UserClient {
     public var 회원등록: @Sendable (_ model: SignupRequest) async throws -> BaseUserResponse
     public var 닉네임_중복_체크: @Sendable (_ nickname: String) async throws -> NicknameCheckResponse
     public var 관심사_목록_조회: @Sendable () async throws -> [InterestResponse]
+    public var 닉네임_조회: @Sendable () async throws -> BaseUserResponse
 }
 
 extension UserClient: DependencyKey {
@@ -40,6 +41,9 @@ extension UserClient: DependencyKey {
             },
             관심사_목록_조회: {
                 try await provider.request(.관심사_목록_조회)
+            },
+            닉네임_조회: {
+                try await provider.request(.닉네임_조회)
             }
         )
     }()
@@ -49,7 +53,8 @@ extension UserClient: DependencyKey {
             닉네임_수정: { _ in .mock },
             회원등록: { _ in .mock },
             닉네임_중복_체크: { _ in .mock },
-            관심사_목록_조회: { InterestResponse.mock }
+            관심사_목록_조회: { InterestResponse.mock },
+            닉네임_조회: { .mock }
         )
     }()
 }

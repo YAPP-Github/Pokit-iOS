@@ -10,9 +10,10 @@ import Foundation
 public struct NicknameSetting: Equatable {
     // - MARK: Response
     /// 유저 정보
-//    public let user: BaseUser
+    public var user: BaseUser? = nil
     /// 닉네임 중복 여부
     public var isDuplicate: Bool
+    
     // - MARK: Request
     /// 등록할 닉네임
     public var nickname: String

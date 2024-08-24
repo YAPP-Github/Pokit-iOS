@@ -8,9 +8,9 @@
 import Foundation
 /// 닉네임 수정, 회원등록 API Response 공통
 public struct BaseUserResponse: Decodable {
-    let id: Int
-    let email: String
-    let nickname: String
+    public let id: Int
+    public let email: String
+    public let nickname: String
 }
 
 extension BaseUserResponse {
