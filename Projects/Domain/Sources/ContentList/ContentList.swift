@@ -22,7 +22,7 @@ public struct ContentList: Equatable {
         )
         self.pageable = .init(
             page: 0, size: 10,
-            sort: ["desc"]
+            sort: ["createdAt,desc"]
         )
     }
 }

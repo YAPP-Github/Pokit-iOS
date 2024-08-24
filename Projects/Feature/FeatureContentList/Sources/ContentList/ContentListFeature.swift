@@ -40,7 +40,7 @@ public struct ContentListFeature {
             contentList.forEach { identifiedArray.append($0) }
             return identifiedArray
         }
-        var isListAscending = true
+        var isListDescending = true
         /// sheet item
         var bottomSheetItem: BaseContentItem? = nil
         var alertItem: BaseContentItem? = nil
@@ -82,6 +82,7 @@ public struct ContentListFeature {
             case 컨텐츠_목록_조회(BaseContentListInquiry)
             case 컨텐츠_삭제_반영(id: Int)
             case pagenation_네트워크_결과(BaseContentListInquiry)
+            case pagenation_초기화
         }
         
         public enum AsyncAction: Equatable {
@@ -162,8 +163,11 @@ private extension ContentListFeature {
         case .binding:
             return .none
         case .sortTextLinkTapped:
-            state.isListAscending.toggle()
-            return .none
+            state.isListDescending.toggle()
+            state.domain.pageable.sort = [
+                state.isListDescending ? "createdAt,desc" : "createdAt,asc"
+            ]
+            return .send(.inner(.pagenation_초기화))
         case .backButtonTapped:
             return .run { _ in await dismiss() }
         case .contentListViewOnAppeared:
@@ -195,7 +199,11 @@ private extension ContentListFeature {
             state.bottomSheetItem = nil
             return .none
         case .컨텐츠_목록_조회(let contentList):
+            let list = state.domain.contentList.data ?? []
+            guard let newList = contentList.data else { return .none }
+            
             state.domain.contentList = contentList
+            state.domain.contentList.data = list + newList
             return .none
         case .컨텐츠_삭제_반영(id: let id):
             state.alertItem = nil
@@ -204,6 +212,15 @@ private extension ContentListFeature {
         case .pagenation_네트워크_결과(let contentList):
             state.domain.contentList = contentList
             return .none
+        case .pagenation_초기화:
+            state.domain.pageable.page = 0
+            state.domain.contentList.data = nil
+            switch state.contentType {
+            case .unread:
+                return .send(.async(.읽지않음_컨텐츠_조회), animation: .smooth)
+            case .favorite:
+                return .send(.async(.즐겨찾기_링크모음_조회), animation: .smooth)
+            }
         }
     }
     
@@ -237,22 +254,17 @@ private extension ContentListFeature {
                 let _ = try await contentClient.컨텐츠_삭제("\(id)")
                 await send(.inner(.컨텐츠_삭제_반영(id: id)), animation: .pokitSpring)
             }
-        
+            
         case .pagenation_네트워크:
-            if state.hasNext {
-                state.domain.pageable.page += 1
-                return .run { [type = state.contentType] send in
-                    switch type {
-                    case .unread:
-                        await send(.async(.읽지않음_컨텐츠_조회), animation: .smooth)
-                        break
-                    case .favorite:
-                        await send(.async(.즐겨찾기_링크모음_조회), animation: .smooth)
-                        break
-                    }
+            state.domain.pageable.page += 1
+            return .run { [type = state.contentType] send in
+                switch type {
+                case .unread:
+                    await send(.async(.읽지않음_컨텐츠_조회), animation: .smooth)
+                case .favorite:
+                    await send(.async(.즐겨찾기_링크모음_조회), animation: .smooth)
                 }
             }
-            return .none
         }
     }
     
