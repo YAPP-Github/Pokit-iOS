@@ -36,7 +36,7 @@ public struct ContentClient {
     ) async throws -> BookmarkResponse
     public var 즐겨찾기_취소: @Sendable (
         _ contentId: String
-    ) async throws -> EmptyResponse
+    ) async throws -> Void
     public var 카테고리_내_컨텐츠_목록_조회: @Sendable (
         _ contentId: String,
         _ pageable: BasePageableRequest,
@@ -72,7 +72,7 @@ extension ContentClient: DependencyKey {
                 try await provider.request(.즐겨찾기(contentId: id))
             },
             즐겨찾기_취소: { id in
-                try await provider.request(.즐겨찾기_취소(contentId: id))
+                try await provider.requestNoBody(.즐겨찾기_취소(contentId: id))
             },
             카테고리_내_컨텐츠_목록_조회: { id, pageable, condition in
                 try await provider.request(
@@ -104,7 +104,7 @@ extension ContentClient: DependencyKey {
             컨텐츠_수정: { _, _ in .mock },
             컨텐츠_추가: { _ in .mock },
             즐겨찾기: { _ in .mock },
-            즐겨찾기_취소: { _ in .init() },
+            즐겨찾기_취소: { _ in },
             카테고리_내_컨텐츠_목록_조회: { _, _, _ in .mock },
             미분류_카테고리_컨텐츠_조회: { _ in .mock },
             컨텐츠_검색: { _, _ in .mock }

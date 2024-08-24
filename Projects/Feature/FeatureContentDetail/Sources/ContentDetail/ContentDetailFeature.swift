@@ -215,7 +215,7 @@ private extension ContentDetailFeature {
             }
         case .즐겨찾기_취소(id: let id):
             return .run { send in
-                let _ = try await contentClient.즐겨찾기_취소("\(id)")
+                try await contentClient.즐겨찾기_취소("\(id)")
                 await send(.inner(.즐겨찾기_갱신(false)))
             }
         case .카테고리_상세_조회(id: let id):
