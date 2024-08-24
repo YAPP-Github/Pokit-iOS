@@ -65,9 +65,11 @@ public struct ContentSettingFeature {
         var selectedPokit: BaseCategoryItem? = nil
         var linkTitle: String? = nil
         var linkImageURL: String? = nil
-        var showPopup: Bool = false
+        var showMaxCategoryPopup: Bool = false
+        var showDetectedURLPopup: Bool = false
         var contentLoading: Bool = false
         var saveIsLoading: Bool = false
+        var link: String?
     }
 
     /// - Action
@@ -88,6 +90,7 @@ public struct ContentSettingFeature {
             case contentSettingViewOnAppeared
             case saveBottomButtonTapped
             case addPokitButtonTapped
+            case linkCopyButtonTapped
 
             case dismiss
         }
@@ -97,6 +100,7 @@ public struct ContentSettingFeature {
             case parsingInfo(title: String?, imageURL: String?)
             case parsingURL
             case showPopup
+            case showLinkPopup(URL?)
             case updateURLText(String?)
             case 컨텐츠_갱신(content: BaseContentDetail)
             case 카테고리_갱신(category: BaseCategory)
@@ -186,7 +190,7 @@ private extension ContentSettingFeature {
                 await send(.inner(.parsingURL))
                 for await _ in self.pasteboard.changes() {
                     let url = try await pasteboard.probableWebURL()
-                    await send(.inner(.updateURLText(url?.absoluteString)))
+                    await send(.inner(.showLinkPopup(url)), animation: .pokitSpring)
                 }
             }
         case .saveBottomButtonTapped:
@@ -206,6 +210,8 @@ private extension ContentSettingFeature {
 
         case .dismiss:
             return .run { _ in await dismiss() }
+        case .linkCopyButtonTapped:
+            return .send(.inner(.updateURLText(state.link)))
         }
     }
 
@@ -239,9 +245,11 @@ private extension ContentSettingFeature {
             }
             return .send(.inner(.fetchMetadata(url: url)), animation: .smooth)
         case .showPopup:
-            state.showPopup = true
+            state.showMaxCategoryPopup = true
             return .none
         case .updateURLText(let urlText):
+            state.showDetectedURLPopup = false
+            state.link = nil
             guard let urlText else { return .none }
             state.domain.data = urlText
             return .send(.inner(.parsingURL))
@@ -286,6 +294,11 @@ private extension ContentSettingFeature {
             /// [4]. 선택한 카테고리는 최초 진입시 항상 `미분류`이므로 설정 추가
             state.selectedPokit = unclassifiedItem
             
+            return .none
+        case let .showLinkPopup(url):
+            guard let url else { return .none }
+            state.link = url.absoluteString
+            state.showDetectedURLPopup = true
             return .none
         }
     }

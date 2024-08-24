@@ -52,11 +52,18 @@ public extension ContentSettingView {
                         .padding(.top, 16)
                     }
                     .overlay(alignment: .bottom) {
-                        if store.state.showPopup {
+                        if store.state.showMaxCategoryPopup {
                             PokitLinkPopup(
                                 "최대 30개의 포킷을 생성할 수 있습니다. \n포킷을 삭제한 뒤에 추가해주세요.",
-                                isPresented: $store.showPopup,
+                                isPresented: $store.showMaxCategoryPopup,
                                 type: .text
+                            )
+                        } else if store.state.showDetectedURLPopup {
+                            PokitLinkPopup(
+                                "복사한 링크 저장하기",
+                                isPresented: $store.showDetectedURLPopup,
+                                type: .link(url: store.link ?? ""),
+                                action: { send(.linkCopyButtonTapped, animation: .pokitSpring) }
                             )
                         }
                     }
