@@ -99,9 +99,9 @@ private extension ContentSettingView {
     }
     var linkTextField: some View {
         VStack(spacing: 16) {
-            if let title = store.linkTitle {
+            if store.showLinkPreview {
                 PokitLinkPreview(
-                    title: title,
+                    title: store.linkTitle ?? "제목을 입력해주세요",
                     url: store.urlText,
                     imageURL: store.linkImageURL ?? "https://pokit-storage.s3.ap-northeast-2.amazonaws.com/logo/pokit.png"
                 )

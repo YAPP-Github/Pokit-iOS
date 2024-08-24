@@ -70,6 +70,7 @@ public struct ContentSettingFeature {
         var contentLoading: Bool = false
         var saveIsLoading: Bool = false
         var link: String?
+        var showLinkPreview = false
     }
 
     /// - Action
@@ -105,6 +106,7 @@ public struct ContentSettingFeature {
             case 컨텐츠_갱신(content: BaseContentDetail)
             case 카테고리_갱신(category: BaseCategory)
             case 카테고리_목록_갱신(categoryList: BaseCategoryListInquiry)
+            case 링크미리보기_presented
         }
 
         public enum AsyncAction: Equatable {
@@ -220,7 +222,9 @@ private extension ContentSettingFeature {
         switch action {
         case .fetchMetadata(url: let url):
             return .run { send in
-                let (title, imageURL) = await swiftSoup.parseOGTitleAndImage(url)
+                let (title, imageURL) = await swiftSoup.parseOGTitleAndImage(url) {
+                    await send(.inner(.링크미리보기_presented))
+                }
                 await send(
                     .inner(.parsingInfo(title: title, imageURL: imageURL)),
                     animation: .smooth
@@ -235,8 +239,10 @@ private extension ContentSettingFeature {
             state.domain.thumbNail = imageURL
             return .none
         case .parsingURL:
-            guard let url = URL(string: state.domain.data) else {
+            guard let url = URL(string: state.domain.data),
+                  !state.domain.data.isEmpty else {
                 /// 🚨 Error Case [1]: 올바른 링크가 아닐 때
+                state.showDetectedURLPopup = false
                 state.linkTitle = nil
                 state.domain.title = ""
                 state.linkImageURL = nil
@@ -299,6 +305,9 @@ private extension ContentSettingFeature {
             guard let url else { return .none }
             state.link = url.absoluteString
             state.showDetectedURLPopup = true
+            return .none
+        case .링크미리보기_presented:
+            state.showLinkPreview = true
             return .none
         }
     }

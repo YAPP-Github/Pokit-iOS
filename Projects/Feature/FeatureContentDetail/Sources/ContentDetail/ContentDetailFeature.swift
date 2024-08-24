@@ -38,6 +38,7 @@ public struct ContentDetailFeature {
         var linkTitle: String? = nil
         var linkImageURL: String? = nil
         var showAlert: Bool = false
+        var showLinkPreview = false
     }
     
     /// - Action
@@ -70,6 +71,7 @@ public struct ContentDetailFeature {
             case 컨텐츠_상세_조회(content: BaseContentDetail)
             case 즐겨찾기_갱신(Bool)
             case 카테고리_갱신(BaseCategory)
+            case 링크미리보기_presented
         }
         
         public enum AsyncAction: Equatable {
@@ -165,7 +167,9 @@ private extension ContentDetailFeature {
         case .fetchMetadata(url: let url):
             return .run { send in
                 /// - 링크에 대한 메타데이터의 제목 및 썸네일 항목 파싱
-                let (title, imageURL) = await swiftSoup.parseOGTitleAndImage(url)
+                let (title, imageURL) = await swiftSoup.parseOGTitleAndImage(url) {
+                    await send(.inner(.링크미리보기_presented))
+                }
                 await send(
                     .inner(.parsingInfo(title: title, imageURL: imageURL)),
                     animation: .smooth
@@ -179,6 +183,7 @@ private extension ContentDetailFeature {
             guard let urlString = state.domain.content?.data,
                   let url = URL(string: urlString) else {
                 /// 🚨 Error Case [1]: 올바른 링크가 아닐 때
+                state.showLinkPreview = false
                 state.linkTitle = nil
                 state.linkImageURL = nil
                 return .none
@@ -195,6 +200,9 @@ private extension ContentDetailFeature {
             return .none
         case .카테고리_갱신(let category):
             state.domain.category = category
+            return .none
+        case .링크미리보기_presented:
+            state.showLinkPreview = true
             return .none
         }
     }

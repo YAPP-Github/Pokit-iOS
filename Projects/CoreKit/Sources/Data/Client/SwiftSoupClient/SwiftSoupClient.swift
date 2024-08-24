@@ -11,15 +11,19 @@ import SwiftSoup
 import Dependencies
 
 public struct SwiftSoupClient {
-    public var parseOGTitleAndImage: @Sendable (_ url: URL) async -> (String?, String?)
+    public var parseOGTitleAndImage: @Sendable (
+        _ url: URL,
+        _ completion: @Sendable () async -> Void
+    ) async -> (String?, String?)
 }
 
 extension SwiftSoupClient: DependencyKey {
     public static let liveValue: Self = {
         return Self(
-            parseOGTitleAndImage: { url in
+            parseOGTitleAndImage: { url, completion in
                 guard let html = try? String(contentsOf: url),
                       let document = try? SwiftSoup.parse(html) else {
+                    await completion()
                     return (nil, nil)
                 }
                 
@@ -42,8 +46,12 @@ extension SwiftSoupClient: DependencyKey {
                     let title = try? document.select("meta[property=og:title]").first()?.attr("content")
                     let imageURL = try? document.select("meta[property=og:image]").first()?.attr("content")
                     
+                    await completion()
+                    
                     return (title, imageURL)
                 }
+                
+                await completion()
                 
                 return (title, imageURL)
             }
