@@ -82,6 +82,7 @@ public struct PokitSearchFeature {
         /// sheet item
         var bottomSheetItem: BaseContentItem? = nil
         var alertItem: BaseContentItem? = nil
+        var shareSheetItem: BaseContentItem? = nil
     }
     
     /// - Action
@@ -121,6 +122,8 @@ public struct PokitSearchFeature {
             case backButtonTapped
             /// - TextInput OnSubmitted
             case searchTextInputOnSubmitted
+            
+            case 링크_공유_완료(completed: Bool)
             
             case onAppear
             
@@ -314,6 +317,10 @@ private extension PokitSearchFeature {
         case .unreadChipTapped:
             state.domain.condition.isRead = false
             return .send(.async(.컨텐츠_검색))
+        case .링크_공유_완료(completed: let completed):
+            guard completed else { return .none }
+            state.shareSheetItem = nil
+            return .none
         }
     }
     
@@ -490,6 +497,7 @@ private extension PokitSearchFeature {
             case .favoriteCellButtonTapped:
                 return .none
             case .shareCellButtonTapped:
+                state.shareSheetItem = content
                 return .none
             }
         }
