@@ -15,7 +15,7 @@ public struct ContentBaseResponse: Decodable {
     public let title: String
     public let thumbNail: String
     public let createdAt: String
-    public let isRead: Bool
+    public let isRead: Bool?
 }
 
 extension ContentBaseResponse {

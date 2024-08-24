@@ -86,7 +86,7 @@ public struct PokitLinkCard<Item: PokitLinkCardItem>: View {
                 state: isUnCategorized ? .unCategorized : .default
             )
             
-            if !link.isRead {
+            if let isRead = link.isRead, !isRead {
                 PokitBadge("안읽음", state: .unRead)
             }
         }

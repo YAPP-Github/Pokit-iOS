@@ -61,9 +61,9 @@ private extension ContentListView {
             Spacer()
             
             PokitIconLTextLink(
-                store.isListAscending ? "최신순" : "오래된순",
+                store.isListDescending ? "최신순" : "오래된순",
                 icon: .icon(.align),
-                action: { }
+                action: { send(.sortTextLinkTapped) }
             )
             .contentTransition(.numericText())
         }

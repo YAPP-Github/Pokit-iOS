@@ -18,7 +18,7 @@ public struct BaseContentItem: Identifiable, Equatable, PokitLinkCardItem, Sorta
     public let data: String
     public let domain: String
     public let createdAt: String
-    public let isRead: Bool
+    public let isRead: Bool?
     
     public init(
         id: Int,
@@ -29,7 +29,7 @@ public struct BaseContentItem: Identifiable, Equatable, PokitLinkCardItem, Sorta
         data: String,
         domain: String,
         createdAt: String,
-        isRead: Bool
+        isRead: Bool?
     ) {
         self.id = id
         self.categoryName = categoryName
