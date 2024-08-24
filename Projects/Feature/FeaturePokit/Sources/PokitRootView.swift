@@ -45,6 +45,15 @@ public extension PokitRootView {
                     delegateSend: { store.send(.scope(.bottomSheet($0))) }
                 )
             }
+            .sheet(item: $store.shareSheetItem) { content in
+                if let shareURL = URL(string: content.data) {
+                    PokitShareSheet(
+                        items: [shareURL],
+                        completion: { send(.링크_공유_완료(completed: $0)) }
+                    )
+                    .presentationDetents([.medium, .large])
+                }
+            }
             .sheet(isPresented: $store.isPokitDeleteSheetPresented) {
                 PokitDeleteBottomSheet(
                     type: store.folderType == .folder(.포킷)

@@ -51,6 +51,7 @@ public struct PokitRootFeature {
 
         var selectedKebobItem: BaseCategoryItem?
         var selectedUnclassifiedItem: BaseContentItem?
+        var shareSheetItem: BaseContentItem? = nil
 
         var isKebobSheetPresented: Bool = false
         var isPokitDeleteSheetPresented: Bool = false
@@ -90,6 +91,10 @@ public struct PokitRootFeature {
 
             case categoryTapped(BaseCategoryItem)
             case contentItemTapped(BaseContentItem)
+
+            case 분류_pagenation
+            case 미분류_pagenation
+            case 링크_공유_완료(completed: Bool)
 
             case pokitRootViewOnAppeared
 
@@ -232,6 +237,10 @@ private extension PokitRootFeature {
                 return .send(.async(.미분류_카테고리_컨텐츠_조회))
             default: return .none
             }
+        case .링크_공유_완료(completed: let completed):
+            guard completed else { return .none }
+            state.shareSheetItem = nil
+            return .none
         }
     }
 
@@ -355,6 +364,8 @@ private extension PokitRootFeature {
                     /// 🚨 Error Case [1]: 항목을 공유하려는데 항목이 없을 때
                     return .none
                 }
+                state.isKebobSheetPresented = false
+                state.shareSheetItem = selectedItem
                 return .none
             case .folder(.포킷):
                 guard let selectedItem = state.selectedKebobItem else {
