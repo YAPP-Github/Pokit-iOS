@@ -58,13 +58,12 @@ extension KakaoShareClient: DependencyKey {
                       let templateJsonData = try? SdkJSONEncoder.custom.encode(template),
                       let templateJsonObject = SdkUtils.toJsonObject(templateJsonData) else {
                     /// 🚨 Error Case [1]: 카카오톡 미설치
-                    /// 웹공유로 이동
-                    if let url = ShareApi.shared.makeDefaultUrl(
-                        templatable: template,
-                        serverCallbackArgs: serverCallbackArgs
-                    ) {
-                        webShare(url)
+                    guard let url = URL(string: "itms-apps://itunes.apple.com/app/id362057947"),
+                          UIApplication.shared.canOpenURL(url) else {
+                        return
                     }
+                    
+                    UIApplication.shared.open(url, options: [:], completionHandler: nil)
                     return
                 }
                 
