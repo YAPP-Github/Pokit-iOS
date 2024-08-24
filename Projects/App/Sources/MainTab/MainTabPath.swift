@@ -92,7 +92,7 @@ public extension MainTabFeature {
                 return .none
 
             /// - 포킷 `추가` or `수정`이 성공적으로 `완료`되었을 때
-            case let .path(.element(_, action: .포킷추가및수정(.delegate(.settingSuccess(categoryName, categoryImageId))))):
+            case .path(.element(_, action: .포킷추가및수정(.delegate(.settingSuccess)))):
                 state.path.removeLast()
                 guard let lastPath = state.path.last else { return .none }
                 switch lastPath {
