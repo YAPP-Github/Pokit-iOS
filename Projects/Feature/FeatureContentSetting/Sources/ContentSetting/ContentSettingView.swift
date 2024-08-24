@@ -62,7 +62,7 @@ public extension ContentSettingView {
                     }
                 }
                 
-                let isDisable = store.urlText.isEmpty || store.title.isEmpty
+                let isDisable = store.urlText.isEmpty || store.title.isEmpty || store.memoTextAreaState == .error(message: "최대 100자까지 입력가능합니다.")
                 
                 PokitBottomButton(
                     "저장하기",
