@@ -30,8 +30,6 @@ public struct MainTabFeature {
         var isErrorSheetPresented: Bool = false
         var link: String?
         
-        // - TODO: 에러 메세지 처리 의논 필요
-//        var alert: CategorySharing.Alert?
         var error: BaseError?
         
         var path: StackState<MainTabPath.State> = .init()

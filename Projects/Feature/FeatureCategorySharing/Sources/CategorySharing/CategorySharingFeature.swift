@@ -38,10 +38,8 @@ public struct CategorySharingFeature {
         var hasNext: Bool {
             get { domain.sharedCategory.contentList.hasNext }
         }
-        var alert: CategorySharing.Alert? {
-            get { domain.alert }
-            set { domain.alert = newValue }
-        }
+        var error: BaseError?
+        var isErrorSheetPresented: Bool = false
         
         public init(sharedCategory: CategorySharing.SharedCategory) {
             domain = .init(
@@ -77,7 +75,8 @@ public struct CategorySharingFeature {
         
         public enum InnerAction: Equatable {
             case 공유받은_카테고리_갱신(CategorySharing.SharedCategory)
-            case 경고_띄움(titleKey: String, message: String)
+            case 경고_닫음
+            case 경고_띄움(BaseError)
         }
         
         public enum AsyncAction: Equatable {
@@ -140,14 +139,19 @@ private extension CategorySharingFeature {
         case .뒤로가기버튼_클릭:
             return .run { _ in await dismiss() }
         case .경고_확인버튼_클릭:
-            switch state.alert?.titleKey {
-            case "포킷 저장 오류":
-                state.alert = nil
-                return .run { _ in await dismiss() }
-            case "포킷명을 변경하시겠습니까?":
-                state.alert = nil
-                let categoryName = state.domain.sharedCategory.category.categoryName
-                return .send(.delegate(.공유받은_카테고리_수정(categoryName: categoryName)))
+            switch state.error {
+            case let .CA_008(message):
+                return .run { send in
+                    await send(.inner(.경고_닫음))
+                    await dismiss()
+                }
+            case let .CA_009(message):
+                return .run { [
+                    categoryName = state.domain.sharedCategory.category.categoryName
+                ] send in
+                    await send(.inner(.경고_닫음))
+                    await send(.delegate(.공유받은_카테고리_수정(categoryName: categoryName)))
+                }
             default: return .none
             }
         case .binding:
@@ -167,8 +171,13 @@ private extension CategorySharingFeature {
                 categoryName: sharedCategory.category.categoryName
             )
             return .none
-        case let .경고_띄움(titleKey: titleKey, message: message):
-            state.alert = .init(titleKey: titleKey, message: message)
+        case let .경고_띄움(baseError):
+            state.error = baseError
+            state.isErrorSheetPresented = true
+            return .none
+        case .경고_닫음:
+            state.isErrorSheetPresented = false
+            state.error = nil
             return .none
         }
     }
@@ -206,21 +215,7 @@ private extension CategorySharingFeature {
                 guard let errorResponse = error as? ErrorResponse else {
                     return
                 }
-                switch errorResponse.code {
-                case "C_008":
-                    await send(.inner(.경고_띄움(
-                        titleKey: "포킷 저장 오류",
-                        message: errorResponse.message
-                    )))
-                case "C_009":
-                    await send(.inner(.경고_띄움(
-                        titleKey:  "포킷명을 변경하시겠습니까?",
-                        message: errorResponse.message
-                    )))
-                default:
-                    print(error)
-                    return
-                }
+                await send(.inner(.경고_띄움(.init(response: errorResponse))))
             }
         }
     }

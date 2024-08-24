@@ -34,10 +34,10 @@ public extension CategorySharingView {
             .padding(.top, 12)
             .pokitNavigationBar { navigationBar }
             .ignoresSafeArea(edges: .bottom)
-            .sheet(item: $store.alert) { alert in
+            .sheet(isPresented: $store.isErrorSheetPresented) {
                 PokitAlert(
-                    alert.titleKey,
-                    message: alert.message,
+                    store.error?.title ?? "에러",
+                    message: store.error?.message,
                     confirmText: "확인",
                     action: { send(.경고_확인버튼_클릭) }
                 )

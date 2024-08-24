@@ -13,7 +13,6 @@ public struct CategorySharing: Equatable {
     // - MARK: Response
     /// 공유받은 카테고리(포킷)
     public var sharedCategory: SharedCategory
-    public var alert: Self.Alert?
     // - MARK: Request
     /// 복제할 카테고리(포킷) 정보
     public var copiedCategory: CopiedCategory
