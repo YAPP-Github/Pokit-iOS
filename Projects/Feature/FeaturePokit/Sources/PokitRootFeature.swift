@@ -52,8 +52,6 @@ public struct PokitRootFeature {
         
         var isKebobSheetPresented: Bool = false
         var isPokitDeleteSheetPresented: Bool = false
-        /// 목록조회 시 호출용
-        var listResponse = BasePageableRequest(page: 0, size: 10, sort: ["desc"])
         var hasNext: Bool {
             domain.categoryList.hasNext
         }
@@ -92,9 +90,8 @@ public struct PokitRootFeature {
             case contentItemTapped(BaseContentItem)
             
             case pokitRootViewOnAppeared
-            case 분류_pagenation
-            case 미분류_pagenation
 
+            case 다음페이지_로딩_presented
         }
         
         public enum InnerAction: Equatable {
@@ -106,6 +103,7 @@ public struct PokitRootFeature {
             case 분류_페이지네이션_결과(contentList: BaseCategoryListInquiry)
             case 미분류_페이지네이션_결과(contentList: BaseContentListInquiry)
             case 컨텐츠_삭제(contentId: Int)
+            case 페이지네이션_초기화
         }
         
         public enum AsyncAction: Equatable {
@@ -172,31 +170,34 @@ private extension PokitRootFeature {
     /// - View Effect
     func handleViewAction(_ action: Action.View, state: inout State) -> Effect<Action> {
         switch action {
-        /// - Binding Action
+            /// - Binding Action
         case .binding:
             return .none
-        /// - Navigation Bar Tapped Action
+            /// - Navigation Bar Tapped Action
         case .searchButtonTapped:
             return .run { send in await send(.delegate(.searchButtonTapped)) }
         case .alertButtonTapped:
             return .run { send in await send(.delegate(.alertButtonTapped)) }
         case .settingButtonTapped:
             return .run { send in await send(.delegate(.settingButtonTapped)) }
-        /// - Filter Action
+            /// - Filter Action
             /// 포킷 / 미분류 버튼 눌렀을 때
         case .filterButtonTapped(let selectedFolderType):
             state.folderType = .folder(selectedFolderType)
-            switch selectedFolderType {
-            case .미분류:
-                return .send(.async(.미분류_카테고리_컨텐츠_조회))
-            case .포킷:
-                return .none
-            }
+            state.sortType = .sort(.최신순)
+            return .send(.inner(.sort))
             /// 최신순 / 이름순 버튼 눌렀을 때
         case .sortButtonTapped:
-            state.sortType = .sort(state.sortType == .sort(.이름순) ? .최신순 : .이름순)
-            return .send(.inner(.sort))
-        /// - 케밥버튼 눌렀을 때
+            switch state.folderType {
+            case .folder(.포킷):
+                state.sortType = .sort(state.sortType == .sort(.이름순) ? .최신순 : .이름순)
+                return .send(.inner(.sort), animation: .easeInOut)
+            case .folder(.미분류):
+                state.sortType = .sort(state.sortType == .sort(.오래된순) ? .최신순 : .오래된순)
+                return .send(.inner(.sort), animation: .easeInOut)
+            default: return .none
+            }
+            /// - 케밥버튼 눌렀을 때
             /// 분류된 아이템의 케밥버튼
         case .kebobButtonTapped(let selectedItem):
             state.selectedKebobItem = selectedItem
@@ -206,11 +207,11 @@ private extension PokitRootFeature {
             state.selectedUnclassifiedItem = selectedItem
             return .run { send in await send(.inner(.pokitCategorySheetPresented(true))) }
             
-        /// - 카테고리 항목을 눌렀을 때
+            /// - 카테고리 항목을 눌렀을 때
         case .categoryTapped(let category):
             return .run { send in await send(.delegate(.categoryTapped(category))) }
-        
-        /// - 링크 아이템을 눌렀을 때
+            
+            /// - 링크 아이템을 눌렀을 때
         case .contentItemTapped(let selectedItem):
             return .run { send in await send(.delegate(.contentDetailTapped(selectedItem))) }
         case .pokitRootViewOnAppeared:
@@ -221,33 +222,14 @@ private extension PokitRootFeature {
                 return .send(.async(.목록조회_갱신용))
             default: return .none
             }
-        case .분류_pagenation:
-            if state.domain.categoryList.hasNext {
-                return .run { [domain = state.domain.categoryList,
-                               sortType = state.sortType] send in
-                    let sort: [String] = sortType == .sort(.최신순) 
-                    ? ["createdAt", "desc"] 
-                    : ["name", "asc"]
-                    let request = BasePageableRequest(page: domain.page + 1, size: 10, sort: sort)
-                    let classified = try await categoryClient.카테고리_목록_조회(request, true).toDomain()
-                    await send(.inner(.분류_페이지네이션_결과(contentList: classified)))
-                }
+        case .다음페이지_로딩_presented:
+            switch state.folderType {
+            case .folder(.포킷):
+                return .send(.async(.목록조회_갱신용))
+            case .folder(.미분류):
+                return .send(.async(.미분류_카테고리_컨텐츠_조회))
+            default: return .none
             }
-            return .none
-            
-        case .미분류_pagenation:
-            if state.domain.unclassifiedContentList.hasNext {
-                return .run { [domain = state.domain.unclassifiedContentList,
-                               sortType = state.sortType] send in
-                    let sort: [String] = sortType == .sort(.최신순)
-                    ? ["createdAt", "desc"]
-                    : ["name", "asc"]
-                    let request = BasePageableRequest(page: domain.page + 1, size: 10, sort: sort)
-                    let unclassified = try await contentClient.미분류_카테고리_컨텐츠_조회(request).toDomain()
-                    await send(.inner(.미분류_페이지네이션_결과(contentList: unclassified)))
-                }
-            }
-            return .none
         }
     }
     
@@ -269,42 +251,35 @@ private extension PokitRootFeature {
         case .sort:
             switch state.sortType {
             case .sort(.이름순):
-                /// `포킷`의 이름순 정렬일 때
-                state.folderType == .folder(.포킷)
-                ? state.domain.categoryList.data?.sort { $0.categoryName < $1.categoryName }
-                : state.domain.unclassifiedContentList.data?.sort { $0.title < $1.title }
-                
+                state.domain.pageable.sort = ["name,asc"]
+                return .send(.inner(.페이지네이션_초기화), animation: .easeInOut)
+            case .sort(.오래된순):
+                state.domain.pageable.sort = ["createdAt,asc"]
+                return .send(.inner(.페이지네이션_초기화), animation: .easeInOut)
             case .sort(.최신순):
-                /// `포킷`의 최신순 정렬일 때
-                if state.folderType == .folder(.포킷) {
-                    state.domain.categoryList.data?.sortByDate()
-                } else {
-                    state.domain.unclassifiedContentList.data?.sortByDate()
-                }
+                state.domain.pageable.sort = ["createdAt,desc"]
+                return .send(.inner(.페이지네이션_초기화), animation: .easeInOut)
             default: return .none
             }
-            return .none
             
         case .미분류_카테고리_컨텐츠_갱신(contentList: let contentList):
             state.domain.unclassifiedContentList = contentList
             return .none
             
         case let .분류_페이지네이션_결과(contentList):
-            guard var list = state.domain.categoryList.data else { return .none }
+            let list = state.domain.categoryList.data ?? []
             guard let newList = contentList.data else { return .none }
             
-            newList.forEach { list.append($0) }
             state.domain.categoryList = contentList
-            state.domain.categoryList.data = list
+            state.domain.categoryList.data = list + newList
             return .none
             
         case let .미분류_페이지네이션_결과(contentList):
-            guard var list = state.domain.unclassifiedContentList.data else { return .none }
+            let list = state.domain.unclassifiedContentList.data ?? []
             guard let newList = contentList.data else { return .none }
             
-            newList.forEach { list.append($0) }
             state.domain.unclassifiedContentList = contentList
-            state.domain.unclassifiedContentList.data = list
+            state.domain.unclassifiedContentList.data = list + newList
             return .none
         case let .컨텐츠_삭제(contentId: contentId):
             guard let index = state.domain.unclassifiedContentList.data?.firstIndex(where: { $0.id == contentId }) else {
@@ -313,6 +288,17 @@ private extension PokitRootFeature {
             state.domain.unclassifiedContentList.data?.remove(at: index)
             state.isPokitDeleteSheetPresented = false
             return .none
+        case .페이지네이션_초기화:
+            state.domain.pageable.page = -1
+            state.domain.categoryList.data = nil
+            state.domain.unclassifiedContentList.data = nil
+            switch state.folderType {
+            case .folder(.포킷):
+                return .send(.async(.목록조회_갱신용), animation: .easeInOut)
+            case .folder(.미분류):
+                return .send(.async(.미분류_카테고리_컨텐츠_조회), animation: .easeInOut)
+            default: return .none
+            }
         }
     }
     
@@ -324,29 +310,33 @@ private extension PokitRootFeature {
                 try await categoryClient.카테고리_삭제(categoryId)
             }
         case .미분류_카테고리_컨텐츠_조회:
+            state.domain.pageable.page += 1
             return .run { [
-                contentList = state.domain.unclassifiedContentList,
-                sortType = state.sortType
+                pageable = state.domain.pageable
             ] send in
-                let sort: [String] = sortType == .sort(.최신순)
-                ? ["createdAt", "desc"]
-                : ["name", "asc"]
-                let request = BasePageableRequest(page: 0, size: contentList.size, sort: sort)
                 let contentList = try await contentClient.미분류_카테고리_컨텐츠_조회(
-                    request
+                    .init(
+                        page: pageable.page,
+                        size: pageable.size,
+                        sort: pageable.sort
+                    )
                 ).toDomain()
-                await send(.inner(.미분류_카테고리_컨텐츠_갱신(contentList: contentList)), animation: .smooth)
+                await send(.inner(.미분류_페이지네이션_결과(contentList: contentList)), animation: .easeInOut)
             }
         case .목록조회_갱신용:
-            return .run { [domain = state.domain.categoryList,
-                           sortType = state.sortType] send in
-                let sort: [String] = sortType == .sort(.최신순)
-                ? ["createdAt", "desc"]
-                : ["name", "asc"]
-                let request = BasePageableRequest(page: 0, size: domain.size, sort: sort)
-                let classified = try await categoryClient.카테고리_목록_조회(request, true).toDomain()
-                await send(.inner(.onAppearResult(classified: classified)))
-                await send(.inner(.sort))
+            state.domain.pageable.page += 1
+            return .run { [
+                pageable = state.domain.pageable
+            ] send in
+                let classified = try await categoryClient.카테고리_목록_조회(
+                    .init(
+                        page: pageable.page,
+                        size: pageable.size,
+                        sort: pageable.sort
+                    ),
+                    true
+                ).toDomain()
+                await send(.inner(.분류_페이지네이션_결과(contentList: classified)), animation: .easeInOut)
             }
         }
     }

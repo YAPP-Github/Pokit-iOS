@@ -16,5 +16,6 @@ public enum PokitRootFilterType: Equatable {
     public enum Sort {
         case 최신순
         case 이름순
+        case 오래된순
     }
 }

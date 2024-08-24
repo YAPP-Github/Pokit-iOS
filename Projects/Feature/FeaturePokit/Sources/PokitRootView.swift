@@ -7,6 +7,7 @@
 import SwiftUI
 
 import ComposableArchitecture
+import Domain
 import DSKit
 
 @ViewAction(for: PokitRootFeature.self)
@@ -85,7 +86,8 @@ private extension PokitRootView {
             Spacer()
             
             PokitIconLTextLink(
-                store.sortType == .sort(.최신순) ? "최신순" : "이름순",
+                store.sortType == .sort(.최신순) ?
+                "최신순" : store.folderType == .folder(.포킷) ? "이름순" : "오래된순",
                 icon: .icon(.align),
                 action: { send(.sortButtonTapped) }
             )
@@ -95,20 +97,15 @@ private extension PokitRootView {
     }
     
     var cardScrollView: some View {
-        ScrollView {
+        Group {
             if store.folderType == .folder(.포킷) {
                 pokitView
-                    .pokitBlurReplaceTransition(.smooth)
             } else {
                 unclassifiedView
-                    .pokitBlurReplaceTransition(.smooth)
             }
         }
         .padding(.top, 20)
         .scrollIndicators(.hidden)
-        .animation(.smooth, value: store.categories?.elements)
-        .animation(.smooth, value: store.unclassifiedContents?.elements)
-        .animation(.spring, value: store.folderType)
     }
     
     var pokitView: some View {
@@ -126,32 +123,42 @@ private extension PokitRootView {
                         Spacer()
                     }
                 } else {
-                    LazyVGrid(columns: column, spacing: 12) {
-                        ForEach(categories, id: \.id) { item in
-                            PokitCard(
-                                category: item,
-                                action: { send(.categoryTapped(item)) },
-                                kebabAction: { send(.kebobButtonTapped(item)) }
-                            )
-                        }
-                        
-                        if store.hasNext {
-                            PokitLoading()
-                                .onAppear { send(.분류_pagenation) }
-                        }
-                    }
-                    .padding(.bottom, 150)
+                    pokitList(categories)
                 }
             } else {
                 PokitLoading()
             }
         }
     }
+    
+    @ViewBuilder
+    func pokitList(_ categories: IdentifiedArrayOf<BaseCategoryItem>) -> some View {
+        ScrollView {
+            LazyVStack(spacing: 0) {
+                LazyVGrid(columns: column, spacing: 12) {
+                    ForEach(categories, id: \.id) { item in
+                        PokitCard(
+                            category: item,
+                            action: { send(.categoryTapped(item)) },
+                            kebabAction: { send(.kebobButtonTapped(item)) }
+                        )
+                    }
+                }
+                
+                if store.hasNext {
+                    PokitLoading()
+                        .onAppear { send(.다음페이지_로딩_presented) }
+                }
+            }
+            .padding(.bottom, 150)
+        }
+    }
+    
     var unclassifiedView: some View {
         Group {
             if let unclassifiedContents = store.unclassifiedContents {
-                VStack(spacing: 0) {
-                    if unclassifiedContents.isEmpty {
+                if unclassifiedContents.isEmpty {
+                    VStack {
                         PokitCaution(
                             image: .empty,
                             titleKey: "저장된 링크가 없어요!",
@@ -160,30 +167,38 @@ private extension PokitRootView {
                         .padding(.top, 36)
                         
                         Spacer()
-                    } else {
-                        
-                        ForEach(unclassifiedContents) { content in
-                            let isFirst = content == unclassifiedContents.first
-                            let isLast = content == unclassifiedContents.last
-                            
-                            PokitLinkCard(
-                                link: content,
-                                action: { send(.contentItemTapped(content)) },
-                                kebabAction: { send(.unclassifiedKebobButtonTapped(content)) }
-                            )
-                            .divider(isFirst: isFirst, isLast: isLast)
-                        }
-                        
-                        if store.unclassifiedHasNext {
-                            PokitLoading()
-                                .onAppear(perform: { send(.미분류_pagenation) })
-                        }
                     }
+                } else {
+                    unclassifiedList(unclassifiedContents)
                 }
-                .padding(.bottom, 150)
             } else {
                 PokitLoading()
             }
+        }
+    }
+    
+    @ViewBuilder
+    func unclassifiedList(_ unclassifiedContents: IdentifiedArrayOf<BaseContentItem>) -> some View {
+        ScrollView {
+            LazyVStack(spacing: 0) {
+                ForEach(unclassifiedContents) { content in
+                    let isFirst = content == unclassifiedContents.first
+                    let isLast = content == unclassifiedContents.last
+                    
+                    PokitLinkCard(
+                        link: content,
+                        action: { send(.contentItemTapped(content)) },
+                        kebabAction: { send(.unclassifiedKebobButtonTapped(content)) }
+                    )
+                    .divider(isFirst: isFirst, isLast: isLast)
+                }
+                
+                if store.unclassifiedHasNext {
+                    PokitLoading()
+                        .onAppear(perform: { send(.다음페이지_로딩_presented) })
+                }
+            }
+            .padding(.bottom, 150)
         }
     }
 }
