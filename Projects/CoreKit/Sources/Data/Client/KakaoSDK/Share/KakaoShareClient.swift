@@ -44,7 +44,7 @@ extension KakaoShareClient: DependencyKey {
                 let content = Content(
                     title: "\(model.categoryName) 포킷을 공유받았어요!",
                     imageUrl: URL(string: model.imageURL),
-                    description: "지금바로 확인해보세요!",
+                    description: "소중한 링크들이 담긴 포킷을 Pokit 앱에서 지금 바로 확인해보세요!",
                     link: appLink
                 )
                 
