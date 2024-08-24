@@ -81,15 +81,13 @@ public struct CategorySharingFeature {
         
         public enum AsyncAction: Equatable {
             case 공유받은_카테고리_조회
-            case 공유받은_카테고리_저장
         }
         
         public enum ScopeAction: Equatable { case doNothing }
         
         public enum DelegateAction: Equatable {
             case 컨텐츠_아이템_클릭(categoryId: Int, content: CategorySharing.Content)
-            case 공유받은_카테고리_저장(categoryName: String)
-            case 공유받은_카테고리_수정(categoryName: String)
+            case 공유받은_카테고리_추가(sharedCategory: CategorySharing.Category)
         }
     }
     
@@ -133,27 +131,14 @@ private extension CategorySharingFeature {
     func handleViewAction(_ action: Action.View, state: inout State) -> Effect<Action> {
         switch action {
         case .저장버튼_클릭:
-            return .send(.async(.공유받은_카테고리_저장))
+            let sharedCategory = state.domain.sharedCategory.category
+            return .send(.delegate(.공유받은_카테고리_추가(sharedCategory: sharedCategory)))
         case let .컨텐츠_아이템_클릭(content):
             return .send(.delegate(.컨텐츠_아이템_클릭(categoryId: state.category.categoryId , content: content)))
         case .뒤로가기버튼_클릭:
             return .run { _ in await dismiss() }
         case .경고_확인버튼_클릭:
-            switch state.error {
-            case let .CA_008(message):
-                return .run { send in
-                    await send(.inner(.경고_닫음))
-                    await dismiss()
-                }
-            case let .CA_009(message):
-                return .run { [
-                    categoryName = state.domain.sharedCategory.category.categoryName
-                ] send in
-                    await send(.inner(.경고_닫음))
-                    await send(.delegate(.공유받은_카테고리_수정(categoryName: categoryName)))
-                }
-            default: return .none
-            }
+            return .none
         case .binding:
             return .none
         case .다음페이지_로딩_onAppear:
@@ -166,10 +151,6 @@ private extension CategorySharingFeature {
         switch action {
         case let .공유받은_카테고리_갱신(sharedCategory):
             state.domain.sharedCategory = sharedCategory
-            state.domain.copiedCategory = .init(
-                originCategoryId: sharedCategory.category.categoryId,
-                categoryName: sharedCategory.category.categoryName
-            )
             return .none
         case let .경고_띄움(baseError):
             state.error = baseError
@@ -200,23 +181,6 @@ private extension CategorySharingFeature {
                 ).toDomain()
                 await send(.inner(.공유받은_카테고리_갱신(sharedCategory)), animation: .smooth)
             }
-        case .공유받은_카테고리_저장:
-            return .run { [
-                copiedCategory = state.domain.copiedCategory
-            ] _ in
-                try await categoryClient.공유받은_카테고리_저장(
-                    .init(
-                        originCategoryId: copiedCategory.originCategoryId,
-                        categoryName: copiedCategory.categoryName
-                    )
-                )
-                await dismiss()
-            } catch: { error, send in
-                guard let errorResponse = error as? ErrorResponse else {
-                    return
-                }
-                await send(.inner(.경고_띄움(.init(response: errorResponse))))
-            }
         }
     }
     
@@ -227,11 +191,6 @@ private extension CategorySharingFeature {
     
     /// - Delegate Effect
     func handleDelegateAction(_ action: Action.DelegateAction, state: inout State) -> Effect<Action> {
-        switch action {
-        case let .공유받은_카테고리_저장(categoryName: categoryName):
-            state.domain.copiedCategory.categoryName = categoryName
-            return .send(.async(.공유받은_카테고리_저장))
-        default: return .none
-        }
+        return .none
     }
 }

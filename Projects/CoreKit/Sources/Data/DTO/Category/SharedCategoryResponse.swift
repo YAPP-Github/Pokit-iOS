@@ -7,6 +7,8 @@
 
 import Foundation
 
+import Util
+
 public struct SharedCategoryResponse: Decodable {
     public let category: Category
     public var contents: Self.ContentListInquiry
@@ -17,7 +19,10 @@ extension SharedCategoryResponse {
         category: .init(
             categoryId: 0,
             categoryName: "카테고리_이름임",
-            contentCount: 3),
+            contentCount: 3,
+            categoryImageId: 2312,
+            categoryImageUrl: Constants.mockImageUrl
+        ),
         contents: .mock
     )
 }
@@ -27,6 +32,8 @@ extension SharedCategoryResponse {
         public let categoryId: Int
         public let categoryName: String
         public let contentCount: Int
+        public let categoryImageId: Int
+        public let categoryImageUrl: String
     }
     
     public struct ContentListInquiry: Decodable {

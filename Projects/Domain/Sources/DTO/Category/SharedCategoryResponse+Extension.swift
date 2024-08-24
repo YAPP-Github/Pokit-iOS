@@ -15,7 +15,9 @@ public extension SharedCategoryResponse {
             category: .init(
                 categoryId: self.category.categoryId,
                 categoryName: self.category.categoryName,
-                contentCount: self.category.contentCount
+                contentCount: self.category.contentCount,
+                categoryImageId: self.category.categoryImageId,
+                categoryImageUrl: self.category.categoryImageUrl
             ),
             contentList: self.contents.toDomain(categoryName: self.category.categoryName)
         )

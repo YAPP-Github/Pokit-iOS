@@ -13,9 +13,6 @@ public struct CategorySharing: Equatable {
     // - MARK: Response
     /// 공유받은 카테고리(포킷)
     public var sharedCategory: SharedCategory
-    // - MARK: Request
-    /// 복제할 카테고리(포킷) 정보
-    public var copiedCategory: CopiedCategory
     /// 조회할 페이징 정보
     public var pageable: BasePageable
     
@@ -25,10 +22,6 @@ public struct CategorySharing: Equatable {
     ) {
         self.sharedCategory = sharedCategory
         self.pageable = pageable
-        self.copiedCategory = .init(
-            originCategoryId: sharedCategory.category.categoryId,
-            categoryName: sharedCategory.category.categoryName
-        )
     }
 }
 
@@ -36,16 +29,6 @@ extension CategorySharing {
     public struct SharedCategory: Equatable {
         public let category: Category
         public var contentList: CategorySharing.ContentListInquiry
-    }
-    
-    public struct CopiedCategory: Equatable {
-        public let originCategoryId: Int
-        public var categoryName: String
-        
-        public init(originCategoryId: Int, categoryName: String) {
-            self.originCategoryId = originCategoryId
-            self.categoryName = categoryName
-        }
     }
     
     public struct Alert: Equatable, Identifiable {
@@ -63,6 +46,8 @@ extension CategorySharing {
         public let categoryId: Int
         public let categoryName: String
         public let contentCount: Int
+        public let categoryImageId: Int
+        public let categoryImageUrl: String
     }
     
     public struct ContentListInquiry: Equatable {
