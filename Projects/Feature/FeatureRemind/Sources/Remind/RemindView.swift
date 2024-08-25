@@ -83,7 +83,6 @@ extension RemindView {
                             
                             Spacer()
                         }
-                        .padding(.top, 16)
                         .padding(.bottom, 150)
                     }
                 }
