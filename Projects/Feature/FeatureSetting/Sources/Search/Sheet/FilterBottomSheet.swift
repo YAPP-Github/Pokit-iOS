@@ -137,7 +137,7 @@ private extension FilterBottomSheet {
                     baseState: .default,
                     selectedState: .filled,
                     isSelected: isSelected,
-                    shape: .round
+                    shape: .rectangle
                 )
                 
                 Text(title)
