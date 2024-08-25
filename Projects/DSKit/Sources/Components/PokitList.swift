@@ -73,7 +73,7 @@ public struct PokitList<Item: PokitSelectItem>: View {
             }
             .padding(.leading, 28)
             .padding(.trailing, 20)
-            .padding(.vertical, 18)
+            .padding(.vertical, 13)
             .background {
                 if isSelected {
                     Color.pokit(.bg(.primary))
