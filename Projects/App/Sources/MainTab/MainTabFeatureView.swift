@@ -241,14 +241,14 @@ private extension MainTabView {
         .padding(.top, 30)
         .overlay(alignment: .top) {
             Button(action: { send(.addButtonTapped) }) {
-                Circle()
-                    .foregroundStyle(.pokit(.bg(.brand)))
-                    .overlay {
-                        Image(.icon(.plus))
-                            .resizable()
-                            .frame(width: 36, height: 36)
-                            .padding(11)
-                            .foregroundStyle(.pokit(.icon(.inverseWh)))
+                Image(.icon(.plus))
+                    .resizable()
+                    .frame(width: 36, height: 36)
+                    .padding(12)
+                    .foregroundStyle(.pokit(.icon(.inverseWh)))
+                    .background {
+                        RoundedRectangle(cornerRadius: 9999, style: .continuous)
+                            .fill(.pokit(.bg(.brand)))
                     }
                     .frame(width: 60, height: 60)
             }
