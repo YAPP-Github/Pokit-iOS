@@ -321,7 +321,7 @@ private extension PokitRootFeature {
                         sort: pageable.sort
                     )
                 ).toDomain()
-                await send(.inner(.미분류_페이지네이션_결과(contentList: contentList)), animation: .easeInOut)
+                await send(.inner(.미분류_페이지네이션_결과(contentList: contentList)), animation: .pokitDissolve)
             }
         case .목록조회_갱신용:
             state.domain.pageable.page += 1

@@ -57,7 +57,7 @@ public extension ContentDetailView {
                 )
             }
             .task {
-                await send(.contentDetailViewOnAppeared, animation: .smooth).finish()
+                await send(.contentDetailViewOnAppeared, animation: .pokitDissolve).finish()
             }
         }
     }
@@ -124,7 +124,7 @@ private extension ContentDetailView {
                     url: content.data,
                     imageURL: store.linkImageURL ?? "https://pokit-storage.s3.ap-northeast-2.amazonaws.com/logo/pokit.png"
                 )
-                .pokitBlurReplaceTransition(.smooth)
+                .pokitBlurReplaceTransition(.pokitDissolve)
             }
             
             contentMemo(content: content)
@@ -165,7 +165,7 @@ private extension ContentDetailView {
     
     @ViewBuilder
     func favorite(content: BaseContentDetail) -> some View {
-        Button(action: { send(.favoriteButtonTapped, animation: .smooth) }) {
+        Button(action: { send(.favoriteButtonTapped, animation: .pokitDissolve) }) {
             let isFavorite = content.favorites
             
             Image(isFavorite ? .icon(.starFill) : .icon(.starFill))

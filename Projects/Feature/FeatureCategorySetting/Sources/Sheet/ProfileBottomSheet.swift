@@ -42,7 +42,7 @@ public extension ProfileBottomSheet {
                 ForEach(images) { item in
                     LazyImage(
                         url: URL(string: item.imageURL),
-                        transaction: .init(animation: .smooth)
+                        transaction: .init(animation: .pokitDissolve)
                     ) { phase in
                         if let image = phase.image {
                             Button(action: { delegateSend?(.imageSelected(item)) }) {

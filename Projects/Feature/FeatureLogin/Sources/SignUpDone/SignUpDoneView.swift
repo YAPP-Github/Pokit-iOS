@@ -89,7 +89,7 @@ extension SignUpDoneView {
                 .multilineTextAlignment(.center)
         }
         .opacity(store.titleIsAppear ? 1 : 0)
-        .onAppear { send(.titleOnAppeared, animation: .smooth) }
+        .onAppear { send(.titleOnAppeared, animation: .pokitDissolve) }
     }
     
     private var images: some View {

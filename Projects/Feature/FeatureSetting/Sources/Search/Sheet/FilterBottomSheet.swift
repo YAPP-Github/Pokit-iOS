@@ -75,21 +75,21 @@ private extension FilterBottomSheet {
                 selection: $store.currentType,
                 to: .pokit
             )
-            .matchedGeometryEffectBackground(id: heroEffect)
+            .backgound()
             
             PokitPartTap(
                 "모아보기",
                 selection: $store.currentType,
                 to: .contentType
             )
-            .matchedGeometryEffectBackground(id: heroEffect)
+            .backgound()
             
             PokitPartTap(
                 "기간",
                 selection: $store.currentType,
                 to: .date
             )
-            .matchedGeometryEffectBackground(id: heroEffect)
+            .backgound()
         }
     }
     
@@ -160,7 +160,7 @@ private extension FilterBottomSheet {
                         size: .small,
                         action: { send(.pokitChipTapped(category), animation: .pokitSpring) }
                     )
-                    .pokitBlurReplaceTransition(.smooth)
+                    .pokitBlurReplaceTransition(.pokitDissolve)
                 }
                 
                 if store.isFavorite {
@@ -170,7 +170,7 @@ private extension FilterBottomSheet {
                         size: .small,
                         action: { send(.favoriteChipTapped, animation: .pokitSpring) }
                     )
-                    .pokitBlurReplaceTransition(.smooth)
+                    .pokitBlurReplaceTransition(.pokitDissolve)
                 }
                 
                 if store.isUnread {
@@ -180,7 +180,7 @@ private extension FilterBottomSheet {
                         size: .small,
                         action: { send(.unreadChipTapped, animation: .pokitSpring) }
                     )
-                    .pokitBlurReplaceTransition(.smooth)
+                    .pokitBlurReplaceTransition(.pokitDissolve)
                 }
                 
                 if store.dateSelected {
@@ -191,7 +191,7 @@ private extension FilterBottomSheet {
                         size: .small,
                         action: { send(.dateChipTapped, animation: .pokitSpring) }
                     )
-                    .pokitBlurReplaceTransition(.smooth)
+                    .pokitBlurReplaceTransition(.pokitDissolve)
                     .contentTransition(.numericText())
                 }
             }

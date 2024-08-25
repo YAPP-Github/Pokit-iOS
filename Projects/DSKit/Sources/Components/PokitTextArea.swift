@@ -77,7 +77,7 @@ public struct PokitTextArea<Value: Hashable>: View {
                         .resizable()
                         .foregroundStyle(.pokit(.icon(.error)))
                         .frame(width: 20, height: 20)
-                        .pokitBlurReplaceTransition(.smooth)
+                        .pokitBlurReplaceTransition(.pokitDissolve)
                     
                     Text(message)
                         .foregroundStyle(.pokit(.text(.error)))
@@ -89,7 +89,7 @@ public struct PokitTextArea<Value: Hashable>: View {
                 }
             }
             .pokitFont(.detail1)
-            .pokitBlurReplaceTransition(.smooth)
+            .pokitBlurReplaceTransition(.pokitDissolve)
             
             Spacer()
             
@@ -105,7 +105,7 @@ public struct PokitTextArea<Value: Hashable>: View {
             }
             .pokitFont(.detail1)
             .contentTransition(.numericText())
-            .animation(.smooth, value: text)
+            .animation(.pokitDissolve, value: text)
         }
         .padding(.top, 4)
     }
