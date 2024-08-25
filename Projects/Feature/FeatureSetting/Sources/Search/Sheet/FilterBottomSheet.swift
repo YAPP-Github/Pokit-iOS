@@ -147,7 +147,8 @@ private extension FilterBottomSheet {
                 
                 Spacer()
             }
-            .padding(24)
+            .padding(.horizontal, 24)
+            .padding(.vertical, 16)
         }
     }
     
