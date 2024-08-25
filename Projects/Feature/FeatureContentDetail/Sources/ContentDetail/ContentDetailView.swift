@@ -190,7 +190,7 @@ private extension ContentDetailView {
             )
         }
         .padding(.top, 12)
-        .padding(.bottom, 34)
+        .padding(.bottom, 40)
         .padding(.horizontal, 16)
         .background(.pokit(.bg(.base)))
         .overlay(alignment: .top) {
