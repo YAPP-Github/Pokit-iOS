@@ -37,7 +37,7 @@ public struct PokitCard<Item: PokitCardItem>: View {
             HStack {
                 title
                 
-                Spacer()
+                Spacer(minLength: 28)
             }
             .overlay(alignment: .trailing) {
                 kebabButton
