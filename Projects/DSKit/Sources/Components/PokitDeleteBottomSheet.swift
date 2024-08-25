@@ -83,7 +83,7 @@ public extension PokitDeleteBottomSheet {
             case .링크삭제:
                 return "함께 저장한 모든 정보가 삭제되며,\n복구하실 수 없습니다."
             case .포킷삭제:
-                return "함께 저장한 모든 포킷이 삭제되며,\n복구하실 수 없습니다."
+                return "함께 저장한 모든 링크가 삭제되며,\n복구하실 수 없습니다."
             }
         }
     }
