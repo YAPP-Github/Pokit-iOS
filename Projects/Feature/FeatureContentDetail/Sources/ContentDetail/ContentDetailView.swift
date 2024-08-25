@@ -134,12 +134,21 @@ private extension ContentDetailView {
     
     @ViewBuilder
     func contentMemo(content: BaseContentDetail) -> some View {
+        let isEmpty = content.memo.isEmpty
+        
         HStack {
             VStack {
-                Text(content.memo)
-                    .pokitFont(.b3(.r))
-                    .foregroundStyle(.pokit(.text(.primary)))
-                    .multilineTextAlignment(.leading)
+                Group {
+                    if isEmpty {
+                        Text("메모를 작성해보세요.")
+                            .foregroundStyle(.pokit(.text(.tertiary)))
+                    } else {
+                        Text(content.memo)
+                            .foregroundStyle(.pokit(.text(.primary)))
+                    }
+                }
+                .pokitFont(.b3(.r))
+                .multilineTextAlignment(.leading)
                 
                 Spacer()
             }
