@@ -77,6 +77,7 @@ public struct PokitPartSwitchRadio<Selection: Equatable>: View {
             }
     }
     
+    @ViewBuilder
     public func background() -> some View {
         self
             .background {
@@ -86,9 +87,10 @@ public struct PokitPartSwitchRadio<Selection: Equatable>: View {
                     self.background(.default(self.style))
                 }
             }
-            .animation(.smooth, value: self.selection)
+            .animation(.pokitDissolve, value: self.selection)
     }
     
+    @ViewBuilder
     public func matchedGeometryEffectBackground(
         id: Namespace.ID
     ) -> some View {

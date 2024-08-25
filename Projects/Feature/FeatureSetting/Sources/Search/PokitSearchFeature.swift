@@ -439,7 +439,7 @@ private extension PokitSearchFeature {
                         endDate: endDateString
                     )
                 ).toDomain()
-                await send(.inner(.컨텐츠_목록_갱신(contentList)), animation: .smooth)
+                await send(.inner(.컨텐츠_목록_갱신(contentList)), animation: .pokitDissolve)
             }
         case .최근검색어_갱신:
             guard state.isAutoSaveSearch else { return .none }

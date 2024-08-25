@@ -81,6 +81,6 @@ public struct PokitList<Item: PokitSelectItem>: View {
                 }
             }
         }
-        .animation(.smooth, value: isSelected)
+        .animation(.pokitDissolve, value: isSelected)
     }
 }

@@ -224,7 +224,7 @@ private extension FilterBottomFeature {
                     ),
                     true
                 ).toDomain()
-                await send(.inner(.카테고리_목록_갱신(categoryList: categoryList)), animation: .smooth)
+                await send(.inner(.카테고리_목록_갱신(categoryList: categoryList)), animation: .pokitDissolve)
             }
         }
     }

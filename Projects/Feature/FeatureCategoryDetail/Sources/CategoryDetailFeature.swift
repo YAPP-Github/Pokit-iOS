@@ -268,7 +268,7 @@ private extension CategoryDetailFeature {
                         favorites: condition.isFavoriteFlitered
                     )
                 ).toDomain()
-                await send(.inner(.카테고리_내_컨텐츠_목록_갱신(contentList)), animation: .smooth)
+                await send(.inner(.카테고리_내_컨텐츠_목록_갱신(contentList)), animation: .pokitDissolve)
             }
         case .컨텐츠_삭제(id: let id):
             return .run { [id] send in
@@ -359,7 +359,7 @@ private extension CategoryDetailFeature {
                 state.sortType = type
                 state.domain.condition.isFavoriteFlitered = bookMarkSelected
                 state.domain.condition.isUnreadFlitered = unReadSelected
-                return .send(.async(.카테고리_내_컨텐츠_목록_조회), animation: .smooth)
+                return .send(.async(.카테고리_내_컨텐츠_목록_조회), animation: .pokitDissolve)
             }
         }
     }

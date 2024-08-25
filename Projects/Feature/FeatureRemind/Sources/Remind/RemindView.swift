@@ -45,7 +45,7 @@ public extension RemindView {
                         confirmText: "삭제"
                     ) { send(.deleteAlertConfirmTapped(content: content)) }
                 }
-                .task { await send(.remindViewOnAppeared, animation: .smooth).finish() }
+                .task { await send(.remindViewOnAppeared, animation: .pokitDissolve).finish() }
         }
     }
 }

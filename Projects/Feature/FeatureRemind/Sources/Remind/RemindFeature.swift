@@ -167,9 +167,9 @@ private extension RemindFeature {
             return .none
         case .remindViewOnAppeared:
             return .run { send in
-                await send(.async(.오늘의_리마인드_조회), animation: .smooth)
-                await send(.async(.읽지않음_컨텐츠_조회), animation: .smooth)
-                await send(.async(.즐겨찾기_링크모음_조회), animation: .smooth)
+                await send(.async(.오늘의_리마인드_조회), animation: .pokitDissolve)
+                await send(.async(.읽지않음_컨텐츠_조회), animation: .pokitDissolve)
+                await send(.async(.즐겨찾기_링크모음_조회), animation: .pokitDissolve)
             }
         }
     }
@@ -202,7 +202,7 @@ private extension RemindFeature {
         case .오늘의_리마인드_조회:
             return .run { send in
                 let contents = try await remindClient.오늘의_리마인드_조회().map { $0.toDomain() }
-                await send(.inner(.오늘의_리마인드_조회(contents: contents)), animation: .smooth)
+                await send(.inner(.오늘의_리마인드_조회(contents: contents)), animation: .pokitDissolve)
             }
         case .읽지않음_컨텐츠_조회:
             return .run { [pageable = state.domain.unreadListPageable] send in
@@ -213,7 +213,7 @@ private extension RemindFeature {
                         sort: pageable.sort
                     )
                 ).toDomain()
-                await send(.inner(.읽지않음_컨텐츠_조회(contentList: contentList)), animation: .smooth)
+                await send(.inner(.읽지않음_컨텐츠_조회(contentList: contentList)), animation: .pokitDissolve)
             }
         case .즐겨찾기_링크모음_조회:
             return .run { [pageable = state.domain.favoriteListPageable] send in
@@ -224,7 +224,7 @@ private extension RemindFeature {
                         sort: pageable.sort
                     )
                 ).toDomain()
-                await send(.inner(.즐겨찾기_링크모음_조회(contentList: contentList)), animation: .smooth)
+                await send(.inner(.즐겨찾기_링크모음_조회(contentList: contentList)), animation: .pokitDissolve)
             }
         case .컨텐츠_삭제(id: let id):
             return .run { [id] send in

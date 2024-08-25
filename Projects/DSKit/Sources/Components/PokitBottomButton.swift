@@ -71,7 +71,7 @@ public struct PokitBottomButton: View {
                 .stroke(self.state.backgroundStrokeColor, lineWidth: 1)
             }
         }
-        .animation(.smooth, value: self.state)
+        .animation(.pokitDissolve, value: self.state)
     }
 }
 

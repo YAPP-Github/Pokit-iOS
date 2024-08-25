@@ -46,7 +46,7 @@ public extension ContentListView {
                     confirmText: "삭제"
                 ) { send(.deleteAlertConfirmTapped(content: content)) }
             }
-            .task { await send(.contentListViewOnAppeared, animation: .smooth).finish() }
+            .task { await send(.contentListViewOnAppeared, animation: .pokitDissolve).finish() }
         }
     }
 }

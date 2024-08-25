@@ -174,10 +174,10 @@ private extension ContentListFeature {
             return .run { [type = state.contentType] send in
                 switch type {
                 case .unread:
-                    await send(.async(.읽지않음_컨텐츠_조회), animation: .smooth)
+                    await send(.async(.읽지않음_컨텐츠_조회), animation: .pokitDissolve)
                     break
                 case .favorite:
-                    await send(.async(.즐겨찾기_링크모음_조회), animation: .smooth)
+                    await send(.async(.즐겨찾기_링크모음_조회), animation: .pokitDissolve)
                     break
                 }
                 
@@ -236,7 +236,7 @@ private extension ContentListFeature {
                         sort: pageable.sort
                     )
                 ).toDomain()
-                await send(.inner(.컨텐츠_목록_조회(contentList)), animation: .smooth)
+                await send(.inner(.컨텐츠_목록_조회(contentList)), animation: .pokitDissolve)
             }
         case .즐겨찾기_링크모음_조회:
             return .run { [pageable = state.domain.pageable] send in
@@ -247,7 +247,7 @@ private extension ContentListFeature {
                         sort: pageable.sort
                     )
                 ).toDomain()
-                await send(.inner(.컨텐츠_목록_조회(contentList)), animation: .smooth)
+                await send(.inner(.컨텐츠_목록_조회(contentList)), animation: .pokitDissolve)
             }
         case .컨텐츠_삭제(id: let id):
             return .run { [id] send in
@@ -260,12 +260,13 @@ private extension ContentListFeature {
             return .run { [type = state.contentType] send in
                 switch type {
                 case .unread:
-                    await send(.async(.읽지않음_컨텐츠_조회), animation: .smooth)
+                    await send(.async(.읽지않음_컨텐츠_조회), animation: .pokitDissolve)
+                    break
                 case .favorite:
-                    await send(.async(.즐겨찾기_링크모음_조회), animation: .smooth)
+                    await send(.async(.즐겨찾기_링크모음_조회), animation: .pokitDissolve)
+                    break
                 }
             }
-        }
     }
     
     /// - Scope Effect

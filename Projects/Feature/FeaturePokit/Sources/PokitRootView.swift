@@ -100,12 +100,17 @@ private extension PokitRootView {
         Group {
             if store.folderType == .folder(.포킷) {
                 pokitView
+                    .pokitBlurReplaceTransition(.pokitDissolve)
             } else {
                 unclassifiedView
+                    .pokitBlurReplaceTransition(.pokitDissolve)
             }
         }
         .padding(.top, 20)
         .scrollIndicators(.hidden)
+        .animation(.pokitDissolve, value: store.categories?.elements)
+        .animation(.pokitDissolve, value: store.unclassifiedContents?.elements)
+        .animation(.pokitDissolve, value: store.folderType)
     }
     
     var pokitView: some View {

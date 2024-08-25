@@ -47,7 +47,7 @@ public struct PokitCalendar: View {
                 .pokitFont(.b1(.b))
                 .foregroundStyle(.pokit(.text(.primary)))
                 .contentTransition(.numericText())
-                .animation(.pokitSpring, value: self.page)
+                .animation(.pokitDissolve, value: self.page)
             
             Spacer()
             
@@ -96,7 +96,7 @@ public struct PokitCalendar: View {
                 
                 datesOfMonth(width: width)
             }
-            .animation(.smooth, value: self.page)
+            .animation(.pokitDissolve, value: self.page)
             .frame(height: proxy.size.width)
         }
     }
@@ -298,7 +298,7 @@ public struct PokitCalendar: View {
         isEndDate: Bool,
         isContains: Bool
     ) {
-        withAnimation(.smooth) {
+        withAnimation(.pokitDissolve) {
             let ignoreTimeOfStartDate = ignoreTime(self.startDate)
             let ignoreTimeOfEndDate = ignoreTime(self.endDate)
             let isRange = ignoreTimeOfStartDate != ignoreTimeOfEndDate

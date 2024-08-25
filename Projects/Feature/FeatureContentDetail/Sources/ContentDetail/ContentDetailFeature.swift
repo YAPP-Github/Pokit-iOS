@@ -10,6 +10,7 @@ import ComposableArchitecture
 import Domain
 import CoreKit
 import Util
+import DSKit
 
 @Reducer
 public struct ContentDetailFeature {
@@ -172,7 +173,7 @@ private extension ContentDetailFeature {
                 }
                 await send(
                     .inner(.parsingInfo(title: title, imageURL: imageURL)),
-                    animation: .smooth
+                    animation: .pokitDissolve
                 )
             }
         case let .parsingInfo(title: title, imageURL: imageURL):
@@ -188,7 +189,7 @@ private extension ContentDetailFeature {
                 state.linkImageURL = nil
                 return .none
             }
-            return .send(.inner(.fetchMetadata(url: url)), animation: .smooth)
+            return .send(.inner(.fetchMetadata(url: url)), animation: .pokitDissolve)
         case .dismissAlert:
             state.showAlert = false
             return .none
