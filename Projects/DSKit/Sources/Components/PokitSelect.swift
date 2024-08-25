@@ -50,7 +50,7 @@ public struct PokitSelect<Item: PokitSelectItem>: View {
             listSheet
                 .presentationDragIndicator(.visible)
                 .pokitPresentationCornerRadius()
-                .presentationDetents([.medium, .large])
+                .presentationDetents([.medium])
                 .pokitPresentationBackground()
         }
     }
@@ -103,7 +103,7 @@ public struct PokitSelect<Item: PokitSelectItem>: View {
                     action(item)
                     listCellTapped(item)
                 }
-                .padding(.top, 24)
+                .padding(.top, 36)
                 .padding(.bottom, 20)
             } else {
                 PokitLoading()
