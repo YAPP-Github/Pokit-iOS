@@ -130,7 +130,7 @@ private extension MainTabView {
             }
             .task { await send(.onAppear).finish() }
     }
-
+    
     var tabView: some View {
         TabView(selection: $store.selectedTab) {
             switch store.selectedTab {
@@ -146,7 +146,7 @@ private extension MainTabView {
             }
         }
     }
-
+    
     var pokitNavigationBar: some View {
         PokitHeader {
             PokitHeaderItems(placement: .leading) {
@@ -173,7 +173,7 @@ private extension MainTabView {
         }
         .padding(.vertical, 8)
     }
-
+    
     var remindNavigationBar: some View {
         PokitHeader {
             PokitHeaderItems(placement: .leading) {
@@ -195,7 +195,7 @@ private extension MainTabView {
         }
         .padding(.vertical, 8)
     }
-
+    
     var bottomTabBar: some View {
         HStack(alignment: .bottom, spacing: 0) {
             bottomTabBarItem(.pokit)
@@ -241,7 +241,7 @@ private extension MainTabView {
     @ViewBuilder
     func bottomTabBarItem(_ tab: MainTab) -> some View {
         let isSelected: Bool = store.selectedTab == tab
-
+        
         VStack(spacing: 4) {
             Image(tab.icon)
                 .renderingMode(.template)
@@ -271,36 +271,42 @@ private extension MainTabView {
     struct AddSheet: View {
         @State private var height: CGFloat = 0
         var action: (TabAddSheetType) -> Void
-
+        
         var body: some View {
             HStack(spacing: 20) {
+                Spacer()
+                
                 ForEach(TabAddSheetType.allCases, id: \.self) { type in
                     Button(action: { action(type) }) {
                         VStack(spacing: 4) {
+                            Spacer()
+                            
                             type.icon
                                 .renderingMode(.template)
                                 .resizable()
-                                .frame(width: 24, height: 24)
-                                .foregroundStyle(.pokit(.text(.inverseWh)))
-                                .padding(3.2)
-                                .padding(.horizontal, 8)
+                                .aspectRatio(contentMode: .fit)
+                                .frame(width: 28, height: 28)
+                                .foregroundStyle(.pokit(.icon(.inverseWh)))
+                            
                             Text(type.title)
                                 .pokitFont(.b3(.m))
                                 .foregroundStyle(.pokit(.text(.inverseWh)))
+                            
+                            Spacer()
                         }
-                        .padding(.vertical, 21)
                         .padding(.horizontal, 24)
                         .background {
-                            RoundedRectangle(cornerRadius: 12)
+                            RoundedRectangle(cornerRadius: 12, style: .continuous)
                                 .foregroundStyle(.pokit(.bg(.brand)))
                         }
+                        .frame(height: 96)
                     }
                 }
+                
+                Spacer()
             }
-            .padding(.top)
-            .padding(.top, 24)
-            .padding(.bottom, 12)
-            .background(.white)
+            .padding(.top, 36)
+            .padding(.bottom, 48)
             .pokitPresentationCornerRadius()
             .pokitPresentationBackground()
             .presentationDragIndicator(.visible)
@@ -311,7 +317,6 @@ private extension MainTabView {
                 }
             }
             .presentationDetents([.height(self.height)])
-
         }
     }
 }
