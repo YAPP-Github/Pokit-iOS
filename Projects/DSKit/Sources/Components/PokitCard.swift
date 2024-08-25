@@ -102,7 +102,7 @@ public struct PokitCard<Item: PokitCardItem>: View {
             }
             .animation(.smooth, value: state.image)
         }
-        .frame(width: 68, height: 68)
+        .frame(width: 84, height: 84)
     }
     
     private var background: some View {
