@@ -198,31 +198,13 @@ private extension MainTabView {
 
     var bottomTabBar: some View {
         HStack(alignment: .bottom, spacing: 0) {
-            ForEach(MainTab.allCases, id: \.self) { tab in
-                let isSelected: Bool = store.selectedTab == tab
-
-                VStack(spacing: 4) {
-                    Image(tab.icon)
-                        .renderingMode(.template)
-                        .foregroundStyle(
-                            isSelected
-                            ? .pokit(.icon(.primary))
-                            : .pokit(.icon(.tertiary))
-                        )
-                    Text(tab.title)
-                        .foregroundStyle(
-                            isSelected
-                            ? .pokit(.text(.primary))
-                            : .pokit(.text(.tertiary))
-                        )
-                        .pokitFont(.detail2)
-                }
-                .frame(maxWidth: .infinity)
-                .onTapGesture {
-                    store.send(.binding(.set(\.selectedTab, tab)))
-                }
-            }
+            bottomTabBarItem(.pokit)
+            
+            Spacer()
+            
+            bottomTabBarItem(.remind)
         }
+        .padding(.horizontal, 48)
         .padding(.top, 12)
         .padding(.bottom, 36)
         .background {
@@ -255,6 +237,37 @@ private extension MainTabView {
         }
         .animation(.spring, value: store.selectedTab)
     }
+    
+    @ViewBuilder
+    func bottomTabBarItem(_ tab: MainTab) -> some View {
+        let isSelected: Bool = store.selectedTab == tab
+
+        VStack(spacing: 4) {
+            Image(tab.icon)
+                .renderingMode(.template)
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: 24, height: 24)
+                .foregroundStyle(
+                    isSelected
+                    ? .pokit(.icon(.primary))
+                    : .pokit(.icon(.tertiary))
+                )
+            
+            Text(tab.title)
+                .foregroundStyle(
+                    isSelected
+                    ? .pokit(.text(.primary))
+                    : .pokit(.text(.tertiary))
+                )
+                .pokitFont(.detail2)
+        }
+        .padding(.horizontal, 28)
+        .onTapGesture {
+            store.send(.binding(.set(\.selectedTab, tab)))
+        }
+    }
+    
     struct AddSheet: View {
         @State private var height: CGFloat = 0
         var action: (TabAddSheetType) -> Void
