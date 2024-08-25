@@ -159,7 +159,7 @@ private extension ContentDetailView {
         Button(action: { send(.favoriteButtonTapped, animation: .smooth) }) {
             let isFavorite = content.favorites
             
-            Image(isFavorite ? .icon(.starFill) : .icon(.star))
+            Image(isFavorite ? .icon(.starFill) : .icon(.starFill))
                 .resizable()
                 .scaledToFit()
                 .foregroundStyle(.pokit(.icon(isFavorite ? .brand : .tertiary)))
