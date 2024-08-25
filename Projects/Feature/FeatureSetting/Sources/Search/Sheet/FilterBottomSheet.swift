@@ -26,10 +26,11 @@ public struct FilterBottomSheet: View {
 public extension FilterBottomSheet {
     var body: some View {
         WithPerceptionTracking {
-            VStack(spacing: 4) {
+            VStack(spacing: 0) {
                 tabs
                     .padding(.horizontal, 20)
                     .padding(.top, 36)
+                    .padding(.bottom, 16)
                 
                 switch store.currentType {
                 case .pokit:
