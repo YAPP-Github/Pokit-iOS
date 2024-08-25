@@ -377,8 +377,7 @@ private extension PokitRootFeature {
                         categoryName: selectedItem.categoryName,
                         categoryId: selectedItem.id,
                         imageURL: selectedItem.categoryImage.imageURL
-                    ),
-                    { _ in }
+                    )
                 )
                 state.isKebobSheetPresented = false
                 return .none

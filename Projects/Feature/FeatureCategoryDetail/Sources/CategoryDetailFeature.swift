@@ -292,8 +292,7 @@ private extension CategoryDetailFeature {
                         categoryName: state.domain.category.categoryName,
                         categoryId: state.domain.category.id,
                         imageURL: state.domain.category.categoryImage.imageURL
-                    ),
-                    { _ in }
+                    )
                 )
                 state.isCategorySheetPresented = false
                 return .none
