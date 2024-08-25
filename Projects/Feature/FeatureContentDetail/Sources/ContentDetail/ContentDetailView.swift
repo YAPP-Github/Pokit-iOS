@@ -41,9 +41,8 @@ public extension ContentDetailView {
                     PokitLoading()
                 }
             }
-            .padding(.top, 28)
+            .padding(.vertical, 28)
             .ignoresSafeArea(edges: .bottom)
-            .padding(.bottom, 40)
             .background(.pokit(.bg(.base)))
             .pokitPresentationBackground()
             .pokitPresentationCornerRadius()
@@ -191,6 +190,7 @@ private extension ContentDetailView {
             )
         }
         .padding(.top, 12)
+        .padding(.bottom, 6)
         .padding(.horizontal, 16)
         .background(.pokit(.bg(.base)))
         .overlay(alignment: .top) {
