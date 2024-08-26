@@ -13,6 +13,6 @@ public extension Animation {
     }
     
     static var pokitDissolve: Animation {
-        return .easeInOut(duration: 0.2)
+        return .spring(duration: 0.4)
     }
 }
