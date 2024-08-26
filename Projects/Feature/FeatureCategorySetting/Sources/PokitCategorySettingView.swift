@@ -37,7 +37,7 @@ public extension PokitCategorySettingView {
             .padding(.top, 16)
             .pokitMaxWidth()
             .pokitNavigationBar { navigationBar }
-            .ignoresSafeArea(edges: .bottom)
+            .ignoresSafeArea(edges: isFocused ? [] : .bottom)
             .sheet(isPresented: $store.isProfileSheetPresented) {
                 ProfileBottomSheet(
                     selectedImage: store.selectedProfile,
