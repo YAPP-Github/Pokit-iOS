@@ -152,6 +152,11 @@ private extension CategoryDetailView {
                                 .pokitScrollTransition(.opacity)
                             }
                             
+                            if store.hasNext {
+                                PokitLoading()
+                                    .task { await send(.pagenation).finish() }
+                            }
+                            
                             Spacer()
                         }
                     }

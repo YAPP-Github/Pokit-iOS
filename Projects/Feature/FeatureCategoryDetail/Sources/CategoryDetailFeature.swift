@@ -39,10 +39,7 @@ public struct CategoryDetailFeature {
         var isFavoriteFiltered: Bool {
             get { domain.condition.isFavoriteFlitered }
         }
-        // - TODO: 더 구체적인 처리 필요
-//        var sortType: SortType {
-//            get { domain.pageable.sort == ["desc"] ? .최신순 : .오래된순 }
-//        }
+        
         var sortType: SortType = .최신순
         var categories: IdentifiedArrayOf<BaseCategoryItem>? {
             guard let categoryList = domain.categoryListInQuiry.data else {
@@ -71,6 +68,10 @@ public struct CategoryDetailFeature {
         var isCategorySelectSheetPresented: Bool = false
         var isPokitDeleteSheetPresented: Bool = false
         var isFilterSheetPresented: Bool = false
+        /// pagenation
+        var hasNext: Bool {
+            domain.contentList.hasNext
+        }
         
         public init(category: BaseCategoryItem) {
             self.domain = .init(categpry: category)
@@ -97,6 +98,7 @@ public struct CategoryDetailFeature {
             case contentItemTapped(BaseContentItem)
             case dismiss
             case onAppear
+            case pagenation
         }
         
         public enum InnerAction: Equatable {
@@ -106,11 +108,14 @@ public struct CategoryDetailFeature {
             case 카테고리_목록_조회_결과(BaseCategoryListInquiry)
             case 카테고리_내_컨텐츠_목록_갱신(BaseContentListInquiry)
             case 컨텐츠_삭제_반영(id: Int)
+            case pagenation_네트워크_결과(BaseContentListInquiry)
+            case pagenation_초기화
         }
         
         public enum AsyncAction: Equatable {
             case 카테고리_내_컨텐츠_목록_조회
             case 컨텐츠_삭제(id: Int)
+            case pagenation_네트워크
         }
         
         public enum ScopeAction: Equatable {
@@ -200,7 +205,7 @@ private extension CategoryDetailFeature {
             
         case .onAppear:
             return .run { send in
-                let request = BasePageableRequest(page: 0, size: 100, sort: ["createdAt", "desc"])
+                let request = BasePageableRequest(page: 0, size: 30, sort: ["createdAt,desc"])
                 let response = try await categoryClient.카테고리_목록_조회(request, true).toDomain()
                 await send(.async(.카테고리_내_컨텐츠_목록_조회))
                 await send(.inner(.카테고리_목록_조회_결과(response)))
@@ -210,6 +215,8 @@ private extension CategoryDetailFeature {
                     await send(.delegate(.linkCopyDetected(url)), animation: .pokitSpring)
                 }
             }
+        case .pagenation:
+            return .run { send in await send(.async(.pagenation_네트워크)) }
         }
     }
     
@@ -245,6 +252,13 @@ private extension CategoryDetailFeature {
             state.isPokitDeleteSheetPresented = false
             state.kebobSelectedType = nil
             return .none
+        case .pagenation_네트워크_결과(let contentList):
+            state.domain.contentList = contentList
+            return .none
+        case .pagenation_초기화:
+            state.domain.pageable.page = 0
+            state.domain.contentList.data = nil
+            return .send(.async(.카테고리_내_컨텐츠_목록_조회))
         }
     }
     
@@ -277,6 +291,9 @@ private extension CategoryDetailFeature {
                 let _ = try await contentClient.컨텐츠_삭제("\(id)")
                 await send(.inner(.컨텐츠_삭제_반영(id: id)), animation: .pokitSpring)
             }
+        case .pagenation_네트워크:
+            state.domain.pageable.page += 1
+            return .send(.async(.카테고리_내_컨텐츠_목록_조회))
         }
     }
     
@@ -361,15 +378,13 @@ private extension CategoryDetailFeature {
                 return .none
             case let .okButtonTapped(type, bookMarkSelected, unReadSelected):
                 state.isFilterSheetPresented.toggle()
-                state.domain.contentList.data = nil
                 state.domain.pageable.sort = [
-                    "createdAt",
-                    type == .최신순 ? "desc" : "asc"
+                    type == .최신순 ? "createdAt,desc" : "createdAt,asc"
                 ]
                 state.sortType = type
                 state.domain.condition.isFavoriteFlitered = bookMarkSelected
                 state.domain.condition.isUnreadFlitered = unReadSelected
-                return .send(.async(.카테고리_내_컨텐츠_목록_조회), animation: .pokitDissolve)
+                return .send(.inner(.pagenation_초기화), animation: .pokitDissolve)
             }
         }
     }
