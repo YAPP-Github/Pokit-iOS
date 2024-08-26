@@ -8,6 +8,7 @@
 import SwiftUI
 
 import ComposableArchitecture
+import Firebase
 import FirebaseMessaging
 import GoogleSignIn
 
@@ -41,8 +42,8 @@ extension AppDelegate: UIApplicationDelegate {
         Messaging.messaging().token { token, error in
             if let error {
                 self.store.send(.didRegisterForRemoteNotifications(.failure(error)))
-            } else if let token {
-                self.store.send(.didRegisterForRemoteNotifications(.success(token)))
+            } else if let _ = token {
+                self.store.send(.didRegisterForRemoteNotifications(.success(deviceToken)))
             }
         }
     }

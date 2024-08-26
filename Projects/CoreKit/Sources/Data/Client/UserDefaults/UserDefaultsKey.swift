@@ -16,6 +16,8 @@ public enum UserDefaultsKey {
         case authPlatform
         case authCode
         case jwt
+        case fcmToken
+        case userId
     }
     public enum ArrayKey: String {
         case searchWords

@@ -6,6 +6,8 @@
 	<string>$(AppleKeyID)</string>
 	<key>BGTaskSchedulerPermittedIdentifiers</key>
 	<string>com.pokitmons.pokit.taskidentifier</string>
+	<key>FirebaseAppDelegateProxyEnabled</key>
+	<false/>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
