@@ -92,8 +92,6 @@ public struct PokitRootFeature {
             case categoryTapped(BaseCategoryItem)
             case contentItemTapped(BaseContentItem)
 
-            case 분류_pagenation
-            case 미분류_pagenation
             case 링크_공유_완료(completed: Bool)
 
             case pokitRootViewOnAppeared
@@ -237,6 +235,10 @@ private extension PokitRootFeature {
                 return .send(.async(.미분류_카테고리_컨텐츠_조회))
             default: return .none
             }
+        case .링크_공유_완료(completed: let completed):
+            guard completed else { return .none }
+            state.shareSheetItem = nil
+            return .none
         case .링크_공유_완료(completed: let completed):
             guard completed else { return .none }
             state.shareSheetItem = nil
@@ -459,7 +461,7 @@ private extension PokitRootFeature {
     func handleDelegateAction(_ action: Action.DelegateAction, state: inout State) -> Effect<Action> {
         switch action {
         case .미분류_카테고리_컨텐츠_조회:
-            return .send(.async(.미분류_카테고리_컨텐츠_조회))
+            return .send(.inner(.페이지네이션_초기화))
         default:
             return .none
         }

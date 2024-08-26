@@ -80,7 +80,6 @@ public struct ContentDetailFeature {
             case dismissAlert
             case 컨텐츠_상세_조회(content: BaseContentDetail)
             case 즐겨찾기_갱신(Bool)
-            case 카테고리_갱신(BaseCategory)
             case 링크미리보기_presented
         }
 
@@ -220,9 +219,6 @@ private extension ContentDetailFeature {
             return .send(.inner(.parsingURL))
         case .즐겨찾기_갱신(let favorite):
             state.domain.content?.favorites = favorite
-            return .none
-        case .카테고리_갱신(let category):
-            state.domain.category = category
             return .none
         case .링크미리보기_presented:
             state.showLinkPreview = true

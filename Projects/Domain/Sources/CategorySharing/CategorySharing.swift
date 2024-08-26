@@ -67,6 +67,6 @@ extension CategorySharing {
         public let thumbNail: String
         public let createdAt: String
         public let categoryName: String
-        public let isRead: Bool = false
+        public let isRead: Bool? = false
     }
 }

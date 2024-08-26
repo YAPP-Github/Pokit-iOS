@@ -173,11 +173,9 @@ private extension ContentDetailView {
     }
 
     @ViewBuilder
-    func favorite(content: BaseContentDetail) -> some View {
+    func favorite(favorites: Bool) -> some View {
         Button(action: { send(.favoriteButtonTapped, animation: .pokitDissolve) }) {
-            let isFavorite = content.favorites
-
-            Image(isFavorite ? .icon(.starFill) : .icon(.starFill))
+            Image(favorites ? .icon(.starFill) : .icon(.starFill))
                 .resizable()
                 .scaledToFit()
                 .foregroundStyle(.pokit(.icon(favorites ? .brand : .tertiary)))
