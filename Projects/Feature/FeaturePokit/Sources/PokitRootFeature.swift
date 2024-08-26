@@ -220,13 +220,7 @@ private extension PokitRootFeature {
         case .contentItemTapped(let selectedItem):
             return .run { send in await send(.delegate(.contentDetailTapped(selectedItem))) }
         case .pokitRootViewOnAppeared:
-            switch state.folderType {
-            case .folder(.미분류):
-                return .send(.async(.미분류_카테고리_컨텐츠_조회))
-            case .folder(.포킷):
-                return .send(.async(.목록조회_갱신용))
-            default: return .none
-            }
+            return .send(.inner(.페이지네이션_초기화))
         case .다음페이지_로딩_presented:
             switch state.folderType {
             case .folder(.포킷):
