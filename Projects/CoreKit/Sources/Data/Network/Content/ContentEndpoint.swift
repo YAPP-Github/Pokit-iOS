@@ -52,7 +52,7 @@ extension ContentEndpoint: TargetType {
             return "/\(contentId)"
         case .미분류_카테고리_컨텐츠_조회:
             return "/uncategorized"
-        case .컨텐츠_검색(model: let model):
+        case .컨텐츠_검색:
             return ""
         }
     }
@@ -92,7 +92,7 @@ extension ContentEndpoint: TargetType {
             return .requestPlain
         case let .컨텐츠_추가(model):
             return .requestJSONEncodable(model)
-        case let .카태고리_내_컨텐츠_목록_조회(id, pageable, condition):
+        case let .카태고리_내_컨텐츠_목록_조회(_, pageable, condition):
             return .requestParameters(
                 parameters: [
                     "page": pageable.page,

@@ -185,7 +185,7 @@ private extension LoginRootFeature {
                 guard let nickName else { return }
                 guard let interests else { return }
                 let signUpRequest = SignupRequest(nickName: nickName, interests: interests)
-                let a = try await userClient.회원등록(signUpRequest)
+                let _ = try await userClient.회원등록(signUpRequest)
                 
                 await send(.inner(.pushSignUpDoneView))
             }
