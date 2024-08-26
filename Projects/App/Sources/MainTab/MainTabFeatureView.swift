@@ -235,6 +235,7 @@ private extension MainTabView {
                     .frame(width: 60, height: 60)
             }
         }
+        .pokitMaxWidth()
         .animation(.spring, value: store.selectedTab)
     }
     

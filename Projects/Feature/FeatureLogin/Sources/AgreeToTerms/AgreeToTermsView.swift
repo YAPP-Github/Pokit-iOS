@@ -43,6 +43,7 @@ public extension AgreeToTermsView {
                     action: { send(.nextButtonTapped) }
                 )
             }
+            .pokitMaxWidth()
             .padding(.horizontal, 20)
             .pokitNavigationBar {
                 PokitHeader {
@@ -54,10 +55,6 @@ public extension AgreeToTermsView {
                 }
             }
             .ignoresSafeArea(edges: .bottom)
-            .fullScreenCover(isPresented: $store.isWebViewPresented) {
-                PokitWebView(url: $store.webViewURL)
-                    .ignoresSafeArea()
-            }
         }
     }
 }

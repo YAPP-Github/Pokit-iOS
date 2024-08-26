@@ -46,6 +46,7 @@ public extension RegisterNicknameView {
                 )
                 .setKeyboardHeight()
             }
+            .pokitMaxWidth()
             .padding(.horizontal, 20)
             .pokitNavigationBar {
                 PokitHeader {

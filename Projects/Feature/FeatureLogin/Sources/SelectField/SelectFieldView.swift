@@ -23,14 +23,13 @@ public struct SelectFieldView: View {
 public extension SelectFieldView {
     var body: some View {
         WithPerceptionTracking {
-            VStack(alignment: .leading, spacing: 0) {
-                Group {
-                    title
-                        .padding(.top, 16)
-                    
-                    fieldsFlow
-                        .padding(.top, 36)
-                }
+            VStack(spacing: 0) {
+                title
+                    .padding(.top, 16)
+                    .pokitMaxWidth()
+                
+                fieldsFlow
+                    .padding(.top, 36)
                 
                 Spacer()
                 
@@ -39,6 +38,7 @@ public extension SelectFieldView {
                     state: store.selectedFields.count == 0 ? .disable : .filled(.primary),
                     action: { send(.nextButtonTapped) }
                 )
+                .pokitMaxWidth()
             }
             .padding(.horizontal, 20)
             .pokitNavigationBar {
@@ -58,14 +58,18 @@ public extension SelectFieldView {
 //MARK: - Configure View
 extension SelectFieldView {
     private var title: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("어떤 분야에 관심이 있으세요?")
-                .pokitFont(.title1)
-                .foregroundStyle(.pokit(.text(.primary)))
+        HStack {
+            VStack(alignment: .leading, spacing: 12) {
+                Text("어떤 분야에 관심이 있으세요?")
+                    .pokitFont(.title1)
+                    .foregroundStyle(.pokit(.text(.primary)))
+                
+                Text("최대 3개를 골라주시면\n관련 콘텐츠를 추천해드릴게요!")
+                    .pokitFont(.title3)
+                    .foregroundStyle(.pokit(.text(.secondary)))
+            }
             
-            Text("최대 3개를 골라주시면\n관련 콘텐츠를 추천해드릴게요!")
-                .pokitFont(.title3)
-                .foregroundStyle(.pokit(.text(.secondary)))
+            Spacer()
         }
     }
     
