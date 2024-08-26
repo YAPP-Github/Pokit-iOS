@@ -267,6 +267,7 @@ private extension ContentListFeature {
                     break
                 }
             }
+        }
     }
     
     /// - Scope Effect
