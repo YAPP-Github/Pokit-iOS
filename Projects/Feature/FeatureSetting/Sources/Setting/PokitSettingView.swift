@@ -48,6 +48,10 @@ public extension PokitSettingView {
                     action: { send(.회원탈퇴수행) }
                 )
             }
+            .fullScreenCover(isPresented: $store.isWebViewPresented) {
+                PokitWebView(url: $store.webViewURL)
+                    .ignoresSafeArea()
+            }
             .navigationDestination(
                 item: $store.scope(
                     state: \.nickNameSettingState,
@@ -146,14 +150,15 @@ private extension PokitSettingView {
                     Text(title)
                         .foregroundStyle(.pokit(.text(.primary)))
                         .pokitFont(.b1(.m))
+                    
                     Spacer()
+                    
                     Image(.icon(.arrowRight))
                         .resizable()
                         .foregroundStyle(.black)
                         .frame(width: 24, height: 24)
                 }
             }
-            .buttonStyle(.plain)
             .padding(.vertical, 16)
             .padding(.horizontal, 20)
         }
