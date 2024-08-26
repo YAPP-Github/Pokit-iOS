@@ -75,6 +75,10 @@ public struct PokitAlert: View {
             }
         }
         .presentationDetents([.height(self.height)])
+        .onAppear {
+            UINotificationFeedbackGenerator()
+                .notificationOccurred(.warning)
+        }
     }
     
     private var title: some View {

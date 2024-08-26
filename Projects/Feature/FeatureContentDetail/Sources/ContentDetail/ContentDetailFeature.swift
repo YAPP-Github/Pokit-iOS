@@ -190,7 +190,7 @@ private extension ContentDetailFeature {
             return .run { send in
                 /// - 링크에 대한 메타데이터의 제목 및 썸네일 항목 파싱
                 let (title, imageURL) = await swiftSoup.parseOGTitleAndImage(url) {
-                    await send(.inner(.링크미리보기_presented))
+                    await send(.inner(.링크미리보기_presented), animation: .pokitDissolve)
                 }
                 await send(
                     .inner(.parsingInfo(title: title, imageURL: imageURL)),

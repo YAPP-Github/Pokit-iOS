@@ -65,6 +65,12 @@ public struct PokitLinkPreview: View {
                 .stroke(.pokit(.border(.tertiary)), lineWidth: 1)
         }
         .shadow(color: .black.opacity(0.06), radius: 3, x: 2, y: 2)
+        .onAppear {
+            withAnimation {
+                UINotificationFeedbackGenerator()
+                    .notificationOccurred(.success)
+            }
+        }
     }
     
     @ViewBuilder

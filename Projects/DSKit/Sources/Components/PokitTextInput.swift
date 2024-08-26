@@ -57,6 +57,7 @@ public struct PokitTextInput<Value: Hashable>: View {
         }
         .onChange(of: text) { onChangedText($0) }
         .onChange(of: isMaxLetters) { onChangedIsMaxLetters($0) }
+        .onChange(of: state) { onChangedState($0) }
     }
     
     private var textField: some View {
@@ -157,6 +158,14 @@ public struct PokitTextInput<Value: Hashable>: View {
             default:
                 state = .default
             }
+        }
+    }
+    
+    private func onChangedState(_ newValue: PokitInputStyle.State) {
+        switch newValue {
+        case .error:
+            UINotificationFeedbackGenerator().notificationOccurred(.error)
+        default: return
         }
     }
 }
