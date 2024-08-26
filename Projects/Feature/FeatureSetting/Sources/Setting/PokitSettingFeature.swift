@@ -204,7 +204,7 @@ private extension PokitSettingFeature {
         switch action {
         case .회원탈퇴_네트워크:
             return .run { send in
-                guard let refreshToken = keychain.read(.refreshToken) else {
+                guard let _ = keychain.read(.refreshToken) else {
                     print("refresh가 없어서 벗어남")
                     return
                 }

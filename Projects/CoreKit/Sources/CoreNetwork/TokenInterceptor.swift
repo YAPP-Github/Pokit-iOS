@@ -52,7 +52,7 @@ public final class TokenInterceptor: RequestInterceptor {
 
         print("🚀 Retry: statusCode: \(response.statusCode)")
 
-        guard let accessToken = keychain.read(.accessToken),
+        guard keychain.read(.accessToken) != nil,
               let refreshToken = keychain.read(.refreshToken) else {
             deleteAllToken()
             completion(.doNotRetryWithError(error))

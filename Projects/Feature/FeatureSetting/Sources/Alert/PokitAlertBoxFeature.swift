@@ -23,7 +23,6 @@ public struct PokitAlertBoxFeature {
         public init() {}
         
         fileprivate var domain = Alert()
-        var mock: IdentifiedArrayOf<AlertMock> = []
         
         var alertContents: IdentifiedArrayOf<AlertItem>? {
             guard let list = domain.alertList.data else {

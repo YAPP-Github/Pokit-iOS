@@ -239,10 +239,6 @@ private extension PokitRootFeature {
             guard completed else { return .none }
             state.shareSheetItem = nil
             return .none
-        case .링크_공유_완료(completed: let completed):
-            guard completed else { return .none }
-            state.shareSheetItem = nil
-            return .none
         }
     }
 
@@ -388,14 +384,8 @@ private extension PokitRootFeature {
             }
 
         case .bottomSheet(.editCellButtonTapped):
-            /// Todo: 수정하기
             switch state.folderType {
             case .folder(.미분류):
-                guard let selectedItem = state.selectedUnclassifiedItem else {
-                    /// 🚨 Error Case [1]: 항목을 수정하려는데 항목이 없을 때
-                    return .none
-                }
-                ///Todo: 링크수정으로 이동
                 state.isKebobSheetPresented = false
                 return .run { [item = state.selectedUnclassifiedItem] send in
                     guard let item else { return }
@@ -403,10 +393,6 @@ private extension PokitRootFeature {
                 }
 
             case .folder(.포킷):
-                guard let selectedItem = state.selectedKebobItem else {
-                    /// 🚨 Error Case [1]: 항목을 수정하려는데 항목이 없을 때
-                    return .none
-                }
                 /// [1] 케밥을 종료
                 state.isKebobSheetPresented = false
                 /// [2] 수정하기로 이동
@@ -429,7 +415,6 @@ private extension PokitRootFeature {
             return .none
 
         case .deleteBottomSheet(.deleteButtonTapped):
-            /// Todo: 삭제하기
             switch state.folderType {
             case .folder(.미분류):
                 guard let selectedItem = state.selectedUnclassifiedItem else {
