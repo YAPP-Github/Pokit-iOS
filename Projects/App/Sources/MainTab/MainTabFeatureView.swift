@@ -36,49 +36,51 @@ public extension MainTabView {
             NavigationStack(path: $store.scope(state: \.path, action: \.path)) {
                 content
             } destination: { store in
-                ZStack(alignment: .bottom) {
-                    switch store.state {
-                    case .알림함:
-                        if let store = store.scope(state: \.알림함, action: \.알림함) {
-                            PokitAlertBoxView(store: store)
+                WithPerceptionTracking {
+                    ZStack(alignment: .bottom) {
+                        switch store.state {
+                        case .알림함:
+                            if let store = store.scope(state: \.알림함, action: \.알림함) {
+                                PokitAlertBoxView(store: store)
+                            }
+                        case .검색:
+                            if let store = store.scope(state: \.검색, action: \.검색) {
+                                PokitSearchView(store: store)
+                            }
+                        case .설정:
+                            if let store = store.scope(state: \.설정, action: \.설정) {
+                                PokitSettingView(store: store)
+                            }
+                        case .포킷추가및수정:
+                            if let store = store.scope(state: \.포킷추가및수정, action: \.포킷추가및수정) {
+                                PokitCategorySettingView(store: store)
+                            }
+                        case .링크추가및수정:
+                            if let store = store.scope(state: \.링크추가및수정, action: \.링크추가및수정) {
+                                ContentSettingView(store: store)
+                            }
+                        case .카테고리상세:
+                            if let store = store.scope(state: \.카테고리상세, action: \.카테고리상세) {
+                                CategoryDetailView(store: store)
+                            }
+                        case .링크목록:
+                            if let store = store.scope(state: \.링크목록, action: \.링크목록) {
+                                ContentListView(store: store)
+                            }
+                        case .링크공유:
+                            if let store = store.scope(state: \.링크공유, action: \.링크공유) {
+                                CategorySharingView(store: store)
+                            }
                         }
-                    case .검색:
-                        if let store = store.scope(state: \.검색, action: \.검색) {
-                            PokitSearchView(store: store)
+                        
+                        if self.store.isLinkSheetPresented {
+                            PokitLinkPopup(
+                                "복사한 링크 저장하기",
+                                isPresented: $store.isLinkSheetPresented,
+                                type: .link(url: self.store.link ?? ""),
+                                action: { send(.linkCopyButtonTapped) }
+                            )
                         }
-                    case .설정:
-                        if let store = store.scope(state: \.설정, action: \.설정) {
-                            PokitSettingView(store: store)
-                        }
-                    case .포킷추가및수정:
-                        if let store = store.scope(state: \.포킷추가및수정, action: \.포킷추가및수정) {
-                            PokitCategorySettingView(store: store)
-                        }
-                    case .링크추가및수정:
-                        if let store = store.scope(state: \.링크추가및수정, action: \.링크추가및수정) {
-                            ContentSettingView(store: store)
-                        }
-                    case .카테고리상세:
-                        if let store = store.scope(state: \.카테고리상세, action: \.카테고리상세) {
-                            CategoryDetailView(store: store)
-                        }
-                    case .링크목록:
-                        if let store = store.scope(state: \.링크목록, action: \.링크목록) {
-                            ContentListView(store: store)
-                        }
-                    case .링크공유:
-                        if let store = store.scope(state: \.링크공유, action: \.링크공유) {
-                            CategorySharingView(store: store)
-                        }
-                    }
-                    
-                    if self.store.isLinkSheetPresented {
-                        PokitLinkPopup(
-                            "복사한 링크 저장하기",
-                            isPresented: $store.isLinkSheetPresented,
-                            type: .link(url: self.store.link ?? ""),
-                            action: { send(.linkCopyButtonTapped) }
-                        )
                     }
                 }
             }
