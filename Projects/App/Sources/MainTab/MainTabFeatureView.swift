@@ -265,6 +265,7 @@ private extension MainTabView {
         }
         .padding(.horizontal, 28)
         .onTapGesture {
+            UIImpactFeedbackGenerator(style: .rigid).impactOccurred()
             store.send(.binding(.set(\.selectedTab, tab)))
         }
     }

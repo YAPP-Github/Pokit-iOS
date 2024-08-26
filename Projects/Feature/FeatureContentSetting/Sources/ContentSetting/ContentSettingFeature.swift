@@ -223,7 +223,7 @@ private extension ContentSettingFeature {
         case .fetchMetadata(url: let url):
             return .run { send in
                 let (title, imageURL) = await swiftSoup.parseOGTitleAndImage(url) {
-                    await send(.inner(.링크미리보기_presented))
+                    await send(.inner(.링크미리보기_presented), animation: .pokitDissolve)
                 }
                 await send(
                     .inner(.parsingInfo(title: title, imageURL: imageURL)),

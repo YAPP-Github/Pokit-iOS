@@ -63,6 +63,10 @@ public struct PokitDeleteBottomSheet: View {
             }
         }
         .presentationDetents([.height(self.height)])
+        .onAppear {
+            UINotificationFeedbackGenerator()
+                .notificationOccurred(.warning)
+        }
     }
 }
 //MARK: - Delegate

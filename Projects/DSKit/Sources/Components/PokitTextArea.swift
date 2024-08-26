@@ -61,6 +61,7 @@ public struct PokitTextArea<Value: Hashable>: View {
                 onSubmit: onSubmit
             )
             .onChange(of: focusState.wrappedValue) { onChangedFocuseState($0) }
+            .onChange(of: state) { onChangedState($0) }
             
             infoLabel
         }
@@ -131,6 +132,14 @@ public struct PokitTextArea<Value: Hashable>: View {
             default:
                 state = .default
             }
+        }
+    }
+    
+    private func onChangedState(_ newValue: PokitInputStyle.State) {
+        switch newValue {
+        case .error:
+            UINotificationFeedbackGenerator().notificationOccurred(.error)
+        default: return
         }
     }
 }
