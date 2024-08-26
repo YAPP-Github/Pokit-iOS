@@ -7,16 +7,32 @@
 
 import SwiftUI
 
+import Util
+
 public struct PokitCalendar: View {
-    @Binding private var startDate: Date
-    @Binding private var endDate: Date
+    @Binding
+    private var startDate: Date
+    @Binding
+    private var endDate: Date
     
-    @State private var page: String
-    @State private var months: [Date] = []
-    @State private var isLastMonth: Bool = true
-    @State private var isFirstMonth: Bool = false
+    @State
+    private var page: String
+    @State
+    private var months: [Date] = []
+    @State
+    private var isLastMonth: Bool = true
+    @State
+    private var isFirstMonth: Bool = false
+    
+    @State
+    private var cachedDates: [Date: [Date]] = [:]
+    @State
+    private var cachedPreviousDates: [Date: [Date]] = [:]
+    @State
+    private var cachedNextDates: [Date: [Date]] = [:]
     
     private let calendar = Calendar.current
+    private let formatter = DateFormat.calendarPage.formatter
     
     public init(
         startDate: Binding<Date>,
@@ -25,9 +41,7 @@ public struct PokitCalendar: View {
         self._startDate = startDate
         self._endDate = endDate
         
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy년 MM월"
-        self._page = State(initialValue: formatter.string(from: .now))
+        self._page = State(initialValue: self.formatter.string(from: .now))
     }
     
     public var body: some View {
@@ -101,6 +115,7 @@ public struct PokitCalendar: View {
         }
     }
     
+    @ViewBuilder
     private func weeks(width: CGFloat) -> some View {
         HStack(spacing: 8) {
             ForEach(0..<7) { weekDay in
@@ -121,7 +136,7 @@ public struct PokitCalendar: View {
     private func datesOfMonth(width: CGFloat) -> some View {
         TabView(selection: self.$page) {
             ForEach(self.months, id: \.self) { date in
-                let page = pageFormatter.string(from: date)
+                let page = formatter.string(from: date)
                 
                 dateGrid(date, width: width)
                     .tag(page)
@@ -187,91 +202,70 @@ public struct PokitCalendar: View {
     }
     
     private func dates(_ date: Date) -> [Date] {
-        var dates: [Date] = []
-        
-        let year = calendar.component(.year, from: date)
-        let month = calendar.component(.month, from: date)
-        
-        guard let range = calendar.range(
-            of: .day,
-            in: .month,
-            for: date
-        ) else {
+        guard let cached = cachedDates[date] else {
+            var dates: [Date] = []
+            
+            let year = calendar.component(.year, from: date)
+            let month = calendar.component(.month, from: date)
+            
+            guard let range = calendar.range(
+                of: .day,
+                in: .month,
+                for: date
+            ) else {
+                return dates
+            }
+            
+            dates = range.map { day in
+                var components = DateComponents()
+                components.year = year
+                components.month = month
+                components.day = day
+                return calendar.date(from: components) ?? .now
+            }
+            DispatchQueue.main.async {
+                cachedDates[date] = dates
+            }
             return dates
         }
         
-        dates = range.map { day in
-            var components = DateComponents()
-            components.year = year
-            components.month = month
-            components.day = day
-            return calendar.date(from: components) ?? .now
-        }
-        
-        return dates
+        return cached
     }
     
     private func previousDate(_ date: Date) -> [Date] {
-        var dates: [Date] = []
-        
-        let year = calendar.component(.year, from: date)
-        let month = calendar.component(.month, from: date)
-        
-        let firstWeekday = calendar.component(
-            .weekday,
-            from: firstDateOfMonth(date)
-        )
-        
-        guard firstWeekday > 1 else { return dates }
-        
-        var dateComponents = DateComponents()
-        dateComponents.year = year
-        dateComponents.month = month - 1
-        dateComponents.day = 1
-        
-        guard let monthDate = calendar.date(from: dateComponents) else {
-            return dates
-        }
-        
-        guard let monthRange = calendar.range(
-            of: .day,
-            in: .month,
-            for: monthDate
-        ) else {
-            return dates
-        }
-        
-        let monthDays = Array(monthRange).suffix(firstWeekday - 1)
-        
-        let monthDates = monthDays.map { day in
-            var components = DateComponents()
-            components.year = dateComponents.year
-            components.month = dateComponents.month
-            components.day = day
-            return calendar.date(from: components) ?? .now
-        }
-        
-        dates = monthDates
-        
-        return dates
-    }
-    
-    private func nextDates(_ date: Date, datesCount: Int) -> [Date] {
-        var dates: [Date] = []
-        
-        let year = calendar.component(.year, from: date)
-        let month = calendar.component(.month, from: date)
-        
-        let numberOfDays = datesCount
-        
-        if numberOfDays < 42 {
-            let remainingDays = 42 - numberOfDays
+        guard let cached = cachedPreviousDates[date] else  {
+            var dates: [Date] = []
+            
+            let year = calendar.component(.year, from: date)
+            let month = calendar.component(.month, from: date)
+            
+            let firstWeekday = calendar.component(
+                .weekday,
+                from: firstDateOfMonth(date)
+            )
+            
+            guard firstWeekday > 1 else { return dates }
+            
             var dateComponents = DateComponents()
             dateComponents.year = year
-            dateComponents.month = month + 1
+            dateComponents.month = month - 1
             dateComponents.day = 1
             
-            let nextMonthDates = (1...remainingDays).map { day in
+            guard let monthDate = calendar.date(from: dateComponents) else {
+                return dates
+            }
+            
+            guard let monthRange = calendar.range(
+                of: .day,
+                in: .month,
+                for: monthDate
+            ) else {
+                return dates
+            }
+            
+            let monthDays = Array(monthRange).suffix(firstWeekday - 1)
+            
+            let monthDates = monthDays.map { day in
                 var components = DateComponents()
                 components.year = dateComponents.year
                 components.month = dateComponents.month
@@ -279,15 +273,55 @@ public struct PokitCalendar: View {
                 return calendar.date(from: components) ?? .now
             }
             
-            dates = nextMonthDates
+            dates = monthDates
+            DispatchQueue.main.async {
+                self.cachedPreviousDates[date] = dates
+            }
+            return dates
         }
         
-        return dates
+        return cached
+    }
+    
+    private func nextDates(_ date: Date, datesCount: Int) -> [Date] {
+        guard let cached = cachedNextDates[date] else {
+            var dates: [Date] = []
+            
+            let year = calendar.component(.year, from: date)
+            let month = calendar.component(.month, from: date)
+            
+            let numberOfDays = datesCount
+            
+            if numberOfDays < 42 {
+                let remainingDays = 42 - numberOfDays
+                var dateComponents = DateComponents()
+                dateComponents.year = year
+                dateComponents.month = month + 1
+                dateComponents.day = 1
+                
+                let nextMonthDates = (1...remainingDays).map { day in
+                    var components = DateComponents()
+                    components.year = dateComponents.year
+                    components.month = dateComponents.month
+                    components.day = day
+                    return calendar.date(from: components) ?? .now
+                }
+                
+                dates = nextMonthDates
+            }
+            DispatchQueue.main.async {
+                cachedNextDates[date] = dates
+            }
+            return dates
+        }
+        
+        return cached
     }
     
     private func ignoreTime(_ date: Date) -> Date {
         let dateComponent = calendar.dateComponents(
-            [.year, .month, .day, .calendar], from: date
+            [.year, .month, .day, .calendar],
+            from: date
         )
         return dateComponent.date ?? .now
     }
@@ -343,7 +377,7 @@ public struct PokitCalendar: View {
             return
         }
         
-        self.page = pageFormatter.string(from: date)
+        self.page = formatter.string(from: date)
     }
     
     private func nextButtonTapped() {
@@ -355,23 +389,16 @@ public struct PokitCalendar: View {
             return
         }
         
-        self.page = pageFormatter.string(from: date)
+        self.page = formatter.string(from: date)
     }
     
     private func weekdaySymbol(for weekday: Int) -> String {
-        let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "ko_KR")
+        let formatter = formatter
         return formatter.veryShortWeekdaySymbols[weekday]
     }
     
-    private var pageFormatter: DateFormatter {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy년 MM월"
-        return formatter
-    }
-    
     private var currentDate: Date {
-        guard let currentDate = pageFormatter.date(from: self.page) else {
+        guard let currentDate = formatter.date(from: self.page) else {
             return .now
         }
         
@@ -379,7 +406,10 @@ public struct PokitCalendar: View {
     }
     
     private func firstDateOfMonth(_ date: Date) -> Date {
-        var dateComponent = calendar.dateComponents([.year, .month], from: date)
+        var dateComponent = calendar.dateComponents(
+            [.year, .month],
+            from: date
+        )
         dateComponent.setValue(1, for: .day)
         
         guard let date = calendar.date(from: dateComponent) else {
@@ -394,7 +424,7 @@ public struct PokitCalendar: View {
         let month = calendar.component(.month, from: currentDate)
         
         var monthList: [Date] = []
-        let yearRange = -(year - 2000)...0
+        let yearRange = -(year - 2024)...0
         
         for yearValue in yearRange {
             if let yearDate = calendar.date(
@@ -423,12 +453,12 @@ public struct PokitCalendar: View {
     private func onChangedPage(_ newValue: String) {
         withAnimation {
             if let dateOfLastMonth = months.last {
-                let lastMonthPage = pageFormatter.string(from: dateOfLastMonth)
+                let lastMonthPage = formatter.string(from: dateOfLastMonth)
                 self.isLastMonth = newValue == lastMonthPage
             }
             
             if let dateOfFirstMonth = months.first {
-                let firstMonthPage = pageFormatter.string(from: dateOfFirstMonth)
+                let firstMonthPage = formatter.string(from: dateOfFirstMonth)
                 self.isFirstMonth = newValue == firstMonthPage
             }
         }
