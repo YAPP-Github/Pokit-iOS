@@ -99,7 +99,9 @@ private extension ContentSettingView {
         VStack(spacing: 16) {
             if store.showLinkPreview {
                 PokitLinkPreview(
-                    title: store.linkTitle ?? "제목을 입력해주세요",
+                    title: store.linkTitle ?? (
+                        store.title.isEmpty ? "제목을 입력해주세요" : store.title
+                    ),
                     url: store.urlText,
                     imageURL: store.linkImageURL ?? "https://pokit-storage.s3.ap-northeast-2.amazonaws.com/logo/pokit.png"
                 )

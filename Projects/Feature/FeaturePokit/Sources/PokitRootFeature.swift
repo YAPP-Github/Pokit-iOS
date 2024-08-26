@@ -24,7 +24,7 @@ public struct PokitRootFeature {
     public struct State: Equatable {
         var folderType: PokitRootFilterType = .folder(.포킷)
         var sortType: PokitRootFilterType = .sort(.최신순)
-        
+
         fileprivate var domain = Pokit()
         var categories: IdentifiedArrayOf<BaseCategoryItem>? {
             guard let categoryList = domain.categoryList.data else {
@@ -46,23 +46,23 @@ public struct PokitRootFeature {
             }
             return identifiedArray
         }
-        
+
         var selectedKebobItem: BaseCategoryItem?
         var selectedUnclassifiedItem: BaseContentItem?
-        
+
         var isKebobSheetPresented: Bool = false
         var isPokitDeleteSheetPresented: Bool = false
         var hasNext: Bool {
             domain.categoryList.hasNext
         }
-        
+
         var unclassifiedHasNext: Bool {
             domain.unclassifiedContentList.hasNext
         }
-        
+
         public init() { }
     }
-    
+
     /// - Action
     public enum Action: FeatureAction, ViewAction {
         case view(View)
@@ -70,7 +70,7 @@ public struct PokitRootFeature {
         case async(AsyncAction)
         case scope(ScopeAction)
         case delegate(DelegateAction)
-        
+
         @CasePathable
         public enum View: BindableAction, Equatable {
             /// - Binding
@@ -85,15 +85,15 @@ public struct PokitRootFeature {
             /// - Kebob
             case kebobButtonTapped(BaseCategoryItem)
             case unclassifiedKebobButtonTapped(BaseContentItem)
-            
+
             case categoryTapped(BaseCategoryItem)
             case contentItemTapped(BaseContentItem)
-            
+
             case pokitRootViewOnAppeared
 
             case 다음페이지_로딩_presented
         }
-        
+
         public enum InnerAction: Equatable {
             case pokitCategorySheetPresented(Bool)
             case pokitDeleteSheetPresented(Bool)
@@ -105,23 +105,23 @@ public struct PokitRootFeature {
             case 컨텐츠_삭제(contentId: Int)
             case 페이지네이션_초기화
         }
-        
+
         public enum AsyncAction: Equatable {
             case 포킷삭제(categoryId: Int)
             case 미분류_카테고리_컨텐츠_조회
             case 목록조회_갱신용
         }
-        
+
         public enum ScopeAction: Equatable {
             case bottomSheet(PokitBottomSheet.Delegate)
             case deleteBottomSheet(PokitDeleteBottomSheet.Delegate)
         }
-        
+
         public enum DelegateAction: Equatable {
             case searchButtonTapped
             case alertButtonTapped
             case settingButtonTapped
-            
+
             case categoryTapped(BaseCategoryItem)
             case 수정하기(BaseCategoryItem)
             case 링크수정하기(id: Int)
@@ -130,7 +130,7 @@ public struct PokitRootFeature {
             case 미분류_카테고리_컨텐츠_조회
         }
     }
-    
+
     /// - Initiallizer
     public init() {}
 
@@ -140,25 +140,25 @@ public struct PokitRootFeature {
             /// - View
         case .view(let viewAction):
             return handleViewAction(viewAction, state: &state)
-            
+
             /// - Inner
         case .inner(let innerAction):
             return handleInnerAction(innerAction, state: &state)
-            
+
             /// - Async
         case .async(let asyncAction):
             return handleAsyncAction(asyncAction, state: &state)
-            
+
             /// - Scope
         case .scope(let scopeAction):
             return handleScopeAction(scopeAction, state: &state)
-            
+
             /// - Delegate
         case .delegate(let delegateAction):
             return handleDelegateAction(delegateAction, state: &state)
         }
     }
-    
+
     /// - Reducer body
     public var body: some ReducerOf<Self> {
         BindingReducer(action: \.view)
@@ -206,11 +206,11 @@ private extension PokitRootFeature {
         case .unclassifiedKebobButtonTapped(let selectedItem):
             state.selectedUnclassifiedItem = selectedItem
             return .run { send in await send(.inner(.pokitCategorySheetPresented(true))) }
-            
+
             /// - 카테고리 항목을 눌렀을 때
         case .categoryTapped(let category):
             return .run { send in await send(.delegate(.categoryTapped(category))) }
-            
+
             /// - 링크 아이템을 눌렀을 때
         case .contentItemTapped(let selectedItem):
             return .run { send in await send(.delegate(.contentDetailTapped(selectedItem))) }
@@ -232,22 +232,22 @@ private extension PokitRootFeature {
             }
         }
     }
-    
+
     /// - Inner Effect
     func handleInnerAction(_ action: Action.InnerAction, state: inout State) -> Effect<Action> {
         switch action {
         case let .pokitCategorySheetPresented(presented):
             state.isKebobSheetPresented = presented
             return .none
-            
+
         case let .pokitDeleteSheetPresented(presented):
             state.isPokitDeleteSheetPresented = presented
             return .none
-            
+
         case let .onAppearResult(classified):
             state.domain.categoryList = classified
             return .none
-            
+
         case .sort:
             switch state.sortType {
             case .sort(.이름순):
@@ -261,23 +261,23 @@ private extension PokitRootFeature {
                 return .send(.inner(.페이지네이션_초기화), animation: .easeInOut)
             default: return .none
             }
-            
+
         case .미분류_카테고리_컨텐츠_갱신(contentList: let contentList):
             state.domain.unclassifiedContentList = contentList
             return .none
-            
+
         case let .분류_페이지네이션_결과(contentList):
             let list = state.domain.categoryList.data ?? []
             guard let newList = contentList.data else { return .none }
-            
+
             state.domain.categoryList = contentList
             state.domain.categoryList.data = list + newList
             return .none
-            
+
         case let .미분류_페이지네이션_결과(contentList):
             let list = state.domain.unclassifiedContentList.data ?? []
             guard let newList = contentList.data else { return .none }
-            
+
             state.domain.unclassifiedContentList = contentList
             state.domain.unclassifiedContentList.data = list + newList
             return .none
@@ -301,7 +301,7 @@ private extension PokitRootFeature {
             }
         }
     }
-    
+
     /// - Async Effect
     func handleAsyncAction(_ action: Action.AsyncAction, state: inout State) -> Effect<Action> {
         switch action {
@@ -340,7 +340,7 @@ private extension PokitRootFeature {
             }
         }
     }
-    
+
     /// - Scope Effect
     func handleScopeAction(_ action: Action.ScopeAction, state: inout State) -> Effect<Action> {
         switch action {
@@ -360,10 +360,10 @@ private extension PokitRootFeature {
                     return .none
                 }
                 return .none
-                
+
             default: return .none
             }
-            
+
         case .bottomSheet(.editCellButtonTapped):
             /// Todo: 수정하기
             switch state.folderType {
@@ -378,7 +378,7 @@ private extension PokitRootFeature {
                     guard let item else { return }
                     await send(.delegate(.링크수정하기(id: item.id)))
                 }
-                
+
             case .folder(.포킷):
                 guard let selectedItem = state.selectedKebobItem else {
                     /// 🚨 Error Case [1]: 항목을 수정하려는데 항목이 없을 때
@@ -393,18 +393,18 @@ private extension PokitRootFeature {
                 }
             default: return .none
             }
-            
+
         case .bottomSheet(.deleteCellButtonTapped):
             return .run { send in
                 await send(.inner(.pokitCategorySheetPresented(false)))
                 await send(.inner(.pokitDeleteSheetPresented(true)))
             }
-            
+
         /// - Pokit Delete BottomSheet Delegate
         case .deleteBottomSheet(.cancelButtonTapped):
             state.isPokitDeleteSheetPresented = false
             return .none
-            
+
         case .deleteBottomSheet(.deleteButtonTapped):
             /// Todo: 삭제하기
             switch state.folderType {
@@ -413,9 +413,9 @@ private extension PokitRootFeature {
                     /// 🚨 Error Case [1]: 항목을 삭제하려는데 항목이 없을 때
                     return .none
                 }
-                
+
                 return .send(.inner(.컨텐츠_삭제(contentId: selectedItem.id)))
-                
+
             case .folder(.포킷):
                 guard let selectedItem = state.selectedKebobItem else {
                     /// 🚨 Error Case [1]: 항목을 삭제하려는데 항목이 없을 때
@@ -426,14 +426,14 @@ private extension PokitRootFeature {
                 }
                 state.domain.categoryList.data?.remove(at: index)
                 state.isPokitDeleteSheetPresented = false
-                
+
                 return .run { send in await send(.async(.포킷삭제(categoryId: selectedItem.id))) }
             default: return .none
             }
         default: return .none
         }
     }
-    
+
     /// - Delegate Effect
     func handleDelegateAction(_ action: Action.DelegateAction, state: inout State) -> Effect<Action> {
         switch action {

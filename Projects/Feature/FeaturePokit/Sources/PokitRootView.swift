@@ -19,7 +19,7 @@ public struct PokitRootView: View {
         GridItem(.flexible(), spacing: 12),
         GridItem(.flexible(), spacing: 0)
     ]
-    
+
     /// - Initializer
     public init(store: StoreOf<PokitRootFeature>) {
         self.store = store
@@ -71,7 +71,7 @@ private extension PokitRootView {
                 shape: .round,
                 action: { send(.filterButtonTapped(.포킷)) }
             )
-            
+
             PokitIconLButton(
                 "미분류",
                 .icon(.info),
@@ -82,9 +82,9 @@ private extension PokitRootView {
                 shape: .round,
                 action: { send(.filterButtonTapped(.미분류)) }
             )
-            
+
             Spacer()
-            
+
             PokitIconLTextLink(
                 store.sortType == .sort(.최신순) ?
                 "최신순" : store.folderType == .folder(.포킷) ? "이름순" : "오래된순",
@@ -95,24 +95,20 @@ private extension PokitRootView {
         }
         .animation(.snappy(duration: 0.7), value: store.folderType)
     }
-    
+
     var cardScrollView: some View {
         Group {
             if store.folderType == .folder(.포킷) {
                 pokitView
-                    .pokitBlurReplaceTransition(.pokitDissolve)
             } else {
                 unclassifiedView
-                    .pokitBlurReplaceTransition(.pokitDissolve)
             }
         }
         .padding(.top, 20)
         .scrollIndicators(.hidden)
-        .animation(.pokitDissolve, value: store.categories?.elements)
-        .animation(.pokitDissolve, value: store.unclassifiedContents?.elements)
         .animation(.pokitDissolve, value: store.folderType)
     }
-    
+
     var pokitView: some View {
         Group {
             if let categories = store.categories {
@@ -124,7 +120,7 @@ private extension PokitRootView {
                             message: "포킷을 생성해 링크를 저장해보세요"
                         )
                         .padding(.top, 36)
-                        
+
                         Spacer()
                     }
                 } else {
@@ -135,7 +131,7 @@ private extension PokitRootView {
             }
         }
     }
-    
+
     @ViewBuilder
     func pokitList(_ categories: IdentifiedArrayOf<BaseCategoryItem>) -> some View {
         ScrollView {
@@ -149,7 +145,7 @@ private extension PokitRootView {
                         )
                     }
                 }
-                
+
                 if store.hasNext {
                     PokitLoading()
                         .onAppear { send(.다음페이지_로딩_presented) }
@@ -158,7 +154,7 @@ private extension PokitRootView {
             .padding(.bottom, 150)
         }
     }
-    
+
     var unclassifiedView: some View {
         Group {
             if let unclassifiedContents = store.unclassifiedContents {
@@ -170,7 +166,7 @@ private extension PokitRootView {
                             message: "다양한 링크를 한 곳에 저장해보세요"
                         )
                         .padding(.top, 36)
-                        
+
                         Spacer()
                     }
                 } else {
@@ -181,7 +177,7 @@ private extension PokitRootView {
             }
         }
     }
-    
+
     @ViewBuilder
     func unclassifiedList(_ unclassifiedContents: IdentifiedArrayOf<BaseContentItem>) -> some View {
         ScrollView {
@@ -189,7 +185,7 @@ private extension PokitRootView {
                 ForEach(unclassifiedContents) { content in
                     let isFirst = content == unclassifiedContents.first
                     let isLast = content == unclassifiedContents.last
-                    
+
                     PokitLinkCard(
                         link: content,
                         action: { send(.contentItemTapped(content)) },
@@ -197,7 +193,7 @@ private extension PokitRootView {
                     )
                     .divider(isFirst: isFirst, isLast: isLast)
                 }
-                
+
                 if store.unclassifiedHasNext {
                     PokitLoading()
                         .onAppear(perform: { send(.다음페이지_로딩_presented) })

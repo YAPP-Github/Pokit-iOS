@@ -176,6 +176,7 @@ private extension ContentSettingFeature {
                 scheduler: DispatchQueue.main,
                 latest: true
             )
+            return .none
         case .binding:
             return .none
         case .pokitSelectButtonTapped:
