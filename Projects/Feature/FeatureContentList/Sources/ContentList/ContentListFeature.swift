@@ -76,6 +76,7 @@ public struct ContentListFeature {
             /// - On Appeared
             case contentListViewOnAppeared
             case pagenation
+            
             case 링크_공유_완료(completed: Bool)
         }
 

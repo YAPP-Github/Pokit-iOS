@@ -45,6 +45,7 @@ public struct ContentDetailFeature {
         var linkImageURL: String? = nil
         var showAlert: Bool = false
         var showLinkPreview = false
+        var showShareSheet: Bool = false
     }
 
     /// - Action
@@ -67,6 +68,9 @@ public struct ContentDetailFeature {
             case deleteButtonTapped
             case deleteAlertConfirmTapped
             case favoriteButtonTapped
+            case alertCancelButtonTapped
+
+            case 링크_공유_완료(completed: Bool)
         }
 
         public enum InnerAction: Equatable {
@@ -140,6 +144,7 @@ private extension ContentDetailFeature {
                 await send(.async(.컨텐츠_상세_조회(id: id)))
             }
         case .sharedButtonTapped:
+            state.showShareSheet = true
             return .none
         case .editButtonTapped:
             guard let content = state.domain.content else { return .none }
@@ -170,6 +175,12 @@ private extension ContentDetailFeature {
                     await send(.async(.즐겨찾기(id: content.id)))
                 }
             }
+        case .링크_공유_완료(completed: let completed):
+            state.showShareSheet = !completed
+            return .none
+        case .alertCancelButtonTapped:
+            state.showAlert = false
+            return .none
         }
     }
 

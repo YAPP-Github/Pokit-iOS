@@ -53,8 +53,19 @@ public extension ContentDetailView {
                     "링크를 정말 삭제하시겠습니까?",
                     message: "함께 저장한 모든 정보가 삭제되며, \n복구하실 수 없습니다.",
                     confirmText: "삭제",
-                    action: { send(.deleteAlertConfirmTapped) }
+                    action: { send(.deleteAlertConfirmTapped) },
+                    cancelAction: { send(.alertCancelButtonTapped) }
                 )
+            }
+            .sheet(isPresented: $store.showShareSheet) {
+                if let content = store.content,
+                   let shareURL = URL(string: content.data) {
+                    PokitShareSheet(
+                        items: [shareURL],
+                        completion: { send(.링크_공유_완료(completed: $0)) }
+                    )
+                    .presentationDetents([.medium, .large])
+                }
             }
             .task {
                 await send(.contentDetailViewOnAppeared, animation: .pokitDissolve).finish()
