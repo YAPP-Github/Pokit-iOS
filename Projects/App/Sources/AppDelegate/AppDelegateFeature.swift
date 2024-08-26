@@ -7,6 +7,7 @@
 
 import Foundation
 
+import FirebaseCore
 import ComposableArchitecture
 import CoreKit
 import KakaoSDKCommon
@@ -15,6 +16,7 @@ import KakaoSDKCommon
 public struct AppDelegateFeature {
     @Dependency(\.userNotifications) var userNotifications
     @Dependency(\.remoteNotifications.register) var registerForRemoteNotifications
+    @Dependency(\.userDefaults) var userDefaults
     
     @ObservableState
     public struct State {
@@ -25,7 +27,7 @@ public struct AppDelegateFeature {
     
     public enum Action {
         case didFinishLaunching
-        case didRegisterForRemoteNotifications(Result<String, Error>)
+        case didRegisterForRemoteNotifications(Result<Data, Error>)
         case userNotifications(UserNotificationClient.DelegateEvent)
         case root(RootFeature.Action)
     }
@@ -39,6 +41,7 @@ public struct AppDelegateFeature {
         Reduce { state, action in
             switch action {
             case .didFinishLaunching:
+                FirebaseApp.configure()
                 let userNotificationsEventStream = self.userNotifications.delegate()
                 if let kakaoAppKey = Bundle.main.object(forInfoDictionaryKey: "KAKAO_NATIVE_APP_KEY") as? String {
                     print("카카오 네이티브 앱 키: \(kakaoAppKey)")
@@ -60,9 +63,7 @@ public struct AppDelegateFeature {
                                 else { return }
                             case .notDetermined, .provisional:
                                 guard try await self.userNotifications.requestAuthorization(.provisional)
-                                else {
-                                    return
-                                }
+                                else { return }
                             default: return
                             }
                             await self.registerForRemoteNotifications()
@@ -71,12 +72,10 @@ public struct AppDelegateFeature {
                 }
             case .didRegisterForRemoteNotifications(.failure):
                 return .none
-            case let .didRegisterForRemoteNotifications(.success(token)):
-                return .run { _ in
-                    let settings = await self.userNotifications.getNotificationSettings()
-                    /// Network
-                } catch: { _, _ in
-                }
+            case let .didRegisterForRemoteNotifications(.success(tokenData)):
+                let token = tokenData.map { String(format: "%02.2hhx", $0) }.joined()
+                return .run { _ in await userDefaults.setString(token, .fcmToken) } 
+                catch: { _, _ in }
             case let .userNotifications(.willPresentNotification(_, completionHandler)):
                 return .run { _ in completionHandler(.banner) }
             case .userNotifications:
