@@ -44,7 +44,7 @@ public struct CategorySharingFeature {
         public init(sharedCategory: CategorySharing.SharedCategory) {
             domain = .init(
                 sharedCategory: sharedCategory,
-                pageable: .init(
+                pageable: BasePageable(
                     page: 0,
                     size: 10,
                     sort: ["desc"]
@@ -167,14 +167,15 @@ private extension CategorySharingFeature {
     func handleAsyncAction(_ action: Action.AsyncAction, state: inout State) -> Effect<Action> {
         switch action {
         case .공유받은_카테고리_조회:
+            state.domain.pageable.page += 1
             return .run { [
                 categoryId = state.domain.sharedCategory.category.categoryId,
                 pageable = state.domain.pageable
             ] send in
                 let sharedCategory = try await categoryClient.공유받은_카테고리_조회(
                     "\(categoryId)",
-                    .init(
-                        page: pageable.page + 1,
+                    BasePageableRequest(
+                        page: pageable.page,
                         size: pageable.size,
                         sort: pageable.sort
                     )

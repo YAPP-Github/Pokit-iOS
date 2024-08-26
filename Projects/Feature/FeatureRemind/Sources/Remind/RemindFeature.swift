@@ -215,7 +215,7 @@ private extension RemindFeature {
         case .읽지않음_컨텐츠_조회:
             return .run { [pageable = state.domain.unreadListPageable] send in
                 let contentList = try await remindClient.읽지않음_컨텐츠_조회(
-                    .init(
+                    BasePageableRequest(
                         page: pageable.page,
                         size: pageable.size,
                         sort: pageable.sort
@@ -226,7 +226,7 @@ private extension RemindFeature {
         case .즐겨찾기_링크모음_조회:
             return .run { [pageable = state.domain.favoriteListPageable] send in
                 let contentList = try await remindClient.즐겨찾기_링크모음_조회(
-                    .init(
+                    BasePageableRequest(
                         page: pageable.page,
                         size: pageable.size,
                         sort: pageable.sort

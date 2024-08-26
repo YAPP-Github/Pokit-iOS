@@ -217,7 +217,7 @@ private extension FilterBottomFeature {
         case .카테고리_목록_조회:
             return .run { [pageable = state.domain.pageable] send in
                 let categoryList = try await categoryClient.카테고리_목록_조회(
-                    .init(
+                    BasePageableRequest(
                         page: pageable.page,
                         size: pageable.size,
                         sort: pageable.sort

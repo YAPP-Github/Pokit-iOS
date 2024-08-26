@@ -179,7 +179,7 @@ private extension PokitCategorySettingFeature {
                     guard let categoryId = domain.categoryId else { return }
                     guard let image = domain.categoryImage else { return }
                     try await categoryClient.공유받은_카테고리_저장(
-                        .init(
+                        CopiedCategoryRequest(
                             originCategoryId: categoryId,
                             categoryName: domain.categoryName,
                             categoryImageId: image.id
@@ -191,7 +191,7 @@ private extension PokitCategorySettingFeature {
                 guard let errorResponse = error as? ErrorResponse else {
                     return
                 }
-                await send(.inner(.포킷_오류_핸들링(.init(response: errorResponse))))
+                await send(.inner(.포킷_오류_핸들링(BaseError(response: errorResponse))))
             }
             
         case .onAppear:
@@ -224,12 +224,8 @@ private extension PokitCategorySettingFeature {
             state.domain.categoryListInQuiry = response
             return .none
         case let .포킷_오류_핸들링(baseError):
-            switch baseError {
-            case let .CA_001(message):
-                state.pokitNameTextInpuState = .error(message: message)
-                return .none
-            default: return .none
-            }
+            state.pokitNameTextInpuState = .error(message: baseError.message)
+            return .none
         }
     }
     

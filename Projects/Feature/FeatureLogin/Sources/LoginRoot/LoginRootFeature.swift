@@ -117,16 +117,16 @@ private extension LoginRootFeature {
     func handleInnerAction(_ action: Action.InnerAction, state: inout State) -> Effect<Action> {
         switch action {
         case .pushAgreeToTermsView:
-            state.path.append(.agreeToTerms(.init()))
+            state.path.append(.agreeToTerms(AgreeToTermsFeature.State()))
             return .none
         case .pushRegisterNicknameView:
-            state.path.append(.registerNickname(.init()))
+            state.path.append(.registerNickname(RegisterNicknameFeature.State()))
             return .none
         case .pushSelectFieldView(let nickname):
-            state.path.append(.selecteField(.init(nickname: nickname)))
+            state.path.append(.selecteField(SelectFieldFeature.State(nickname: nickname)))
             return .none
         case .pushSignUpDoneView:
-            state.path.append(.signUpDone(.init()))
+            state.path.append(.signUpDone(SignUpDoneFeature.State()))
             return .none
         case let .애플로그인(response):
             return .run { send in

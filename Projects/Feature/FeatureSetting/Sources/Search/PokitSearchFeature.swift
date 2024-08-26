@@ -432,12 +432,12 @@ private extension PokitSearchFeature {
                 endDateString
             ] send in
                 let contentList = try await contentClient.컨텐츠_검색(
-                    .init(
+                    BasePageableRequest(
                         page: pageable.page,
                         size: pageable.size,
                         sort: pageable.sort
                     ),
-                    .init(
+                    BaseConditionRequest(
                         searchWord: condition.searchWord,
                         categoryIds: condition.categoryIds,
                         isRead: condition.isRead,

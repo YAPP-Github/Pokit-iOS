@@ -15,6 +15,7 @@ import FeatureContentDetail
 import FeatureContentSetting
 import FeatureContentList
 import FeatureCategorySharing
+import Domain
 
 @Reducer
 public struct MainTabPath {
@@ -202,9 +203,9 @@ public extension MainTabFeature {
                 
             /// 링크 공유에서 컨텐츠 상세보기
             case let .path(.element(_, action: .링크공유(.delegate(.컨텐츠_아이템_클릭(categoryId: categoryId, content: content))))):
-                state.contentDetail = ContentDetailFeature.State(content: .init(
+                state.contentDetail = ContentDetailFeature.State(content: BaseContentDetail(
                     id: content.id,
-                    category: .init(
+                    category: BaseCategoryInfo(
                         categoryId: categoryId,
                         categoryName: content.categoryName
                     ),
@@ -218,10 +219,10 @@ public extension MainTabFeature {
                 return .none
             
             case let .path(.element(_, action: .링크공유(.delegate(.공유받은_카테고리_추가(sharedCategory))))):
-                state.path.append(.포킷추가및수정(.init(
+                state.path.append(.포킷추가및수정(PokitCategorySettingFeature.State(
                     type: .공유추가,
                     categoryId: sharedCategory.categoryId,
-                    categoryImage: .init(
+                    categoryImage: BaseCategoryImage(
                         imageId: sharedCategory.categoryImageId,
                         imageURL: sharedCategory.categoryImageUrl
                     ),
