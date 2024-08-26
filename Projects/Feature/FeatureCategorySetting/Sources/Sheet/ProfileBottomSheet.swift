@@ -16,9 +16,9 @@ public struct ProfileBottomSheet: View {
     @State private var images: [BaseCategoryImage]
     let selectedImage: BaseCategoryImage?
     private let colmumns = [
-        GridItem(.fixed(66), spacing: 20),
-        GridItem(.fixed(66), spacing: 20),
-        GridItem(.fixed(66), spacing: 0)
+        GridItem(.fixed(72), spacing: 20),
+        GridItem(.fixed(72), spacing: 20),
+        GridItem(.fixed(72), spacing: 0)
     ]
     private let delegateSend: ((ProfileBottomSheet.Delegate) -> Void)?
     
@@ -42,18 +42,18 @@ public extension ProfileBottomSheet {
                 ForEach(images) { item in
                     LazyImage(
                         url: URL(string: item.imageURL),
-                        transaction: .init(animation: .smooth)
+                        transaction: .init(animation: .pokitDissolve)
                     ) { phase in
                         if let image = phase.image {
                             Button(action: { delegateSend?(.imageSelected(item)) }) {
                                 image
                                     .resizable()
-                                    .roundedCorner(12, corners: .allCorners)
+                                    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
                             }
                             .buttonStyle(.plain)
                             .overlay {
                                 if let selectedImage, item.imageURL == selectedImage.imageURL {
-                                    RoundedRectangle(cornerRadius: 12)
+                                    RoundedRectangle(cornerRadius: 12, style: .continuous)
                                         .stroke(.pokit(.border(.brand)), lineWidth: 2)
                                 }
                             }
@@ -63,19 +63,17 @@ public extension ProfileBottomSheet {
                                 .frame(width: 48, height: 48)
                         }
                     }
-                    .frame(width: 66, height: 66)
+                    .frame(width: 72, height: 72)
                     
                 }
             }
             .padding(.vertical, 12)
             .background(.white)
         }
-        .padding(.top)
-        .padding(.top, 26)
-        .padding(.bottom, 36)
+        .padding(.top, 36)
+        .padding(.bottom, 28)
         .fixedSize(horizontal: false, vertical: true)
         .scrollIndicators(.hidden)
-        .ignoresSafeArea(edges: .bottom)
         .background(.pokit(.bg(.base)))
         .pokitPresentationCornerRadius()
         .pokitPresentationBackground()
@@ -87,6 +85,7 @@ public extension ProfileBottomSheet {
             }
         }
         .presentationDetents([.height(height)])
+        .ignoresSafeArea(edges: .bottom)
     }
 }
 //MARK: - Delegate

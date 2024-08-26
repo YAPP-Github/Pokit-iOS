@@ -119,7 +119,7 @@ public struct PokitLinkCard<Item: PokitLinkCardItem>: View {
                     }
                 }
             }
-            .animation(.smooth, value: phase.image)
+            .animation(.pokitDissolve, value: phase.image)
         }
         .frame(width: 124, height: 94)
         .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))

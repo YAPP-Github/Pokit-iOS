@@ -11,4 +11,8 @@ public extension Animation {
     static var pokitSpring: Animation {
         return .spring(bounce: 0.3)
     }
+    
+    static var pokitDissolve: Animation {
+        return .easeInOut(duration: 0.2)
+    }
 }

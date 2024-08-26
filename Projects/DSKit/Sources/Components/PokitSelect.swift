@@ -50,7 +50,7 @@ public struct PokitSelect<Item: PokitSelectItem>: View {
             listSheet
                 .presentationDragIndicator(.visible)
                 .pokitPresentationCornerRadius()
-                .presentationDetents([.medium, .large])
+                .presentationDetents([.medium])
                 .pokitPresentationBackground()
         }
     }
@@ -90,7 +90,7 @@ public struct PokitSelect<Item: PokitSelectItem>: View {
                 RoundedRectangle(cornerRadius: 8, style: .continuous)
                     .stroke(self.state.backgroundStrokeColor, lineWidth: 1)
             }
-            .animation(.smooth, value: self.state)
+            .animation(.pokitDissolve, value: self.state)
     }
     
     private var listSheet: some View {
@@ -103,7 +103,7 @@ public struct PokitSelect<Item: PokitSelectItem>: View {
                     action(item)
                     listCellTapped(item)
                 }
-                .padding(.top, 24)
+                .padding(.top, 36)
                 .padding(.bottom, 20)
             } else {
                 PokitLoading()
@@ -116,7 +116,7 @@ public struct PokitSelect<Item: PokitSelectItem>: View {
     }
     
     private func listCellTapped(_ item: Item) {
-        withAnimation(.smooth) {
+        withAnimation(.pokitDissolve) {
             self.selectedItem = item
         }
         showSheet = false

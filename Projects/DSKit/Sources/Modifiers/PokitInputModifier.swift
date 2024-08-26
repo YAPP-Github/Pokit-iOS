@@ -32,7 +32,7 @@ struct PokitInputModifier: ViewModifier {
                             .stroke(backgroundStrokeColor, lineWidth: 1)
                     }
             }
-            .animation(.smooth, value: state)
+            .animation(.pokitDissolve, value: state)
     }
 }
 

@@ -129,7 +129,7 @@ private extension PokitSearchView {
                     Text("검색 내역이 없습니다.")
                         .pokitFont(.b3(.r))
                         .foregroundStyle(.pokit(.text(.tertiary)))
-                        .pokitBlurReplaceTransition(.smooth)
+                        .pokitBlurReplaceTransition(.pokitDissolve)
                         .padding(.vertical, 5)
                 } else {
                     recentSearchList
@@ -138,7 +138,7 @@ private extension PokitSearchView {
                 Text("최근 검색 저장 기능이 꺼져있습니다.")
                     .pokitFont(.b3(.r))
                     .foregroundStyle(.pokit(.text(.tertiary)))
-                    .pokitBlurReplaceTransition(.smooth)
+                    .pokitBlurReplaceTransition(.pokitDissolve)
                     .padding(.vertical, 5)
             }
         }
@@ -165,7 +165,7 @@ private extension PokitSearchView {
             .padding(.horizontal, 20)
             .padding(.vertical, 1)
         }
-        .pokitBlurReplaceTransition(.smooth)
+        .pokitBlurReplaceTransition(.pokitDissolve)
     }
     
     var filterToolbar: some View {
@@ -188,7 +188,7 @@ private extension PokitSearchView {
             }
         }
         .padding(.leading, 20)
-        .pokitBlurReplaceTransition(.smooth)
+        .pokitBlurReplaceTransition(.pokitDissolve)
     }
     
     var filterButton: some View {
@@ -220,7 +220,7 @@ private extension PokitSearchView {
                         size: .small,
                         action: { send(.categoryFilterChipTapped(category: category), animation: .pokitSpring) }
                     )
-                    .pokitBlurReplaceTransition(.smooth)
+                    .pokitBlurReplaceTransition(.pokitDissolve)
                 }
             }
         }
@@ -244,7 +244,7 @@ private extension PokitSearchView {
                         size: .small,
                         action: { send(.favoriteChipTapped, animation: .pokitSpring) }
                     )
-                    .pokitBlurReplaceTransition(.smooth)
+                    .pokitBlurReplaceTransition(.pokitDissolve)
                 }
                 
                 if store.unreadFilter {
@@ -254,7 +254,7 @@ private extension PokitSearchView {
                         size: .small,
                         action: { send(.unreadChipTapped, animation: .pokitSpring) }
                     )
-                    .pokitBlurReplaceTransition(.smooth)
+                    .pokitBlurReplaceTransition(.pokitDissolve)
                 }
             }
         }
@@ -268,7 +268,7 @@ private extension PokitSearchView {
             size: .small,
             action: { send(.dateFilterButtonTapped, animation: .pokitSpring) }
         )
-        .pokitBlurReplaceTransition(.smooth)
+        .pokitBlurReplaceTransition(.pokitDissolve)
     }
     
     var resultList: some View {
@@ -276,7 +276,7 @@ private extension PokitSearchView {
             PokitIconLTextLink(
                 store.isResultAscending ? "최신순" : "오래된순",
                 icon: .icon(.align),
-                action: { send(.sortTextLinkTapped, animation: .smooth) }
+                action: { send(.sortTextLinkTapped, animation: .pokitDissolve) }
             )
             .contentTransition(.numericText())
             .padding(.horizontal, 20)

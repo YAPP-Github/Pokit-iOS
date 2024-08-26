@@ -16,8 +16,6 @@ public struct ContentSettingView: View {
     public var store: StoreOf<ContentSettingFeature>
     @FocusState
     private var focusedType: FocusedType?
-    @Namespace
-    private var heroEffect
     /// - Initializer
     public init(store: StoreOf<ContentSettingFeature>) {
         self.store = store
@@ -105,7 +103,7 @@ private extension ContentSettingView {
                     url: store.urlText,
                     imageURL: store.linkImageURL ?? "https://pokit-storage.s3.ap-northeast-2.amazonaws.com/logo/pokit.png"
                 )
-                .pokitBlurReplaceTransition(.smooth)
+                .pokitBlurReplaceTransition(.pokitDissolve)
             }
             
             PokitTextInput(
@@ -170,7 +168,7 @@ private extension ContentSettingView {
                     to: .no,
                     style: .stroke
                 )
-                .matchedGeometryEffectBackground(id: heroEffect)
+                .background()
                 
                 PokitPartSwitchRadio(
                     labelText: "받을래요",
@@ -178,7 +176,7 @@ private extension ContentSettingView {
                     to: .yes,
                     style: .stroke
                 )
-                .matchedGeometryEffectBackground(id: heroEffect)
+                .background()
             }
             .padding(.bottom, 8)
             

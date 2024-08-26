@@ -37,7 +37,7 @@ public struct PokitCard<Item: PokitCardItem>: View {
             HStack {
                 title
                 
-                Spacer()
+                Spacer(minLength: 28)
             }
             .overlay(alignment: .trailing) {
                 kebabButton
@@ -100,9 +100,9 @@ public struct PokitCard<Item: PokitCardItem>: View {
                         .frame(width: 48, height: 48)
                 }
             }
-            .animation(.smooth, value: state.image)
+            .animation(.pokitDissolve, value: state.image)
         }
-        .frame(width: 68, height: 68)
+        .frame(width: 84, height: 84)
     }
     
     private var background: some View {

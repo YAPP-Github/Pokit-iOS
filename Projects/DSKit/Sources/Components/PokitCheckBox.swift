@@ -59,11 +59,11 @@ public struct PokitCheckBox: View {
                 RoundedRectangle(cornerRadius: self.shape.radius, style: .continuous)
                     .stroke(self.state.backgroundStrokeColor, lineWidth: 1)
             }
-            .animation(.smooth, value: self.state)
+            .animation(.pokitDissolve, value: self.state)
     }
     
     private func buttonTapped() {
-        withAnimation(.pokitSpring) {
+        withAnimation(.pokitDissolve) {
             isSelected.toggle()
         }
         action?()

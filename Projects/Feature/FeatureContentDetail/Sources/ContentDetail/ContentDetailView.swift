@@ -43,7 +43,6 @@ public extension ContentDetailView {
             }
             .padding(.top, 28)
             .ignoresSafeArea(edges: .bottom)
-            .padding(.bottom, 40)
             .background(.pokit(.bg(.base)))
             .pokitPresentationBackground()
             .pokitPresentationCornerRadius()
@@ -58,7 +57,7 @@ public extension ContentDetailView {
                 )
             }
             .task {
-                await send(.contentDetailViewOnAppeared, animation: .smooth).finish()
+                await send(.contentDetailViewOnAppeared, animation: .pokitDissolve).finish()
             }
         }
     }
@@ -125,7 +124,7 @@ private extension ContentDetailView {
                     url: content.data,
                     imageURL: store.linkImageURL ?? "https://pokit-storage.s3.ap-northeast-2.amazonaws.com/logo/pokit.png"
                 )
-                .pokitBlurReplaceTransition(.smooth)
+                .pokitBlurReplaceTransition(.pokitDissolve)
             }
             
             contentMemo(content: content)
@@ -135,12 +134,21 @@ private extension ContentDetailView {
     
     @ViewBuilder
     func contentMemo(content: BaseContentDetail) -> some View {
+        let isEmpty = content.memo.isEmpty
+        
         HStack {
             VStack {
-                Text(content.memo)
-                    .pokitFont(.b3(.r))
-                    .foregroundStyle(.pokit(.text(.primary)))
-                    .multilineTextAlignment(.leading)
+                Group {
+                    if isEmpty {
+                        Text("메모를 작성해보세요.")
+                            .foregroundStyle(.pokit(.text(.tertiary)))
+                    } else {
+                        Text(content.memo)
+                            .foregroundStyle(.pokit(.text(.primary)))
+                    }
+                }
+                .pokitFont(.b3(.r))
+                .multilineTextAlignment(.leading)
                 
                 Spacer()
             }
@@ -157,10 +165,10 @@ private extension ContentDetailView {
     
     @ViewBuilder
     func favorite(content: BaseContentDetail) -> some View {
-        Button(action: { send(.favoriteButtonTapped, animation: .smooth) }) {
+        Button(action: { send(.favoriteButtonTapped, animation: .pokitDissolve) }) {
             let isFavorite = content.favorites
             
-            Image(isFavorite ? .icon(.starFill) : .icon(.star))
+            Image(isFavorite ? .icon(.starFill) : .icon(.starFill))
                 .resizable()
                 .scaledToFit()
                 .foregroundStyle(.pokit(.icon(isFavorite ? .brand : .tertiary)))
@@ -191,6 +199,7 @@ private extension ContentDetailView {
             )
         }
         .padding(.top, 12)
+        .padding(.bottom, 40)
         .padding(.horizontal, 16)
         .background(.pokit(.bg(.base)))
         .overlay(alignment: .top) {

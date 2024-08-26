@@ -26,10 +26,11 @@ public struct FilterBottomSheet: View {
 public extension FilterBottomSheet {
     var body: some View {
         WithPerceptionTracking {
-            VStack(spacing: 4) {
+            VStack(spacing: 0) {
                 tabs
                     .padding(.horizontal, 20)
                     .padding(.top, 36)
+                    .padding(.bottom, 16)
                 
                 switch store.currentType {
                 case .pokit:
@@ -75,21 +76,21 @@ private extension FilterBottomSheet {
                 selection: $store.currentType,
                 to: .pokit
             )
-            .matchedGeometryEffectBackground(id: heroEffect)
+            .backgound()
             
             PokitPartTap(
                 "모아보기",
                 selection: $store.currentType,
                 to: .contentType
             )
-            .matchedGeometryEffectBackground(id: heroEffect)
+            .backgound()
             
             PokitPartTap(
                 "기간",
                 selection: $store.currentType,
                 to: .date
             )
-            .matchedGeometryEffectBackground(id: heroEffect)
+            .backgound()
         }
     }
     
@@ -137,7 +138,7 @@ private extension FilterBottomSheet {
                     baseState: .default,
                     selectedState: .filled,
                     isSelected: isSelected,
-                    shape: .round
+                    shape: .rectangle
                 )
                 
                 Text(title)
@@ -146,7 +147,8 @@ private extension FilterBottomSheet {
                 
                 Spacer()
             }
-            .padding(24)
+            .padding(.horizontal, 24)
+            .padding(.vertical, 16)
         }
     }
     
@@ -160,7 +162,7 @@ private extension FilterBottomSheet {
                         size: .small,
                         action: { send(.pokitChipTapped(category), animation: .pokitSpring) }
                     )
-                    .pokitBlurReplaceTransition(.smooth)
+                    .pokitBlurReplaceTransition(.pokitDissolve)
                 }
                 
                 if store.isFavorite {
@@ -170,7 +172,7 @@ private extension FilterBottomSheet {
                         size: .small,
                         action: { send(.favoriteChipTapped, animation: .pokitSpring) }
                     )
-                    .pokitBlurReplaceTransition(.smooth)
+                    .pokitBlurReplaceTransition(.pokitDissolve)
                 }
                 
                 if store.isUnread {
@@ -180,7 +182,7 @@ private extension FilterBottomSheet {
                         size: .small,
                         action: { send(.unreadChipTapped, animation: .pokitSpring) }
                     )
-                    .pokitBlurReplaceTransition(.smooth)
+                    .pokitBlurReplaceTransition(.pokitDissolve)
                 }
                 
                 if store.dateSelected {
@@ -191,7 +193,7 @@ private extension FilterBottomSheet {
                         size: .small,
                         action: { send(.dateChipTapped, animation: .pokitSpring) }
                     )
-                    .pokitBlurReplaceTransition(.smooth)
+                    .pokitBlurReplaceTransition(.pokitDissolve)
                     .contentTransition(.numericText())
                 }
             }

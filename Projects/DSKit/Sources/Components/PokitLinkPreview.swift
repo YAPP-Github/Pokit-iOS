@@ -47,7 +47,7 @@ public struct PokitLinkPreview: View {
                             .frame(width: 48, height: 48)
                     }
                 }
-                .animation(.smooth, value: phase.image)
+                .animation(.pokitDissolve, value: phase.image)
             }
             .frame(width: 124, height: 108)
             

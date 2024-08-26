@@ -130,7 +130,7 @@ private extension MainTabView {
             }
             .task { await send(.onAppear).finish() }
     }
-
+    
     var tabView: some View {
         TabView(selection: $store.selectedTab) {
             switch store.selectedTab {
@@ -146,7 +146,7 @@ private extension MainTabView {
             }
         }
     }
-
+    
     var pokitNavigationBar: some View {
         PokitHeader {
             PokitHeaderItems(placement: .leading) {
@@ -173,7 +173,7 @@ private extension MainTabView {
         }
         .padding(.vertical, 8)
     }
-
+    
     var remindNavigationBar: some View {
         PokitHeader {
             PokitHeaderItems(placement: .leading) {
@@ -195,34 +195,16 @@ private extension MainTabView {
         }
         .padding(.vertical, 8)
     }
-
+    
     var bottomTabBar: some View {
         HStack(alignment: .bottom, spacing: 0) {
-            ForEach(MainTab.allCases, id: \.self) { tab in
-                let isSelected: Bool = store.selectedTab == tab
-
-                VStack(spacing: 4) {
-                    Image(tab.icon)
-                        .renderingMode(.template)
-                        .foregroundStyle(
-                            isSelected
-                            ? .pokit(.icon(.primary))
-                            : .pokit(.icon(.tertiary))
-                        )
-                    Text(tab.title)
-                        .foregroundStyle(
-                            isSelected
-                            ? .pokit(.text(.primary))
-                            : .pokit(.text(.tertiary))
-                        )
-                        .pokitFont(.detail2)
-                }
-                .frame(maxWidth: .infinity)
-                .onTapGesture {
-                    store.send(.binding(.set(\.selectedTab, tab)))
-                }
-            }
+            bottomTabBarItem(.pokit)
+            
+            Spacer()
+            
+            bottomTabBarItem(.remind)
         }
+        .padding(.horizontal, 48)
         .padding(.top, 12)
         .padding(.bottom, 36)
         .background {
@@ -241,53 +223,90 @@ private extension MainTabView {
         .padding(.top, 30)
         .overlay(alignment: .top) {
             Button(action: { send(.addButtonTapped) }) {
-                Circle()
-                    .foregroundStyle(.pokit(.bg(.brand)))
-                    .overlay {
-                        Image(.icon(.plus))
-                            .resizable()
-                            .frame(width: 36, height: 36)
-                            .padding(11)
-                            .foregroundStyle(.pokit(.icon(.inverseWh)))
+                Image(.icon(.plus))
+                    .resizable()
+                    .frame(width: 36, height: 36)
+                    .padding(12)
+                    .foregroundStyle(.pokit(.icon(.inverseWh)))
+                    .background {
+                        RoundedRectangle(cornerRadius: 9999, style: .continuous)
+                            .fill(.pokit(.bg(.brand)))
                     }
                     .frame(width: 60, height: 60)
             }
         }
         .animation(.spring, value: store.selectedTab)
     }
+    
+    @ViewBuilder
+    func bottomTabBarItem(_ tab: MainTab) -> some View {
+        let isSelected: Bool = store.selectedTab == tab
+        
+        VStack(spacing: 4) {
+            Image(tab.icon)
+                .renderingMode(.template)
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: 24, height: 24)
+                .foregroundStyle(
+                    isSelected
+                    ? .pokit(.icon(.primary))
+                    : .pokit(.icon(.tertiary))
+                )
+            
+            Text(tab.title)
+                .foregroundStyle(
+                    isSelected
+                    ? .pokit(.text(.primary))
+                    : .pokit(.text(.tertiary))
+                )
+                .pokitFont(.detail2)
+        }
+        .padding(.horizontal, 28)
+        .onTapGesture {
+            store.send(.binding(.set(\.selectedTab, tab)))
+        }
+    }
+    
     struct AddSheet: View {
         @State private var height: CGFloat = 0
         var action: (TabAddSheetType) -> Void
-
+        
         var body: some View {
             HStack(spacing: 20) {
+                Spacer()
+                
                 ForEach(TabAddSheetType.allCases, id: \.self) { type in
                     Button(action: { action(type) }) {
                         VStack(spacing: 4) {
+                            Spacer()
+                            
                             type.icon
                                 .renderingMode(.template)
                                 .resizable()
-                                .frame(width: 24, height: 24)
-                                .foregroundStyle(.pokit(.text(.inverseWh)))
-                                .padding(3.2)
-                                .padding(.horizontal, 8)
+                                .aspectRatio(contentMode: .fit)
+                                .frame(width: 28, height: 28)
+                                .foregroundStyle(.pokit(.icon(.inverseWh)))
+                            
                             Text(type.title)
                                 .pokitFont(.b3(.m))
                                 .foregroundStyle(.pokit(.text(.inverseWh)))
+                            
+                            Spacer()
                         }
-                        .padding(.vertical, 21)
                         .padding(.horizontal, 24)
                         .background {
-                            RoundedRectangle(cornerRadius: 12)
+                            RoundedRectangle(cornerRadius: 12, style: .continuous)
                                 .foregroundStyle(.pokit(.bg(.brand)))
                         }
+                        .frame(height: 96)
                     }
                 }
+                
+                Spacer()
             }
-            .padding(.top)
-            .padding(.top, 24)
-            .padding(.bottom, 12)
-            .background(.white)
+            .padding(.top, 36)
+            .padding(.bottom, 48)
             .pokitPresentationCornerRadius()
             .pokitPresentationBackground()
             .presentationDragIndicator(.visible)
@@ -298,7 +317,6 @@ private extension MainTabView {
                 }
             }
             .presentationDetents([.height(self.height)])
-
         }
     }
 }

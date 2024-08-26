@@ -80,10 +80,10 @@ extension SelectFieldView {
                     state: isSelected ? .filled(.primary) : isMaxCount ? .disable : .default(.primary),
                     size: .medium
                 ) {
-                    send(.fieldChipTapped(field), animation: .smooth)
+                    send(.fieldChipTapped(field), animation: .pokitDissolve)
                 }
             }
-            .animation(.pokitSpring, value: store.fields)
+            .animation(.pokitDissolve, value: store.fields)
         }
     }
 }

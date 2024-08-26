@@ -227,7 +227,7 @@ private extension ContentSettingFeature {
                 }
                 await send(
                     .inner(.parsingInfo(title: title, imageURL: imageURL)),
-                    animation: .smooth
+                    animation: .pokitDissolve
                 )
             }
         case let .parsingInfo(title: title, imageURL: imageURL):
@@ -249,7 +249,7 @@ private extension ContentSettingFeature {
                 state.domain.thumbNail = nil
                 return .none
             }
-            return .send(.inner(.fetchMetadata(url: url)), animation: .smooth)
+            return .send(.inner(.fetchMetadata(url: url)), animation: .pokitDissolve)
         case .showPopup:
             state.showMaxCategoryPopup = true
             return .none
@@ -336,7 +336,7 @@ private extension ContentSettingFeature {
                     ),
                     false
                 ).toDomain()
-                await send(.inner(.카테고리_목록_갱신(categoryList: categoryList)), animation: .smooth)
+                await send(.inner(.카테고리_목록_갱신(categoryList: categoryList)), animation: .pokitDissolve)
             }
         case .컨텐츠_수정:
             guard let contentId = state.domain.contentId else {

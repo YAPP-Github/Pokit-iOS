@@ -34,7 +34,7 @@ public struct PokitPartTap<Selection: Equatable>: View {
     
     private var tapButton: some View {
         Button {
-            withAnimation(.smooth) {
+            withAnimation(.pokitDissolve) {
                 selection = current
             }
             action?()
@@ -65,6 +65,18 @@ public struct PokitPartTap<Selection: Equatable>: View {
             .frame(height: 2)
     }
     
+    @ViewBuilder
+    public func backgound() -> some View {
+        self
+            .background(alignment: .bottom) {
+                if isSelected {
+                    self.selectedBackground
+                }
+            }
+            .animation(.pokitDissolve, value: self.selection)
+    }
+    
+    @ViewBuilder
     public func matchedGeometryEffectBackground(
         id: Namespace.ID
     ) -> some View {
@@ -75,6 +87,6 @@ public struct PokitPartTap<Selection: Equatable>: View {
                         .matchedGeometryEffect(id: "SELECT", in: id)
                 }
             }
-            .animation(.smooth, value: self.selection)
+            .animation(.pokitDissolve, value: self.selection)
     }
 }

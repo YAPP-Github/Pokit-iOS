@@ -94,7 +94,7 @@ public struct PokitIconLInput<Value: Hashable>: View {
                 .resizable()
                 .frame(width: 24, height: 24)
                 .foregroundStyle(state.iconColor)
-                .animation(.smooth, value: self.state)
+                .animation(.pokitDissolve, value: self.state)
         }
     }
     

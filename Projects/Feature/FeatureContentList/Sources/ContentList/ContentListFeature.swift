@@ -29,7 +29,7 @@ public struct ContentListFeature {
         public init(contentType: ContentType) {
             self.contentType = contentType
         }
-        
+
         let contentType: ContentType
         fileprivate var domain = ContentList()
         var contents: IdentifiedArrayOf<BaseContentItem>? {
@@ -49,7 +49,7 @@ public struct ContentListFeature {
             domain.contentList.hasNext
         }
     }
-    
+
     /// - Action
     public enum Action: FeatureAction, ViewAction {
         case view(View)
@@ -57,7 +57,7 @@ public struct ContentListFeature {
         case async(AsyncAction)
         case scope(ScopeAction)
         case delegate(DelegateAction)
-        
+
         @CasePathable
         public enum View: Equatable, BindableAction {
             /// - Binding
@@ -76,7 +76,7 @@ public struct ContentListFeature {
             case contentListViewOnAppeared
             case pagenation
         }
-        
+
         public enum InnerAction: Equatable {
             case dismissBottomSheet
             case 컨텐츠_목록_조회(BaseContentListInquiry)
@@ -84,21 +84,21 @@ public struct ContentListFeature {
             case pagenation_네트워크_결과(BaseContentListInquiry)
             case pagenation_초기화
         }
-        
+
         public enum AsyncAction: Equatable {
             case 읽지않음_컨텐츠_조회
             case 즐겨찾기_링크모음_조회
             case 컨텐츠_삭제(id: Int)
             case pagenation_네트워크
         }
-        
+
         public enum ScopeAction: Equatable {
             case bottomSheet(
                 delegate: PokitBottomSheet.Delegate,
                 content: BaseContentItem
             )
         }
-        
+
         public enum DelegateAction: Equatable {
             case 링크상세(content: BaseContentItem)
             case 링크수정(contentId: Int)
@@ -106,7 +106,7 @@ public struct ContentListFeature {
             case 컨텐츠_목록_조회
         }
     }
-    
+
     /// - Initiallizer
     public init() {}
 
@@ -116,25 +116,25 @@ public struct ContentListFeature {
             /// - View
         case .view(let viewAction):
             return handleViewAction(viewAction, state: &state)
-            
+
             /// - Inner
         case .inner(let innerAction):
             return handleInnerAction(innerAction, state: &state)
-            
+
             /// - Async
         case .async(let asyncAction):
             return handleAsyncAction(asyncAction, state: &state)
-            
+
             /// - Scope
         case .scope(let scopeAction):
             return handleScopeAction(scopeAction, state: &state)
-            
+
             /// - Delegate
         case .delegate(let delegateAction):
             return handleDelegateAction(delegateAction, state: &state)
         }
     }
-    
+
     /// - Reducer body
     public var body: some ReducerOf<Self> {
         Reduce(self.core)
@@ -174,24 +174,24 @@ private extension ContentListFeature {
             return .run { [type = state.contentType] send in
                 switch type {
                 case .unread:
-                    await send(.async(.읽지않음_컨텐츠_조회), animation: .smooth)
+                    await send(.async(.읽지않음_컨텐츠_조회), animation: .pokitDissolve)
                     break
                 case .favorite:
-                    await send(.async(.즐겨찾기_링크모음_조회), animation: .smooth)
+                    await send(.async(.즐겨찾기_링크모음_조회), animation: .pokitDissolve)
                     break
                 }
-                
+
                 for await _ in self.pasteBoard.changes() {
                     let url = try await pasteBoard.probableWebURL()
                     await send(.delegate(.linkCopyDetected(url)), animation: .pokitSpring)
                 }
             }
-            
+
         case .pagenation:
             return .run { send in await send(.async(.pagenation_네트워크)) }
         }
     }
-    
+
     /// - Inner Effect
     func handleInnerAction(_ action: Action.InnerAction, state: inout State) -> Effect<Action> {
         switch action {
@@ -201,7 +201,7 @@ private extension ContentListFeature {
         case .컨텐츠_목록_조회(let contentList):
             let list = state.domain.contentList.data ?? []
             guard let newList = contentList.data else { return .none }
-            
+
             state.domain.contentList = contentList
             state.domain.contentList.data = list + newList
             return .none
@@ -223,7 +223,7 @@ private extension ContentListFeature {
             }
         }
     }
-    
+
     /// - Async Effect
     func handleAsyncAction(_ action: Action.AsyncAction, state: inout State) -> Effect<Action> {
         switch action {
@@ -236,7 +236,7 @@ private extension ContentListFeature {
                         sort: pageable.sort
                     )
                 ).toDomain()
-                await send(.inner(.컨텐츠_목록_조회(contentList)), animation: .smooth)
+                await send(.inner(.컨텐츠_목록_조회(contentList)), animation: .pokitDissolve)
             }
         case .즐겨찾기_링크모음_조회:
             return .run { [pageable = state.domain.pageable] send in
@@ -247,27 +247,29 @@ private extension ContentListFeature {
                         sort: pageable.sort
                     )
                 ).toDomain()
-                await send(.inner(.컨텐츠_목록_조회(contentList)), animation: .smooth)
+                await send(.inner(.컨텐츠_목록_조회(contentList)), animation: .pokitDissolve)
             }
         case .컨텐츠_삭제(id: let id):
             return .run { [id] send in
                 let _ = try await contentClient.컨텐츠_삭제("\(id)")
                 await send(.inner(.컨텐츠_삭제_반영(id: id)), animation: .pokitSpring)
             }
-            
+
         case .pagenation_네트워크:
             state.domain.pageable.page += 1
             return .run { [type = state.contentType] send in
                 switch type {
                 case .unread:
-                    await send(.async(.읽지않음_컨텐츠_조회), animation: .smooth)
+                    await send(.async(.읽지않음_컨텐츠_조회), animation: .pokitDissolve)
+                    break
                 case .favorite:
-                    await send(.async(.즐겨찾기_링크모음_조회), animation: .smooth)
+                    await send(.async(.즐겨찾기_링크모음_조회), animation: .pokitDissolve)
+                    break
                 }
             }
         }
     }
-    
+
     /// - Scope Effect
     func handleScopeAction(_ action: Action.ScopeAction, state: inout State) -> Effect<Action> {
         /// - 링크에 대한 `공유` /  `수정` / `삭제` delegate
@@ -286,7 +288,7 @@ private extension ContentListFeature {
             }
         }
     }
-    
+
     /// - Delegate Effect
     func handleDelegateAction(_ action: Action.DelegateAction, state: inout State) -> Effect<Action> {
         switch action {
@@ -307,7 +309,7 @@ public extension ContentListFeature {
     enum ContentType: String {
         case unread = "안읽음"
         case favorite = "즐겨찾기"
-            
+
         var title: String { self.rawValue }
     }
 }
