@@ -26,6 +26,8 @@ public struct PokitSettingFeature {
         @Presents var nickNameSettingState: NickNameSettingFeature.State?
         var isLogoutPresented: Bool = false
         var isWithdrawPresented: Bool = false
+        var isWebViewPresented: Bool = false
+        var webViewURL: URL? = nil
         public init() {}
     }
     
@@ -132,20 +134,24 @@ private extension PokitSettingFeature {
             return .run { _ in await openSetting() }
             
         case .공지사항:
-            let url = Constants.공지사항_주소
-            return .run { _ in await openURL(url) }
+            state.webViewURL = Constants.공지사항_주소
+            state.isWebViewPresented = true
+            return .none
             
         case .서비스_이용약관:
-            let url = Constants.서비스_이용약관_주소
-            return .run { _ in await openURL(url) }
+            state.webViewURL = Constants.서비스_이용약관_주소
+            state.isWebViewPresented = true
+            return .none
             
         case .개인정보_처리방침:
-            let url = Constants.개인정보_처리방침_주소
-            return .run { _ in await openURL(url) }
+            state.webViewURL = Constants.개인정보_처리방침_주소
+            state.isWebViewPresented = true
+            return .none
             
         case .고객문의:
-            let url = Constants.고객문의_주소
-            return .run { _ in await openURL(url) }
+            state.webViewURL = Constants.고객문의_주소
+            state.isWebViewPresented = true
+            return .none
             
         case .로그아웃:
             return .send(.inner(.로그아웃_팝업(isPresented: true)))

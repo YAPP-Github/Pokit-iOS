@@ -54,6 +54,10 @@ public extension AgreeToTermsView {
                 }
             }
             .ignoresSafeArea(edges: .bottom)
+            .fullScreenCover(isPresented: $store.isWebViewPresented) {
+                PokitWebView(url: $store.webViewURL)
+                    .ignoresSafeArea()
+            }
         }
     }
 }
@@ -93,19 +97,19 @@ extension AgreeToTermsView {
             termsButton(
                 "(필수)개인정보 수집 및 이용 동의",
                 isSelected: $store.isPersonalAndUsageArgee,
-                action: {}
+                action: { send(.개인정보_동의_버튼_클릭) }
             )
             
             termsButton(
                 "(필수)서비스 이용약관",
                 isSelected: $store.isServiceAgree,
-                action: {}
+                action: { send(.서비스_이용약관_버튼_클릭) }
             )
             
             termsButton(
                 "(선택)마케팅 정보 수신",
                 isSelected: $store.isMarketingAgree,
-                action: {}
+                action: { send(.마케팅_정보_수신_버튼_클릭) }
             )
         }
         .padding(.leading, 20)

@@ -4,6 +4,8 @@
 //
 //  Created by 김도형 on 7/5/24.
 
+import Foundation
+
 import ComposableArchitecture
 import Util
 
@@ -20,6 +22,9 @@ public struct AgreeToTermsFeature {
         var isPersonalAndUsageArgee: Bool = false
         var isServiceAgree: Bool = false
         var isMarketingAgree: Bool = false
+        
+        var isWebViewPresented: Bool = false
+        var webViewURL: URL? = nil
     }
     /// - Action
     public enum Action: FeatureAction, ViewAction {
@@ -36,6 +41,9 @@ public struct AgreeToTermsFeature {
             /// - Button Tapped
             case nextButtonTapped
             case backButtonTapped
+            case 개인정보_동의_버튼_클릭
+            case 서비스_이용약관_버튼_클릭
+            case 마케팅_정보_수신_버튼_클릭
         }
         public enum InnerAction: Equatable {
             case checkAgreements
@@ -96,6 +104,18 @@ private extension AgreeToTermsFeature {
         case .binding(\.isMarketingAgree):
             return .send(.inner(.marketingAgreeSelected))
         case .binding:
+            return .none
+        case .개인정보_동의_버튼_클릭:
+            state.webViewURL = Constants.개인정보_처리방침_주소
+            state.isWebViewPresented = true
+            return .none
+        case .서비스_이용약관_버튼_클릭:
+            state.webViewURL = Constants.서비스_이용약관_주소
+            state.isWebViewPresented = true
+            return .none
+        case .마케팅_정보_수신_버튼_클릭:
+            state.webViewURL = Constants.마케팅_정보_수신_주소
+            state.isWebViewPresented = true
             return .none
         }
     }
