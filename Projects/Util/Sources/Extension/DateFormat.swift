@@ -10,6 +10,7 @@ import Foundation
 public enum DateFormat: String {
     /// 포맷형식: yyyy-MM-dd
     case yearMonthDate = "yyyy.MM.dd"
+    case calendarPage = "yyyy년 MM월"
 }
 
 extension DateFormat {
