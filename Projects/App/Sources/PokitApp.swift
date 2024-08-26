@@ -17,7 +17,9 @@ struct PokitApp: App {
     
     var body: some Scene {
         WindowGroup {
-            RootView(store: store.scope(state: \.root, action: \.root))
+            WithPerceptionTracking {
+                RootView(store: store.scope(state: \.root, action: \.root))
+            }
         }
     }
 }

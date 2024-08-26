@@ -41,15 +41,17 @@ public extension LoginRootView {
                     .navigationBarBackButtonHidden()
                 }
             } destination: { path in
-                switch path.case {
-                case .agreeToTerms(let store):
-                    AgreeToTermsView(store: store)
-                case .registerNickname(let store):
-                    RegisterNicknameView(store: store)
-                case .selecteField(let store):
-                    SelectFieldView(store: store)
-                case .signUpDone(let store):
-                    SignUpDoneView(store: store)
+                WithPerceptionTracking {
+                    switch path.case {
+                    case .agreeToTerms(let store):
+                        AgreeToTermsView(store: store)
+                    case .registerNickname(let store):
+                        RegisterNicknameView(store: store)
+                    case .selecteField(let store):
+                        SelectFieldView(store: store)
+                    case .signUpDone(let store):
+                        SignUpDoneView(store: store)
+                    }
                 }
             }
         }
