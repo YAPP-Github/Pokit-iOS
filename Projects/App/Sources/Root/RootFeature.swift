@@ -8,9 +8,12 @@
 import Foundation
 
 import ComposableArchitecture
+import CoreKit
 
 @Reducer
 public struct RootFeature {
+    @Dependency(\.userDefaults) var userDefaults
+    @Dependency(\.userClient) var userClient
     @Reducer(state: .equatable)
     public enum Destination {
         
@@ -38,7 +41,18 @@ public struct RootFeature {
             state = newState
             return .none
         case .intro(.delegate(.moveToTab)):
-            return .run { send in await send(._sceneChange(.mainTab())) }
+            return .run { send in
+                guard let fcmToken = userDefaults.stringKey(.fcmToken) else {
+                    await send(._sceneChange(.mainTab()))
+                    return
+                }
+                let fcmRequest = FCMRequest(token: fcmToken)
+                let user = try await userClient.fcm_토큰_저장(fcmRequest)
+                
+                await userDefaults.setString(user.token, .fcmToken)
+                await userDefaults.setString("\(user.userId)", .userId)
+                await send(._sceneChange(.mainTab()))
+            }
             
         case .mainTab(.delegate(.로그아웃)),
                 .mainTab(.delegate(.회원탈퇴)):
