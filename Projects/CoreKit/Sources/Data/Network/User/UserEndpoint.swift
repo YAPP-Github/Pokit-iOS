@@ -16,6 +16,7 @@ public enum UserEndpoint {
     case 닉네임_중복_체크(nickname: String)
     case 관심사_목록_조회
     case 닉네임_조회
+    case fcm_토큰_저장(model: FCMRequest)
 }
 
 extension UserEndpoint: TargetType {
@@ -33,6 +34,8 @@ extension UserEndpoint: TargetType {
             return "/duplicate/\(nickname)"
         case .관심사_목록_조회:
             return "/interests"
+        case .fcm_토큰_저장:
+            return "/fcm"
         }
     }
     
@@ -41,7 +44,8 @@ extension UserEndpoint: TargetType {
         case .닉네임_수정:
             return .put
             
-        case .회원등록:
+        case .회원등록,
+             .fcm_토큰_저장:
             return .post
         
         case .닉네임_중복_체크,
@@ -56,6 +60,8 @@ extension UserEndpoint: TargetType {
         case let .닉네임_수정(model):
             return .requestJSONEncodable(model)
         case let .회원등록(model):
+            return .requestJSONEncodable(model)
+        case let .fcm_토큰_저장(model):
             return .requestJSONEncodable(model)
         case .닉네임_중복_체크,
              .관심사_목록_조회,
