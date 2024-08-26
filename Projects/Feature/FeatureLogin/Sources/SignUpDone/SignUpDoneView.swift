@@ -25,12 +25,12 @@ public extension SignUpDoneView {
             VStack(spacing: 0) {
                 Spacer()
                 
-                Group {
                     logo
                     
                     title
                         .padding(.top, 4)
-                }
+                
+                Spacer()
                 
                 images
                     .padding(.top, 78)
@@ -42,6 +42,7 @@ public extension SignUpDoneView {
                     state: .filled(.primary),
                     action: { send(.startButtonTapped) }
                 )
+                .pokitMaxWidth()
                 .padding(.horizontal, 20)
                 .background(.pokit(.bg(.base)))
             }

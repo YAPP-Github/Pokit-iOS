@@ -31,8 +31,10 @@ public extension LoginRootView {
                         Spacer()
                         
                         appleLoginButton
+                            .pokitMaxWidth()
                         
                         googleLoginButton
+                            .pokitMaxWidth()
                     }
                     .padding(.horizontal, 20)
                     .padding(.bottom, 36)
