@@ -19,6 +19,8 @@ public struct PokitRootFeature {
     private var categoryClient
     @Dependency(\.contentClient)
     private var contentClient
+    @Dependency(\.kakaoShareClient)
+    private var kakaoShareClient
     /// - State
     @ObservableState
     public struct State: Equatable {
@@ -49,6 +51,7 @@ public struct PokitRootFeature {
 
         var selectedKebobItem: BaseCategoryItem?
         var selectedUnclassifiedItem: BaseContentItem?
+        var shareSheetItem: BaseContentItem? = nil
 
         var isKebobSheetPresented: Bool = false
         var isPokitDeleteSheetPresented: Bool = false
@@ -88,6 +91,8 @@ public struct PokitRootFeature {
 
             case categoryTapped(BaseCategoryItem)
             case contentItemTapped(BaseContentItem)
+
+            case 링크_공유_완료(completed: Bool)
 
             case pokitRootViewOnAppeared
 
@@ -230,6 +235,14 @@ private extension PokitRootFeature {
                 return .send(.async(.미분류_카테고리_컨텐츠_조회))
             default: return .none
             }
+        case .링크_공유_완료(completed: let completed):
+            guard completed else { return .none }
+            state.shareSheetItem = nil
+            return .none
+        case .링크_공유_완료(completed: let completed):
+            guard completed else { return .none }
+            state.shareSheetItem = nil
+            return .none
         }
     }
 
@@ -353,12 +366,22 @@ private extension PokitRootFeature {
                     /// 🚨 Error Case [1]: 항목을 공유하려는데 항목이 없을 때
                     return .none
                 }
+                state.isKebobSheetPresented = false
+                state.shareSheetItem = selectedItem
                 return .none
             case .folder(.포킷):
                 guard let selectedItem = state.selectedKebobItem else {
                     /// 🚨 Error Case [1]: 항목을 공유하려는데 항목이 없을 때
                     return .none
                 }
+                kakaoShareClient.카테고리_카카오톡_공유(
+                    CategoryKaKaoShareModel(
+                        categoryName: selectedItem.categoryName,
+                        categoryId: selectedItem.id,
+                        imageURL: selectedItem.categoryImage.imageURL
+                    )
+                )
+                state.isKebobSheetPresented = false
                 return .none
 
             default: return .none
@@ -438,7 +461,7 @@ private extension PokitRootFeature {
     func handleDelegateAction(_ action: Action.DelegateAction, state: inout State) -> Effect<Action> {
         switch action {
         case .미분류_카테고리_컨텐츠_조회:
-            return .send(.async(.미분류_카테고리_컨텐츠_조회))
+            return .send(.inner(.페이지네이션_초기화))
         default:
             return .none
         }

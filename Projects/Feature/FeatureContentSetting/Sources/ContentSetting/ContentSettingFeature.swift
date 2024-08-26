@@ -274,7 +274,7 @@ private extension ContentSettingFeature {
                 await send(.async(.카테고리_상세_조회(id: id)))
             }
         case .카테고리_갱신(category: let category):
-            state.selectedPokit = .init(
+            state.selectedPokit = BaseCategoryItem(
                 id: category.categoryId,
                 userId: 0,
                 categoryName: category.categoryName,
@@ -330,7 +330,7 @@ private extension ContentSettingFeature {
         case .카테고리_목록_조회:
             return .run { [pageable = state.domain.pageable] send in
                 let categoryList = try await categoryClient.카테고리_목록_조회(
-                    .init(
+                    BasePageableRequest(
                         page: pageable.page,
                         size: 100,
                         sort: pageable.sort

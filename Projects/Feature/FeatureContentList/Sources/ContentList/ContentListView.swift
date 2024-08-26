@@ -36,8 +36,20 @@ public extension ContentListView {
             .sheet(item: $store.bottomSheetItem) { content in
                 PokitBottomSheet(
                     items: [.share, .edit, .delete],
-                    height: 224
-                ) { send(.bottomSheetButtonTapped(delegate: $0, content: content)) }
+                    height: 224,
+                    delegateSend: {
+                        send(.bottomSheetButtonTapped(delegate: $0, content: content))
+                    }
+                )
+            }
+            .sheet(item: $store.shareSheetItem) { content in
+                if let shareURL = URL(string: content.data) {
+                    PokitShareSheet(
+                        items: [shareURL],
+                        completion: { send(.링크_공유_완료(completed: $0)) }
+                    )
+                    .presentationDetents([.medium, .large])
+                }
             }
             .sheet(item: $store.alertItem) { content in
                 PokitAlert(

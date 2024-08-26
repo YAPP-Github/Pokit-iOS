@@ -14,17 +14,20 @@ public struct PokitAlert: View {
     private let message: String?
     private let confirmText: String
     private let action: () -> Void
+    private let cancelAction: (() -> Void)?
     
     public init(
         _ titleKey: String,
         message: String? = nil,
         confirmText: String,
-        action: @escaping () -> Void
+        action: @escaping () -> Void,
+        cancelAction: (() -> Void)? = nil
     ) {
         self.titleKey = titleKey
         self.message = message
         self.confirmText = confirmText
         self.action = action
+        self.cancelAction = cancelAction
     }
     
     public var body: some View {
@@ -46,6 +49,7 @@ public struct PokitAlert: View {
                     to: true,
                     style: .stroke
                 ) {
+                    cancelAction?()
                     dismiss()
                 }
                 .background()

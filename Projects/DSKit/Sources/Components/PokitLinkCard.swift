@@ -13,12 +13,12 @@ import NukeUI
 public struct PokitLinkCard<Item: PokitLinkCardItem>: View {
     private let link: Item
     private let action: () -> Void
-    private let kebabAction: () -> Void
+    private let kebabAction: (() -> Void)?
     
     public init(
         link: Item,
         action: @escaping () -> Void,
-        kebabAction: @escaping () -> Void
+        kebabAction: (() -> Void)? = nil
     ) {
         self.link = link
         self.action = action
@@ -40,7 +40,7 @@ public struct PokitLinkCard<Item: PokitLinkCardItem>: View {
                 HStack {
                     title
                     
-                    Spacer(minLength: 24)
+                    Spacer(minLength: kebabAction != nil ? 24 : 0)
                 }
                 
                 HStack {
@@ -56,7 +56,9 @@ public struct PokitLinkCard<Item: PokitLinkCardItem>: View {
                 }
             }
             .overlay(alignment: .topTrailing) {
-                kebabButton
+                if let kebabAction {
+                    kebabButton(kebabAction)
+                }
             }
         }
     }
@@ -92,7 +94,8 @@ public struct PokitLinkCard<Item: PokitLinkCardItem>: View {
         }
     }
     
-    private var kebabButton: some View {
+    @ViewBuilder
+    private func kebabButton(_ kebabAction: @escaping () -> Void) -> some View {
         Button(action: kebabAction) {
             Image(.icon(.kebab))
                 .resizable()

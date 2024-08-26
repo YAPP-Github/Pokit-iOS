@@ -23,6 +23,8 @@ public struct CategoryDetailFeature {
     private var categoryClient
     @Dependency(\.contentClient)
     private var contentClient
+    @Dependency(\.kakaoShareClient)
+    private var kakaoShareClient
     /// - State
     @ObservableState
     public struct State: Equatable {
@@ -257,12 +259,12 @@ private extension CategoryDetailFeature {
             ] send in
                 let contentList = try await contentClient.카테고리_내_컨텐츠_목록_조회(
                     "\(id)",
-                    .init(
+                    BasePageableRequest(
                         page: pageable.page,
                         size: pageable.size,
                         sort: pageable.sort
                     ),
-                    .init(
+                    BaseConditionRequest(
                         categoryIds: condition.categoryIds,
                         isRead: condition.isUnreadFlitered,
                         favorites: condition.isFavoriteFlitered
@@ -285,6 +287,14 @@ private extension CategoryDetailFeature {
         case .categoryBottomSheet(let delegateAction):
             switch delegateAction {
             case .shareCellButtonTapped:
+                kakaoShareClient.카테고리_카카오톡_공유(
+                    CategoryKaKaoShareModel(
+                        categoryName: state.domain.category.categoryName,
+                        categoryId: state.domain.category.id,
+                        imageURL: state.domain.category.categoryImage.imageURL
+                    )
+                )
+                state.isCategorySheetPresented = false
                 return .none
                 
             case .editCellButtonTapped:
