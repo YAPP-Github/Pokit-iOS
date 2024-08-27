@@ -60,7 +60,8 @@ public extension MainTabFeature {
             switch action {
             /// - 네비게이션 바 `알림`버튼 눌렀을 때
             case .pokit(.delegate(.alertButtonTapped)),
-                 .remind(.delegate(.alertButtonTapped)):
+                 .remind(.delegate(.alertButtonTapped)),
+                 .delegate(.알림함이동):
                 state.path.append(.알림함(PokitAlertBoxFeature.State()))
                 return .none
 
