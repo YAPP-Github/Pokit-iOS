@@ -134,7 +134,7 @@ private extension ContentSettingView {
             selectedItem: $store.selectedPokit,
             label: "포킷",
             list: store.pokitList,
-            action: { send(.pokitSelectItemButtonTapped(pokit: $0)) }
+            action: { send(.pokitSelectItemButtonTapped(pokit: $0), animation: .pokitDissolve) }
         )
     }
     
