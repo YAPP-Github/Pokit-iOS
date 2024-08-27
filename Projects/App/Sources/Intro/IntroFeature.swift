@@ -11,7 +11,7 @@ import FeatureLogin
 @Reducer
 public struct IntroFeature {
     /// - Dependency
-
+    @Dependency(\.userDefaults) var userDefaults
     /// - State
     @ObservableState
     public enum State {
@@ -68,6 +68,9 @@ private extension IntroFeature {
             
         case .delegate(.loginNeeded):
             return .run { send in
+                /// 알람을 통해 앱을 들어왔으나 자동 로그인을 실패했다면 배너로 이동하지 못하게 flag 삭제
+                await userDefaults.removeBool(.fromBanner)
+                /// Todo: 원하는 애니메이션 넣어줘~
                 await send(._sceneChange(.login()), animation: .smooth)
             }
             

@@ -55,7 +55,7 @@ public struct RootFeature {
             }
             
         case .mainTab(.delegate(.로그아웃)),
-                .mainTab(.delegate(.회원탈퇴)):
+             .mainTab(.delegate(.회원탈퇴)):
             return .run { send in await send(._sceneChange(.intro(.login()))) }
             
         case .intro, .mainTab:

@@ -21,6 +21,8 @@ public struct MainTabFeature {
     private var pasteBoard
     @Dependency(\.categoryClient)
     private var categoryClient
+    @Dependency(\.userDefaults)
+    private var userDefaults
     /// - State
     @ObservableState
     public struct State: Equatable {
@@ -80,6 +82,7 @@ public struct MainTabFeature {
             case 포킷추가하기
             case 로그아웃
             case 회원탈퇴
+            case 알림함이동
         }
     }
     /// initiallizer
@@ -150,6 +153,12 @@ private extension MainTabFeature {
 
         case .onAppear:
             return .run { send in
+                let fromBanner = userDefaults.boolKey(.fromBanner)
+                if fromBanner {
+                    await userDefaults.removeBool(.fromBanner)
+                    await send(.delegate(.알림함이동))
+                }
+                
                 for await _ in self.pasteBoard.changes() {
                     let url = try await pasteBoard.probableWebURL()
                     await send(.inner(.linkCopySuccess(url)), animation: .pokitSpring)
