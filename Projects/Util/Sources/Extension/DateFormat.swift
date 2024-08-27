@@ -11,6 +11,7 @@ public enum DateFormat: String {
     /// 포맷형식: yyyy-MM-dd
     case yearMonthDate = "yyyy.MM.dd"
     case calendarPage = "yyyy년 MM월"
+    case searchCondition = "yyyy-MM-dd"
 }
 
 extension DateFormat {
