@@ -38,14 +38,14 @@ public struct PokitSearchFeature {
         var isFiltered: Bool = false
         var categoryFilter = IdentifiedArrayOf<BaseCategoryItem>()
         var dateFilterText = "기간"
-        var isResultAscending = true
+        var isResultAscending = false
         
         fileprivate var domain = Search()
         var searchText: String {
             get { domain.condition.searchWord }
             set { domain.condition.searchWord = newValue }
         }
-        var resultMock: IdentifiedArrayOf<BaseContentItem>? {
+        var resultList: IdentifiedArrayOf<BaseContentItem>? {
             guard let contentList = domain.contentList.data else {
                 return nil
             }
@@ -77,6 +77,9 @@ public struct PokitSearchFeature {
             formatter.dateFormat = "yyyy-MM-dd"
             
             return formatter.string(from: startDate)
+        }
+        var hasNext: Bool {
+            get { domain.contentList.hasNext }
         }
         
         /// sheet item
@@ -126,6 +129,7 @@ public struct PokitSearchFeature {
             case 링크_공유_완료(completed: Bool)
             
             case onAppear
+            case 로딩_isPresented
             
         }
         
@@ -143,13 +147,16 @@ public struct PokitSearchFeature {
             case 자동저장_켜기_불러오기
             case 최근검색어_추가
             case 컨텐츠_삭제_반영(id: Int)
+            case 컨텐츠_검색_결과_페이징_갱신(BaseContentListInquiry)
+            case 페이징_초기화
         }
         
         public enum AsyncAction: Equatable {
-            case 컨텐츠_검색
+            case 컨텐츠_검색(size: Int)
             case 최근검색어_갱신
             case 자동저장_켜기_갱신
             case 컨텐츠_삭제(id: Int)
+            case 컨텐츠_검색_결과_페이징_조회
         }
         
         public enum ScopeAction: Equatable {
@@ -229,7 +236,7 @@ private extension PokitSearchFeature {
         case .searchTextInputOnSubmitted:
             return .run { send in
                 await send(.inner(.최근검색어_추가))
-                await send(.async(.컨텐츠_검색))
+                await send(.inner(.페이징_초기화), animation: .pokitDissolve)
             }
         case .searchTextInputIconTapped:
             /// - 검색 중일 경우 `문자열 지우기 버튼 동작`
@@ -239,12 +246,12 @@ private extension PokitSearchFeature {
             } else {
                 return .run { send in
                     await send(.inner(.최근검색어_추가))
-                    await send(.async(.컨텐츠_검색))
+                    await send(.inner(.페이징_초기화), animation: .pokitDissolve)
                 }
             }
         case .searchTextChipButtonTapped(text: let text):
             state.searchText = text
-            return .send(.async(.컨텐츠_검색))
+            return .send(.inner(.페이징_초기화), animation: .pokitDissolve)
         case .filterButtonTapped:
             return .send(.inner(.showFilterBottomSheet(filterType: .pokit)))
         case .contentTypeFilterButtonTapped:
@@ -258,7 +265,7 @@ private extension PokitSearchFeature {
             state.domain.condition.endDate = nil
             return .run { send in
                 await send(.inner(.updateDateFilter(startDate: nil, endDate: nil)))
-                await send(.async(.컨텐츠_검색))
+                await send(.inner(.페이징_초기화), animation: .pokitDissolve)
             }
         case .categoryFilterButtonTapped:
             return .send(.inner(.showFilterBottomSheet(filterType: .pokit)))
@@ -289,17 +296,24 @@ private extension PokitSearchFeature {
             }
         case .sortTextLinkTapped:
             state.isResultAscending.toggle()
-            // - TODO: 정렬
-            return .none
+            state.domain.pageable.sort = [
+                state.isResultAscending ? "createdAt,asc" : "createdAt,desc"
+            ]
+            return .send(.inner(.페이징_초기화))
         case .backButtonTapped:
             return .run { _ in
                 await dismiss()
             }
             
         case .onAppear:
-            return .run { send in
+            return .run { [
+                contentList = state.domain.contentList.data
+            ] send in
                 await send(.inner(.자동저장_켜기_불러오기))
                 await send(.inner(.최근검색어_불러오기))
+                if let contentList, !contentList.isEmpty {
+                    await send(.async(.컨텐츠_검색(size: contentList.count)))
+                }
                 for await _ in self.pasteboard.changes() {
                     let url = try await pasteboard.probableWebURL()
                     await send(.delegate(.linkCopyDetected(url)), animation: .pokitSpring)
@@ -309,18 +323,20 @@ private extension PokitSearchFeature {
             state.categoryFilter.remove(category)
             return .run { send in
                 await send(.inner(.updateCategoryIds))
-                await send(.async(.컨텐츠_검색))
+                await send(.inner(.페이징_초기화))
             }
         case .favoriteChipTapped:
             state.domain.condition.favorites = false
-            return .send(.async(.컨텐츠_검색))
+            return .send(.inner(.페이징_초기화))
         case .unreadChipTapped:
             state.domain.condition.isRead = false
-            return .send(.async(.컨텐츠_검색))
+            return .send(.inner(.페이징_초기화))
         case .링크_공유_완료(completed: let completed):
             guard completed else { return .none }
             state.shareSheetItem = nil
             return .none
+        case .로딩_isPresented:
+            return .send(.async(.컨텐츠_검색_결과_페이징_조회), animation: .pokitDissolve)
         }
     }
     
@@ -406,16 +422,80 @@ private extension PokitSearchFeature {
             state.alertItem = nil
             state.domain.contentList.data?.removeAll { $0.id == id }
             return .none
+        case let .컨텐츠_검색_결과_페이징_갱신(contentList):
+            let list = state.domain.contentList.data ?? []
+            guard let newList = contentList.data else { return .none }
+
+            state.domain.contentList = contentList
+            state.domain.contentList.data = list + newList
+            return .send(.inner(.enableIsSearching))
+        case .페이징_초기화:
+            state.domain.pageable.page = -1
+            state.domain.contentList.data = nil
+            return .send(.async(.컨텐츠_검색_결과_페이징_조회), animation: .pokitDissolve)
         }
     }
     
     /// - Async Effect
     func handleAsyncAction(_ action: Action.AsyncAction, state: inout State) -> Effect<Action> {
         switch action {
-        case .컨텐츠_검색:
-            state.domain.contentList.data = nil
-            let formatter = DateFormatter()
-            formatter.dateFormat = "yyyy-MM-dd"
+        case let .컨텐츠_검색(size):
+            state.domain.pageable.page = 0
+            let formatter = DateFormat.yearMonthDate.formatter
+            
+            var startDateString: String? = nil
+            var endDateString: String? = nil
+            if let startDate = state.domain.condition.startDate {
+                startDateString = formatter.string(from: startDate)
+            }
+            if let endDate = state.domain.condition.endDate {
+                endDateString = formatter.string(from: endDate)
+            }
+            return .run { [
+                pageable = state.domain.pageable,
+                condition = state.domain.condition,
+                startDateString,
+                endDateString
+            ] send in
+                let contentList = try await contentClient.컨텐츠_검색(
+                    BasePageableRequest(
+                        page: pageable.page,
+                        size: size,
+                        sort: pageable.sort
+                    ),
+                    BaseConditionRequest(
+                        searchWord: condition.searchWord,
+                        categoryIds: condition.categoryIds,
+                        isRead: condition.isRead,
+                        favorites: condition.favorites,
+                        startDate: startDateString,
+                        endDate: endDateString
+                    )
+                ).toDomain()
+                await send(.inner(.컨텐츠_목록_갱신(contentList)), animation: .pokitSpring)
+            }
+        case .최근검색어_갱신:
+            guard state.isAutoSaveSearch else { return .none }
+            return .run { [ searchWords = state.recentSearchTexts ] _ in
+                await userDefaults.setStringArray(
+                    searchWords,
+                    .searchWords
+                )
+            }
+        case .자동저장_켜기_갱신:
+            return .run { [
+                isAutoSaveSearch = state.isAutoSaveSearch
+            ] send in
+                await userDefaults.setBool(isAutoSaveSearch, .autoSaveSearch)
+            }
+        case .컨텐츠_삭제(id: let id):
+            return .run { [id] send in
+                let _ = try await contentClient.컨텐츠_삭제("\(id)")
+                await send(.inner(.컨텐츠_삭제_반영(id: id)), animation: .pokitSpring)
+            }
+        case .컨텐츠_검색_결과_페이징_조회:
+            state.domain.pageable.page += 1
+            let formatter = DateFormat.yearMonthDate.formatter
             
             var startDateString: String? = nil
             var endDateString: String? = nil
@@ -446,26 +526,7 @@ private extension PokitSearchFeature {
                         endDate: endDateString
                     )
                 ).toDomain()
-                await send(.inner(.컨텐츠_목록_갱신(contentList)), animation: .pokitDissolve)
-            }
-        case .최근검색어_갱신:
-            guard state.isAutoSaveSearch else { return .none }
-            return .run { [ searchWords = state.recentSearchTexts ] _ in
-                await userDefaults.setStringArray(
-                    searchWords,
-                    .searchWords
-                )
-            }
-        case .자동저장_켜기_갱신:
-            return .run { [
-                isAutoSaveSearch = state.isAutoSaveSearch
-            ] send in
-                await userDefaults.setBool(isAutoSaveSearch, .autoSaveSearch)
-            }
-        case .컨텐츠_삭제(id: let id):
-            return .run { [id] send in
-                let _ = try await contentClient.컨텐츠_삭제("\(id)")
-                await send(.inner(.컨텐츠_삭제_반영(id: id)), animation: .pokitSpring)
+                await send(.inner(.컨텐츠_검색_결과_페이징_갱신(contentList)), animation: .pokitDissolve)
             }
         }
     }
@@ -485,7 +546,7 @@ private extension PokitSearchFeature {
                 await send(.inner(.updateContentTypeFilter(favoriteFilter: isFavorite, unreadFilter: isUnread)))
                 await send(.inner(.updateDateFilter(startDate: startDate, endDate: endDate)))
                 await send(.inner(.updateIsFiltered))
-                await send(.async(.컨텐츠_검색))
+                await send(.inner(.페이징_초기화))
             }
         case .bottomSheet(let delegate, let content):
             switch delegate {
@@ -507,7 +568,10 @@ private extension PokitSearchFeature {
     func handleDelegateAction(_ action: Action.DelegateAction, state: inout State) -> Effect<Action> {
         switch action {
         case .컨텐츠_검색:
-            return .send(.async(.컨텐츠_검색))
+            guard let contentList = state.domain.contentList.data, !contentList.isEmpty else {
+                return .none
+            }
+            return .send(.async(.컨텐츠_검색(size: contentList.count)))
         default: return .none
         }
     }

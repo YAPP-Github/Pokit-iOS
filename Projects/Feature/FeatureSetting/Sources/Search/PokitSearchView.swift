@@ -283,16 +283,16 @@ private extension PokitSearchView {
     var resultList: some View {
         VStack(alignment: .leading, spacing: 20) {
             PokitIconLTextLink(
-                store.isResultAscending ? "최신순" : "오래된순",
+                store.isResultAscending ? "오래된순" : "최신순",
                 icon: .icon(.align),
-                action: { send(.sortTextLinkTapped, animation: .pokitDissolve) }
+                action: { send(.sortTextLinkTapped) }
             )
             .contentTransition(.numericText())
             .padding(.horizontal, 20)
             
-            if let results = store.resultMock {
+            if let results = store.resultList {
                 ScrollView {
-                    LazyVStack {
+                    LazyVStack(spacing: 0) {
                         ForEach(results, id: \.id) { content in
                             let isFirst = content == results.first
                             let isLast = content == results.last
@@ -303,6 +303,11 @@ private extension PokitSearchView {
                                 kebabAction: { send(.kebabButtonTapped(content: content)) }
                             )
                             .divider(isFirst: isFirst, isLast: isLast)
+                        }
+                        
+                        if store.hasNext {
+                            PokitLoading()
+                                .task { await send(.로딩_isPresented, animation: .pokitDissolve).finish() }
                         }
                     }
                     .padding(.horizontal, 20)
