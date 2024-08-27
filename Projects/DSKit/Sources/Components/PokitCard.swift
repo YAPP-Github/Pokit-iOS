@@ -85,6 +85,7 @@ public struct PokitCard<Item: PokitCardItem>: View {
         Text("링크 \(category.contentCount)개")
             .pokitFont(.detail2)
             .foregroundStyle(.pokit(.text(.tertiary)))
+            .contentTransition(.numericText())
     }
 
     @MainActor
