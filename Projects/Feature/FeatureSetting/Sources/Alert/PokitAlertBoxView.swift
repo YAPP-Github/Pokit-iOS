@@ -76,7 +76,7 @@ private extension PokitAlertBoxView {
     }
     
     func delete(_ item: AlertItem) {
-        send(.deleteSwiped(item: item),animation: .spring)
+        send(.deleteSwiped(item: item),animation: .pokitSpring)
     }
 
     struct AlertContent: View {

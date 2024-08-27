@@ -180,7 +180,7 @@ private extension CategorySharingFeature {
                         sort: pageable.sort
                     )
                 ).toDomain()
-                await send(.inner(.공유받은_카테고리_갱신(sharedCategory)), animation: .smooth)
+                await send(.inner(.공유받은_카테고리_갱신(sharedCategory)), animation: .pokitDissolve)
             }
         }
     }
