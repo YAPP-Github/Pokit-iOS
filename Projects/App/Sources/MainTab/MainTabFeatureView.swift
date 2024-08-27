@@ -236,7 +236,7 @@ private extension MainTabView {
             }
         }
         .pokitMaxWidth()
-        .animation(.spring, value: store.selectedTab)
+        .animation(.pokitDissolve, value: store.selectedTab)
     }
     
     @ViewBuilder

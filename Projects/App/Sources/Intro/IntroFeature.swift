@@ -43,7 +43,7 @@ public struct IntroFeature {
             return splashDelegate(splashAction, state: &state)
             
         case .login(.delegate(.dismissLoginRootView)):
-            return .run { send in await send(.delegate(.moveToTab)) }
+            return .run { send in await send(.delegate(.moveToTab), animation: .smooth) }
             
         case .delegate, .login:
             return .none
@@ -63,13 +63,12 @@ private extension IntroFeature {
         switch action {
         case .delegate(.autoLoginSuccess):
             return .run { send in
-                await send(.delegate(.moveToTab))
+                await send(.delegate(.moveToTab), animation: .smooth)
             }
             
         case .delegate(.loginNeeded):
             return .run { send in
-                /// Todo: 원하는 애니메이션 넣어줘~
-                await send(._sceneChange(.login()), animation: .spring)
+                await send(._sceneChange(.login()), animation: .smooth)
             }
             
         default: return .none

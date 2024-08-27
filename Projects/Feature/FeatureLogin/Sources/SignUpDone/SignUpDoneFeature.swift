@@ -7,6 +7,7 @@
 import Foundation
 
 import ComposableArchitecture
+import DSKit
 import Util
 
 @Reducer
@@ -82,7 +83,7 @@ private extension SignUpDoneFeature {
     func handleViewAction(_ action: Action.ViewAction, state: inout State) -> Effect<Action> {
         switch action {
         case .startButtonTapped:
-            return .send(.delegate(.dismissLoginRootView), animation: .spring)
+            return .send(.delegate(.dismissLoginRootView), animation: .pokitDissolve)
         case .backButtonTapped:
             return .run { _ in await self.dismiss() }
         case .firecrackerOnAppeared:
