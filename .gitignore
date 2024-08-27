@@ -85,6 +85,9 @@ fastlane/key.json
 ### Auth Key
 *.p8
 
+### GoogleService info
+**/GoogleService-Info.plist
+
 ### fastlane environment
 fastlane/.env
 fastlane/.env.default

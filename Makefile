@@ -56,6 +56,7 @@ download-privates:
 		mkdir -p xcconfig; \
 		cp Pokit_iOS_Private/xcconfig/Secret.xcconfig xcconfig/Secret.xcconfig; \
 		cp Pokit_iOS_Private/auth/AuthKey.p8 Projects/CoreKit/Resources/AuthKey.p8; \
+		cp Pokit_iOS_Private/GoogleService-Info.plist Projects/App/Resources/GoogleService-Info.plist; \
 		rm -rf Pokit_iOS_Private; \
 		echo "✅ Secret 파일을 성공적으로 다운로드하고 Pokit_iOS_Private 폴더를 삭제했습니다."; \
 	else \
