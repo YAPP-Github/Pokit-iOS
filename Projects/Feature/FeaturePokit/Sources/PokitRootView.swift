@@ -59,7 +59,7 @@ public extension PokitRootView {
                     type: store.folderType == .folder(.포킷)
                     ? .포킷삭제
                     : .링크삭제,
-                    delegateSend: { store.send(.scope(.deleteBottomSheet($0))) }
+                    delegateSend: { store.send(.scope(.deleteBottomSheet($0)), animation: .pokitSpring) }
                 )
             }
             .task { await send(.pokitRootViewOnAppeared).finish() }

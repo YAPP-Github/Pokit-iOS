@@ -86,6 +86,7 @@ public struct ContentListFeature {
             case 컨텐츠_삭제_반영(id: Int)
             case pagenation_네트워크_결과(BaseContentListInquiry)
             case pagenation_초기화
+            case 컨텐츠_목록_갱신(BaseContentListInquiry)
         }
 
         public enum AsyncAction: Equatable {
@@ -93,6 +94,7 @@ public struct ContentListFeature {
             case 즐겨찾기_링크모음_조회
             case 컨텐츠_삭제(id: Int)
             case pagenation_네트워크
+            case 컨텐츠_목록_갱신(size: Int)
         }
 
         public enum ScopeAction: Equatable {
@@ -172,16 +174,22 @@ private extension ContentListFeature {
             ]
             return .send(.inner(.pagenation_초기화))
         case .backButtonTapped:
+            
             return .run { _ in await dismiss() }
         case .contentListViewOnAppeared:
-            return .run { [type = state.contentType] send in
-                switch type {
-                case .unread:
-                    await send(.async(.읽지않음_컨텐츠_조회), animation: .pokitDissolve)
-                    break
-                case .favorite:
-                    await send(.async(.즐겨찾기_링크모음_조회), animation: .pokitDissolve)
-                    break
+            return .run { [
+                type = state.contentType,
+                size = state.domain.contentList.data?.count
+            ] send in
+                if let size {
+                    await send(.async(.컨텐츠_목록_갱신(size: size)), animation: .pokitSpring)
+                } else {
+                    switch type {
+                    case .unread:
+                        await send(.async(.읽지않음_컨텐츠_조회), animation: .pokitDissolve)
+                    case .favorite:
+                        await send(.async(.즐겨찾기_링크모음_조회), animation: .pokitDissolve)
+                    }
                 }
 
                 for await _ in self.pasteBoard.changes() {
@@ -224,10 +232,13 @@ private extension ContentListFeature {
             state.domain.contentList.data = nil
             switch state.contentType {
             case .unread:
-                return .send(.async(.읽지않음_컨텐츠_조회), animation: .smooth)
+                return .send(.async(.읽지않음_컨텐츠_조회), animation: .pokitDissolve)
             case .favorite:
-                return .send(.async(.즐겨찾기_링크모음_조회), animation: .smooth)
+                return .send(.async(.즐겨찾기_링크모음_조회), animation: .pokitDissolve)
             }
+        case let .컨텐츠_목록_갱신(contentList):
+            state.domain.contentList = contentList
+            return .none
         }
     }
 
@@ -274,6 +285,34 @@ private extension ContentListFeature {
                     break
                 }
             }
+        case let .컨텐츠_목록_갱신(size):
+            state.domain.pageable.page = 0
+            return .run { [
+                type = state.contentType,
+                pageable = state.domain.pageable
+            ] send in
+                switch type {
+                case .unread:
+                    let contentList = try await remindClient.읽지않음_컨텐츠_조회(
+                        BasePageableRequest(
+                            page: pageable.page,
+                            size: size,
+                            sort: pageable.sort
+                        )
+                    ).toDomain()
+                    await send(.inner(.컨텐츠_목록_갱신(contentList)), animation: .pokitSpring)
+                case .favorite:
+                    let contentList = try await remindClient.즐겨찾기_링크모음_조회(
+                        BasePageableRequest(
+                            page: pageable.page,
+                            size: size,
+                            sort: pageable.sort
+                        )
+                    ).toDomain()
+                    await send(.inner(.컨텐츠_목록_갱신(contentList)), animation: .pokitSpring)
+                }
+                
+            }
         }
     }
 
@@ -301,11 +340,15 @@ private extension ContentListFeature {
     func handleDelegateAction(_ action: Action.DelegateAction, state: inout State) -> Effect<Action> {
         switch action {
         case .컨텐츠_목록_조회:
-            switch state.contentType {
-            case .favorite:
-                return .send(.async(.즐겨찾기_링크모음_조회))
-            case .unread:
-                return .send(.async(.읽지않음_컨텐츠_조회))
+            if let size = state.domain.contentList.data?.count {
+                return .send(.async(.컨텐츠_목록_갱신(size: size)), animation: .pokitSpring)
+            } else {
+                switch state.contentType {
+                case .favorite:
+                    return .send(.async(.즐겨찾기_링크모음_조회))
+                case .unread:
+                    return .send(.async(.읽지않음_컨텐츠_조회))
+                }
             }
         default:
             return .none

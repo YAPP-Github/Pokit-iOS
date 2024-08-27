@@ -69,6 +69,7 @@ private extension ContentListView {
             Text("링크 \(store.contents?.count ?? 0)개")
                 .pokitFont(.detail1)
                 .foregroundStyle(.pokit(.text(.secondary)))
+                .contentTransition(.numericText())
             
             Spacer()
             
@@ -106,7 +107,6 @@ private extension ContentListView {
                                     kebabAction: { send(.kebabButtonTapped(content: content)) }
                                 )
                                 .divider(isFirst: isFirst, isLast: isLast)
-                                .pokitScrollTransition(.opacity)
                             }
                             
                             if store.hasNext {
