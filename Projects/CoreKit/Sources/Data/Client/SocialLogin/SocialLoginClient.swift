@@ -11,6 +11,7 @@ import Dependencies
 public struct SocialLoginClient {
     public var appleLogin: @Sendable () async throws -> SocialLoginInfo
     public var googleLogin: @Sendable () async throws -> SocialLoginInfo
+    public var getClientSceret: @Sendable () -> String
 }
 
 extension SocialLoginClient: DependencyKey {
@@ -24,6 +25,9 @@ extension SocialLoginClient: DependencyKey {
             },
             googleLogin: {
                 try await googleLoginController.login()
+            },
+            getClientSceret: {
+                return appleLoginController.makeJWT()
             }
         )
     }()
@@ -31,8 +35,8 @@ extension SocialLoginClient: DependencyKey {
     public static let previewValue: Self = {
         Self(
             appleLogin: { .appleMock },
-            googleLogin: { .googleMock }
-            
+            googleLogin: { .googleMock },
+            getClientSceret: { "" }
         )
     }()
 }

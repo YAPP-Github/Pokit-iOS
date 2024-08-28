@@ -204,7 +204,7 @@ private extension PokitSettingFeature {
         switch action {
         case .회원탈퇴_네트워크:
             return .run { send in
-                guard let _ = keychain.read(.refreshToken) else {
+                guard let refreshToken = keychain.read(.refreshToken) else {
                     print("refresh가 없어서 벗어남")
                     return
                 }
@@ -213,10 +213,34 @@ private extension PokitSettingFeature {
                     return
                 }
                 
+                guard let authCode = userDefaults.stringKey(.authCode) else {
+                    print("authCode가 없어서 벗어남")
+                    return
+                }
+                
+                guard let jwt = userDefaults.stringKey(.jwt) else {
+                    print("jwt가 없어서 벗어남")
+                    return
+                }
+                
                 guard let serverRefreshToken = keychain.read(.serverRefresh) else { return }
                 
-                let request = WithdrawRequest(refreshToken: serverRefreshToken, authPlatform: platform)
                 await send(.async(.키_제거))
+                
+                try await authClient.appleRevoke(
+                    refreshToken,
+                    AppleTokenRequest(
+                        authCode: authCode,
+                        jwt: jwt
+                    )
+                )
+                
+                let request = WithdrawRequest(
+                    refreshToken: serverRefreshToken,
+                    authPlatform: platform
+                )
+                
+                // - TODO: 서버 디비 삭제 요청으로 바꿔야함
                 try await authClient.회원탈퇴(request)
             }
             

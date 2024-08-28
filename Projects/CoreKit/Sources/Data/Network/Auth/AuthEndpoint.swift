@@ -15,6 +15,7 @@ public enum AuthEndpoint {
     case 회원탈퇴(WithdrawRequest)
     case 토큰재발급(ReissueRequest)
     case apple(AppleTokenRequest)
+    case appleRevoke(String, AppleTokenRequest)
 }
 
 extension AuthEndpoint: TargetType {
@@ -22,6 +23,8 @@ extension AuthEndpoint: TargetType {
         switch self {
         case .apple:
             return URL(string: "https://appleid.apple.com/auth/token")!
+        case .appleRevoke:
+            return URL(string: "https://appleid.apple.com/auth/revoke")!
         default:
             return Constants.serverURL.appendingPathComponent(Constants.authPath, conformingTo: .url)
         }
@@ -32,13 +35,13 @@ extension AuthEndpoint: TargetType {
         case .로그인: return "/signin"
         case .회원탈퇴: return "/withdraw"
         case .토큰재발급: return "/reissue"
-        case .apple: return ""
+        case .apple, .appleRevoke: return ""
         }
     }
     
     public var method: Moya.Method {
         switch self {
-        case .로그인, .토큰재발급, .apple: return .post
+        case .로그인, .토큰재발급, .apple, .appleRevoke: return .post
         case .회원탈퇴: return .put
         }
     }
@@ -64,12 +67,21 @@ extension AuthEndpoint: TargetType {
                     ],
                 encoding: URLEncoding.default
             )
+        case let .appleRevoke(refreshToken, requestModel):
+            return .requestParameters(
+                parameters: [
+                    "client_id": "com.pokitmons.pokit",
+                    "client_secret": requestModel.jwt,
+                    "token": refreshToken
+                ],
+                encoding: URLEncoding.default
+            )
         }
     }
     
     public var headers: [String: String]? {
         switch self {
-        case .apple: ["Content-Type": "application/x-www-form-urlencoded"]
+        case .apple, .appleRevoke: ["Content-Type": "application/x-www-form-urlencoded"]
         default: ["Content-Type": "application/json"]
         }
     }
