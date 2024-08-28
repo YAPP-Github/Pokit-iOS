@@ -64,6 +64,7 @@ public struct PokitAlertBoxFeature {
         public enum DelegateAction: Equatable {
             case moveToContentEdit(id: Int)
             case linkCopyDetected(URL?)
+            case alertBoxDismiss
         }
     }
     
@@ -117,7 +118,10 @@ private extension PokitAlertBoxFeature {
         case .itemSelected(let item):
             return .run { send in await send(.delegate(.moveToContentEdit(id: item.contentId))) }
         case .dismiss:
-            return .run { _ in await dismiss() }
+            return .run { send in
+//                await dismiss()
+                await send(.delegate(.alertBoxDismiss))
+            }
         case .onAppear:
             return .run { [domain = state.domain.alertList] send in
                 let sort: [String] = ["createdAt", "desc"]
