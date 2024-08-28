@@ -228,6 +228,7 @@ public extension MainTabFeature {
                     ),
                     categoryName: sharedCategory.categoryName
                 )))
+                return .none
             case .path(.element(_, action: .알림함(.delegate(.alertBoxDismiss)))):
                 state.path.popLast()
                 return .none
