@@ -80,10 +80,7 @@ public struct AppDelegateFeature {
                 return .run { _ in completionHandler(.banner) }
                 
             case let .userNotifications(.didReceiveResponse(_, completionHandler)):
-                return .run { send in
-                    await userDefaults.setBool(true, .fromBanner)
-                    completionHandler()
-                }
+                return .run { @MainActor _ in completionHandler() }
             case .userNotifications:
                 return .none
                 
