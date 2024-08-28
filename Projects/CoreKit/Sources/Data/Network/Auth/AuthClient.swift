@@ -23,6 +23,7 @@ public struct AuthClient {
     public var 회원탈퇴: @Sendable (WithdrawRequest) async throws -> Void
     public var 토큰재발급: @Sendable (ReissueRequest) async throws -> ReissueResponse
     public var apple: @Sendable (AppleTokenRequest) async throws -> AppleTokenResponse
+    public var appleRevoke: @Sendable (String, AppleTokenRequest) async throws -> Void
 }
 
 extension AuthClient: DependencyKey {
@@ -43,6 +44,9 @@ extension AuthClient: DependencyKey {
             },
             apple: { model in
                 try await nonTokenProvider.request(.apple(model))
+            },
+            appleRevoke: { refreshToken, model in
+                try await nonTokenProvider.requestNoBody(.appleRevoke(refreshToken, model))
             }
         )
     }()
@@ -52,7 +56,8 @@ extension AuthClient: DependencyKey {
             로그인: { _ in .mock },
             회원탈퇴: { _ in  },
             토큰재발급: { _ in .mock },
-            apple: { _ in .init(refresh_token: "") }
+            apple: { _ in .init(refresh_token: "") },
+            appleRevoke: { _, _ in }
         )
     }()
 }
