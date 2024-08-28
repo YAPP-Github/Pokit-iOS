@@ -197,7 +197,6 @@ public extension MainTabFeature {
                 return .send(.delegate(.로그아웃))
             case .path(.element(_, action: .설정(.delegate(.회원탈퇴)))):
                 return .send(.delegate(.회원탈퇴))
-            
             case let .inner(.공유포킷_이동(sharedCategory: sharedCategory)):
                 state.path.append(.링크공유(CategorySharingFeature.State(sharedCategory: sharedCategory)))
                 return .none
@@ -229,6 +228,8 @@ public extension MainTabFeature {
                     ),
                     categoryName: sharedCategory.categoryName
                 )))
+            case .path(.element(_, action: .알림함(.delegate(.alertBoxDismiss)))):
+                state.path.popLast()
                 return .none
             default: return .none
             }
