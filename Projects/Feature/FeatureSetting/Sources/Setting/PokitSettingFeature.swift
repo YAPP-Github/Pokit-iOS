@@ -204,7 +204,7 @@ private extension PokitSettingFeature {
         switch action {
         case .회원탈퇴_네트워크:
             return .run { send in
-                guard let refreshToken = keychain.read(.refreshToken) else {
+                guard keychain.read(.refreshToken) != nil else {
                     print("refresh가 없어서 벗어남")
                     return
                 }
@@ -228,7 +228,7 @@ private extension PokitSettingFeature {
                 await send(.async(.키_제거))
                 
                 try await authClient.appleRevoke(
-                    refreshToken,
+                    serverRefreshToken,
                     AppleTokenRequest(
                         authCode: authCode,
                         jwt: jwt

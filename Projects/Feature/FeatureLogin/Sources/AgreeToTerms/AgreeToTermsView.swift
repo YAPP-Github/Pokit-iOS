@@ -54,6 +54,10 @@ public extension AgreeToTermsView {
                     }
                 }
             }
+            .fullScreenCover(isPresented: $store.isWebViewPresented) {
+                PokitWebView(url: $store.webViewURL)
+                    .ignoresSafeArea()
+            }
             .ignoresSafeArea(edges: .bottom)
         }
     }

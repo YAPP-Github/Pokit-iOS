@@ -72,7 +72,8 @@ extension AuthEndpoint: TargetType {
                 parameters: [
                     "client_id": "com.pokitmons.pokit",
                     "client_secret": requestModel.jwt,
-                    "token": refreshToken
+                    "token": refreshToken,
+                    "token_type_hint": "refresh_token"
                 ],
                 encoding: URLEncoding.default
             )
