@@ -71,3 +71,23 @@ Tuist/.build
 
 ### Package.resolved ###
 *.resolved
+
+### xcconfig ###
+*.xcconfig
+
+### appstore connect api key
+fastlane/key.json
+
+### Archive App
+*.ipa
+*.app.dSYM.zip
+
+### Auth Key
+*.p8
+
+### GoogleService info
+**/GoogleService-Info.plist
+
+### fastlane environment
+fastlane/.env
+fastlane/.env.default

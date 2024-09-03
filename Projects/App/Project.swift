@@ -5,8 +5,15 @@
 //  Created by 김도형 on 6/16/24.
 //
 
+import Foundation
 import ProjectDescription
 import ProjectDescriptionHelpers
+
+let developmentTeam = ProcessInfo.processInfo.environment["TUIST_DEVELOPMENT_TEAM"]
+
+let features: [TargetDependency] = Feature.allCases.map { feature in
+        .project(target: "Feature\(feature.rawValue)", path: .relativeToRoot("Projects/Feature"))
+}
 
 let project = Project(
     name: "App",
@@ -15,20 +22,29 @@ let project = Project(
             name: "App",
             destinations: .appDestinations,
             product: .app,
-            bundleId: .moduleBundleId(name: "App"),
+            bundleId: "com.pokitmons.pokit",
             deploymentTargets: .appMinimunTarget,
             infoPlist: .file(path: .relativeToRoot("Projects/App/Resources/Pokit-info.plist")),
             sources: ["Sources/**"],
             resources: ["Resources/**"],
-            dependencies: [
+            entitlements: .file(path: .relativeToRoot("Projects/App/Resources/Pokit-iOS.entitlements")),
+            dependencies: features + [
                 // TODO: 의존성 추가
-                .project(target: "FeatureHome", path: .relativeToRoot("Projects/Feature")),
-                .project(target: "FeatureAddCategory", path: .relativeToRoot("Projects/Feature")),
-                .project(target: "FeatureAddLink", path: .relativeToRoot("Projects/Feature")),
-                .project(target: "FeatureLinkDetail", path: .relativeToRoot("Projects/Feature")),
-                .project(target: "FeatureMyFolder", path: .relativeToRoot("Projects/Feature")),
-                .project(target: "FeatureMyPage", path: .relativeToRoot("Projects/Feature"))
-            ]
+                .external(name: "FirebaseMessaging")
+            ],
+            settings: .settings(
+                base: [
+                    "OTHER_LDFLAGS": "$(inherited) -ObjC",
+                    "CODE_SIGN_IDENTITY": "Apple Distribution",
+                    "PROVISIONING_PROFILE_SPECIFIER": "match AppStore com.pokitmons.pokit 1721720816",
+                    "PROVISIONING_PROFILE": "match AppStore com.pokitmons.pokit 1721720816",
+                    "DEVELOPMENT_TEAM": "\(developmentTeam ?? "")"
+                ],
+                configurations: [
+                    .debug(name: "Debug", xcconfig: .relativeToRoot("xcconfig/Secret.xcconfig")),
+                    .release(name: "Release", xcconfig: .relativeToRoot("xcconfig/Secret.xcconfig"))
+                ]
+            )
         )
     ]
 )

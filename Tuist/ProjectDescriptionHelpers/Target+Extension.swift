@@ -11,7 +11,9 @@ public extension Target {
     static func makeTarget(
         name: String,
         product: Product,
-        bundleName: String, 
+        bundleName: String,
+        infoPlist: InfoPlist? = nil,
+        resources: ResourceFileElements? = nil,
         dependencies: [TargetDependency]
     ) -> Target {
         return .target(
@@ -19,8 +21,30 @@ public extension Target {
             destinations: .appDestinations,
             product: product,
             bundleId: .moduleBundleId(name: bundleName),
+            deploymentTargets: .appMinimunTarget,
+            infoPlist: infoPlist,
             sources: ["\(name)/Sources/**"],
-            dependencies: dependencies
+            resources: resources,
+            dependencies: dependencies,
+            settings: .settings
+        )
+    }
+    
+    static func makeChildTarget(
+        name: String,
+        product: Product,
+        bundleName: String,
+        dependencies: [TargetDependency]
+    ) -> Target {
+        return .target(
+            name: "\(name)",
+            destinations: .appDestinations,
+            product: product,
+            bundleId: .moduleBundleId(name: bundleName),
+            deploymentTargets: .appMinimunTarget,
+            sources: ["Sources/\(name)/Sources/**"],
+            dependencies: dependencies,
+            settings: .settings
         )
     }
 }
