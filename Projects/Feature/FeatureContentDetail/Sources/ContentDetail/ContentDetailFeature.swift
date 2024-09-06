@@ -94,6 +94,8 @@ public struct ContentDetailFeature {
 
         public enum DelegateAction: Equatable {
             case editButtonTapped(contentId: Int)
+            case 즐겨찾기_갱신_완료
+            case 컨텐츠_조회_완료
         }
     }
 
@@ -216,10 +218,13 @@ private extension ContentDetailFeature {
             return .none
         case .컨텐츠_상세_조회(content: let content):
             state.domain.content = content
-            return .send(.inner(.parsingURL))
+            return .run { send in
+                await send(.delegate(.컨텐츠_조회_완료))
+                await send(.inner(.parsingURL))
+            }
         case .즐겨찾기_갱신(let favorite):
             state.domain.content?.favorites = favorite
-            return .none
+            return .send(.delegate(.즐겨찾기_갱신_완료))
         case .링크미리보기_presented:
             state.showLinkPreview = true
             return .none
