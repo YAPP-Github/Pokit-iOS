@@ -332,7 +332,6 @@ private extension PokitSearchFeature {
             state.domain.condition.isRead = false
             return .send(.inner(.페이징_초기화))
         case .링크_공유_완료(completed: let completed):
-            guard completed else { return .none }
             state.shareSheetItem = nil
             return .none
         case .로딩_isPresented:

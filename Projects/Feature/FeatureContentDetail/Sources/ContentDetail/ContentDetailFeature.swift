@@ -177,7 +177,7 @@ private extension ContentDetailFeature {
                 }
             }
         case .링크_공유_완료(completed: let completed):
-            state.showShareSheet = !completed
+            state.showShareSheet = false
             return .none
         case .alertCancelButtonTapped:
             state.showAlert = false

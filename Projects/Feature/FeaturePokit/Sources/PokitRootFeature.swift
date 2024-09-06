@@ -245,7 +245,6 @@ private extension PokitRootFeature {
             default: return .none
             }
         case .링크_공유_완료(completed: let completed):
-            guard completed else { return .none }
             state.shareSheetItem = nil
             return .none
         }

@@ -194,7 +194,6 @@ private extension ContentListFeature {
         case .pagenation:
             return .run { send in await send(.async(.pagenation_네트워크)) }
         case .링크_공유_완료(completed: let completed):
-            guard completed else { return .none }
             state.shareSheetItem = nil
             return .none
         }

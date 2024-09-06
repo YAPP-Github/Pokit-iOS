@@ -176,7 +176,6 @@ private extension RemindFeature {
                 await send(.async(.즐겨찾기_링크모음_조회), animation: .pokitDissolve)
             }
         case .링크_공유_완료(completed: let completed):
-            guard completed else { return .none }
             state.shareSheetItem = nil
             return .none
         }
