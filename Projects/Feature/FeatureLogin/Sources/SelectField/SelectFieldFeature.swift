@@ -108,7 +108,7 @@ private extension SelectFieldFeature {
     func handleInnerAction(_ action: Action.InnerAction, state: inout State) -> Effect<Action> {
         switch action {
         case let .관심사_목록_조회_결과(interests):
-            interests.forEach { state.fields.append($0.description) }
+            state.fields = interests.map { $0.description }
             return .none
         }
     }
