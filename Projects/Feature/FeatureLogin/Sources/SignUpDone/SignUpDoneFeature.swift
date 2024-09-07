@@ -36,7 +36,6 @@ public struct SignUpDoneFeature {
         public enum View: Equatable {
             /// - Button Tapped
             case startButtonTapped
-            case backButtonTapped
             
             case firecrackerOnAppeared
             case titleOnAppeared
@@ -84,8 +83,6 @@ private extension SignUpDoneFeature {
         switch action {
         case .startButtonTapped:
             return .send(.delegate(.dismissLoginRootView), animation: .pokitDissolve)
-        case .backButtonTapped:
-            return .run { _ in await self.dismiss() }
         case .firecrackerOnAppeared:
             state.firecrackIsAppear = true
             return .none

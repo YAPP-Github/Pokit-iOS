@@ -14,10 +14,10 @@ struct FeatureLoginDemoApp: App {
     var body: some Scene {
         WindowGroup {
             // TODO: 루트 뷰 추가
-            LoginRootView(
+            LoginView(
                 store: .init(
                     initialState: .init(),
-                    reducer: { LoginRootFeature() }
+                    reducer: { LoginFeature() }
                 )
             )
         }
@@ -25,10 +25,10 @@ struct FeatureLoginDemoApp: App {
 }
 
 #Preview {
-    LoginRootView(
+    LoginView(
         store: .init(
             initialState: .init(),
-            reducer: { LoginRootFeature() }
+            reducer: { LoginFeature() }
         )
     )
 }

@@ -16,7 +16,7 @@ public struct IntroFeature {
     @ObservableState
     public enum State {
         case splash(SplashFeature.State = .init())
-        case login(LoginRootFeature.State = .init())
+        case login(LoginRootFeature.State = .login(.init()))
         public init() { self = .splash() }
     }
     /// - Action
@@ -42,7 +42,7 @@ public struct IntroFeature {
         case .splash(let splashAction):
             return splashDelegate(splashAction, state: &state)
             
-        case .login(.delegate(.dismissLoginRootView)):
+        case .login(.delegate(.로그인_루트_닫기)):
             return .run { send in await send(.delegate(.moveToTab), animation: .smooth) }
             
         case .delegate, .login:
