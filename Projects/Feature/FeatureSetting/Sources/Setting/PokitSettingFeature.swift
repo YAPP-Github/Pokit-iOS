@@ -213,30 +213,31 @@ private extension PokitSettingFeature {
                     return
                 }
                 
-                guard let authCode = userDefaults.stringKey(.authCode) else {
-                    print("authCode가 없어서 벗어남")
-                    return
+                if platform == "애플" {
+                    guard let authCode = userDefaults.stringKey(.authCode) else {
+                        print("authCode가 없어서 벗어남")
+                        return
+                    }
+                    
+                    guard let jwt = userDefaults.stringKey(.jwt) else {
+                        print("jwt가 없어서 벗어남")
+                        return
+                    }
+                    
+                    guard let serverRefreshToken = keychain.read(.serverRefresh) else { return }
+                    
+                    try await authClient.appleRevoke(
+                        serverRefreshToken,
+                        AppleTokenRequest(
+                            authCode: authCode,
+                            jwt: jwt
+                        )
+                    )
                 }
-                
-                guard let jwt = userDefaults.stringKey(.jwt) else {
-                    print("jwt가 없어서 벗어남")
-                    return
-                }
-                
-                guard let serverRefreshToken = keychain.read(.serverRefresh) else { return }
                 
                 await send(.async(.키_제거))
                 
-                try await authClient.appleRevoke(
-                    serverRefreshToken,
-                    AppleTokenRequest(
-                        authCode: authCode,
-                        jwt: jwt
-                    )
-                )
-                
                 let request = WithdrawRequest(
-                    refreshToken: serverRefreshToken,
                     authPlatform: platform
                 )
                 
