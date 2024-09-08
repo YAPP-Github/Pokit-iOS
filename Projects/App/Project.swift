@@ -17,6 +17,10 @@ let features: [TargetDependency] = Feature.allCases.map { feature in
 
 let project = Project(
     name: "App",
+    options: .options(
+        defaultKnownRegions: ["en", "ko"],
+        developmentRegion: "ko"
+    ),
     targets: [
         .target(
             name: "App",
