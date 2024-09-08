@@ -59,11 +59,8 @@ public struct AppDelegateFeature {
                         group.addTask {
                             let setting = await self.userNotifications.getNotificationSettings()
                             switch setting.authorizationStatus {
-                            case .authorized:
+                            case .authorized, .notDetermined:
                                 guard try await self.userNotifications.requestAuthorization([.alert, .sound])
-                                else { return }
-                            case .notDetermined, .provisional:
-                                guard try await self.userNotifications.requestAuthorization(.provisional)
                                 else { return }
                             default: return
                             }
