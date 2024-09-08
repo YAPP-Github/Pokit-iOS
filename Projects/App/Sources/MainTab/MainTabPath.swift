@@ -62,6 +62,7 @@ public extension MainTabFeature {
             case .pokit(.delegate(.alertButtonTapped)),
                  .remind(.delegate(.alertButtonTapped)),
                  .delegate(.알림함이동):
+                state.isPushTapped = false
                 state.path.append(.알림함(PokitAlertBoxFeature.State()))
                 return .none
 
