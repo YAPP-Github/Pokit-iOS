@@ -78,7 +78,7 @@ public struct RemindFeature {
             )
             case deleteAlertConfirmTapped(content: BaseContentItem)
             
-            case 링크_공유_완료(completed: Bool)
+            case 링크_공유_완료
             
             case remindViewOnAppeared
         }
@@ -175,7 +175,7 @@ private extension RemindFeature {
                 await send(.async(.읽지않음_컨텐츠_조회), animation: .pokitDissolve)
                 await send(.async(.즐겨찾기_링크모음_조회), animation: .pokitDissolve)
             }
-        case .링크_공유_완료(completed: let completed):
+        case .링크_공유_완료:
             state.shareSheetItem = nil
             return .none
         }

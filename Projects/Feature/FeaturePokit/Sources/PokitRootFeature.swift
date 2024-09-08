@@ -92,7 +92,7 @@ public struct PokitRootFeature {
             case categoryTapped(BaseCategoryItem)
             case contentItemTapped(BaseContentItem)
 
-            case 링크_공유_완료(completed: Bool)
+            case 링크_공유_완료
 
             case pokitRootViewOnAppeared
 
@@ -244,7 +244,7 @@ private extension PokitRootFeature {
                 return .send(.async(.미분류_카테고리_컨텐츠_페이징_조회))
             default: return .none
             }
-        case .링크_공유_완료(completed: let completed):
+        case .링크_공유_완료:
             state.shareSheetItem = nil
             return .none
         }

@@ -77,7 +77,7 @@ public struct ContentListFeature {
             case contentListViewOnAppeared
             case pagenation
             
-            case 링크_공유_완료(completed: Bool)
+            case 링크_공유_완료
         }
 
         public enum InnerAction: Equatable {
@@ -193,7 +193,7 @@ private extension ContentListFeature {
 
         case .pagenation:
             return .run { send in await send(.async(.pagenation_네트워크)) }
-        case .링크_공유_완료(completed: let completed):
+        case .링크_공유_완료:
             state.shareSheetItem = nil
             return .none
         }
