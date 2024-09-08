@@ -156,13 +156,13 @@ public extension MainTabFeature {
                 }
 
             case let .inner(.링크추가및수정이동(contentId: id)):
-                state.path.append(.링크추가및수정(
-                    ContentSettingFeature.State(contentId: id)
-                ))
+                state.selectedPokit = nil
+                state.path.append(.링크추가및수정(ContentSettingFeature.State(contentId: id)))
                 return .send(.contentDetail(.dismiss))
 
             /// - 링크 추가하기
             case .delegate(.링크추가하기):
+                state.selectedPokit = nil
                 state.path.append(.링크추가및수정(ContentSettingFeature.State(urlText: state.link)))
                 state.link = nil
                 return .none
@@ -238,4 +238,3 @@ public extension MainTabFeature {
         .forEach(\.path, action: \.path) { MainTabPath() }
     }
 }
-
