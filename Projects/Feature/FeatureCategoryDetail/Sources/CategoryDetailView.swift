@@ -41,6 +41,15 @@ public extension CategoryDetailView {
                     delegateSend: { store.send(.scope(.categoryBottomSheet($0))) }
                 )
             }
+            .sheet(item: $store.shareSheetItem) { content in
+                if let shareURL = URL(string: content.data) {
+                    PokitShareSheet(
+                        items: [shareURL],
+                        completion: { send(.링크_공유_완료) }
+                    )
+                    .presentationDetents([.medium, .large])
+                }
+            }
             .sheet(isPresented: $store.isCategorySelectSheetPresented) {
                 if let categories = store.categories {
                     PokitCategorySheet(

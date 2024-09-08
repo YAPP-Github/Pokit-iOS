@@ -126,7 +126,7 @@ public struct PokitSearchFeature {
             /// - TextInput OnSubmitted
             case searchTextInputOnSubmitted
             
-            case 링크_공유_완료(completed: Bool)
+            case 링크_공유_완료
             
             case onAppear
             case 로딩_isPresented
@@ -331,8 +331,7 @@ private extension PokitSearchFeature {
         case .unreadChipTapped:
             state.domain.condition.isRead = false
             return .send(.inner(.페이징_초기화))
-        case .링크_공유_완료(completed: let completed):
-            guard completed else { return .none }
+        case .링크_공유_완료:
             state.shareSheetItem = nil
             return .none
         case .로딩_isPresented:

@@ -63,6 +63,7 @@ public struct CategoryDetailFeature {
         }
         var kebobSelectedType: PokitDeleteBottomSheet.SheetType?
         var selectedContentItem: BaseContentItem?
+        var shareSheetItem: BaseContentItem? = nil
         /// sheet Presented
         var isCategorySheetPresented: Bool = false
         var isCategorySelectSheetPresented: Bool = false
@@ -99,6 +100,7 @@ public struct CategoryDetailFeature {
             case dismiss
             case onAppear
             case pagenation
+            case 링크_공유_완료
         }
         
         public enum InnerAction: Equatable {
@@ -217,6 +219,9 @@ private extension CategoryDetailFeature {
             }
         case .pagenation:
             return .run { send in await send(.async(.pagenation_네트워크)) }
+        case .링크_공유_완료:
+            state.shareSheetItem = nil
+            return .none
         }
     }
     
@@ -304,13 +309,20 @@ private extension CategoryDetailFeature {
         case .categoryBottomSheet(let delegateAction):
             switch delegateAction {
             case .shareCellButtonTapped:
-                kakaoShareClient.카테고리_카카오톡_공유(
-                    CategoryKaKaoShareModel(
-                        categoryName: state.domain.category.categoryName,
-                        categoryId: state.domain.category.id,
-                        imageURL: state.domain.category.categoryImage.imageURL
+                switch state.kebobSelectedType {
+                case .링크삭제:
+                    state.shareSheetItem = state.selectedContentItem
+                case .포킷삭제:
+                    kakaoShareClient.카테고리_카카오톡_공유(
+                        CategoryKaKaoShareModel(
+                            categoryName: state.domain.category.categoryName,
+                            categoryId: state.domain.category.id,
+                            imageURL: state.domain.category.categoryImage.imageURL
+                        )
                     )
-                )
+                default: return .none
+                }
+                
                 state.isCategorySheetPresented = false
                 return .none
                 

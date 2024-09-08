@@ -135,8 +135,9 @@ public extension MainTabFeature {
                  let .path(.element(_, action: .알림함(.delegate(.moveToContentEdit(id))))):
                 return .run { send in await send(.inner(.링크추가및수정이동(contentId: id))) }
             
-            /// - 컨텐츠 상세보기 닫힘
-            case .contentDetail(.dismiss):
+            /// - 컨텐츠 상세보기 내부 액션 실행
+            case .contentDetail(.presented(.delegate(.즐겨찾기_갱신_완료))),
+                 .contentDetail(.presented(.delegate(.컨텐츠_조회_완료))):
                 guard let stackElementId = state.path.ids.last,
                       let lastPath = state.path.last else {
                     switch state.selectedTab {

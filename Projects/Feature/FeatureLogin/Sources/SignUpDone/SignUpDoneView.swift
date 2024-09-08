@@ -25,10 +25,10 @@ public extension SignUpDoneView {
             VStack(spacing: 0) {
                 Spacer()
                 
-                    logo
-                    
-                    title
-                        .padding(.top, 4)
+                logo
+                
+                title
+                    .padding(.top, 4)
                 
                 Spacer()
                 
@@ -36,6 +36,7 @@ public extension SignUpDoneView {
                     .padding(.top, 78)
             }
             .padding(.horizontal, 20)
+            .background(.pokit(.bg(.base)))
             .overlay(alignment: .bottom) {
                 PokitBottomButton(
                     "시작하기",
@@ -46,16 +47,8 @@ public extension SignUpDoneView {
                 .padding(.horizontal, 20)
                 .background(.pokit(.bg(.base)))
             }
-            .pokitNavigationBar {
-                PokitHeader {
-                    PokitHeaderItems(placement: .leading) {
-                        PokitToolbarButton(.icon(.arrowLeft)) {
-                            send(.backButtonTapped)
-                        }
-                    }
-                }
-            }
             .ignoresSafeArea(edges: .bottom)
+            .navigationBarBackButtonHidden()
         }
     }
 }
@@ -127,5 +120,3 @@ extension SignUpDoneView {
         )
     )
 }
-
-

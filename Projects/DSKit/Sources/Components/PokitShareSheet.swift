@@ -9,11 +9,11 @@ import SwiftUI
 
 public struct PokitShareSheet: UIViewControllerRepresentable {
     private var items: [Any]
-    private var completion: ((_ completed: Bool) -> Void)?
+    private var completion: (() -> Void)?
     
     public init(
         items: [Any],
-        completion: ((_: Bool) -> Void)?
+        completion: (() -> Void)?
     ) {
         self.items = items
         self.completion = completion
@@ -24,8 +24,8 @@ public struct PokitShareSheet: UIViewControllerRepresentable {
             activityItems: items,
             applicationActivities: nil
         )
-        controller.completionWithItemsHandler = { _, completed, _, _ in
-            completion?(completed)
+        controller.completionWithItemsHandler = { _, _, _, _ in
+            completion?()
         }
         return controller
     }
