@@ -94,7 +94,7 @@ public struct ContentListFeature {
             case 즐겨찾기_링크모음_조회
             case 컨텐츠_삭제(id: Int)
             case pagenation_네트워크
-            case 컨텐츠_목록_갱신(size: Int)
+            case 컨텐츠_목록_갱신
         }
 
         public enum ScopeAction: Equatable {
@@ -177,19 +177,12 @@ private extension ContentListFeature {
             
             return .run { _ in await dismiss() }
         case .contentListViewOnAppeared:
-            return .run { [
-                type = state.contentType,
-                size = state.domain.contentList.data?.count
-            ] send in
-                if let size {
-                    await send(.async(.컨텐츠_목록_갱신(size: size)), animation: .pokitSpring)
-                } else {
-                    switch type {
-                    case .unread:
-                        await send(.async(.읽지않음_컨텐츠_조회), animation: .pokitDissolve)
-                    case .favorite:
-                        await send(.async(.즐겨찾기_링크모음_조회), animation: .pokitDissolve)
-                    }
+            return .run { [type = state.contentType] send in
+                switch type {
+                case .unread:
+                    await send(.async(.읽지않음_컨텐츠_조회), animation: .pokitDissolve)
+                case .favorite:
+                    await send(.async(.즐겨찾기_링크모음_조회), animation: .pokitDissolve)
                 }
 
                 for await _ in self.pasteBoard.changes() {
@@ -285,7 +278,7 @@ private extension ContentListFeature {
                     break
                 }
             }
-        case let .컨텐츠_목록_갱신(size):
+        case .컨텐츠_목록_갱신:
             state.domain.pageable.page = 0
             return .run { [
                 type = state.contentType,
@@ -296,7 +289,7 @@ private extension ContentListFeature {
                     let contentList = try await remindClient.읽지않음_컨텐츠_조회(
                         BasePageableRequest(
                             page: pageable.page,
-                            size: size,
+                            size: pageable.size,
                             sort: pageable.sort
                         )
                     ).toDomain()
@@ -305,7 +298,7 @@ private extension ContentListFeature {
                     let contentList = try await remindClient.즐겨찾기_링크모음_조회(
                         BasePageableRequest(
                             page: pageable.page,
-                            size: size,
+                            size: pageable.size,
                             sort: pageable.sort
                         )
                     ).toDomain()
@@ -340,15 +333,11 @@ private extension ContentListFeature {
     func handleDelegateAction(_ action: Action.DelegateAction, state: inout State) -> Effect<Action> {
         switch action {
         case .컨텐츠_목록_조회:
-            if let size = state.domain.contentList.data?.count {
-                return .send(.async(.컨텐츠_목록_갱신(size: size)), animation: .pokitSpring)
-            } else {
-                switch state.contentType {
-                case .favorite:
-                    return .send(.async(.즐겨찾기_링크모음_조회))
-                case .unread:
-                    return .send(.async(.읽지않음_컨텐츠_조회))
-                }
+            switch state.contentType {
+            case .favorite:
+                return .send(.async(.즐겨찾기_링크모음_조회))
+            case .unread:
+                return .send(.async(.읽지않음_컨텐츠_조회))
             }
         default:
             return .none
