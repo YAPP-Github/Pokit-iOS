@@ -62,7 +62,7 @@ public struct ContentSettingFeature {
         var linkTextInputState: PokitInputStyle.State = .default
         var titleTextInpuState: PokitInputStyle.State = .default
         var memoTextAreaState: PokitInputStyle.State = .default
-        var selectedPokit: BaseCategoryItem? = nil
+        @Shared(.inMemory("SelectCategory")) var selectedPokit: BaseCategoryItem?
         var linkTitle: String? = nil
         var linkImageURL: String? = nil
         var showMaxCategoryPopup: Bool = false
@@ -107,6 +107,7 @@ public struct ContentSettingFeature {
             case 카테고리_갱신(category: BaseCategory)
             case 카테고리_목록_갱신(categoryList: BaseCategoryListInquiry)
             case 링크미리보기_presented
+            case 선택한_포킷_인메모리_삭제
         }
 
         public enum AsyncAction: Equatable {
@@ -297,9 +298,10 @@ private extension ContentSettingFeature {
             /// [3]. 도메인 항목 리스트에 list 할당
             state.domain.categoryListInQuiry = list
             
-            /// [4]. 선택한 카테고리는 최초 진입시 항상 `미분류`이므로 설정 추가
-            state.selectedPokit = unclassifiedItem
-            
+            /// [4]. 최초 진입시: `미분류`로 설정함. 포킷 추가하고 왔다면 `@Shared`에 값이 있기 때문에 기존 값을 업데이트함
+            if state.selectedPokit == nil {
+                state.selectedPokit = unclassifiedItem
+            }
             return .none
         case let .showLinkPopup(url):
             guard let url else { return .none }
@@ -308,6 +310,10 @@ private extension ContentSettingFeature {
             return .none
         case .링크미리보기_presented:
             state.showLinkPreview = true
+            return .none
+            
+        case .선택한_포킷_인메모리_삭제:
+            state.selectedPokit = nil
             return .none
         }
     }
@@ -365,6 +371,7 @@ private extension ContentSettingFeature {
                         thumbNail: thumbNail
                     )
                 )
+                await send(.inner(.선택한_포킷_인메모리_삭제))
                 await send(.delegate(.저장하기_완료))
             }
         case .컨텐츠_추가:
@@ -390,6 +397,7 @@ private extension ContentSettingFeature {
                         thumbNail: thumbNail
                     )
                 )
+                await send(.inner(.선택한_포킷_인메모리_삭제))
                 await send(.delegate(.저장하기_완료))
             }
         }

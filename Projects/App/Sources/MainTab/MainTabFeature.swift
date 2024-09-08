@@ -38,6 +38,7 @@ public struct MainTabFeature {
         var pokit: PokitRootFeature.State
         var remind: RemindFeature.State = .init()
         @Presents var contentDetail: ContentDetailFeature.State?
+        @Shared(.inMemory("SelectCategory")) var selectedPokit: BaseCategoryItem?
         
         public init() {
             self.pokit = .init()
@@ -144,7 +145,7 @@ private extension MainTabFeature {
             state.isBottomSheetPresented = false
             switch type {
             case .링크추가: return .send(.delegate(.링크추가하기))
-            case .포킷추가: return .send(.delegate(.포킷추가하기))   
+            case .포킷추가: return .send(.delegate(.포킷추가하기))
             }
             
         case .linkCopyButtonTapped:

@@ -51,6 +51,7 @@ public struct PokitCategorySettingFeature {
         let type: SettingType
         var isProfileSheetPresented: Bool = false
         var pokitNameTextInpuState: PokitInputStyle.State = .default
+        @Shared(.inMemory("SelectCategory")) var selectCateogry: BaseCategoryItem?
         /// - 포킷 수정 API / 추가 API
         /// categoryName
         /// categoryImageId
@@ -92,6 +93,7 @@ public struct PokitCategorySettingFeature {
             case 카테고리_목록_조회_결과(BaseCategoryListInquiry)
             case 프로필_목록_조회_결과(images: [BaseCategoryImage])
             case 포킷_오류_핸들링(BaseError)
+            case 카테고리_인메모리_저장(BaseCategoryItem)
         }
         
         public enum AsyncAction: Equatable {
@@ -167,7 +169,19 @@ private extension PokitCategorySettingFeature {
                 case .추가:
                     guard let image = domain.categoryImage else { return }
                     let request = CategoryEditRequest(categoryName: domain.categoryName, categoryImageId: image.id)
-                    let _ = try await categoryClient.카테고리_생성(request)
+                    let response = try await categoryClient.카테고리_생성(request)
+                    let responseToCategoryDomain = BaseCategoryItem(
+                        id: response.categoryId,
+                        userId: 0,
+                        categoryName: response.categoryName,
+                        categoryImage: BaseCategoryImage(
+                            imageId: response.categoryImage.imageId,
+                            imageURL: response.categoryImage.imageUrl
+                        ),
+                        contentCount: 0,
+                        createdAt: ""
+                    )
+                    await send(.inner(.카테고리_인메모리_저장(responseToCategoryDomain)))
                     await send(.delegate(.settingSuccess))
                 case .수정:
                     guard let categoryId = domain.categoryId else { return }
@@ -225,6 +239,10 @@ private extension PokitCategorySettingFeature {
             return .none
         case let .포킷_오류_핸들링(baseError):
             state.pokitNameTextInpuState = .error(message: baseError.message)
+            return .none
+            
+        case let .카테고리_인메모리_저장(response):
+            state.selectCateogry = response
             return .none
         }
     }
