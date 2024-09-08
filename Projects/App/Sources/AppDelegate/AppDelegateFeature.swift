@@ -21,6 +21,7 @@ public struct AppDelegateFeature {
     @ObservableState
     public struct State {
         public var root = RootFeature.State()
+        @Shared(.inMemory("PushTapped")) var isPushTapped: Bool = false
         
         public init() {}
     }
@@ -80,6 +81,7 @@ public struct AppDelegateFeature {
                 return .run { _ in completionHandler(.banner) }
                 
             case let .userNotifications(.didReceiveResponse(_, completionHandler)):
+                state.isPushTapped = true
                 return .run { @MainActor _ in completionHandler() }
             case .userNotifications:
                 return .none

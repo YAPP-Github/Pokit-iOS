@@ -31,15 +31,16 @@ public struct MainTabFeature {
         var isLinkSheetPresented: Bool = false
         var isErrorSheetPresented: Bool = false
         var link: String?
-        
+
         var error: BaseError?
-        
+
         var path: StackState<MainTabPath.State> = .init()
         var pokit: PokitRootFeature.State
         var remind: RemindFeature.State = .init()
         @Presents var contentDetail: ContentDetailFeature.State?
         @Shared(.inMemory("SelectCategory")) var selectedPokit: BaseCategoryItem?
-        
+        @Shared(.inMemory("PushTapped")) var isPushTapped: Bool = false
+
         public init() {
             self.pokit = .init()
         }
@@ -47,6 +48,7 @@ public struct MainTabFeature {
     /// - Action
     public enum Action: FeatureAction, BindableAction, ViewAction {
         case binding(BindingAction<State>)
+        case pushAlertTapped(Bool)
         case view(View)
         case inner(InnerAction)
         case async(AsyncAction)
@@ -93,6 +95,12 @@ public struct MainTabFeature {
         switch action {
         case .binding:
             return .none
+        case let .pushAlertTapped(isTapped):
+            if isTapped {
+                return .send(.delegate(.알림함이동))
+            } else {
+                return .none
+            }
             /// - View
         case .view(let viewAction):
             return handleViewAction(viewAction, state: &state)
@@ -108,7 +116,7 @@ public struct MainTabFeature {
             /// - Delegate
         case .delegate(let delegateAction):
             return handleDelegateAction(delegateAction, state: &state)
-            
+
         case .path:
             return .none
         case .pokit:
@@ -123,7 +131,7 @@ public struct MainTabFeature {
     public var body: some ReducerOf<Self> {
         Scope(state: \.pokit, action: \.pokit) { PokitRootFeature() }
         Scope(state: \.remind, action: \.remind) { RemindFeature() }
-        
+
         BindingReducer()
         navigationReducer
         Reduce(self.core)
@@ -140,42 +148,45 @@ private extension MainTabFeature {
         case .addButtonTapped:
             state.isBottomSheetPresented.toggle()
             return .none
-            
+
         case .addSheetTypeSelected(let type):
             state.isBottomSheetPresented = false
             switch type {
             case .링크추가: return .send(.delegate(.링크추가하기))
             case .포킷추가: return .send(.delegate(.포킷추가하기))
             }
-            
+
         case .linkCopyButtonTapped:
             state.isLinkSheetPresented = false
             return .run { send in await send(.delegate(.링크추가하기)) }
 
         case .onAppear:
-            return .run { send in
-                let fromBanner = userDefaults.boolKey(.fromBanner)
-                if fromBanner {
-                    await userDefaults.removeBool(.fromBanner)
-                    await send(.delegate(.알림함이동))
-                }
-                
-                for await _ in self.pasteBoard.changes() {
-                    let url = try await pasteBoard.probableWebURL()
-                    await send(.inner(.linkCopySuccess(url)), animation: .pokitSpring)
-                }
+            if state.isPushTapped {
+                return .send(.pushAlertTapped(true))
             }
+            return .merge(
+                .run { send in
+                    for await _ in self.pasteBoard.changes() {
+                        let url = try await pasteBoard.probableWebURL()
+                        await send(.inner(.linkCopySuccess(url)), animation: .pokitSpring)
+                    }
+                },
+                .publisher {
+                    state.$isPushTapped.publisher
+                        .map(Action.pushAlertTapped)
+                }
+            )
         case .onOpenURL(url: let url):
             guard let components = URLComponents(url: url, resolvingAgainstBaseURL: false) else {
                 return .none
             }
-            
+
             let queryItems = components.queryItems ?? []
             guard let categoryIdString = queryItems.first(where: { $0.name == "categoryId" })?.value,
                   let categoryId = Int(categoryIdString) else {
                 return .none
             }
-            
+
             return .send(.async(.공유받은_카테고리_조회(categoryId: categoryId)))
         case .경고_확인버튼_클릭:
             state.error = nil
@@ -190,15 +201,15 @@ private extension MainTabFeature {
             state.isLinkSheetPresented = true
             state.link = url.absoluteString
             return .none
-            
+
         case let .경고_띄움(error):
             state.error = error
             return .run { send in await send(.inner(.errorSheetPresented(true))) }
-            
+
         case let .errorSheetPresented(isPresented):
             state.isErrorSheetPresented = isPresented
             return .none
-            
+
         default: return .none
         }
     }
