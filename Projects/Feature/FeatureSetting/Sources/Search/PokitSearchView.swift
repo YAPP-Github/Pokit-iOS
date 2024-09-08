@@ -60,7 +60,7 @@ public extension PokitSearchView {
                 if let shareURL = URL(string: content.data) {
                     PokitShareSheet(
                         items: [shareURL],
-                        completion: { send(.링크_공유_완료(completed: $0)) }
+                        completion: { send(.링크_공유_완료) }
                     )
                     .presentationDetents([.medium, .large])
                 }

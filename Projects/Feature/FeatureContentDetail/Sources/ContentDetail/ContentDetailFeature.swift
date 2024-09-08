@@ -70,7 +70,7 @@ public struct ContentDetailFeature {
             case favoriteButtonTapped
             case alertCancelButtonTapped
 
-            case 링크_공유_완료(completed: Bool)
+            case 링크_공유_완료
         }
 
         public enum InnerAction: Equatable {
@@ -176,7 +176,7 @@ private extension ContentDetailFeature {
                     await send(.async(.즐겨찾기(id: content.id)))
                 }
             }
-        case .링크_공유_완료(completed: let completed):
+        case .링크_공유_완료:
             state.showShareSheet = false
             return .none
         case .alertCancelButtonTapped:

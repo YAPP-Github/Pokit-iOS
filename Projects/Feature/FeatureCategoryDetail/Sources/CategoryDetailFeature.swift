@@ -100,7 +100,7 @@ public struct CategoryDetailFeature {
             case dismiss
             case onAppear
             case pagenation
-            case 링크_공유_완료(completed: Bool)
+            case 링크_공유_완료
         }
         
         public enum InnerAction: Equatable {
@@ -219,7 +219,7 @@ private extension CategoryDetailFeature {
             }
         case .pagenation:
             return .run { send in await send(.async(.pagenation_네트워크)) }
-        case .링크_공유_완료(completed: let completed):
+        case .링크_공유_완료:
             state.shareSheetItem = nil
             return .none
         }
