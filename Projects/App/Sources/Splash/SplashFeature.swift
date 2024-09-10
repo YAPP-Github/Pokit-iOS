@@ -4,6 +4,8 @@
 //
 //  Created by 김민호 on 7/11/24.
 
+import Foundation
+
 import ComposableArchitecture
 import CoreKit
 import Util
@@ -18,6 +20,7 @@ public struct SplashFeature {
     /// - State
     @ObservableState
     public struct State: Equatable {
+        @Shared(.appStorage("isNeedSessionDeleted")) var isNeedSessionDeleted: Bool = true
         public init() {}
     }
     /// - Action
@@ -32,7 +35,9 @@ public struct SplashFeature {
         public enum View: Equatable {
             case onAppear
         }
-        public enum InnerAction: Equatable { case doNothing }
+        public enum InnerAction: Equatable {
+            case 키_제거
+        }
         public enum AsyncAction: Equatable { case doNothing }
         public enum ScopeAction: Equatable { case doNothing }
         public enum DelegateAction: Equatable {
@@ -73,9 +78,48 @@ private extension SplashFeature {
     func handleViewAction(_ action: Action.View, state: inout State) -> Effect<Action> {
         switch action {
         case .onAppear:
-            return .run { send in
+            return .run { [isNeedSessionDeleted  = state.isNeedSessionDeleted] send in
                 try await self.clock.sleep(for: .milliseconds(2000))
-                
+                if isNeedSessionDeleted {
+                    guard let platform = userDefaults.stringKey(.authPlatform) else {
+                        print("platform이 없어서 벗어남")
+                        await send(.inner(.키_제거))
+                        await send(.delegate(.loginNeeded))
+                        return
+                    }
+                    // 🚨 이거 구글유저도 분기문 잘 넘어가나 체크해줘!
+                    if platform == "애플" {
+                        guard let authCode = userDefaults.stringKey(.authCode) else {
+                            print("authCode가 없어서 벗어남")
+                            await send(.inner(.키_제거))
+                            await send(.delegate(.loginNeeded))
+                            return
+                        }
+                        
+                        guard let jwt = userDefaults.stringKey(.jwt) else {
+                            print("jwt가 없어서 벗어남")
+                            await send(.inner(.키_제거))
+                            await send(.delegate(.loginNeeded))
+                            return
+                        }
+                        
+                        guard let serverRefreshToken = keychain.read(.serverRefresh) else {
+                            await send(.inner(.키_제거))
+                            await send(.delegate(.loginNeeded))
+                            return
+                        }
+                        
+                        try await authClient.appleRevoke(
+                            serverRefreshToken,
+                            AppleTokenRequest(
+                                authCode: authCode,
+                                jwt: jwt
+                            )
+                        )
+                        await send(.inner(.키_제거))
+                        await send(.delegate(.loginNeeded))
+                    }
+                }
                 /// 🚨 Error Case [1]: 로그인 했던 플랫폼 정보가 없을 때
                 guard let _ = userDefaults.stringKey(.authPlatform) else {
                     await send(.delegate(.loginNeeded))
@@ -103,7 +147,18 @@ private extension SplashFeature {
     }
     /// - Inner Effect
     func handleInnerAction(_ action: Action.InnerAction, state: inout State) -> Effect<Action> {
-        return .none
+        switch action {
+        case .키_제거:
+            keychain.delete(.accessToken)
+            keychain.delete(.refreshToken)
+            keychain.delete(.serverRefresh)
+            return .run { [isNeedSessionDeleted = state.$isNeedSessionDeleted] send in
+                await userDefaults.removeString(.authCode)
+                await userDefaults.removeString(.jwt)
+                await userDefaults.removeString(.authPlatform)
+                await isNeedSessionDeleted.withLock { $0 = false }
+            }
+        }
     }
     /// - Async Effect
     func handleAsyncAction(_ action: Action.AsyncAction, state: inout State) -> Effect<Action> {
