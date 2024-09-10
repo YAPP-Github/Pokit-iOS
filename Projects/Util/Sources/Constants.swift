@@ -15,6 +15,7 @@ public enum Constants {
     public static let contentPath: String = "/api/v1/content"
     public static let remindPath: String = "api/v1/remind"
     public static let alertPath: String = "/api/v1/alert"
+    public static let versionPath: String = "/api/v1/version"
     
     public static let 공지사항_주소: URL = URL(string: "https://www.notion.so/POKIT-d97c81534b354cfebe677fbf1fbfe2b2")!
     public static let 서비스_이용약관_주소: URL = URL(string: "https://www.notion.so/3bddcd6fd00043abae6b92a50c39b132?pvs=4")!
