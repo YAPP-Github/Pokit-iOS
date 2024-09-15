@@ -191,7 +191,7 @@ private extension CategoryDetailFeature {
             state.domain.contentList.data = nil
             state.domain.category = item
             return .run { send in
-                await send(.async(.카테고리_내_컨텐츠_목록_조회))
+                await send(.inner(.pagenation_초기화))
                 await send(.inner(.pokitCategorySelectSheetPresented(false)))
             }
             
@@ -258,7 +258,11 @@ private extension CategoryDetailFeature {
             state.kebobSelectedType = nil
             return .none
         case .pagenation_네트워크_결과(let contentList):
+            let list = state.domain.contentList.data ?? []
+            guard let newList = contentList.data else { return .none }
+
             state.domain.contentList = contentList
+            state.domain.contentList.data = list + newList
             return .none
         case .pagenation_초기화:
             state.domain.pageable.page = 0
@@ -289,7 +293,11 @@ private extension CategoryDetailFeature {
                         favorites: condition.isFavoriteFlitered
                     )
                 ).toDomain()
-                await send(.inner(.카테고리_내_컨텐츠_목록_갱신(contentList)), animation: .pokitDissolve)
+                if pageable.page == 0 {
+                    await send(.inner(.카테고리_내_컨텐츠_목록_갱신(contentList)), animation: .pokitDissolve)
+                } else {
+                    await send(.inner(.pagenation_네트워크_결과(contentList)))
+                }
             }
         case .컨텐츠_삭제(id: let id):
             return .run { [id] send in
