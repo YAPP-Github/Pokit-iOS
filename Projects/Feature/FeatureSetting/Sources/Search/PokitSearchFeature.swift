@@ -73,10 +73,7 @@ public struct PokitSearchFeature {
             guard let startDate = domain.condition.startDate else {
                 return nil
             }
-            let formatter = DateFormatter()
-            formatter.dateFormat = "yyyy-MM-dd"
-            
-            return formatter.string(from: startDate)
+            return DateFormat.searchCondition.formatter.string(from: startDate)
         }
         var hasNext: Bool {
             get { domain.contentList.hasNext }
@@ -335,7 +332,7 @@ private extension PokitSearchFeature {
             state.shareSheetItem = nil
             return .none
         case .로딩_isPresented:
-            return .send(.async(.컨텐츠_검색_결과_페이징_조회), animation: .pokitDissolve)
+            return .send(.async(.컨텐츠_검색_결과_페이징_조회))
         }
     }
     
@@ -350,9 +347,6 @@ private extension PokitSearchFeature {
             state.domain.contentList.data = []
             return .none
         case .updateDateFilter(startDate: let startDate, endDate: let endDate):
-            let formatter = DateFormatter()
-            formatter.dateFormat = "yy.MM.dd"
-            
             state.domain.condition.startDate = startDate
             state.domain.condition.endDate = endDate
             
@@ -362,11 +356,13 @@ private extension PokitSearchFeature {
                 return .none
             }
             
+            let startDateString = DateFormat.dateFilter.formatter.string(from: startDate)
             if startDate == endDate {
                 /// - 날짜 필터를 하루만 선택했을 경우
-                state.dateFilterText = "\(formatter.string(from: startDate))"
+                state.dateFilterText = startDateString
             } else {
-                state.dateFilterText = "\(formatter.string(from: startDate))~\(formatter.string(from: endDate))"
+                let endDateString = DateFormat.dateFilter.formatter.string(from: endDate)
+                state.dateFilterText = "\(startDateString)~\(endDateString)"
             }
             
             return .none
@@ -525,7 +521,7 @@ private extension PokitSearchFeature {
                         endDate: endDateString
                     )
                 ).toDomain()
-                await send(.inner(.컨텐츠_검색_결과_페이징_갱신(contentList)), animation: .pokitDissolve)
+                await send(.inner(.컨텐츠_검색_결과_페이징_갱신(contentList)))
             }
         }
     }
