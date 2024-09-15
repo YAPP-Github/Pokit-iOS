@@ -332,7 +332,7 @@ private extension PokitSearchFeature {
             state.shareSheetItem = nil
             return .none
         case .로딩_isPresented:
-            return .send(.async(.컨텐츠_검색_결과_페이징_조회))
+            return .send(.async(.컨텐츠_검색_결과_페이징_조회), animation: .pokitDissolve)
         }
     }
     
@@ -521,7 +521,7 @@ private extension PokitSearchFeature {
                         endDate: endDateString
                     )
                 ).toDomain()
-                await send(.inner(.컨텐츠_검색_결과_페이징_갱신(contentList)))
+                await send(.inner(.컨텐츠_검색_결과_페이징_갱신(contentList)), animation: .pokitDissolve)
             }
         }
     }
