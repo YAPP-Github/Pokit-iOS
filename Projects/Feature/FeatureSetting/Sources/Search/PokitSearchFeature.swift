@@ -73,7 +73,9 @@ public struct PokitSearchFeature {
             guard let startDate = domain.condition.startDate else {
                 return nil
             }
-            return DateFormat.searchCondition.formatter.string(from: startDate)
+            let formatter = DateFormat.searchCondition.formatter
+            
+            return formatter.string(from: startDate)
         }
         var hasNext: Bool {
             get { domain.contentList.hasNext }
@@ -347,6 +349,8 @@ private extension PokitSearchFeature {
             state.domain.contentList.data = []
             return .none
         case .updateDateFilter(startDate: let startDate, endDate: let endDate):
+            let formatter = DateFormat.dateFilter.formatter
+            
             state.domain.condition.startDate = startDate
             state.domain.condition.endDate = endDate
             
@@ -356,13 +360,11 @@ private extension PokitSearchFeature {
                 return .none
             }
             
-            let startDateString = DateFormat.dateFilter.formatter.string(from: startDate)
             if startDate == endDate {
                 /// - 날짜 필터를 하루만 선택했을 경우
-                state.dateFilterText = startDateString
+                state.dateFilterText = "\(formatter.string(from: startDate))"
             } else {
-                let endDateString = DateFormat.dateFilter.formatter.string(from: endDate)
-                state.dateFilterText = "\(startDateString)~\(endDateString)"
+                state.dateFilterText = "\(formatter.string(from: startDate))~\(formatter.string(from: endDate))"
             }
             
             return .none
