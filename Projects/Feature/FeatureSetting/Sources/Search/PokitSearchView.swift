@@ -15,7 +15,7 @@ public struct PokitSearchView: View {
     @Perception.Bindable
     public var store: StoreOf<PokitSearchFeature>
     @FocusState
-    private var focused: Bool
+        private var focused: Bool
     
     /// - Initializer
     public init(store: StoreOf<PokitSearchFeature>) {
@@ -35,12 +35,9 @@ public extension PokitSearchView {
                 PokitDivider()
                     .padding(.top, 28)
                 
-                if store.isSearching {
-                    resultList
-                } else {
-                    
-                    Spacer()
-                }
+                resultList
+                
+                Spacer()
             }
             .background(.pokit(.bg(.base)))
             .ignoresSafeArea(edges: .bottom)
@@ -310,17 +307,16 @@ private extension PokitSearchView {
                         
                         if store.hasNext {
                             PokitLoading()
-                                .task { await send(.로딩_isPresented).finish() }
+                                .task { await send(.로딩_isPresented, animation: .pokitDissolve).finish() }
                         }
                     }
                     .padding(.horizontal, 20)
-                    .padding(.bottom, store.hasNext ? 0 : 36)
                 }
             } else {
                 PokitLoading()
             }
         }
-        .padding(.top, 24)
+        .padding(.vertical, 24)
     }
 }
 //MARK: - Preview
