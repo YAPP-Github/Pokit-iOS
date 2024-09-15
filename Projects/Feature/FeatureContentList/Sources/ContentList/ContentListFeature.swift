@@ -172,7 +172,7 @@ private extension ContentListFeature {
             state.domain.pageable.sort = [
                 state.isListDescending ? "createdAt,desc" : "createdAt,asc"
             ]
-            return .send(.inner(.pagenation_초기화))
+            return .send(.inner(.pagenation_초기화), animation: .pokitDissolve)
         case .backButtonTapped:
             
             return .run { _ in await dismiss() }
@@ -246,7 +246,10 @@ private extension ContentListFeature {
                         sort: pageable.sort
                     )
                 ).toDomain()
-                await send(.inner(.컨텐츠_목록_조회(contentList)), animation: .pokitDissolve)
+                await send(
+                    .inner(.컨텐츠_목록_조회(contentList)),
+                    animation: pageable.page == 0 ? .pokitDissolve : nil
+                )
             }
         case .즐겨찾기_링크모음_조회:
             return .run { [pageable = state.domain.pageable] send in
@@ -257,7 +260,10 @@ private extension ContentListFeature {
                         sort: pageable.sort
                     )
                 ).toDomain()
-                await send(.inner(.컨텐츠_목록_조회(contentList)), animation: .pokitDissolve)
+                await send(
+                    .inner(.컨텐츠_목록_조회(contentList)),
+                    animation: pageable.page == 0 ? .pokitDissolve : nil
+                )
             }
         case .컨텐츠_삭제(id: let id):
             return .run { [id] send in
@@ -270,10 +276,10 @@ private extension ContentListFeature {
             return .run { [type = state.contentType] send in
                 switch type {
                 case .unread:
-                    await send(.async(.읽지않음_컨텐츠_조회), animation: .pokitDissolve)
+                    await send(.async(.읽지않음_컨텐츠_조회))
                     break
                 case .favorite:
-                    await send(.async(.즐겨찾기_링크모음_조회), animation: .pokitDissolve)
+                    await send(.async(.즐겨찾기_링크모음_조회))
                     break
                 }
             }
@@ -292,7 +298,10 @@ private extension ContentListFeature {
                             sort: pageable.sort
                         )
                     ).toDomain()
-                    await send(.inner(.컨텐츠_목록_갱신(contentList)), animation: .pokitSpring)
+                    await send(
+                        .inner(.컨텐츠_목록_갱신(contentList)),
+                        animation: pageable.page == 0 ? .pokitDissolve : nil
+                    )
                 case .favorite:
                     let contentList = try await remindClient.즐겨찾기_링크모음_조회(
                         BasePageableRequest(
@@ -301,7 +310,10 @@ private extension ContentListFeature {
                             sort: pageable.sort
                         )
                     ).toDomain()
-                    await send(.inner(.컨텐츠_목록_갱신(contentList)), animation: .pokitSpring)
+                    await send(
+                        .inner(.컨텐츠_목록_갱신(contentList)),
+                        animation: pageable.page == 0 ? .pokitDissolve : nil
+                    )
                 }
                 
             }
