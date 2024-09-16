@@ -120,6 +120,7 @@ public struct PokitRootFeature {
             case 카테고리_조회
             case 미분류_카테고리_컨텐츠_페이징_재조회
             case 카테고리_페이징_재조회
+            case 미분류_카테고리_컨텐츠_삭제(contentId: Int)
         }
 
         public enum ScopeAction: Equatable {
@@ -456,6 +457,12 @@ private extension PokitRootFeature {
                     animation: .pokitSpring
                 )
             }
+        case let .미분류_카테고리_컨텐츠_삭제(contentId):
+            return .run { send in
+                let _ = try await contentClient.컨텐츠_삭제("\(contentId)")
+                await send(.inner(.컨텐츠_삭제(contentId: contentId)), animation: .pokitSpring)
+            }
+            
         }
     }
 
@@ -531,7 +538,10 @@ private extension PokitRootFeature {
                     return .none
                 }
 
-                return .send(.inner(.컨텐츠_삭제(contentId: selectedItem.id)), animation: .pokitSpring)
+                return .send(
+                    .async(.미분류_카테고리_컨텐츠_삭제(contentId: selectedItem.id)),
+                    animation: .pokitSpring
+                )
 
             case .folder(.포킷):
                 guard let selectedItem = state.selectedKebobItem else {
