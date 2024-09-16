@@ -95,6 +95,7 @@ public struct ContentListFeature {
             case 컨텐츠_삭제(id: Int)
             case pagenation_네트워크
             case 컨텐츠_목록_갱신
+            case 페이징_재조회
         }
 
         public enum ScopeAction: Equatable {
@@ -270,7 +271,7 @@ private extension ContentListFeature {
                 let _ = try await contentClient.컨텐츠_삭제("\(id)")
                 await send(.inner(.컨텐츠_삭제_반영(id: id)), animation: .pokitSpring)
             }
-
+            
         case .pagenation_네트워크:
             state.domain.pageable.page += 1
             return .run { [type = state.contentType] send in
@@ -317,6 +318,45 @@ private extension ContentListFeature {
                 }
                 
             }
+        case .페이징_재조회:
+            return .run { [
+                pageable = state.domain.pageable,
+                contentType = state.contentType
+            ] send in
+                let stream = AsyncThrowingStream<BaseContentListInquiry, Error> { continuation in
+                    Task {
+                        for page in 0...pageable.page {
+                            let paeagableRequest = BasePageableRequest(
+                                page: page,
+                                size: pageable.size,
+                                sort: pageable.sort
+                            )
+                            switch contentType {
+                            case .favorite:
+                                let contentList = try await remindClient.즐겨찾기_링크모음_조회(
+                                    paeagableRequest
+                                ).toDomain()
+                                continuation.yield(contentList)
+                            case .unread:
+                                let contentList = try await remindClient.읽지않음_컨텐츠_조회(
+                                    paeagableRequest
+                                ).toDomain()
+                                continuation.yield(contentList)
+                            }
+                        }
+                        continuation.finish()
+                    }
+                }
+                var contentItems: BaseContentListInquiry? = nil
+                for try await contentList in stream {
+                    let items = contentItems?.data ?? []
+                    let newItems = contentList.data ?? []
+                    contentItems = contentList
+                    contentItems?.data = items + newItems
+                }
+                guard let contentItems else { return }
+                await send(.inner(.컨텐츠_목록_갱신(contentItems)), animation: .pokitSpring)
+            }
         }
     }
 
@@ -344,12 +384,7 @@ private extension ContentListFeature {
     func handleDelegateAction(_ action: Action.DelegateAction, state: inout State) -> Effect<Action> {
         switch action {
         case .컨텐츠_목록_조회:
-            switch state.contentType {
-            case .favorite:
-                return .send(.async(.즐겨찾기_링크모음_조회))
-            case .unread:
-                return .send(.async(.읽지않음_컨텐츠_조회))
-            }
+            return .send(.async(.페이징_재조회))
         default:
             return .none
         }
