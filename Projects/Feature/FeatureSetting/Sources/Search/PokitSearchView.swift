@@ -311,12 +311,13 @@ private extension PokitSearchView {
                         }
                     }
                     .padding(.horizontal, 20)
+                    .padding(.bottom, 36)
                 }
             } else {
                 PokitLoading()
             }
         }
-        .padding(.vertical, 24)
+        .padding(.top, 24)
     }
 }
 //MARK: - Preview
