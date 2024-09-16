@@ -482,7 +482,7 @@ private extension PokitSearchFeature {
                     contentItems?.data = items + newItems
                 }
                 guard let contentItems else { return }
-                await send(.inner(.컨텐츠_목록_갱신(contentItems)))
+                await send(.inner(.컨텐츠_목록_갱신(contentItems)), animation: .pokitSpring)
             }
         case .최근검색어_갱신:
             guard state.isAutoSaveSearch else { return .none }
@@ -581,7 +581,7 @@ private extension PokitSearchFeature {
             guard let contentList = state.domain.contentList.data, !contentList.isEmpty else {
                 return .none
             }
-            return .send(.async(.컨텐츠_검색))
+            return .send(.async(.컨텐츠_검색), animation: .pokitSpring)
         default: return .none
         }
     }
