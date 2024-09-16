@@ -168,6 +168,7 @@ private extension CategoryDetailView {
                             
                             Spacer()
                         }
+                        .padding(.bottom, 36)
                     }
                 }
             } else {
