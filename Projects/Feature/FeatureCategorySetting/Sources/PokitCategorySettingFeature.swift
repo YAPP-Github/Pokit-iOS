@@ -51,7 +51,7 @@ public struct PokitCategorySettingFeature {
         let type: SettingType
         var isProfileSheetPresented: Bool = false
         var pokitNameTextInpuState: PokitInputStyle.State = .default
-        @Shared(.inMemory("SelectCategory")) var selectCateogry: BaseCategoryItem?
+        @Shared(.inMemory("SelectCategory")) var categoryId: Int?
         /// - 포킷 수정 API / 추가 API
         /// categoryName
         /// categoryImageId
@@ -242,7 +242,7 @@ private extension PokitCategorySettingFeature {
             return .none
             
         case let .카테고리_인메모리_저장(response):
-            state.selectCateogry = response
+            state.categoryId = response.id
             return .none
         }
     }
