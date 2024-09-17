@@ -62,7 +62,8 @@ public struct ContentSettingFeature {
         var linkTextInputState: PokitInputStyle.State = .default
         var titleTextInpuState: PokitInputStyle.State = .default
         var memoTextAreaState: PokitInputStyle.State = .default
-        @Shared(.inMemory("SelectCategory")) var selectedPokit: BaseCategoryItem?
+        @Shared(.inMemory("SelectCategory")) var categoryId: Int?
+        var selectedPokit: BaseCategoryItem?
         var linkTitle: String? = nil
         var linkImageURL: String? = nil
         var showMaxCategoryPopup: Bool = false
@@ -112,7 +113,7 @@ public struct ContentSettingFeature {
 
         public enum AsyncAction: Equatable {
             case 컨텐츠_상세_조회(id: Int)
-            case 카테고리_상세_조회(id: Int)
+            case 카테고리_상세_조회(id: Int?, sharedId: Int?)
             case 카테고리_목록_조회
             case 컨텐츠_수정
             case 컨텐츠_추가
@@ -269,9 +270,12 @@ private extension ContentSettingFeature {
             state.domain.memo = content.memo
             state.domain.alertYn = content.alertYn
             state.contentLoading = false
-            return .run { [id = content.category.categoryId] send in
+            return .run { [
+                id = content.category.categoryId,
+                sharedCategoryId = state.categoryId
+            ] send in
                 await send(.inner(.parsingURL))
-                await send(.async(.카테고리_상세_조회(id: id)))
+                await send(.async(.카테고리_상세_조회(id: id, sharedId: sharedCategoryId)))
             }
         case .카테고리_갱신(category: let category):
             state.selectedPokit = BaseCategoryItem(
@@ -327,13 +331,23 @@ private extension ContentSettingFeature {
                 let content = try await contentClient.컨텐츠_상세_조회("\(id)").toDomain()
                 await send(.inner(.컨텐츠_갱신(content: content)))
             }
-        case .카테고리_상세_조회(id: let id):
-            return .run { [id] send in
-                let category = try await categoryClient.카테고리_상세_조회("\(id)").toDomain()
-                await send(.inner(.카테고리_갱신(category: category)))
+        case let .카테고리_상세_조회(id, sharedId):
+            return .run { send in
+                if let sharedId {
+                    let category = try await categoryClient.카테고리_상세_조회("\(sharedId)").toDomain()
+                    await send(.inner(.카테고리_갱신(category: category)))
+                } else if let id {
+                    let category = try await categoryClient.카테고리_상세_조회("\(id)").toDomain()
+                    await send(.inner(.카테고리_갱신(category: category)))
+                }
+
             }
         case .카테고리_목록_조회:
-            return .run { [pageable = state.domain.pageable] send in
+            return .run { [
+                pageable = state.domain.pageable,
+                id = state.domain.categoryId,
+                sharedId = state.categoryId
+            ] send in
                 let categoryList = try await categoryClient.카테고리_목록_조회(
                     BasePageableRequest(
                         page: pageable.page,
@@ -342,6 +356,8 @@ private extension ContentSettingFeature {
                     ),
                     false
                 ).toDomain()
+                
+                await send(.async(.카테고리_상세_조회(id: id, sharedId: sharedId)))
                 await send(.inner(.카테고리_목록_갱신(categoryList: categoryList)), animation: .pokitDissolve)
             }
         case .컨텐츠_수정:

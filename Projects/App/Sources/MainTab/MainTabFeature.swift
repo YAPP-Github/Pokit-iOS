@@ -38,7 +38,7 @@ public struct MainTabFeature {
         var pokit: PokitRootFeature.State
         var remind: RemindFeature.State = .init()
         @Presents var contentDetail: ContentDetailFeature.State?
-        @Shared(.inMemory("SelectCategory")) var selectedPokit: BaseCategoryItem?
+        @Shared(.inMemory("SelectCategory")) var categoryId: Int?
         @Shared(.inMemory("PushTapped")) var isPushTapped: Bool = false
 
         public init() {
