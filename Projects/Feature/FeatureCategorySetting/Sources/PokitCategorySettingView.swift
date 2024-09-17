@@ -73,16 +73,18 @@ private extension PokitCategorySettingView {
                     .resizable()
                     .roundedCorner(12, corners: .allCorners)
             } else {
-                ZStack {
-                    Color.pokit(.bg(.disable))
-                    
-                    if store.selectedProfile?.imageURL != nil {
-                        PokitSpinner()
-                            .foregroundStyle(.pokit(.icon(.brand)))
-                            .frame(width: 48, height: 48)
+                WithPerceptionTracking {
+                    ZStack {
+                        Color.pokit(.bg(.disable))
+                        
+                        if store.selectedProfile?.imageURL != nil {
+                            PokitSpinner()
+                                .foregroundStyle(.pokit(.icon(.brand)))
+                                .frame(width: 48, height: 48)
+                        }
                     }
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
-                .clipShape(RoundedRectangle(cornerRadius: 12))
             }
         }
         .frame(width: 80, height: 80)
