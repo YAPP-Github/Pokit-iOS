@@ -17,11 +17,10 @@ public struct RemindView: View {
     /// - Properties
     @Perception.Bindable
     public var store: StoreOf<RemindFeature>
-    private let formatter = DateFormatter()
+    private let formatter = DateFormat.yearMonthDate.formatter
     /// - Initializer
     public init(store: StoreOf<RemindFeature>) {
         self.store = store
-        formatter.dateFormat = "yyyy.MM.dd"
     }
 }
 //MARK: - View

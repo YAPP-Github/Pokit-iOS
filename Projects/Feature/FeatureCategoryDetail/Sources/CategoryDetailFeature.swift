@@ -118,6 +118,7 @@ public struct CategoryDetailFeature {
             case 카테고리_내_컨텐츠_목록_조회
             case 컨텐츠_삭제(id: Int)
             case pagenation_네트워크
+            case 페이징_재조회
         }
         
         public enum ScopeAction: Equatable {
@@ -191,7 +192,7 @@ private extension CategoryDetailFeature {
             state.domain.contentList.data = nil
             state.domain.category = item
             return .run { send in
-                await send(.async(.카테고리_내_컨텐츠_목록_조회))
+                await send(.inner(.pagenation_초기화))
                 await send(.inner(.pokitCategorySelectSheetPresented(false)))
             }
             
@@ -258,7 +259,11 @@ private extension CategoryDetailFeature {
             state.kebobSelectedType = nil
             return .none
         case .pagenation_네트워크_결과(let contentList):
+            let list = state.domain.contentList.data ?? []
+            guard let newList = contentList.data else { return .none }
+
             state.domain.contentList = contentList
+            state.domain.contentList.data = list + newList
             return .none
         case .pagenation_초기화:
             state.domain.pageable.page = 0
@@ -289,7 +294,11 @@ private extension CategoryDetailFeature {
                         favorites: condition.isFavoriteFlitered
                     )
                 ).toDomain()
-                await send(.inner(.카테고리_내_컨텐츠_목록_갱신(contentList)), animation: .pokitDissolve)
+                if pageable.page == 0 {
+                    await send(.inner(.카테고리_내_컨텐츠_목록_갱신(contentList)), animation: .pokitDissolve)
+                } else {
+                    await send(.inner(.pagenation_네트워크_결과(contentList)))
+                }
             }
         case .컨텐츠_삭제(id: let id):
             return .run { [id] send in
@@ -299,6 +308,45 @@ private extension CategoryDetailFeature {
         case .pagenation_네트워크:
             state.domain.pageable.page += 1
             return .send(.async(.카테고리_내_컨텐츠_목록_조회))
+        case .페이징_재조회:
+            return .run { [
+                pageable = state.domain.pageable,
+                categoryId = state.domain.category.id,
+                condition = state.domain.condition
+            ] send in
+                let stream = AsyncThrowingStream<BaseContentListInquiry, Error> { continuation in
+                    Task {
+                        for page in 0...pageable.page {
+                            let paeagableRequest = BasePageableRequest(
+                                page: page,
+                                size: pageable.size,
+                                sort: pageable.sort
+                            )
+                            let conditionRequest = BaseConditionRequest(
+                                categoryIds: condition.categoryIds,
+                                isRead: condition.isUnreadFlitered,
+                                favorites: condition.isFavoriteFlitered
+                            )
+                            let contentList = try await contentClient.카테고리_내_컨텐츠_목록_조회(
+                                "\(categoryId)",
+                                paeagableRequest,
+                                conditionRequest
+                            ).toDomain()
+                            continuation.yield(contentList)
+                        }
+                        continuation.finish()
+                    }
+                }
+                var contentItems: BaseContentListInquiry? = nil
+                for try await contentList in stream {
+                    let items = contentItems?.data ?? []
+                    let newItems = contentList.data ?? []
+                    contentItems = contentList
+                    contentItems?.data = items + newItems
+                }
+                guard let contentItems else { return }
+                await send(.inner(.카테고리_내_컨텐츠_목록_갱신(contentItems)), animation: .pokitSpring)
+            }
         }
     }
     
@@ -405,7 +453,7 @@ private extension CategoryDetailFeature {
     func handleDelegateAction(_ action: Action.DelegateAction, state: inout State) -> Effect<Action> {
         switch action {
         case .카테고리_내_컨텐츠_목록_조회:
-            return .send(.async(.카테고리_내_컨텐츠_목록_조회))
+            return .send(.async(.페이징_재조회))
         default:
             return .none
         }

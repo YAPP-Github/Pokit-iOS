@@ -137,7 +137,8 @@ public extension MainTabFeature {
             
             /// - 컨텐츠 상세보기 내부 액션 실행
             case .contentDetail(.presented(.delegate(.즐겨찾기_갱신_완료))),
-                 .contentDetail(.presented(.delegate(.컨텐츠_조회_완료))):
+                 .contentDetail(.presented(.delegate(.컨텐츠_조회_완료))),
+                 .contentDetail(.presented(.delegate(.컨텐츠_삭제_완료))):
                 guard let stackElementId = state.path.ids.last,
                       let lastPath = state.path.last else {
                     switch state.selectedTab {

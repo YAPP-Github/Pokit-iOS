@@ -96,6 +96,7 @@ public struct ContentDetailFeature {
             case editButtonTapped(contentId: Int)
             case 즐겨찾기_갱신_완료
             case 컨텐츠_조회_완료
+            case 컨텐츠_삭제_완료
         }
     }
 
@@ -250,8 +251,9 @@ private extension ContentDetailFeature {
                 await send(.inner(.즐겨찾기_갱신(false)))
             }
         case .컨텐츠_삭제(id: let id):
-            return .run { _ in
+            return .run { send in
                 try await contentClient.컨텐츠_삭제("\(id)")
+                await send(.delegate(.컨텐츠_삭제_완료))
                 await dismiss()
             }
         }

@@ -47,13 +47,11 @@ public struct FilterBottomFeature {
         var startDate: Date
         var endDate: Date
         var startDateText: String {
-            let fomatter = DateFormatter()
-            fomatter.dateFormat = "yy.MM.dd"
+            let fomatter = DateFormat.dateFilter.formatter
             return fomatter.string(from: startDate)
         }
         var endDateText: String {
-            let fomatter = DateFormatter()
-            fomatter.dateFormat = "yy.MM.dd"
+            let fomatter = DateFormat.dateFilter.formatter
             return fomatter.string(from: endDate)
         }
         

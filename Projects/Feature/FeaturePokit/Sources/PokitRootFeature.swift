@@ -118,6 +118,9 @@ public struct PokitRootFeature {
             case 카테고리_페이징_조회
             case 미분류_카테고리_컨텐츠_조회
             case 카테고리_조회
+            case 미분류_카테고리_컨텐츠_페이징_재조회
+            case 카테고리_페이징_재조회
+            case 미분류_카테고리_컨텐츠_삭제(contentId: Int)
         }
 
         public enum ScopeAction: Equatable {
@@ -228,12 +231,12 @@ private extension PokitRootFeature {
                 guard let _ = state.domain.categoryList.data?.count else {
                     return .send(.inner(.페이지네이션_초기화))
                 }
-                return .send(.async(.카테고리_조회), animation: .pokitSpring)
+                return .send(.async(.카테고리_페이징_재조회), animation: .pokitSpring)
             case .folder(.미분류):
                 guard let _ = state.domain.unclassifiedContentList.data?.count else {
                     return .send(.inner(.페이지네이션_초기화))
                 }
-                return .send(.async(.미분류_카테고리_컨텐츠_조회), animation: .pokitSpring)
+                return .send(.async(.미분류_카테고리_컨텐츠_페이징_재조회), animation: .pokitSpring)
             default: return .none
             }
         case .다음페이지_로딩_presented:
@@ -311,14 +314,14 @@ private extension PokitRootFeature {
             state.isPokitDeleteSheetPresented = false
             return .none
         case .페이지네이션_초기화:
-            state.domain.pageable.page = -1
+            state.domain.pageable.page = 0
             state.domain.categoryList.data = nil
             state.domain.unclassifiedContentList.data = nil
             switch state.folderType {
             case .folder(.포킷):
-                return .send(.async(.카테고리_페이징_조회), animation: .pokitDissolve)
+                return .send(.async(.카테고리_조회), animation: .pokitDissolve)
             case .folder(.미분류):
-                return .send(.async(.미분류_카테고리_컨텐츠_페이징_조회), animation: .pokitDissolve)
+                return .send(.async(.미분류_카테고리_컨텐츠_조회), animation: .pokitDissolve)
             default: return .none
             }
         }
@@ -343,7 +346,7 @@ private extension PokitRootFeature {
                         sort: pageable.sort
                     )
                 ).toDomain()
-                await send(.inner(.미분류_페이지네이션_결과(contentList: contentList)), animation: .pokitDissolve)
+                await send(.inner(.미분류_페이지네이션_결과(contentList: contentList)))
             }
         case .카테고리_페이징_조회:
             state.domain.pageable.page += 1
@@ -358,7 +361,7 @@ private extension PokitRootFeature {
                     ),
                     true
                 ).toDomain()
-                await send(.inner(.카테고리_페이지네이션_결과(contentList: classified)), animation: .pokitDissolve)
+                await send(.inner(.카테고리_페이지네이션_결과(contentList: classified)))
             }
         case .미분류_카테고리_컨텐츠_조회:
             state.domain.pageable.page = 0
@@ -389,6 +392,77 @@ private extension PokitRootFeature {
                 ).toDomain()
                 await send(.inner(.카테고리_갱신(categoryList: classified)), animation: .pokitSpring)
             }
+        case .미분류_카테고리_컨텐츠_페이징_재조회:
+            return .run { [
+                pageable = state.domain.pageable
+            ] send in
+                let stream = AsyncThrowingStream<BaseContentListInquiry, Error> { continuation in
+                    Task {
+                        for page in 0...pageable.page {
+                            let contentList = try await contentClient.미분류_카테고리_컨텐츠_조회(
+                                BasePageableRequest(
+                                    page: page,
+                                    size: pageable.size,
+                                    sort: pageable.sort
+                                )
+                            ).toDomain()
+                            continuation.yield(contentList)
+                        }
+                        continuation.finish()
+                    }
+                }
+                var contentItems: BaseContentListInquiry? = nil
+                for try await contentList in stream {
+                    let items = contentItems?.data ?? []
+                    let newItems = contentList.data ?? []
+                    contentItems = contentList
+                    contentItems?.data = items + newItems
+                }
+                guard let contentItems else { return }
+                await send(
+                    .inner(.미분류_카테고리_컨텐츠_갱신(contentList: contentItems)),
+                    animation: .pokitSpring
+                )
+            }
+        case .카테고리_페이징_재조회:
+            return .run { [
+                pageable = state.domain.pageable
+            ] send in
+                let stream = AsyncThrowingStream<BaseCategoryListInquiry, Error> { continuation in
+                    Task {
+                        for page in 0...pageable.page {
+                            let categoryList = try await categoryClient.카테고리_목록_조회(
+                                BasePageableRequest(
+                                    page: page,
+                                    size: pageable.size,
+                                    sort: pageable.sort
+                                ),
+                                true
+                            ).toDomain()
+                            continuation.yield(categoryList)
+                        }
+                        continuation.finish()
+                    }
+                }
+                var categoryItems: BaseCategoryListInquiry? = nil
+                for try await categoryList in stream {
+                    let items = categoryItems?.data ?? []
+                    let newItems = categoryList.data ?? []
+                    categoryItems = categoryList
+                    categoryItems?.data = items + newItems
+                }
+                guard let categoryItems else { return }
+                await send(
+                    .inner(.카테고리_갱신(categoryList: categoryItems)),
+                    animation: .pokitSpring
+                )
+            }
+        case let .미분류_카테고리_컨텐츠_삭제(contentId):
+            return .run { send in
+                let _ = try await contentClient.컨텐츠_삭제("\(contentId)")
+                await send(.inner(.컨텐츠_삭제(contentId: contentId)), animation: .pokitSpring)
+            }
+            
         }
     }
 
@@ -464,7 +538,10 @@ private extension PokitRootFeature {
                     return .none
                 }
 
-                return .send(.inner(.컨텐츠_삭제(contentId: selectedItem.id)), animation: .pokitSpring)
+                return .send(
+                    .async(.미분류_카테고리_컨텐츠_삭제(contentId: selectedItem.id)),
+                    animation: .pokitSpring
+                )
 
             case .folder(.포킷):
                 guard let selectedItem = state.selectedKebobItem else {
@@ -490,15 +567,9 @@ private extension PokitRootFeature {
         case .미분류_카테고리_컨텐츠_조회:
             switch state.folderType {
             case .folder(.포킷):
-                guard let _ = state.domain.categoryList.data?.count else {
-                    return .send(.inner(.페이지네이션_초기화))
-                }
-                return .send(.async(.카테고리_조회), animation: .pokitSpring)
+                return .send(.async(.카테고리_페이징_재조회), animation: .pokitSpring)
             case .folder(.미분류):
-                guard let _ = state.domain.unclassifiedContentList.data?.count else {
-                    return .send(.inner(.페이지네이션_초기화))
-                }
-                return .send(.async(.미분류_카테고리_컨텐츠_조회), animation: .pokitSpring)
+                return .send(.async(.미분류_카테고리_컨텐츠_페이징_재조회), animation: .pokitSpring)
             default: return .none
             }
         default:

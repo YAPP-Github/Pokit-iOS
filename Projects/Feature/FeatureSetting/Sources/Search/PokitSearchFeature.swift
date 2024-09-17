@@ -73,8 +73,7 @@ public struct PokitSearchFeature {
             guard let startDate = domain.condition.startDate else {
                 return nil
             }
-            let formatter = DateFormatter()
-            formatter.dateFormat = "yyyy-MM-dd"
+            let formatter = DateFormat.searchCondition.formatter
             
             return formatter.string(from: startDate)
         }
@@ -152,7 +151,7 @@ public struct PokitSearchFeature {
         }
         
         public enum AsyncAction: Equatable {
-            case 컨텐츠_검색(size: Int)
+            case 컨텐츠_검색
             case 최근검색어_갱신
             case 자동저장_켜기_갱신
             case 컨텐츠_삭제(id: Int)
@@ -309,10 +308,10 @@ private extension PokitSearchFeature {
             return .run { [
                 contentList = state.domain.contentList.data
             ] send in
-                await send(.inner(.자동저장_켜기_불러오기))
-                await send(.inner(.최근검색어_불러오기))
+                async let _ = send(.inner(.자동저장_켜기_불러오기))
+                async let _ = send(.inner(.최근검색어_불러오기))
                 if let contentList, !contentList.isEmpty {
-                    await send(.async(.컨텐츠_검색(size: contentList.count)))
+                    async let _ = send(.async(.컨텐츠_검색))
                 }
                 for await _ in self.pasteboard.changes() {
                     let url = try await pasteboard.probableWebURL()
@@ -335,7 +334,7 @@ private extension PokitSearchFeature {
             state.shareSheetItem = nil
             return .none
         case .로딩_isPresented:
-            return .send(.async(.컨텐츠_검색_결과_페이징_조회), animation: .pokitDissolve)
+            return .send(.async(.컨텐츠_검색_결과_페이징_조회))
         }
     }
     
@@ -350,8 +349,7 @@ private extension PokitSearchFeature {
             state.domain.contentList.data = []
             return .none
         case .updateDateFilter(startDate: let startDate, endDate: let endDate):
-            let formatter = DateFormatter()
-            formatter.dateFormat = "yy.MM.dd"
+            let formatter = DateFormat.dateFilter.formatter
             
             state.domain.condition.startDate = startDate
             state.domain.condition.endDate = endDate
@@ -429,17 +427,16 @@ private extension PokitSearchFeature {
             state.domain.contentList.data = list + newList
             return .send(.inner(.enableIsSearching))
         case .페이징_초기화:
-            state.domain.pageable.page = -1
+            state.domain.pageable.page = 0
             state.domain.contentList.data = nil
-            return .send(.async(.컨텐츠_검색_결과_페이징_조회), animation: .pokitDissolve)
+            return .send(.async(.컨텐츠_검색), animation: .pokitDissolve)
         }
     }
     
     /// - Async Effect
     func handleAsyncAction(_ action: Action.AsyncAction, state: inout State) -> Effect<Action> {
         switch action {
-        case let .컨텐츠_검색(size):
-            state.domain.pageable.page = 0
+        case .컨텐츠_검색:
             let formatter = DateFormat.yearMonthDate.formatter
             
             var startDateString: String? = nil
@@ -452,26 +449,40 @@ private extension PokitSearchFeature {
             }
             return .run { [
                 pageable = state.domain.pageable,
-                condition = state.domain.condition,
-                startDateString,
-                endDateString
+                condition = BaseConditionRequest(
+                    searchWord: state.domain.condition.searchWord,
+                    categoryIds: state.domain.condition.categoryIds,
+                    isRead: state.domain.condition.isRead,
+                    favorites: state.domain.condition.favorites,
+                    startDate: startDateString,
+                    endDate: endDateString
+                )
             ] send in
-                let contentList = try await contentClient.컨텐츠_검색(
-                    BasePageableRequest(
-                        page: pageable.page,
-                        size: size,
-                        sort: pageable.sort
-                    ),
-                    BaseConditionRequest(
-                        searchWord: condition.searchWord,
-                        categoryIds: condition.categoryIds,
-                        isRead: condition.isRead,
-                        favorites: condition.favorites,
-                        startDate: startDateString,
-                        endDate: endDateString
-                    )
-                ).toDomain()
-                await send(.inner(.컨텐츠_목록_갱신(contentList)), animation: .pokitSpring)
+                let stream = AsyncThrowingStream<BaseContentListInquiry, Error> { continuation in
+                    Task {
+                        for page in 0...pageable.page {
+                            let contentList = try await contentClient.컨텐츠_검색(
+                                BasePageableRequest(
+                                    page: page,
+                                    size: pageable.size,
+                                    sort: pageable.sort
+                                ),
+                                condition
+                            ).toDomain()
+                            continuation.yield(contentList)
+                        }
+                        continuation.finish()
+                    }
+                }
+                var contentItems: BaseContentListInquiry? = nil
+                for try await contentList in stream {
+                    let items = contentItems?.data ?? []
+                    let newItems = contentList.data ?? []
+                    contentItems = contentList
+                    contentItems?.data = items + newItems
+                }
+                guard let contentItems else { return }
+                await send(.inner(.컨텐츠_목록_갱신(contentItems)), animation: .pokitSpring)
             }
         case .최근검색어_갱신:
             guard state.isAutoSaveSearch else { return .none }
@@ -525,7 +536,7 @@ private extension PokitSearchFeature {
                         endDate: endDateString
                     )
                 ).toDomain()
-                await send(.inner(.컨텐츠_검색_결과_페이징_갱신(contentList)), animation: .pokitDissolve)
+                await send(.inner(.컨텐츠_검색_결과_페이징_갱신(contentList)))
             }
         }
     }
@@ -570,7 +581,7 @@ private extension PokitSearchFeature {
             guard let contentList = state.domain.contentList.data, !contentList.isEmpty else {
                 return .none
             }
-            return .send(.async(.컨텐츠_검색(size: contentList.count)))
+            return .send(.async(.컨텐츠_검색), animation: .pokitSpring)
         default: return .none
         }
     }
