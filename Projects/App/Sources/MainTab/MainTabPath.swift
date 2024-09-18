@@ -160,9 +160,9 @@ public extension MainTabFeature {
 
             case let .inner(.링크추가및수정이동(contentId: id)):
                 state.categoryId = nil
+                state.contentDetail = nil
                 state.path.append(.링크추가및수정(ContentSettingFeature.State(contentId: id)))
-                return .send(.contentDetail(.dismiss))
-
+                return .none
             /// - 링크 추가하기
             case .delegate(.링크추가하기):
                 state.categoryId = nil
