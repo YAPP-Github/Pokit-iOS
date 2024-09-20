@@ -28,7 +28,7 @@ public struct AppDelegateFeature {
     
     public enum Action {
         case didFinishLaunching
-        case didRegisterForRemoteNotifications(Result<Data, Error>)
+        case didRegisterForRemoteNotifications(Result<String, Error>)
         case userNotifications(UserNotificationClient.DelegateEvent)
         case root(RootFeature.Action)
     }
@@ -70,9 +70,8 @@ public struct AppDelegateFeature {
                 }
             case .didRegisterForRemoteNotifications(.failure):
                 return .none
-            case let .didRegisterForRemoteNotifications(.success(tokenData)):
-                let token = tokenData.map { String(format: "%02.2hhx", $0) }.joined()
-                return .run { _ in await userDefaults.setString(token, .fcmToken) } 
+            case let .didRegisterForRemoteNotifications(.success(token)):
+                return .run { _ in await userDefaults.setString(token, .fcmToken) }
                 catch: { _, _ in }
             case let .userNotifications(.willPresentNotification(_, completionHandler)):
                 return .run { _ in completionHandler(.banner) }

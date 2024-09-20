@@ -42,8 +42,8 @@ extension AppDelegate: UIApplicationDelegate {
         Messaging.messaging().token { token, error in
             if let error {
                 self.store.send(.didRegisterForRemoteNotifications(.failure(error)))
-            } else if let _ = token {
-                self.store.send(.didRegisterForRemoteNotifications(.success(deviceToken)))
+            } else if let token {
+                self.store.send(.didRegisterForRemoteNotifications(.success(token)))
             }
         }
     }
