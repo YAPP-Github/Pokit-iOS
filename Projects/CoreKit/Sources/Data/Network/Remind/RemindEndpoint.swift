@@ -14,6 +14,8 @@ public enum RemindEndpoint {
     case 오늘의_리마인드_조회
     case 읽지않음_컨텐츠_조회(model: BasePageableRequest)
     case 즐겨찾기_링크모음_조회(model: BasePageableRequest)
+    case 읽지않음_컨텐츠_개수_조회
+    case 즐겨찾기_컨텐츠_개수_조회
 }
 
 extension RemindEndpoint: TargetType {
@@ -31,6 +33,8 @@ extension RemindEndpoint: TargetType {
         case .오늘의_리마인드_조회: return "/today"
         case .읽지않음_컨텐츠_조회(_): return "/unread"
         case .즐겨찾기_링크모음_조회(_): return "/bookmark"
+        case .읽지않음_컨텐츠_개수_조회: return "/unread/count"
+        case .즐겨찾기_컨텐츠_개수_조회: return "/bookmark/count"
         }
     }
     
@@ -38,15 +42,16 @@ extension RemindEndpoint: TargetType {
         switch self {
         case .오늘의_리마인드_조회,
              .읽지않음_컨텐츠_조회,
-             .즐겨찾기_링크모음_조회:
+             .즐겨찾기_링크모음_조회,
+             .읽지않음_컨텐츠_개수_조회,
+             .즐겨찾기_컨텐츠_개수_조회:
             return .get
         }
     }
     
     public var task: Moya.Task {
         switch self {
-        case .오늘의_리마인드_조회:
-            return .requestPlain
+        case .오늘의_리마인드_조회: return .requestPlain
         case .읽지않음_컨텐츠_조회(let model),
              .즐겨찾기_링크모음_조회(let model):
             return .requestParameters(
@@ -57,6 +62,8 @@ extension RemindEndpoint: TargetType {
                 ],
                 encoding: URLEncoding.default
             )
+        case .읽지않음_컨텐츠_개수_조회: return .requestPlain
+        case .즐겨찾기_컨텐츠_개수_조회: return .requestPlain
         }
     }
     
