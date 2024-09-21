@@ -66,7 +66,7 @@ public extension ContentListView {
 private extension ContentListView {
     var listHeader: some View {
         HStack {
-            Text("링크 \(store.contents?.count ?? 0)개")
+            Text("링크 \(store.contentCount)개")
                 .pokitFont(.detail1)
                 .foregroundStyle(.pokit(.text(.secondary)))
                 .contentTransition(.numericText())
