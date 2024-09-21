@@ -12,6 +12,7 @@ public struct ContentList: Equatable {
     /// 콘텐츠 목록
     public var contentList: BaseContentListInquiry
     public var pageable: BasePageable
+    public var contentCount: Int
     
     public init() {
         self.contentList = .init(
@@ -24,5 +25,6 @@ public struct ContentList: Equatable {
             page: 0, size: 10,
             sort: ["createdAt,desc"]
         )
+        self.contentCount = 0
     }
 }

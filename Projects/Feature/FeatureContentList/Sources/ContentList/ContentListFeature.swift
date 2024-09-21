@@ -40,6 +40,9 @@ public struct ContentListFeature {
             contentList.forEach { identifiedArray.append($0) }
             return identifiedArray
         }
+        var contentCount: Int {
+            get { domain.contentCount }
+        }
         var isListDescending = true
         /// sheet item
         var bottomSheetItem: BaseContentItem? = nil
@@ -87,6 +90,7 @@ public struct ContentListFeature {
             case pagenation_네트워크_결과(BaseContentListInquiry)
             case pagenation_초기화
             case 컨텐츠_목록_갱신(BaseContentListInquiry)
+            case 컨텐츠_개수_갱신(Int)
         }
 
         public enum AsyncAction: Equatable {
@@ -94,8 +98,8 @@ public struct ContentListFeature {
             case 즐겨찾기_링크모음_조회
             case 컨텐츠_삭제(id: Int)
             case pagenation_네트워크
-            case 컨텐츠_목록_갱신
             case 페이징_재조회
+            case 컨텐츠_개수_조회
         }
 
         public enum ScopeAction: Equatable {
@@ -175,7 +179,6 @@ private extension ContentListFeature {
             ]
             return .send(.inner(.pagenation_초기화), animation: .pokitDissolve)
         case .backButtonTapped:
-            
             return .run { _ in await dismiss() }
         case .contentListViewOnAppeared:
             return .run { [type = state.contentType] send in
@@ -193,7 +196,7 @@ private extension ContentListFeature {
             }
 
         case .pagenation:
-            return .run { send in await send(.async(.pagenation_네트워크)) }
+            return .send(.async(.pagenation_네트워크))
         case .링크_공유_완료:
             state.shareSheetItem = nil
             return .none
@@ -232,6 +235,9 @@ private extension ContentListFeature {
         case let .컨텐츠_목록_갱신(contentList):
             state.domain.contentList = contentList
             return .none
+        case let .컨텐츠_개수_갱신(count):
+            state.domain.contentCount = count
+            return .none
         }
     }
 
@@ -240,6 +246,7 @@ private extension ContentListFeature {
         switch action {
         case .읽지않음_컨텐츠_조회:
             return .run { [pageable = state.domain.pageable] send in
+                await send(.async(.컨텐츠_개수_조회))
                 let contentList = try await remindClient.읽지않음_컨텐츠_조회(
                     BasePageableRequest(
                         page: pageable.page,
@@ -254,6 +261,7 @@ private extension ContentListFeature {
             }
         case .즐겨찾기_링크모음_조회:
             return .run { [pageable = state.domain.pageable] send in
+                await send(.async(.컨텐츠_개수_조회))
                 let contentList = try await remindClient.즐겨찾기_링크모음_조회(
                     BasePageableRequest(
                         page: pageable.page,
@@ -267,7 +275,9 @@ private extension ContentListFeature {
                 )
             }
         case .컨텐츠_삭제(id: let id):
-            return .run { [id] send in
+            return .run { [count = state.domain.contentCount] send in
+                let newCount = count - 1
+                await send(.inner(.컨텐츠_개수_갱신(newCount)), animation: .pokitSpring)
                 let _ = try await contentClient.컨텐츠_삭제("\(id)")
                 await send(.inner(.컨텐츠_삭제_반영(id: id)), animation: .pokitSpring)
             }
@@ -323,6 +333,7 @@ private extension ContentListFeature {
                 pageable = state.domain.pageable,
                 contentType = state.contentType
             ] send in
+                await send(.async(.컨텐츠_개수_조회))
                 let stream = AsyncThrowingStream<BaseContentListInquiry, Error> { continuation in
                     Task {
                         for page in 0...pageable.page {
@@ -356,6 +367,17 @@ private extension ContentListFeature {
                 }
                 guard let contentItems else { return }
                 await send(.inner(.컨텐츠_목록_갱신(contentItems)), animation: .pokitSpring)
+            }
+        case .컨텐츠_개수_조회:
+            return .run { [ contentType = state.contentType ] send in
+                switch contentType {
+                case .favorite:
+                    let count = try await remindClient.즐겨찾기_컨텐츠_개수_조회().count
+                    await send(.inner(.컨텐츠_개수_갱신(count)), animation: .pokitSpring)
+                case .unread:
+                    let count = try await remindClient.읽지않음_컨텐츠_개수_조회().count
+                    await send(.inner(.컨텐츠_개수_갱신(count)), animation: .pokitSpring)
+                }
             }
         }
     }
