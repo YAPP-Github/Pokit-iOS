@@ -294,40 +294,6 @@ private extension ContentListFeature {
                     break
                 }
             }
-        case .컨텐츠_목록_갱신:
-            state.domain.pageable.page = 0
-            return .run { [
-                type = state.contentType,
-                pageable = state.domain.pageable
-            ] send in
-                switch type {
-                case .unread:
-                    let contentList = try await remindClient.읽지않음_컨텐츠_조회(
-                        BasePageableRequest(
-                            page: pageable.page,
-                            size: pageable.size,
-                            sort: pageable.sort
-                        )
-                    ).toDomain()
-                    await send(
-                        .inner(.컨텐츠_목록_갱신(contentList)),
-                        animation: pageable.page == 0 ? .pokitDissolve : nil
-                    )
-                case .favorite:
-                    let contentList = try await remindClient.즐겨찾기_링크모음_조회(
-                        BasePageableRequest(
-                            page: pageable.page,
-                            size: pageable.size,
-                            sort: pageable.sort
-                        )
-                    ).toDomain()
-                    await send(
-                        .inner(.컨텐츠_목록_갱신(contentList)),
-                        animation: pageable.page == 0 ? .pokitDissolve : nil
-                    )
-                }
-                
-            }
         case .페이징_재조회:
             return .run { [
                 pageable = state.domain.pageable,
