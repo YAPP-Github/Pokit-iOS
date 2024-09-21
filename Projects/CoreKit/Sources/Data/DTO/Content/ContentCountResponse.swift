@@ -8,11 +8,11 @@
 import Foundation
 
 public struct BookmarkCountResponse: Decodable {
-    let count: Int
+    public let count: Int
 }
 
 public struct UnreadCountResponse: Decodable {
-    let count: Int
+    public let count: Int
 }
 
 extension UnreadCountResponse {
