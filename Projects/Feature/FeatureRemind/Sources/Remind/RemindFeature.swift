@@ -66,21 +66,21 @@ public struct RemindFeature {
         public enum View: Equatable, BindableAction {
             case binding(BindingAction<State>)
             /// - Button Tapped
-            case bellButtonTapped
-            case searchButtonTapped
-            case linkCardTapped(content: BaseContentItem)
-            case kebabButtonTapped(content: BaseContentItem)
-            case unreadNavigationLinkTapped
-            case favoriteNavigationLinkTapped
-            case bottomSheetButtonTapped(
+            case 알림_버튼_눌렀을때
+            case 검색_버튼_눌렀을때
+            case 컨텐츠_항목_눌렀을때(content: BaseContentItem)
+            case 컨텐츠_항목_케밥_버튼_눌렀을때(content: BaseContentItem)
+            case 안읽음_목록_버튼_눌렀을때
+            case 즐겨찾기_목록_버튼_눌렀을때
+            case bottomSheet(
                 delegate: PokitBottomSheet.Delegate,
                 content: BaseContentItem
             )
-            case deleteAlertConfirmTapped(content: BaseContentItem)
+            case 링크_삭제_눌렀을때(content: BaseContentItem)
             
             case 링크_공유_완료
             
-            case remindViewOnAppeared
+            case 뷰가_나타났을때
         }
         public enum InnerAction: Equatable {
             case dismissBottomSheet
@@ -144,32 +144,32 @@ private extension RemindFeature {
     /// - View Effect
     func handleViewAction(_ action: Action.View, state: inout State) -> Effect<Action> {
         switch action {
-        case .bellButtonTapped:
+        case .알림_버튼_눌렀을때:
             return .run { send in await send(.delegate(.alertButtonTapped)) }
-        case .searchButtonTapped:
+        case .검색_버튼_눌렀을때:
             return .run { send in await send(.delegate(.searchButtonTapped)) }
-        case .favoriteNavigationLinkTapped:
+        case .즐겨찾기_목록_버튼_눌렀을때:
             return .send(.delegate(.링크목록_즐겨찾기))
-        case .unreadNavigationLinkTapped:
+        case .안읽음_목록_버튼_눌렀을때:
             return .send(.delegate(.링크목록_안읽음))
-        case .kebabButtonTapped(let content):
+        case .컨텐츠_항목_케밥_버튼_눌렀을때(let content):
             state.bottomSheetItem = content
             return .none
-        case .linkCardTapped(let content):
+        case .컨텐츠_항목_눌렀을때(let content):
             return .send(.delegate(.링크상세(content: content)))
-        case .bottomSheetButtonTapped(let delegate, let content):
+        case .bottomSheet(let delegate, let content):
             return .run { send in
                 await send(.inner(.dismissBottomSheet))
                 await send(.scope(.bottomSheet(delegate: delegate, content: content)))
             }
-        case .deleteAlertConfirmTapped:
+        case .링크_삭제_눌렀을때:
             guard let id = state.alertItem?.id else { return .none }
             return .run { [id] send in
                 await send(.async(.컨텐츠_삭제(id: id)))
             }
         case .binding:
             return .none
-        case .remindViewOnAppeared:
+        case .뷰가_나타났을때:
             return .run { send in
                 await send(.async(.오늘의_리마인드_조회), animation: .pokitDissolve)
                 await send(.async(.읽지않음_컨텐츠_조회), animation: .pokitDissolve)

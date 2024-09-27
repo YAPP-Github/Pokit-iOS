@@ -35,7 +35,7 @@ public extension RemindView {
                     PokitBottomSheet(
                         items: [.share, .edit, .delete],
                         height: 224
-                    ) { send(.bottomSheetButtonTapped(delegate: $0, content: content)) }
+                    ) { send(.bottomSheet(delegate: $0, content: content)) }
                 }
                 .sheet(item: $store.shareSheetItem) { content in
                     if let shareURL = URL(string: content.data) {
@@ -51,9 +51,9 @@ public extension RemindView {
                         "링크를 정말 삭제하시겠습니까?",
                         message: "함께 저장한 모든 정보가 삭제되며, \n복구하실 수 없습니다.",
                         confirmText: "삭제"
-                    ) { send(.deleteAlertConfirmTapped(content: content)) }
+                    ) { send(.링크_삭제_눌렀을때(content: content)) }
                 }
-                .task { await send(.remindViewOnAppeared, animation: .pokitDissolve).finish() }
+                .task { await send(.뷰가_나타났을때, animation: .pokitDissolve).finish() }
         }
     }
 }
@@ -134,7 +134,7 @@ extension RemindView {
     
     @ViewBuilder
     private func recommendedContentCell(content: BaseContentItem) -> some View {
-        Button(action: { send(.linkCardTapped(content: content)) }) {
+        Button(action: { send(.컨텐츠_항목_눌렀을때(content: content)) }) {
             recommendedContentCellLabel(content: content)
         }
         
@@ -186,7 +186,7 @@ extension RemindView {
                     Spacer()
                     
                     kebabButton {
-                        send(.kebabButtonTapped(content: content))
+                        send(.컨텐츠_항목_케밥_버튼_눌렀을때(content: content))
                     }
                     .foregroundStyle(.pokit(.icon(.inverseWh)))
                     .zIndex(1)
@@ -243,7 +243,7 @@ extension RemindView {
                 VStack(spacing: 0) {
                     VStack(spacing: 0) {
                         listNavigationLink("한번도 읽지 않았어요") {
-                            send(.unreadNavigationLinkTapped)
+                            send(.안읽음_목록_버튼_눌렀을때)
                         }
                         .padding(.bottom, 16)
                     }
@@ -254,8 +254,8 @@ extension RemindView {
                         
                         PokitLinkCard(
                             link: content,
-                            action: { send(.linkCardTapped(content: content)) },
-                            kebabAction: { send(.kebabButtonTapped(content: content)) }
+                            action: { send(.컨텐츠_항목_눌렀을때(content: content)) },
+                            kebabAction: { send(.컨텐츠_항목_케밥_버튼_눌렀을때(content: content)) }
                         )
                         .divider(isFirst: isFirst, isLast: isLast)
                     }
@@ -270,7 +270,7 @@ extension RemindView {
     ) -> some View {
         VStack(spacing: 0) {
             listNavigationLink("즐겨찾기 링크만 모았어요") {
-                send(.favoriteNavigationLinkTapped)
+                send(.즐겨찾기_목록_버튼_눌렀을때)
             }
             .padding(.bottom, 16)
             
@@ -288,8 +288,8 @@ extension RemindView {
                     
                     PokitLinkCard(
                         link: content,
-                        action: { send(.linkCardTapped(content: content)) },
-                        kebabAction: { send(.kebabButtonTapped(content: content)) }
+                        action: { send(.컨텐츠_항목_눌렀을때(content: content)) },
+                        kebabAction: { send(.컨텐츠_항목_케밥_버튼_눌렀을때(content: content)) }
                     )
                     .divider(isFirst: isFirst, isLast: isLast)
                 }
