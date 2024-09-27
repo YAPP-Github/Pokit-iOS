@@ -65,6 +65,11 @@ public struct RemindFeature {
         
         public enum View: Equatable, BindableAction {
             case binding(BindingAction<State>)
+            case bottomSheet(
+                delegate: PokitBottomSheet.Delegate,
+                content: BaseContentItem
+            )
+            
             /// - Button Tapped
             case 알림_버튼_눌렀을때
             case 검색_버튼_눌렀을때
@@ -72,10 +77,6 @@ public struct RemindFeature {
             case 컨텐츠_항목_케밥_버튼_눌렀을때(content: BaseContentItem)
             case 안읽음_목록_버튼_눌렀을때
             case 즐겨찾기_목록_버튼_눌렀을때
-            case bottomSheet(
-                delegate: PokitBottomSheet.Delegate,
-                content: BaseContentItem
-            )
             case 링크_삭제_눌렀을때(content: BaseContentItem)
             
             case 링크_공유_완료
@@ -144,6 +145,13 @@ private extension RemindFeature {
     /// - View Effect
     func handleViewAction(_ action: Action.View, state: inout State) -> Effect<Action> {
         switch action {
+        case .binding:
+            return .none
+        case .bottomSheet(let delegate, let content):
+            return .run { send in
+                await send(.inner(.바텀시트_해제))
+                await send(.scope(.bottomSheet(delegate: delegate, content: content)))
+            }
         case .알림_버튼_눌렀을때:
             return .run { send in await send(.delegate(.alertButtonTapped)) }
         case .검색_버튼_눌렀을때:
@@ -157,18 +165,11 @@ private extension RemindFeature {
             return .none
         case .컨텐츠_항목_눌렀을때(let content):
             return .send(.delegate(.링크상세(content: content)))
-        case .bottomSheet(let delegate, let content):
-            return .run { send in
-                await send(.inner(.dismissBottomSheet))
-                await send(.scope(.bottomSheet(delegate: delegate, content: content)))
-            }
         case .링크_삭제_눌렀을때:
             guard let id = state.alertItem?.id else { return .none }
             return .run { [id] send in
                 await send(.async(.컨텐츠_삭제_API(id: id)))
             }
-        case .binding:
-            return .none
         case .뷰가_나타났을때:
             return .run { send in
                 await send(.async(.오늘의_리마인드_API), animation: .pokitDissolve)
