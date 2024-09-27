@@ -185,11 +185,11 @@ private extension MainTabView {
             PokitHeaderItems(placement: .trailing) {
                 PokitToolbarButton(
                     .icon(.search),
-                    action: { store.send(.remind(.view(.searchButtonTapped))) }
+                    action: { store.send(.remind(.view(.검색_버튼_눌렀을때))) }
                 )
                 PokitToolbarButton(
                     .icon(.bell),
-                    action: { store.send(.remind(.view(.bellButtonTapped))) }
+                    action: { store.send(.remind(.view(.알림_버튼_눌렀을때))) }
                 )
             }
         }
