@@ -88,7 +88,7 @@ public struct RemindFeature {
             case 오늘의_리마인드_조회_API_반영(contents: [BaseContentItem])
             case 읽지않음_컨텐츠_조회_API_반영(contentList: BaseContentListInquiry)
             case 즐겨찾기_링크모음_조회_API_반영(contentList: BaseContentListInquiry)
-            case 컨텐츠_삭제_조회_API_반영(id: Int)
+            case 컨텐츠_삭제_API_반영(id: Int)
         }
         public enum AsyncAction: Equatable {
             case 오늘의_리마인드_조회_API
@@ -101,7 +101,7 @@ public struct RemindFeature {
                 delegate: PokitBottomSheet.Delegate,
                 content: BaseContentItem
             )
-            case 컨텐츠_전체_조회_API
+            case 컨텐츠_상세보기_대리자_액션_위임
         }
         public enum DelegateAction: Equatable {
             case 링크상세(content: BaseContentItem)
@@ -196,7 +196,7 @@ private extension RemindFeature {
         case .즐겨찾기_링크모음_조회_API_반영(contentList: let contentList):
             state.domain.favoriteList = contentList
             return .none
-        case .컨텐츠_삭제_조회_API_반영(id: let contentId):
+        case .컨텐츠_삭제_API_반영(id: let contentId):
             state.alertItem = nil
             state.domain.recommendedList?.removeAll { $0.id == contentId }
             state.domain.unreadList.data?.removeAll { $0.id == contentId }
@@ -237,7 +237,7 @@ private extension RemindFeature {
         case .컨텐츠_삭제_API(id: let id):
             return .run { [id] send in
                 let _ = try await contentClient.컨텐츠_삭제("\(id)")
-                await send(.inner(.컨텐츠_삭제_조회_API_반영(id: id)), animation: .pokitSpring)
+                await send(.inner(.컨텐츠_삭제_API_반영(id: id)), animation: .pokitSpring)
             }
         }
     }
@@ -258,7 +258,7 @@ private extension RemindFeature {
                 state.shareSheetItem = content
                 return .none
             }
-        case .컨텐츠_전체_조회_API:
+        case .컨텐츠_상세보기_대리자_액션_위임:
             return .run { send in
                 await send(.async(.오늘의_리마인드_조회_API))
                 await send(.async(.읽지않음_컨텐츠_조회_API))
