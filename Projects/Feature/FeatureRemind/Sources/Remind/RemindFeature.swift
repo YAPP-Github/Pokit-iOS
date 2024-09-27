@@ -101,6 +101,7 @@ public struct RemindFeature {
                 delegate: PokitBottomSheet.Delegate,
                 content: BaseContentItem
             )
+            case 컨텐츠_전체_조회_API
         }
         public enum DelegateAction: Equatable {
             case 링크상세(content: BaseContentItem)
@@ -109,7 +110,6 @@ public struct RemindFeature {
             case 링크수정(id: Int)
             case 링크목록_안읽음
             case 링크목록_즐겨찾기
-            case 컨텐츠목록_조회
         }
     }
     /// initiallizer
@@ -258,18 +258,16 @@ private extension RemindFeature {
                 state.shareSheetItem = content
                 return .none
             }
-        }
-    }
-    /// - Delegate Effect
-    func handleDelegateAction(_ action: Action.DelegateAction, state: inout State) -> Effect<Action> {
-        switch action {
-        case .컨텐츠목록_조회:
+        case .컨텐츠_전체_조회_API:
             return .run { send in
                 await send(.async(.오늘의_리마인드_API))
                 await send(.async(.읽지않음_컨텐츠_API))
                 await send(.async(.즐겨찾기_링크모음_API))
             }
-        default: return .none
         }
+    }
+    /// - Delegate Effect
+    func handleDelegateAction(_ action: Action.DelegateAction, state: inout State) -> Effect<Action> {
+        return .none
     }
 }
