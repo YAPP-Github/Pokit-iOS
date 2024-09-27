@@ -85,15 +85,15 @@ public struct RemindFeature {
         }
         public enum InnerAction: Equatable {
             case 바텀시트_해제
-            case 오늘의_리마인드_API_반영(contents: [BaseContentItem])
-            case 읽지않음_컨텐츠_API_반영(contentList: BaseContentListInquiry)
-            case 즐겨찾기_링크모음_API_반영(contentList: BaseContentListInquiry)
-            case 컨텐츠_삭제_API_반영(id: Int)
+            case 오늘의_리마인드_조회_API_반영(contents: [BaseContentItem])
+            case 읽지않음_컨텐츠_조회_API_반영(contentList: BaseContentListInquiry)
+            case 즐겨찾기_링크모음_조회_API_반영(contentList: BaseContentListInquiry)
+            case 컨텐츠_삭제_조회_API_반영(id: Int)
         }
         public enum AsyncAction: Equatable {
-            case 오늘의_리마인드_API
-            case 읽지않음_컨텐츠_API
-            case 즐겨찾기_링크모음_API
+            case 오늘의_리마인드_조회_API
+            case 읽지않음_컨텐츠_조회_API
+            case 즐겨찾기_링크모음_조회_API
             case 컨텐츠_삭제_API(id: Int)
         }
         public enum ScopeAction: Equatable {
@@ -172,9 +172,9 @@ private extension RemindFeature {
             }
         case .뷰가_나타났을때:
             return .run { send in
-                await send(.async(.오늘의_리마인드_API), animation: .pokitDissolve)
-                await send(.async(.읽지않음_컨텐츠_API), animation: .pokitDissolve)
-                await send(.async(.즐겨찾기_링크모음_API), animation: .pokitDissolve)
+                await send(.async(.오늘의_리마인드_조회_API), animation: .pokitDissolve)
+                await send(.async(.읽지않음_컨텐츠_조회_API), animation: .pokitDissolve)
+                await send(.async(.즐겨찾기_링크모음_조회_API), animation: .pokitDissolve)
             }
         case .링크_공유_완료:
             state.shareSheetItem = nil
@@ -187,16 +187,16 @@ private extension RemindFeature {
         case .바텀시트_해제:
             state.bottomSheetItem = nil
             return .none
-        case .오늘의_리마인드_API_반영(contents: let contents):
+        case .오늘의_리마인드_조회_API_반영(contents: let contents):
             state.domain.recommendedList = contents
             return .none
-        case .읽지않음_컨텐츠_API_반영(contentList: let contentList):
+        case .읽지않음_컨텐츠_조회_API_반영(contentList: let contentList):
             state.domain.unreadList = contentList
             return .none
-        case .즐겨찾기_링크모음_API_반영(contentList: let contentList):
+        case .즐겨찾기_링크모음_조회_API_반영(contentList: let contentList):
             state.domain.favoriteList = contentList
             return .none
-        case .컨텐츠_삭제_API_반영(id: let contentId):
+        case .컨텐츠_삭제_조회_API_반영(id: let contentId):
             state.alertItem = nil
             state.domain.recommendedList?.removeAll { $0.id == contentId }
             state.domain.unreadList.data?.removeAll { $0.id == contentId }
@@ -207,12 +207,12 @@ private extension RemindFeature {
     /// - Async Effect
     func handleAsyncAction(_ action: Action.AsyncAction, state: inout State) -> Effect<Action> {
         switch action {
-        case .오늘의_리마인드_API:
+        case .오늘의_리마인드_조회_API:
             return .run { send in
                 let contents = try await remindClient.오늘의_리마인드_조회().map { $0.toDomain() }
-                await send(.inner(.오늘의_리마인드_API_반영(contents: contents)), animation: .pokitDissolve)
+                await send(.inner(.오늘의_리마인드_조회_API_반영(contents: contents)), animation: .pokitDissolve)
             }
-        case .읽지않음_컨텐츠_API:
+        case .읽지않음_컨텐츠_조회_API:
             return .run { [pageable = state.domain.unreadListPageable] send in
                 let contentList = try await remindClient.읽지않음_컨텐츠_조회(
                     BasePageableRequest(
@@ -221,9 +221,9 @@ private extension RemindFeature {
                         sort: pageable.sort
                     )
                 ).toDomain()
-                await send(.inner(.읽지않음_컨텐츠_API_반영(contentList: contentList)), animation: .pokitDissolve)
+                await send(.inner(.읽지않음_컨텐츠_조회_API_반영(contentList: contentList)), animation: .pokitDissolve)
             }
-        case .즐겨찾기_링크모음_API:
+        case .즐겨찾기_링크모음_조회_API:
             return .run { [pageable = state.domain.favoriteListPageable] send in
                 let contentList = try await remindClient.즐겨찾기_링크모음_조회(
                     BasePageableRequest(
@@ -232,12 +232,12 @@ private extension RemindFeature {
                         sort: pageable.sort
                     )
                 ).toDomain()
-                await send(.inner(.즐겨찾기_링크모음_API_반영(contentList: contentList)), animation: .pokitDissolve)
+                await send(.inner(.즐겨찾기_링크모음_조회_API_반영(contentList: contentList)), animation: .pokitDissolve)
             }
         case .컨텐츠_삭제_API(id: let id):
             return .run { [id] send in
                 let _ = try await contentClient.컨텐츠_삭제("\(id)")
-                await send(.inner(.컨텐츠_삭제_API_반영(id: id)), animation: .pokitSpring)
+                await send(.inner(.컨텐츠_삭제_조회_API_반영(id: id)), animation: .pokitSpring)
             }
         }
     }
@@ -260,9 +260,9 @@ private extension RemindFeature {
             }
         case .컨텐츠_전체_조회_API:
             return .run { send in
-                await send(.async(.오늘의_리마인드_API))
-                await send(.async(.읽지않음_컨텐츠_API))
-                await send(.async(.즐겨찾기_링크모음_API))
+                await send(.async(.오늘의_리마인드_조회_API))
+                await send(.async(.읽지않음_컨텐츠_조회_API))
+                await send(.async(.즐겨찾기_링크모음_조회_API))
             }
         }
     }
