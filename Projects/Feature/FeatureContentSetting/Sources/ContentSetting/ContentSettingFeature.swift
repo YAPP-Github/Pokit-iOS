@@ -171,11 +171,10 @@ private extension ContentSettingFeature {
                 await send(.inner(.URL_유효성_확인))
             }
             /// - 1초마다 `urlText`변화의 마지막을 감지하여 이벤트 방출
-            .throttle(
+            .debounce(
                 id: CancelID.urlTextChanged,
                 for: 1,
-                scheduler: DispatchQueue.main,
-                latest: true
+                scheduler: DispatchQueue.main
             )
         case .binding:
             return .none
@@ -339,46 +338,37 @@ private extension ContentSettingFeature {
             }
         case .카테고리_목록_조회_API:
             return .run { [
-                pageable = state.domain.pageable,
+                request = BasePageableRequest(
+                    page: state.domain.pageable.page,
+                    size: 30,
+                    sort: state.domain.pageable.sort
+                ),
                 id = state.domain.categoryId,
                 sharedId = state.categoryId
             ] send in
-                let categoryList = try await categoryClient.카테고리_목록_조회(
-                    BasePageableRequest(
-                        page: pageable.page,
-                        size: 100,
-                        sort: pageable.sort
-                    ),
-                    false
-                ).toDomain()
+                let categoryList = try await categoryClient.카테고리_목록_조회(request, false).toDomain()
                 
                 await send(.async(.카테고리_상세_조회_API(id: id, sharedId: sharedId)))
                 await send(.inner(.카테고리_목록_조회_API_반영(categoryList: categoryList)), animation: .pokitDissolve)
             }
         case .컨텐츠_수정_API:
-            guard let contentId = state.domain.contentId else {
-                return .none
-            }
-            guard let categoryId = state.selectedPokit?.id else {
+            guard let contentId = state.domain.contentId,
+                  let categoryId = state.selectedPokit?.id else {
                 return .none
             }
             return .run { [
-                data = state.domain.data,
-                title = state.domain.title,
-                memo = state.domain.memo,
-                alertYn = state.domain.alertYn,
-                thumbNail = state.domain.thumbNail
+                request = ContentBaseRequest(
+                    data: state.domain.data,
+                    title: state.domain.title,
+                    categoryId: categoryId,
+                    memo: state.domain.memo,
+                    alertYn: state.domain.alertYn.rawValue,
+                    thumbNail: state.domain.thumbNail
+                )
             ] send in
                 let _ = try await contentClient.컨텐츠_수정(
                     "\(contentId)",
-                    ContentBaseRequest(
-                        data: data,
-                        title: title,
-                        categoryId: categoryId,
-                        memo: memo,
-                        alertYn: alertYn.rawValue,
-                        thumbNail: thumbNail
-                    )
+                    request
                 )
                 await send(.inner(.선택한_포킷_인메모리_삭제))
                 await send(.delegate(.저장하기_완료))
@@ -389,22 +379,16 @@ private extension ContentSettingFeature {
             }
             
             return .run { [
-                data = state.domain.data,
-                title = state.domain.title,
-                memo = state.domain.memo,
-                alertYn = state.domain.alertYn,
-                thumbNail = state.domain.thumbNail
-            ] send in
-                let _ = try await contentClient.컨텐츠_추가(
-                    ContentBaseRequest(
-                        data: data,
-                        title: title,
-                        categoryId: categoryId,
-                        memo: memo,
-                        alertYn: alertYn.rawValue,
-                        thumbNail: thumbNail
-                    )
+                request = ContentBaseRequest(
+                    data: state.domain.data,
+                    title: state.domain.title,
+                    categoryId: categoryId,
+                    memo: state.domain.memo,
+                    alertYn: state.domain.alertYn.rawValue,
+                    thumbNail: state.domain.thumbNail
                 )
+            ] send in
+                let _ = try await contentClient.컨텐츠_추가(request)
                 await send(.inner(.선택한_포킷_인메모리_삭제))
                 await send(.delegate(.저장하기_완료))
             }
