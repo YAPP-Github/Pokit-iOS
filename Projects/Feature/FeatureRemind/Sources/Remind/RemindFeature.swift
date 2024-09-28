@@ -102,7 +102,7 @@ public struct RemindFeature {
                 delegate: PokitBottomSheet.Delegate,
                 content: BaseContentItem
             )
-            case 컨텐츠_상세보기_대리자_액션_위임
+            case 컨텐츠_상세보기_delegate_위임
         }
         public enum DelegateAction: Equatable {
             case 링크상세(content: BaseContentItem)
@@ -253,7 +253,7 @@ private extension RemindFeature {
                 state.shareSheetItem = content
                 return .none
             }
-        case .컨텐츠_상세보기_대리자_액션_위임:
+        case .컨텐츠_상세보기_delegate_위임:
             return allContentFetch()
         }
     }
