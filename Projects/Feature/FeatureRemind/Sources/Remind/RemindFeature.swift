@@ -9,6 +9,7 @@ import Domain
 import CoreKit
 import Util
 import DSKit
+import SwiftUICore
 
 @Reducer
 public struct RemindFeature {
@@ -171,11 +172,7 @@ private extension RemindFeature {
                 await send(.async(.컨텐츠_삭제_API(id: id)))
             }
         case .뷰가_나타났을때:
-            return .run { send in
-                await send(.async(.오늘의_리마인드_조회_API), animation: .pokitDissolve)
-                await send(.async(.읽지않음_컨텐츠_조회_API), animation: .pokitDissolve)
-                await send(.async(.즐겨찾기_링크모음_조회_API), animation: .pokitDissolve)
-            }
+            return allContentFetch(animation: .pokitDissolve)
         case .링크_공유_완료:
             state.shareSheetItem = nil
             return .none
@@ -259,15 +256,19 @@ private extension RemindFeature {
                 return .none
             }
         case .컨텐츠_상세보기_대리자_액션_위임:
-            return .run { send in
-                await send(.async(.오늘의_리마인드_조회_API))
-                await send(.async(.읽지않음_컨텐츠_조회_API))
-                await send(.async(.즐겨찾기_링크모음_조회_API))
-            }
+            return allContentFetch()
         }
     }
     /// - Delegate Effect
     func handleDelegateAction(_ action: Action.DelegateAction, state: inout State) -> Effect<Action> {
         return .none
+    }
+    
+    func allContentFetch(animation: Animation? = nil) -> Effect<Action> {
+        return .run { send in
+            await send(.async(.오늘의_리마인드_조회_API), animation: animation)
+            await send(.async(.읽지않음_컨텐츠_조회_API), animation: animation)
+            await send(.async(.즐겨찾기_링크모음_조회_API), animation: animation)
+        }
     }
 }
