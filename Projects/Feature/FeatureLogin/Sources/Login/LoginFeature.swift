@@ -54,7 +54,6 @@ public struct LoginFeature {
             case 관심분야_선택_화면이동(nickname: String)
             case 회원가입_완료_화면이동
             case 로그인_이후_화면이동(isRegistered: Bool)
-            case 소셜로그인_반영(SocialLoginInfo)
         }
         public enum AsyncAction: Equatable {
             case 회원가입_API
@@ -135,13 +134,6 @@ private extension LoginFeature {
             } else {
                 return .run { send in await send(.inner(.약관동의_화면이동)) }
             }
-        case .소셜로그인_반영(let response):
-            switch response.provider {
-            case .apple:
-                return .send(.async(.애플로그인_API(response)))
-            case .google:
-                return .send(.async(.구글로그인_API(response)))
-            }
         }
     }
     /// - Async Effect
@@ -199,12 +191,12 @@ private extension LoginFeature {
         case .애플로그인_소셜_API:
             return .run { send in
                 let response = try await socialLogin.appleLogin()
-                await send(.inner(.소셜로그인_반영(response)))
+                await send(.async(.애플로그인_API(response)))
             }
         case .구글로그인_소셜_API:
             return .run { send in
                 let response = try await socialLogin.googleLogin()
-                await send(.inner(.소셜로그인_반영(response)))
+                await send(.async(.구글로그인_API(response)))
             }
         }
     }
