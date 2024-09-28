@@ -154,9 +154,9 @@ private extension RemindFeature {
                 await send(.scope(.bottomSheet(delegate: delegate, content: content)))
             }
         case .알림_버튼_눌렀을때:
-            return .run { send in await send(.delegate(.alertButtonTapped)) }
+            return .send(.delegate(.alertButtonTapped))
         case .검색_버튼_눌렀을때:
-            return .run { send in await send(.delegate(.searchButtonTapped)) }
+            return .send(.delegate(.searchButtonTapped))
         case .즐겨찾기_목록_버튼_눌렀을때:
             return .send(.delegate(.링크목록_즐겨찾기))
         case .안읽음_목록_버튼_눌렀을때:
@@ -168,9 +168,7 @@ private extension RemindFeature {
             return .send(.delegate(.링크상세(content: content)))
         case .링크_삭제_눌렀을때:
             guard let id = state.alertItem?.id else { return .none }
-            return .run { [id] send in
-                await send(.async(.컨텐츠_삭제_API(id: id)))
-            }
+            return .send(.async(.컨텐츠_삭제_API(id: id)))
         case .뷰가_나타났을때:
             return allContentFetch(animation: .pokitDissolve)
         case .링크_공유_완료:
