@@ -99,6 +99,7 @@ public struct ContentSettingFeature {
 
         public enum InnerAction: Equatable {
             case linkPopup(URL?)
+            case linkPreview
             case 메타데이터_조회_수행(url: URL)
             case 메타데이텨_조회_반영(title: String?, imageURL: String?)
             case URL_유효성_확인
@@ -106,7 +107,6 @@ public struct ContentSettingFeature {
             case 컨텐츠_상세_조회_API_반영(content: BaseContentDetail)
             case 카테고리_상세_조회_API_반영(category: BaseCategory)
             case 카테고리_목록_조회_API_반영(categoryList: BaseCategoryListInquiry)
-            case linkPreview
             case 선택한_포킷_인메모리_삭제
         }
 
@@ -323,7 +323,7 @@ private extension ContentSettingFeature {
         switch action {
         case .컨텐츠_상세_조회_API(id: let id):
             state.contentLoading = true
-            return .run { [id] send in
+            return .run { send in
                 let content = try await contentClient.컨텐츠_상세_조회("\(id)").toDomain()
                 await send(.inner(.컨텐츠_상세_조회_API_반영(content: content)))
             }
@@ -363,16 +363,14 @@ private extension ContentSettingFeature {
                 return .none
             }
             return .run { [
-                id = contentId,
                 data = state.domain.data,
                 title = state.domain.title,
-                categoryId = categoryId,
                 memo = state.domain.memo,
                 alertYn = state.domain.alertYn,
                 thumbNail = state.domain.thumbNail
             ] send in
                 let _ = try await contentClient.컨텐츠_수정(
-                    "\(id)",
+                    "\(contentId)",
                     ContentBaseRequest(
                         data: data,
                         title: title,
@@ -393,7 +391,6 @@ private extension ContentSettingFeature {
             return .run { [
                 data = state.domain.data,
                 title = state.domain.title,
-                categoryId = categoryId,
                 memo = state.domain.memo,
                 alertYn = state.domain.alertYn,
                 thumbNail = state.domain.thumbNail
