@@ -230,7 +230,7 @@ private extension RemindFeature {
                 await send(.inner(.즐겨찾기_링크모음_조회_API_반영(contentList: contentList)), animation: .pokitDissolve)
             }
         case .컨텐츠_삭제_API(id: let id):
-            return .run { [id] send in
+            return .run { send in
                 let _ = try await contentClient.컨텐츠_삭제("\(id)")
                 await send(.inner(.컨텐츠_삭제_API_반영(id: id)), animation: .pokitSpring)
             }
