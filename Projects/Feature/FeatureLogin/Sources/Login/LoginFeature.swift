@@ -45,21 +45,21 @@ public struct LoginFeature {
         @CasePathable
         public enum View: Equatable {
             /// - Button Tapped
-            case appleLoginButtonTapped
-            case googleLoginButtonTapped
+            case 애플로그인_버튼_눌렀을때
+            case 구글로그인_버튼_눌렀을때
         }
         public enum InnerAction: Equatable {
-            case pushAgreeToTermsView
-            case pushRegisterNicknameView
-            case pushSelectFieldView(nickname: String)
-            case pushSignUpDoneView
-            case 애플로그인(SocialLoginInfo)
-            case 구글로그인(SocialLoginInfo)
+            case 약관동의_화면이동
+            case 닉네임_등록_화면이동
+            case 관심분야_선택_화면이동(nickname: String)
+            case 회원가입_완료_화면이동
+            case 로그인_수행(SocialLoginInfo)
             case 로그인_이후_화면이동(isRegistered: Bool)
         }
         public enum AsyncAction: Equatable {
-            case 회원가입
-            case 로그인(SocialLoginInfo)
+            case 회원가입_API
+            case 애플로그인_API(SocialLoginInfo)
+            case 구글로그인_API(SocialLoginInfo)
         }
         public enum ScopeAction {
             case agreeToTerms(AgreeToTermsFeature.Action.DelegateAction)
@@ -106,32 +106,32 @@ private extension LoginFeature {
     /// - View Effect
     func handleViewAction(_ action: Action.View, state: inout State) -> Effect<Action> {
         switch action {
-        case .appleLoginButtonTapped:
+        case .애플로그인_버튼_눌렀을때:
             return .run { send in
                 let response = try await socialLogin.appleLogin()
-                await send(.async(.로그인(response)))
+                await send(.inner(.로그인_수행(response)))
             }
             
-        case .googleLoginButtonTapped:
+        case .구글로그인_버튼_눌렀을때:
             return .run { send in
                 let response = try await socialLogin.googleLogin()
-                await send(.async(.로그인(response)))
+                await send(.inner(.로그인_수행(response)))
             }
         }
     }
     /// - Inner Effect
     func handleInnerAction(_ action: Action.InnerAction, state: inout State) -> Effect<Action> {
         switch action {
-        case .pushAgreeToTermsView:
+        case .약관동의_화면이동:
             state.path.append(.agreeToTerms(AgreeToTermsFeature.State()))
             return .none
-        case .pushRegisterNicknameView:
+        case .닉네임_등록_화면이동:
             state.path.append(.registerNickname(RegisterNicknameFeature.State()))
             return .none
-        case .pushSelectFieldView(let nickname):
+        case .관심분야_선택_화면이동(let nickname):
             state.path.append(.selecteField(SelectFieldFeature.State(nickname: nickname)))
             return .none
-        case .pushSignUpDoneView:
+        case .회원가입_완료_화면이동:
             return .send(.delegate(.회원가입_완료_화면_이동))
         case let .애플로그인(response):
             return .run { send in
@@ -157,7 +157,7 @@ private extension LoginFeature {
                 
                 await send(.inner(.로그인_이후_화면이동(isRegistered: tokenResponse.isRegistered)))
             }
-        case let .구글로그인(response):
+        case let .구글로그인_API(response):
             return .run { send in
                 guard let idToken = response.idToken else { return }
                 let platform = response.provider.description
@@ -210,19 +210,19 @@ private extension LoginFeature {
         case .agreeToTerms(let delegate):
             switch delegate {
             case .pushRegisterNicknameView:
-                return .send(.inner(.pushRegisterNicknameView))
+                return .send(.inner(.닉네임_등록_화면이동))
             }
         case .registerNickname(let delegate):
             switch delegate {
             case .pushSelectFieldView(let nickname):
                 state.nickName = nickname
-                return .send(.inner(.pushSelectFieldView(nickname: nickname)))
+                return .send(.inner(.관심분야_선택_화면이동(nickname: nickname)))
             }
         case .selectField(let delegate):
             switch delegate {
             case let .pushSignUpDoneView(interests):
                 state.interests = interests
-                return .send(.async(.회원가입))
+                return .send(.async(.회원가입_API))
             }
         }
     }

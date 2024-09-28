@@ -82,7 +82,7 @@ extension LoginView {
     
     private var appleLoginButton: some View {
         Button {
-            send(.appleLoginButtonTapped)
+            send(.애플로그인_버튼_눌렀을때)
         } label: {
             appleLoginButtonLabel
         }
@@ -123,7 +123,7 @@ extension LoginView {
     
     private var googleLoginButton: some View {
         Button {
-            send(.googleLoginButtonTapped)
+            send(.구글로그인_버튼_눌렀을때)
         } label: {
             googleLoginButtonLabel
         }
