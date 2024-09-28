@@ -98,7 +98,6 @@ public struct ContentSettingFeature {
         }
 
         public enum InnerAction: Equatable {
-            case maxCategoryPopup
             case linkPopup(URL?)
             case 메타데이터_조회_수행(url: URL)
             case 메타데이텨_조회_반영(title: String?, imageURL: String?)
@@ -208,10 +207,11 @@ private extension ContentSettingFeature {
         case .포킷추가_버튼_눌렀을때:
             guard state.domain.categoryTotalCount < 30 else {
                 /// 🚨 Error Case [1]: 포킷 갯수가 30개 이상일 경우
-                return .send(.inner(.maxCategoryPopup), animation: .pokitSpring)
+                state.showMaxCategoryPopup = true
+                return .none
             }
+            
             return .send(.delegate(.포킷추가하기))
-
         case .뒤로가기_버튼_눌렀을때:
             return .run { _ in await dismiss() }
         case .링크복사_버튼_눌렀을때:
@@ -222,6 +222,14 @@ private extension ContentSettingFeature {
     /// - Inner Effect
     func handleInnerAction(_ action: Action.InnerAction, state: inout State) -> Effect<Action> {
         switch action {
+        case let .linkPopup(url):
+            guard let url else { return .none }
+            state.link = url.absoluteString
+            state.showDetectedURLPopup = true
+            return .none
+        case .linkPreview:
+            state.showLinkPreview = true
+            return .none
         case .메타데이터_조회_수행(url: let url):
             return .run { send in
                 let (title, imageURL) = await swiftSoup.parseOGTitleAndImage(url) {
@@ -252,9 +260,6 @@ private extension ContentSettingFeature {
                 return .none
             }
             return .send(.inner(.메타데이터_조회_수행(url: url)), animation: .pokitDissolve)
-        case .maxCategoryPopup:
-            state.showMaxCategoryPopup = true
-            return .none
         case .링크복사_반영(let urlText):
             state.showDetectedURLPopup = false
             state.link = nil
@@ -307,15 +312,6 @@ private extension ContentSettingFeature {
                 state.selectedPokit = unclassifiedItem
             }
             return .none
-        case let .linkPopup(url):
-            guard let url else { return .none }
-            state.link = url.absoluteString
-            state.showDetectedURLPopup = true
-            return .none
-        case .linkPreview:
-            state.showLinkPreview = true
-            return .none
-            
         case .선택한_포킷_인메모리_삭제:
             state.selectedPokit = nil
             return .none
@@ -340,7 +336,6 @@ private extension ContentSettingFeature {
                     let category = try await categoryClient.카테고리_상세_조회("\(id)").toDomain()
                     await send(.inner(.카테고리_상세_조회_API_반영(category: category)))
                 }
-
             }
         case .카테고리_목록_조회_API:
             return .run { [

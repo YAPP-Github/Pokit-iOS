@@ -56,6 +56,7 @@ public extension ContentSettingView {
                                 isPresented: $store.showMaxCategoryPopup,
                                 type: .text
                             )
+                            .animation(.pokitSpring, value: store.showMaxCategoryPopup)
                         } else if store.state.showDetectedURLPopup {
                             PokitLinkPopup(
                                 "복사한 링크 저장하기",
