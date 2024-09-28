@@ -87,36 +87,36 @@ public struct ContentSettingFeature {
             /// - Binding
             case binding(BindingAction<State>)
             /// - Button Tapped
-            case pokitSelectButtonTapped
-            case pokitSelectItemButtonTapped(pokit: BaseCategoryItem)
-            case contentSettingViewOnAppeared
-            case saveBottomButtonTapped
-            case addPokitButtonTapped
-            case linkCopyButtonTapped
+            case 포킷선택_버튼_눌렀을때
+            case 포킷선택_항목_눌렀을때(pokit: BaseCategoryItem)
+            case 뷰가_나타났을때
+            case 저장_버튼_눌렀을때
+            case 포킷추가_버튼_눌렀을때
+            case 링크복사_버튼_눌렀을때
 
-            case dismiss
+            case 뒤로가기_버튼_눌렀을때
         }
 
         public enum InnerAction: Equatable {
-            case fetchMetadata(url: URL)
-            case parsingInfo(title: String?, imageURL: String?)
-            case parsingURL
-            case showPopup
-            case showLinkPopup(URL?)
-            case updateURLText(String?)
-            case 컨텐츠_갱신(content: BaseContentDetail)
-            case 카테고리_갱신(category: BaseCategory)
-            case 카테고리_목록_갱신(categoryList: BaseCategoryListInquiry)
-            case 링크미리보기_presented
+            case maxCategoryPopup
+            case linkPopup(URL?)
+            case 메타데이터_조회_수행(url: URL)
+            case 메타데이텨_조회_반영(title: String?, imageURL: String?)
+            case URL_유효성_확인
+            case 링크복사_반영(String?)
+            case 컨텐츠_상세_조회_API_반영(content: BaseContentDetail)
+            case 카테고리_상세_조회_API_반영(category: BaseCategory)
+            case 카테고리_목록_조회_API_반영(categoryList: BaseCategoryListInquiry)
+            case linkPreview
             case 선택한_포킷_인메모리_삭제
         }
 
         public enum AsyncAction: Equatable {
-            case 컨텐츠_상세_조회(id: Int)
-            case 카테고리_상세_조회(id: Int?, sharedId: Int?)
-            case 카테고리_목록_조회
-            case 컨텐츠_수정
-            case 컨텐츠_추가
+            case 컨텐츠_상세_조회_API(id: Int)
+            case 카테고리_상세_조회_API(id: Int?, sharedId: Int?)
+            case 카테고리_목록_조회_API
+            case 컨텐츠_수정_API
+            case 컨텐츠_추가_API
         }
 
         public enum ScopeAction: Equatable { case doNothing }
@@ -169,7 +169,7 @@ private extension ContentSettingFeature {
         case .binding(\.urlText):
             enum CancelID { case urlTextChanged }
             return .run { send in
-                await send(.inner(.parsingURL))
+                await send(.inner(.URL_유효성_확인))
             }
             /// - 1초마다 `urlText`변화의 마지막을 감지하여 이벤트 방출
             .throttle(
@@ -180,59 +180,59 @@ private extension ContentSettingFeature {
             )
         case .binding:
             return .none
-        case .pokitSelectButtonTapped:
-            return .send(.async(.카테고리_목록_조회))
-        case .pokitSelectItemButtonTapped(pokit: let pokit):
+        case .포킷선택_버튼_눌렀을때:
+            return .send(.async(.카테고리_목록_조회_API))
+        case .포킷선택_항목_눌렀을때(pokit: let pokit):
             state.selectedPokit = pokit
             return .none
-        case .contentSettingViewOnAppeared:
+        case .뷰가_나타났을때:
             return .run { [id = state.domain.contentId] send in
                 if let id {
-                    await send(.async(.컨텐츠_상세_조회(id: id)))
+                    await send(.async(.컨텐츠_상세_조회_API(id: id)))
                 }
-                await send(.async(.카테고리_목록_조회))
-                await send(.inner(.parsingURL))
+                await send(.async(.카테고리_목록_조회_API))
+                await send(.inner(.URL_유효성_확인))
                 for await _ in self.pasteboard.changes() {
                     let url = try await pasteboard.probableWebURL()
-                    await send(.inner(.showLinkPopup(url)), animation: .pokitSpring)
+                    await send(.inner(.linkPopup(url)), animation: .pokitSpring)
                 }
             }
-        case .saveBottomButtonTapped:
+        case .저장_버튼_눌렀을때:
             return .run { [isEdit = state.domain.categoryId != nil] send in
                 if isEdit {
-                    await send(.async(.컨텐츠_수정))
+                    await send(.async(.컨텐츠_수정_API))
                 } else {
-                    await send(.async(.컨텐츠_추가))
+                    await send(.async(.컨텐츠_추가_API))
                 }
             }
-        case .addPokitButtonTapped:
+        case .포킷추가_버튼_눌렀을때:
             guard state.domain.categoryTotalCount < 30 else {
                 /// 🚨 Error Case [1]: 포킷 갯수가 30개 이상일 경우
-                return .send(.inner(.showPopup), animation: .pokitSpring)
+                return .send(.inner(.maxCategoryPopup), animation: .pokitSpring)
             }
             return .send(.delegate(.포킷추가하기))
 
-        case .dismiss:
+        case .뒤로가기_버튼_눌렀을때:
             return .run { _ in await dismiss() }
-        case .linkCopyButtonTapped:
-            return .send(.inner(.updateURLText(state.link)))
+        case .링크복사_버튼_눌렀을때:
+            return .send(.inner(.링크복사_반영(state.link)))
         }
     }
 
     /// - Inner Effect
     func handleInnerAction(_ action: Action.InnerAction, state: inout State) -> Effect<Action> {
         switch action {
-        case .fetchMetadata(url: let url):
+        case .메타데이터_조회_수행(url: let url):
             return .run { send in
                 let (title, imageURL) = await swiftSoup.parseOGTitleAndImage(url) {
-                    await send(.inner(.링크미리보기_presented), animation: .pokitDissolve)
+                    await send(.inner(.linkPreview), animation: .pokitDissolve)
                 }
                 await send(
-                    .inner(.parsingInfo(title: title, imageURL: imageURL)),
+                    .inner(.메타데이텨_조회_반영(title: title, imageURL: imageURL)),
                     animation: .pokitDissolve
                 )
             }
-        case let .parsingInfo(title: title, imageURL: imageURL):
+        case let .메타데이텨_조회_반영(title: title, imageURL: imageURL):
             state.linkTitle = title
             state.linkImageURL = imageURL
             if let title, state.domain.title.isEmpty {
@@ -240,7 +240,7 @@ private extension ContentSettingFeature {
             }
             state.domain.thumbNail = imageURL
             return .none
-        case .parsingURL:
+        case .URL_유효성_확인:
             guard let url = URL(string: state.domain.data),
                   !state.domain.data.isEmpty else {
                 /// 🚨 Error Case [1]: 올바른 링크가 아닐 때
@@ -251,17 +251,17 @@ private extension ContentSettingFeature {
                 state.domain.thumbNail = nil
                 return .none
             }
-            return .send(.inner(.fetchMetadata(url: url)), animation: .pokitDissolve)
-        case .showPopup:
+            return .send(.inner(.메타데이터_조회_수행(url: url)), animation: .pokitDissolve)
+        case .maxCategoryPopup:
             state.showMaxCategoryPopup = true
             return .none
-        case .updateURLText(let urlText):
+        case .링크복사_반영(let urlText):
             state.showDetectedURLPopup = false
             state.link = nil
             guard let urlText else { return .none }
             state.domain.data = urlText
-            return .send(.inner(.parsingURL))
-        case .컨텐츠_갱신(content: let content):
+            return .send(.inner(.URL_유효성_확인))
+        case .컨텐츠_상세_조회_API_반영(content: let content):
             state.domain.content = content
             state.domain.data = content.data
             state.domain.contentId = content.id
@@ -274,10 +274,10 @@ private extension ContentSettingFeature {
                 id = content.category.categoryId,
                 sharedCategoryId = state.categoryId
             ] send in
-                await send(.inner(.parsingURL))
-                await send(.async(.카테고리_상세_조회(id: id, sharedId: sharedCategoryId)))
+                await send(.inner(.URL_유효성_확인))
+                await send(.async(.카테고리_상세_조회_API(id: id, sharedId: sharedCategoryId)))
             }
-        case .카테고리_갱신(category: let category):
+        case .카테고리_상세_조회_API_반영(category: let category):
             state.selectedPokit = BaseCategoryItem(
                 id: category.categoryId,
                 userId: 0,
@@ -287,7 +287,7 @@ private extension ContentSettingFeature {
                 createdAt: ""
             )
             return .none
-        case .카테고리_목록_갱신(categoryList: let categoryList):
+        case .카테고리_목록_조회_API_반영(categoryList: let categoryList):
             /// - `카테고리_목록_조회`의 filter 옵션을 `false`로 해두었기 때문에 `미분류` 카테고리 또한 항목에서 조회가 가능함
 
             /// [1]. `미분류`에 해당하는 인덱스 번호와 항목을 체크, 없다면 목록갱신이 불가함
@@ -307,12 +307,12 @@ private extension ContentSettingFeature {
                 state.selectedPokit = unclassifiedItem
             }
             return .none
-        case let .showLinkPopup(url):
+        case let .linkPopup(url):
             guard let url else { return .none }
             state.link = url.absoluteString
             state.showDetectedURLPopup = true
             return .none
-        case .링크미리보기_presented:
+        case .linkPreview:
             state.showLinkPreview = true
             return .none
             
@@ -325,24 +325,24 @@ private extension ContentSettingFeature {
     /// - Async Effect
     func handleAsyncAction(_ action: Action.AsyncAction, state: inout State) -> Effect<Action> {
         switch action {
-        case .컨텐츠_상세_조회(id: let id):
+        case .컨텐츠_상세_조회_API(id: let id):
             state.contentLoading = true
             return .run { [id] send in
                 let content = try await contentClient.컨텐츠_상세_조회("\(id)").toDomain()
-                await send(.inner(.컨텐츠_갱신(content: content)))
+                await send(.inner(.컨텐츠_상세_조회_API_반영(content: content)))
             }
-        case let .카테고리_상세_조회(id, sharedId):
+        case let .카테고리_상세_조회_API(id, sharedId):
             return .run { send in
                 if let sharedId {
                     let category = try await categoryClient.카테고리_상세_조회("\(sharedId)").toDomain()
-                    await send(.inner(.카테고리_갱신(category: category)))
+                    await send(.inner(.카테고리_상세_조회_API_반영(category: category)))
                 } else if let id {
                     let category = try await categoryClient.카테고리_상세_조회("\(id)").toDomain()
-                    await send(.inner(.카테고리_갱신(category: category)))
+                    await send(.inner(.카테고리_상세_조회_API_반영(category: category)))
                 }
 
             }
-        case .카테고리_목록_조회:
+        case .카테고리_목록_조회_API:
             return .run { [
                 pageable = state.domain.pageable,
                 id = state.domain.categoryId,
@@ -357,10 +357,10 @@ private extension ContentSettingFeature {
                     false
                 ).toDomain()
                 
-                await send(.async(.카테고리_상세_조회(id: id, sharedId: sharedId)))
-                await send(.inner(.카테고리_목록_갱신(categoryList: categoryList)), animation: .pokitDissolve)
+                await send(.async(.카테고리_상세_조회_API(id: id, sharedId: sharedId)))
+                await send(.inner(.카테고리_목록_조회_API_반영(categoryList: categoryList)), animation: .pokitDissolve)
             }
-        case .컨텐츠_수정:
+        case .컨텐츠_수정_API:
             guard let contentId = state.domain.contentId else {
                 return .none
             }
@@ -390,7 +390,7 @@ private extension ContentSettingFeature {
                 await send(.inner(.선택한_포킷_인메모리_삭제))
                 await send(.delegate(.저장하기_완료))
             }
-        case .컨텐츠_추가:
+        case .컨텐츠_추가_API:
             guard let categoryId = state.selectedPokit?.id else {
                 return .none
             }
