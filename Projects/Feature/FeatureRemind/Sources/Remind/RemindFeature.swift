@@ -4,12 +4,13 @@
 //
 //  Created by 김도형 on 7/12/24.
 
+import SwiftUI
+
 import ComposableArchitecture
 import Domain
 import CoreKit
 import Util
 import DSKit
-import SwiftUICore
 
 @Reducer
 public struct RemindFeature {
