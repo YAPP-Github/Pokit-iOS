@@ -274,8 +274,8 @@ private extension ContentSettingFeature {
             state.domain.memo = content.memo
             state.domain.alertYn = content.alertYn
             state.contentLoading = false
+            let id = content.category.categoryId
             return .run { [
-                id = content.category.categoryId,
                 sharedCategoryId = state.categoryId
             ] send in
                 await send(.inner(.URL_유효성_확인))
@@ -337,12 +337,12 @@ private extension ContentSettingFeature {
                 }
             }
         case .카테고리_목록_조회_API:
+            let request = BasePageableRequest(
+                page: state.domain.pageable.page,
+                size: 30,
+                sort: state.domain.pageable.sort
+            )
             return .run { [
-                request = BasePageableRequest(
-                    page: state.domain.pageable.page,
-                    size: 30,
-                    sort: state.domain.pageable.sort
-                ),
                 id = state.domain.categoryId,
                 sharedId = state.categoryId
             ] send in
@@ -356,16 +356,15 @@ private extension ContentSettingFeature {
                   let categoryId = state.selectedPokit?.id else {
                 return .none
             }
-            return .run { [
-                request = ContentBaseRequest(
-                    data: state.domain.data,
-                    title: state.domain.title,
-                    categoryId: categoryId,
-                    memo: state.domain.memo,
-                    alertYn: state.domain.alertYn.rawValue,
-                    thumbNail: state.domain.thumbNail
-                )
-            ] send in
+            let request = ContentBaseRequest(
+                data: state.domain.data,
+                title: state.domain.title,
+                categoryId: categoryId,
+                memo: state.domain.memo,
+                alertYn: state.domain.alertYn.rawValue,
+                thumbNail: state.domain.thumbNail
+            )
+            return .run { send in
                 let _ = try await contentClient.컨텐츠_수정(
                     "\(contentId)",
                     request
@@ -377,17 +376,15 @@ private extension ContentSettingFeature {
             guard let categoryId = state.selectedPokit?.id else {
                 return .none
             }
-            
-            return .run { [
-                request = ContentBaseRequest(
-                    data: state.domain.data,
-                    title: state.domain.title,
-                    categoryId: categoryId,
-                    memo: state.domain.memo,
-                    alertYn: state.domain.alertYn.rawValue,
-                    thumbNail: state.domain.thumbNail
-                )
-            ] send in
+            let request = ContentBaseRequest(
+                data: state.domain.data,
+                title: state.domain.title,
+                categoryId: categoryId,
+                memo: state.domain.memo,
+                alertYn: state.domain.alertYn.rawValue,
+                thumbNail: state.domain.thumbNail
+            )
+            return .run { send in
                 let _ = try await contentClient.컨텐츠_추가(request)
                 await send(.inner(.선택한_포킷_인메모리_삭제))
                 await send(.delegate(.저장하기_완료))
