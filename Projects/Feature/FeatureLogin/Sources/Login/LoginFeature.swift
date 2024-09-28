@@ -53,13 +53,15 @@ public struct LoginFeature {
             case 닉네임_등록_화면이동
             case 관심분야_선택_화면이동(nickname: String)
             case 회원가입_완료_화면이동
-            case 로그인_수행(SocialLoginInfo)
             case 로그인_이후_화면이동(isRegistered: Bool)
+            case 소셜로그인_반영(SocialLoginInfo)
         }
         public enum AsyncAction: Equatable {
             case 회원가입_API
             case 애플로그인_API(SocialLoginInfo)
             case 구글로그인_API(SocialLoginInfo)
+            case 애플로그인_소셜_API
+            case 구글로그인_소셜_API
         }
         public enum ScopeAction {
             case agreeToTerms(AgreeToTermsFeature.Action.DelegateAction)
@@ -107,16 +109,9 @@ private extension LoginFeature {
     func handleViewAction(_ action: Action.View, state: inout State) -> Effect<Action> {
         switch action {
         case .애플로그인_버튼_눌렀을때:
-            return .run { send in
-                let response = try await socialLogin.appleLogin()
-                await send(.inner(.로그인_수행(response)))
-            }
-            
+            return .send(.async(.애플로그인_소셜_API))
         case .구글로그인_버튼_눌렀을때:
-            return .run { send in
-                let response = try await socialLogin.googleLogin()
-                await send(.inner(.로그인_수행(response)))
-            }
+            return .send(.async(.구글로그인_소셜_API))
         }
     }
     /// - Inner Effect
@@ -133,7 +128,35 @@ private extension LoginFeature {
             return .none
         case .회원가입_완료_화면이동:
             return .send(.delegate(.회원가입_완료_화면_이동))
-        case let .애플로그인(response):
+        case let .로그인_이후_화면이동(isRegistered):
+            /// [3]. 이미 회원가입했던 유저라면 `메인`이동
+            if isRegistered {
+                return .run { send in await send(.delegate(.dismissLoginRootView)) }
+            } else {
+                return .run { send in await send(.inner(.약관동의_화면이동)) }
+            }
+        case .소셜로그인_반영(let response):
+            switch response.provider {
+            case .apple:
+                return .send(.async(.애플로그인_API(response)))
+            case .google:
+                return .send(.async(.구글로그인_API(response)))
+            }
+        }
+    }
+    /// - Async Effect
+    func handleAsyncAction(_ action: Action.AsyncAction, state: inout State) -> Effect<Action> {
+        switch action {
+        case .회원가입_API:
+            return .run { [nickName = state.nickName, interests = state.interests] send in
+                guard let nickName else { return }
+                guard let interests else { return }
+                let signUpRequest = SignupRequest(nickName: nickName, interests: interests)
+                let _ = try await userClient.회원등록(signUpRequest)
+                
+                await send(.inner(.회원가입_완료_화면이동))
+            }
+        case let .애플로그인_API(response):
             return .run { send in
                 guard let idToken = response.idToken else { return }
                 guard let authCode = response.authCode else { return }
@@ -173,34 +196,15 @@ private extension LoginFeature {
                 
                 await send(.inner(.로그인_이후_화면이동(isRegistered: tokenResponse.isRegistered)))
             }
-        case let .로그인_이후_화면이동(isRegistered):
-            /// [3]. 이미 회원가입했던 유저라면 `메인`이동
-            if isRegistered {
-                return .run { send in await send(.delegate(.dismissLoginRootView)) }
-            } else {
-                return .run { send in await send(.inner(.pushAgreeToTermsView)) }
+        case .애플로그인_소셜_API:
+            return .run { send in
+                let response = try await socialLogin.appleLogin()
+                await send(.inner(.소셜로그인_반영(response)))
             }
-        }
-    }
-    /// - Async Effect
-    func handleAsyncAction(_ action: Action.AsyncAction, state: inout State) -> Effect<Action> {
-        switch action {
-        case .회원가입:
-            return .run { [nickName = state.nickName, interests = state.interests] send in
-                guard let nickName else { return }
-                guard let interests else { return }
-                let signUpRequest = SignupRequest(nickName: nickName, interests: interests)
-                let _ = try await userClient.회원등록(signUpRequest)
-                
-                await send(.inner(.pushSignUpDoneView))
-            }
-        
-        case .로그인(let response):
-            switch response.provider {
-            case .apple:
-                return .run { send in await send(.inner(.애플로그인(response))) }
-            case .google:
-                return .run { send in await send(.inner(.구글로그인(response))) }
+        case .구글로그인_소셜_API:
+            return .run { send in
+                let response = try await socialLogin.googleLogin()
+                await send(.inner(.소셜로그인_반영(response)))
             }
         }
     }
