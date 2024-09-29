@@ -40,7 +40,7 @@ public extension PokitAlertBoxView {
                     } else {
                         List {
                             ForEach(alertContents, id: \.id) { item in
-                                Button(action: { send(.itemSelected(item: item)) }) {
+                                Button(action: { send(.알람_항목_선택했을때(item: item)) }) {
                                     AlertContent(item: item)
                                 }
                                 .listRowSeparator(.hidden)
@@ -58,7 +58,7 @@ public extension PokitAlertBoxView {
             }
             .pokitNavigationBar { navigationBar }
             .ignoresSafeArea(edges: .bottom)
-            .task { await send(.onAppear).finish() }
+            .task { await send(.뷰가_나타났을때).finish() }
         }
     }
 }
@@ -76,7 +76,7 @@ private extension PokitAlertBoxView {
     }
     
     func delete(_ item: AlertItem) {
-        send(.deleteSwiped(item: item),animation: .pokitSpring)
+        send(.밀어서_삭제했을때(item: item),animation: .pokitSpring)
     }
 
     struct AlertContent: View {
