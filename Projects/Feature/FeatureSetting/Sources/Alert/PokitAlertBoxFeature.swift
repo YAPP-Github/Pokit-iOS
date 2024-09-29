@@ -21,13 +21,11 @@ public struct PokitAlertBoxFeature {
     @ObservableState
     public struct State: Equatable {
         public init() {}
-        
+
         fileprivate var domain = Alert()
         
         var alertContents: IdentifiedArrayOf<AlertItem>? {
-            guard let list = domain.alertList.data else {
-                return nil
-            }
+            guard let list = domain.alertList.data else { return nil }
             var identifiedArray = IdentifiedArrayOf<AlertItem>()
             list.forEach { identifiedArray.append($0) }
             return identifiedArray
@@ -44,22 +42,27 @@ public struct PokitAlertBoxFeature {
         
         @CasePathable
         public enum View: Equatable {
-            case deleteSwiped(item: AlertItem)
-            case itemSelected(item: AlertItem)
             case dismiss
-            case onAppear
             case pagenation
+            case 밀어서_삭제했을때(item: AlertItem)
+            case 알람_항목_선택했을때(item: AlertItem)
+            case 뷰가_나타났을때
         }
         
         public enum InnerAction: Equatable {
-            case onAppearResult(AlertListInquiry)
-            case pagenation_result(AlertListInquiry)
-            case 삭제결과(item: AlertItem)
+            case pagenation_알람_목록_조회_API_반영(AlertListInquiry)
+            case 뷰가_나타났을때_알람_목록_조회_API_반영(AlertListInquiry)
+            case 알람_삭제_API_반영(item: AlertItem)
         }
         
-        public enum AsyncAction: Equatable { case doNothing }
+        public enum AsyncAction: Equatable {
+            case pagenation_알람_목록_조회_API
+            case 뷰가_나타났을때_알람_목록_조회_API
+            case 알람_삭제_API(item: AlertItem)
+            case 클립보드_감지
+        }
         
-        public enum ScopeAction: Equatable { case doNothing }
+        public enum ScopeAction: Equatable { case 없음 }
         
         public enum DelegateAction: Equatable {
             case moveToContentEdit(id: Int)
@@ -70,8 +73,6 @@ public struct PokitAlertBoxFeature {
     
     /// - Initiallizer
     public init() {}
-    
-    public enum CancelID { case disAppear }
 
     /// - Reducer Core
     private func core(into state: inout State, action: Action) -> Effect<Action> {
@@ -79,19 +80,15 @@ public struct PokitAlertBoxFeature {
             /// - View
         case .view(let viewAction):
             return handleViewAction(viewAction, state: &state)
-            
             /// - Inner
         case .inner(let innerAction):
             return handleInnerAction(innerAction, state: &state)
-            
             /// - Async
         case .async(let asyncAction):
             return handleAsyncAction(asyncAction, state: &state)
-            
             /// - Scope
         case .scope(let scopeAction):
             return handleScopeAction(scopeAction, state: &state)
-            
             /// - Delegate
         case .delegate(let delegateAction):
             return handleDelegateAction(delegateAction, state: &state)
@@ -108,57 +105,35 @@ private extension PokitAlertBoxFeature {
     /// - View Effect
     func handleViewAction(_ action: Action.View, state: inout State) -> Effect<Action> {
         switch action {
-        /// - 스와이프를 통해 아이템 삭제를 눌렀을 때
-        case .deleteSwiped(let item):
-            return .run { send in
-                try await alertClient.알람_삭제("\(item.id)")
-                await send(.inner(.삭제결과(item: item)))
-            }
-        /// - 선택한 항목을 `링크수정`화면으로 이동해 수정
-        case .itemSelected(let item):
-            return .run { send in await send(.delegate(.moveToContentEdit(id: item.contentId))) }
         case .dismiss:
-            return .run { send in
-//                await dismiss()
-                await send(.delegate(.alertBoxDismiss))
-            }
-        case .onAppear:
-            return .run { [domain = state.domain.alertList] send in
-                let sort: [String] = ["createdAt", "desc"]
-                let request = BasePageableRequest(page: 0, size: domain.size, sort: sort)
-                let result = try await alertClient.알람_목록_조회(request).toDomain()
-                await send(.inner(.onAppearResult(result)))
-                
-                for await _ in self.pasteboard.changes() {
-                    let url = try await pasteboard.probableWebURL()
-                    await send(.delegate(.linkCopyDetected(url)), animation: .pokitSpring)
-                }
-            }
+            return .send(.delegate(.alertBoxDismiss))
+            
+        case let .밀어서_삭제했을때(item):
+            return .send(.async(.알람_삭제_API(item: item)))
+            
+        case let .알람_항목_선택했을때(item):
+            return .send(.delegate(.moveToContentEdit(id: item.contentId)))
+            
+        case .뷰가_나타났을때:
+            return .merge(
+                .send(.async(.뷰가_나타났을때_알람_목록_조회_API)),
+                .send(.async(.클립보드_감지))
+            )
+            
         case .pagenation:
-            if state.domain.alertList.hasNext {
-                return .run { [domain = state.domain.alertList] send in
-                    let sort: [String] = ["createdAt", "desc"]
-                    let request = BasePageableRequest(
-                        page: domain.page + 1,
-                        size: 10,
-                        sort: sort
-                    )
-                    let result = try await alertClient.알람_목록_조회(request).toDomain()
-                    await send(.inner(.pagenation_result(result)))
-                }
-            }
-            return .none
+            return state.domain.alertList.hasNext
+            ? .send(.async(.pagenation_알람_목록_조회_API))
+            : .none
         }
     }
-    
     /// - Inner Effect
     func handleInnerAction(_ action: Action.InnerAction, state: inout State) -> Effect<Action> {
         switch action {
-        case let .onAppearResult(list):
+        case let .뷰가_나타났을때_알람_목록_조회_API_반영(list):
             state.domain.alertList = list
             return .none
             
-        case let .pagenation_result(alertList):
+        case let .pagenation_알람_목록_조회_API_반영(alertList):
             guard var list = state.domain.alertList.data else { return .none }
             guard let newList = alertList.data else { return .none }
             
@@ -167,24 +142,54 @@ private extension PokitAlertBoxFeature {
             state.domain.alertList.data = list
             return .none
             
-        case let .삭제결과(item):
-            //TODO: 삭제연결
+        case let .알람_삭제_API_반영(item):
             guard let idx = state.domain.alertList.data?.firstIndex(where: { $0 == item }) else { return .none }
             state.domain.alertList.data?.remove(at: idx)
             return .none
         }
     }
-    
     /// - Async Effect
     func handleAsyncAction(_ action: Action.AsyncAction, state: inout State) -> Effect<Action> {
-        return .none
+        switch action {
+        case .pagenation_알람_목록_조회_API:
+                return .run { [domain = state.domain.alertList] send in
+                    let sort: [String] = ["createdAt", "desc"]
+                    let request = BasePageableRequest(
+                        page: domain.page + 1,
+                        size: 10,
+                        sort: sort
+                    )
+                    let result = try await alertClient.알람_목록_조회(request).toDomain()
+                    await send(.inner(.pagenation_알람_목록_조회_API_반영(result)))
+                }
+            
+        case .뷰가_나타났을때_알람_목록_조회_API:
+            return .run { [domain = state.domain.alertList] send in
+                let sort: [String] = ["createdAt", "desc"]
+                let request = BasePageableRequest(page: 0, size: domain.size, sort: sort)
+                let result = try await alertClient.알람_목록_조회(request).toDomain()
+                await send(.inner(.뷰가_나타났을때_알람_목록_조회_API_반영(result)))
+            }
+            
+        case let .알람_삭제_API(item):
+            return .run { send in
+                try await alertClient.알람_삭제("\(item.id)")
+                await send(.inner(.알람_삭제_API_반영(item: item)))
+            }
+            
+        case .클립보드_감지:
+            return .run { send in
+                for await _ in self.pasteboard.changes() {
+                    let url = try await pasteboard.probableWebURL()
+                    await send(.delegate(.linkCopyDetected(url)), animation: .pokitSpring)
+                }
+            }
+        }
     }
-    
     /// - Scope Effect
     func handleScopeAction(_ action: Action.ScopeAction, state: inout State) -> Effect<Action> {
         return .none
     }
-    
     /// - Delegate Effect
     func handleDelegateAction(_ action: Action.DelegateAction, state: inout State) -> Effect<Action> {
         return .none
