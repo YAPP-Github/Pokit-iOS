@@ -340,7 +340,7 @@ private extension PokitSearchFeature {
         case .링크_공유_완료되었을때:
             state.shareSheetItem = nil
             return .none
-            
+
         case .로딩중일때:
             return .send(.async(.컨텐츠_검색_페이징_API))
         }
@@ -515,9 +515,7 @@ private extension PokitSearchFeature {
                     pageableRequest,
                     conditionRequest
                 ).toDomain()
-                await send(.inner(.컨텐츠_검색_페이징_API_반영(contentList)))
-            }
-            
+
         case .클립보드_감지:
             return .run { send in
                 for await _ in self.pasteboard.changes() {
