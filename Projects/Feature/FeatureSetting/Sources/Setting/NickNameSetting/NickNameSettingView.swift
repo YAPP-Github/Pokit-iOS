@@ -44,7 +44,7 @@ public extension NickNameSettingView {
                 PokitBottomButton(
                     "저장",
                     state: store.buttonState,
-                    action: { send(.saveButtonTapped) }
+                    action: { send(.저장_버튼_눌렀을때) }
                 )
                 .setKeyboardHeight()
             }
@@ -52,7 +52,7 @@ public extension NickNameSettingView {
             .padding(.top, 16)
             .pokitNavigationBar { navigationBar }
             .ignoresSafeArea(edges: .bottom)
-            .task { await send(.onAppear).finish() }
+            .task { await send(.뷰가_나타났을때).finish() }
         }
     }
 }
