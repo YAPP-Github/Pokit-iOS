@@ -73,31 +73,29 @@ public struct FilterBottomFeature {
         public enum View: Equatable, BindableAction {
             /// - Binding
             case binding(BindingAction<State>)
-            /// - Button Tapped
-            case pokitListCellTapped(pokit: BaseCategoryItem)
-            case searchButtonTapped
-            case pokitChipTapped(BaseCategoryItem)
-            case favoriteChipTapped
-            case unreadChipTapped
-            case dateChipTapped
-            case favoriteButtonTapped
-            case unreadButtonTapped
-            
-            case pokitListOnAppeared
+            case 포킷_항목_눌렀을때(pokit: BaseCategoryItem)
+            case 검색하기_버튼_눌렀을때
+            case 포킷_태그_눌렀을때(BaseCategoryItem)
+            case 즐겨찾기_태그_눌렀을때
+            case 안읽음_태그_눌렀을때
+            case 기간_태그_눌렀을때
+            case 즐겨찾기_체크박스_눌렀을때
+            case 안읽음_체크박스_눌렀을때
+            case 뷰가_나타났을때
         }
         
         public enum InnerAction: Equatable {
-            case 카테고리_목록_갱신(categoryList: BaseCategoryListInquiry)
+            case 카테고리_목록_조회_API_반영(categoryList: BaseCategoryListInquiry)
         }
         
         public enum AsyncAction: Equatable {
-            case 카테고리_목록_조회
+            case 카테고리_목록_조회_API
         }
         
         public enum ScopeAction: Equatable { case doNothing }
         
         public enum DelegateAction: Equatable {
-            case searchButtonTapped(
+            case 검색_버튼_눌렀을때(
                 categories: IdentifiedArrayOf<BaseCategoryItem>,
                 isFavorite: Bool,
                 isUnread: Bool,
@@ -149,15 +147,19 @@ private extension FilterBottomFeature {
         case .binding(\.startDate):
                 state.dateSelected = true
             return .none
+            
         case .binding(\.endDate):
                 state.dateSelected = true
             return .none
+            
         case .binding:
             return .none
-        case .pokitListCellTapped(let pokit):
+            
+        case .포킷_항목_눌렀을때(let pokit):
             state.selectedCategories.append(pokit)
             return .none
-        case .searchButtonTapped:
+            
+        case .검색하기_버튼_눌렀을때:
             return .run { [
                 categories = state.selectedCategories,
                 isFavorite = state.isFavorite,
@@ -175,35 +177,42 @@ private extension FilterBottomFeature {
                 )))
                 await dismiss()
             }
-        case .pokitChipTapped(let category):
+            
+        case .포킷_태그_눌렀을때(let category):
             state.selectedCategories.remove(category)
             return .none
-        case .favoriteChipTapped:
+            
+        case .즐겨찾기_태그_눌렀을때:
             state.isFavorite = false
             return .none
-        case .unreadChipTapped:
+            
+        case .안읽음_태그_눌렀을때:
             state.isUnread = false
             return .none
-        case .dateChipTapped:
+            
+        case .기간_태그_눌렀을때:
             state.startDate = .now
             state.endDate = .now
             state.dateSelected = false
             return .none
-        case .favoriteButtonTapped:
+            
+        case .즐겨찾기_체크박스_눌렀을때:
             state.isFavorite.toggle()
             return .none
-        case .unreadButtonTapped:
+            
+        case .안읽음_체크박스_눌렀을때:
             state.isUnread.toggle()
             return .none
-        case .pokitListOnAppeared:
-            return .send(.async(.카테고리_목록_조회))
+            
+        case .뷰가_나타났을때:
+            return .send(.async(.카테고리_목록_조회_API))
         }
     }
     
     /// - Inner Effect
     func handleInnerAction(_ action: Action.InnerAction, state: inout State) -> Effect<Action> {
         switch action {
-        case .카테고리_목록_갱신(categoryList: let categoryList):
+        case let .카테고리_목록_조회_API_반영(categoryList):
             state.domain.categoryList = categoryList
             return .none
         }
@@ -212,7 +221,7 @@ private extension FilterBottomFeature {
     /// - Async Effect
     func handleAsyncAction(_ action: Action.AsyncAction, state: inout State) -> Effect<Action> {
         switch action {
-        case .카테고리_목록_조회:
+        case .카테고리_목록_조회_API:
             return .run { [pageable = state.domain.pageable] send in
                 let categoryList = try await categoryClient.카테고리_목록_조회(
                     BasePageableRequest(
@@ -222,7 +231,7 @@ private extension FilterBottomFeature {
                     ),
                     true
                 ).toDomain()
-                await send(.inner(.카테고리_목록_갱신(categoryList: categoryList)), animation: .pokitDissolve)
+                await send(.inner(.카테고리_목록_조회_API_반영(categoryList: categoryList)), animation: .pokitDissolve)
             }
         }
     }
