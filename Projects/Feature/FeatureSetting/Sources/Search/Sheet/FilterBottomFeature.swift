@@ -168,7 +168,7 @@ private extension FilterBottomFeature {
                 endDate = state.endDate,
                 dateSelected = state.dateSelected
             ] send in
-                await send(.delegate(.searchButtonTapped(
+                await send(.delegate(.검색_버튼_눌렀을때(
                     categories: categories,
                     isFavorite: isFavorite,
                     isUnread: isUnread,
