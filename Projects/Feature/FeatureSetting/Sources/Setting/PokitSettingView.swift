@@ -37,7 +37,7 @@ public extension PokitSettingView {
                 PokitAlert(
                     "로그아웃 하시겠습니까?",
                     confirmText: "로그아웃",
-                    action: { send(.로그아웃수행) }
+                    action: { send(.로그아웃_팝업_확인_눌렀을때) }
                 )
             }
             .sheet(isPresented: $store.isWithdrawPresented) {
@@ -45,7 +45,7 @@ public extension PokitSettingView {
                     "회원 탈퇴하시겠습니까?",
                     message: "함께 저장한 모든 정보가 삭제되며,\n복구하실 수 없습니다.",
                     confirmText: "탈퇴하기",
-                    action: { send(.회원탈퇴수행) }
+                    action: { send(.회원탈퇴_팝업_확인_눌렀을때) }
                 )
             }
             .fullScreenCover(isPresented: $store.isWebViewPresented) {
@@ -60,7 +60,7 @@ public extension PokitSettingView {
             ) { store in
                 NickNameSettingView(store: store)
             }
-            .onAppear { send(.onAppear) }
+            .onAppear { send(.뷰가_나타났을때) }
         }
     }
 }
@@ -114,12 +114,12 @@ private extension PokitSettingView {
         Section {
             SettingItem(
                 title: "로그아웃",
-                action: { send(.로그아웃) }
+                action: { send(.로그아웃_버튼_눌렀을때) }
             )
             
             SettingItem(
                 title: "회원 탈퇴",
-                action: { send(.회원탈퇴) }
+                action: { send(.회원탈퇴_버튼_눌렀을때) }
             )
         }
     }
