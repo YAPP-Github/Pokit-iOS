@@ -515,6 +515,7 @@ private extension PokitSearchFeature {
                     pageableRequest,
                     conditionRequest
                 ).toDomain()
+            }
 
         case .클립보드_감지:
             return .run { send in
@@ -525,6 +526,7 @@ private extension PokitSearchFeature {
             }
         }
     }
+        
     
     /// - Scope Effect
     func handleScopeAction(_ action: Action.ScopeAction, state: inout State) -> Effect<Action> {
