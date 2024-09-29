@@ -43,18 +43,18 @@ public struct PokitSettingFeature {
         @CasePathable
         public enum View: BindableAction, Equatable {
             case binding(BindingAction<State>)
+            case dismiss
             case 닉네임설정
             case 알림설정
             case 공지사항
             case 서비스_이용약관
             case 개인정보_처리방침
             case 고객문의
-            case 로그아웃
-            case 로그아웃수행
-            case 회원탈퇴
-            case 회원탈퇴수행
-            case dismiss
-            case onAppear
+            case 로그아웃_버튼_눌렀을때
+            case 로그아웃_팝업_확인_눌렀을때
+            case 회원탈퇴_버튼_눌렀을때
+            case 회원탈퇴_팝업_확인_눌렀을때
+            case 뷰가_나타났을때
         }
         
         public enum InnerAction: Equatable {
@@ -63,13 +63,11 @@ public struct PokitSettingFeature {
         }
         
         public enum AsyncAction: Equatable {
-            case 회원탈퇴_네트워크
-            case 키_제거
+            case 회원탈퇴_API
+            case 키_제거_수행
         }
         
-        public enum ScopeAction: Equatable {
-            case doNothing
-        }
+        public enum ScopeAction: Equatable { case 없음 }
         
         public enum DelegateAction: Equatable {
             case linkCopyDetected(URL?)
@@ -126,6 +124,9 @@ private extension PokitSettingFeature {
         case .binding:
             return .none
             
+        case .dismiss:
+            return .run { _ in await dismiss() }
+            
         case .닉네임설정:
             state.nickNameSettingState = NickNameSettingFeature.State()
             return .none
@@ -153,30 +154,27 @@ private extension PokitSettingFeature {
             state.isWebViewPresented = true
             return .none
             
-        case .로그아웃:
+        case .로그아웃_버튼_눌렀을때:
             return .send(.inner(.로그아웃_팝업(isPresented: true)))
         
-        case .로그아웃수행:
+        case .로그아웃_팝업_확인_눌렀을때:
             return .run { send in
-                await send(.async(.키_제거))
+                await send(.async(.키_제거_수행))
                 await send(.inner(.로그아웃_팝업(isPresented: false)))
                 await send(.delegate(.로그아웃))
             }
             
-        case .회원탈퇴:
+        case .회원탈퇴_버튼_눌렀을때:
             return .send(.inner(.회원탈퇴_팝업(isPresented: true)))
         
-        case .회원탈퇴수행:
+        case .회원탈퇴_팝업_확인_눌렀을때:
             return .run { send in
-                await send(.async(.회원탈퇴_네트워크))
+                await send(.async(.회원탈퇴_API))
                 await send(.inner(.회원탈퇴_팝업(isPresented: false)))
                 await send(.delegate(.회원탈퇴))
             }
             
-        case .dismiss:
-            return .run { _ in await dismiss() }
-            
-        case .onAppear:
+        case .뷰가_나타났을때:
             return .run { send in
                 for await _ in self.pasteboard.changes() {
                     let url = try await pasteboard.probableWebURL()
@@ -202,7 +200,7 @@ private extension PokitSettingFeature {
     /// - Async Effect
     func handleAsyncAction(_ action: Action.AsyncAction, state: inout State) -> Effect<Action> {
         switch action {
-        case .회원탈퇴_네트워크:
+        case .회원탈퇴_API:
             return .run { send in
                 guard keychain.read(.refreshToken) != nil else {
                     print("refresh가 없어서 벗어남")
@@ -235,17 +233,14 @@ private extension PokitSettingFeature {
                     )
                 }
                 
-                await send(.async(.키_제거))
+                await send(.async(.키_제거_수행))
                 
-                let request = WithdrawRequest(
-                    authPlatform: platform
-                )
+                let request = WithdrawRequest(authPlatform: platform)
                 
-                // - TODO: 서버 디비 삭제 요청으로 바꿔야함
                 try await authClient.회원탈퇴(request)
             }
             
-        case .키_제거:
+        case .키_제거_수행:
             keychain.delete(.accessToken)
             keychain.delete(.refreshToken)
             keychain.delete(.serverRefresh)
