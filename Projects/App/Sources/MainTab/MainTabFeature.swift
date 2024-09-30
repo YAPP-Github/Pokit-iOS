@@ -17,11 +17,11 @@ import CoreKit
 @Reducer
 public struct MainTabFeature {
     /// - Dependency
-    @Dependency(\.pasteboard)
+    @Dependency(PasteboardClient.self)
     private var pasteBoard
-    @Dependency(\.categoryClient)
+    @Dependency(CategoryClient.self)
     private var categoryClient
-    @Dependency(\.userDefaults)
+    @Dependency(UserDefaultsClient.self)
     private var userDefaults
     /// - State
     @ObservableState

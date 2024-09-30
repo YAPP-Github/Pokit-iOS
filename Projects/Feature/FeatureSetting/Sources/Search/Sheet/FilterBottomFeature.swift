@@ -16,7 +16,7 @@ public struct FilterBottomFeature {
     /// - Dependency
     @Dependency(\.dismiss)
     private var dismiss
-    @Dependency(\.categoryClient)
+    @Dependency(CategoryClient.self)
     private var categoryClient
     /// - State
     @ObservableState

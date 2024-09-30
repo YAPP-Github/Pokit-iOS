@@ -17,9 +17,9 @@ public struct RemindFeature {
     /// - Dependency
     @Dependency(\.dismiss)
     private var dismiss
-    @Dependency(\.remindClient)
+    @Dependency(RemindClient.self)
     private var remindClient
-    @Dependency(\.contentClient)
+    @Dependency(ContentClient.self)
     private var contentClient
     
     /// - State

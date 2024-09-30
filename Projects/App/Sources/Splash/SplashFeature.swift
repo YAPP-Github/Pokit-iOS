@@ -13,10 +13,14 @@ import Util
 @Reducer
 public struct SplashFeature {
     /// - Dependency
-    @Dependency(\.continuousClock) var clock
-    @Dependency(\.userDefaults) var userDefaults
-    @Dependency(\.authClient) var authClient
-    @Dependency(\.keychain) var keychain
+    @Dependency(\.continuousClock) 
+    var clock
+    @Dependency(UserDefaultsClient.self) 
+    var userDefaults
+    @Dependency(AuthClient.self) 
+    var authClient
+    @Dependency(KeychainClient.self)
+    var keychain
     /// - State
     @ObservableState
     public struct State: Equatable {

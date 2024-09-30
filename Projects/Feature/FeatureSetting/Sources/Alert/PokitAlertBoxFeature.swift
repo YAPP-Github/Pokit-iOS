@@ -14,9 +14,12 @@ import CoreKit
 @Reducer
 public struct PokitAlertBoxFeature {
     /// - Dependency
-    @Dependency(\.dismiss) var dismiss
-    @Dependency(\.pasteboard) var pasteboard
-    @Dependency(\.alertClient) var alertClient
+    @Dependency(\.dismiss) 
+    var dismiss
+    @Dependency(PasteboardClient.self) 
+    var pasteboard
+    @Dependency(AlertClient.self) 
+    var alertClient
     /// - State
     @ObservableState
     public struct State: Equatable {

@@ -18,13 +18,13 @@ public struct ContentSettingFeature {
     /// - Dependency
     @Dependency(\.dismiss)
     private var dismiss
-    @Dependency(\.swiftSoup)
+    @Dependency(SwiftSoupClient.self)
     private var swiftSoup
-    @Dependency(\.pasteboard)
+    @Dependency(PasteboardClient.self)
     private var pasteboard
-    @Dependency(\.contentClient)
+    @Dependency(ContentClient.self)
     private var contentClient
-    @Dependency(\.categoryClient)
+    @Dependency(CategoryClient.self)
     private var categoryClient
     /// - State
     @ObservableState

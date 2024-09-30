@@ -13,7 +13,7 @@ import Util
 public struct SelectFieldFeature {
     /// - Dependency
     @Dependency(\.dismiss) var dismiss
-    @Dependency(\.userClient) var userClient
+    @Dependency(UserClient.self) var userClient
     /// - State
     @ObservableState
     public struct State: Equatable {

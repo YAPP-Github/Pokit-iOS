@@ -13,8 +13,8 @@ import Dependencies
 /// AccessToken값을 헤더에 넣어주거나, refreshToken으로 Intercept해주는 Interceptor
 public final class TokenInterceptor: RequestInterceptor {
 
-    @Dependency(\.keychain) var keychain
-    @Dependency(\.authClient) var authClient
+    @Dependency(KeychainClient.self) var keychain
+    @Dependency(AuthClient.self) var authClient
 
     static let shared = TokenInterceptor()
     private init() {}

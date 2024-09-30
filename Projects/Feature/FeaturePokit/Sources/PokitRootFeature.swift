@@ -15,11 +15,11 @@ import Util
 @Reducer
 public struct PokitRootFeature {
     /// - Dependency
-    @Dependency(\.categoryClient)
+    @Dependency(CategoryClient.self)
     private var categoryClient
-    @Dependency(\.contentClient)
+    @Dependency(ContentClient.self)
     private var contentClient
-    @Dependency(\.kakaoShareClient)
+    @Dependency(KakaoShareClient.self)
     private var kakaoShareClient
     /// - State
     @ObservableState

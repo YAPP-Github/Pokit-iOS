@@ -18,9 +18,12 @@ import Util
 @Reducer
 public struct PokitCategorySettingFeature {
     /// - Dependency
-    @Dependency(\.dismiss) var dismiss
-    @Dependency(\.pasteboard) var pasteboard
-    @Dependency(\.categoryClient) var categoryClient
+    @Dependency(\.dismiss) 
+    var dismiss
+    @Dependency(PasteboardClient.self) 
+    var pasteboard
+    @Dependency(CategoryClient.self) 
+    var categoryClient
     /// - State
     @ObservableState
     public struct State: Equatable {
