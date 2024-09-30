@@ -16,9 +16,9 @@ public struct CategorySharingFeature {
     /// - Dependency
     @Dependency(\.dismiss)
     private var dismiss
-    @Dependency(\.categoryClient)
+    @Dependency(CategoryClient.self)
     private var categoryClient
-    @Dependency(\.contentClient)
+    @Dependency(ContentClient.self)
     private var contentClient
 
     /// - State

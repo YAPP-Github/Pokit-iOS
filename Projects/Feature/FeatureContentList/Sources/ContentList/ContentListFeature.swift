@@ -17,11 +17,11 @@ public struct ContentListFeature {
     /// - Dependency
     @Dependency(\.dismiss)
     private var dismiss
-    @Dependency(\.pasteboard)
+    @Dependency(PasteboardClient.self)
     private var pasteBoard
-    @Dependency(\.remindClient)
+    @Dependency(RemindClient.self)
     private var remindClient
-    @Dependency(\.contentClient)
+    @Dependency(ContentClient.self)
     private var contentClient
     /// - State
     @ObservableState

@@ -13,13 +13,20 @@ import Util
 @Reducer
 public struct PokitSettingFeature {
     /// - Dependency
-    @Dependency(\.dismiss) var dismiss
-    @Dependency(\.openSettings) var openSetting
-    @Dependency(\.pasteboard) var pasteboard
-    @Dependency(\.keychain) var keychain
-    @Dependency(\.userDefaults) var userDefaults
-    @Dependency(\.authClient) var authClient
-    @Dependency(\.openURL) var openURL
+    @Dependency(\.dismiss) 
+    var dismiss
+    @Dependency(\.openURL)
+    var openURL
+    @Dependency(\.openSettings)
+    var openSetting
+    @Dependency(PasteboardClient.self)
+    var pasteboard
+    @Dependency(KeychainClient.self)
+    var keychain
+    @Dependency(UserDefaultsClient.self) 
+    var userDefaults
+    @Dependency(AuthClient.self)
+    var authClient
     /// - State
     @ObservableState
     public struct State: Equatable {

@@ -15,11 +15,11 @@ import DSKit
 @Reducer
 public struct ContentDetailFeature {
     /// - Dependency
-    @Dependency(\.swiftSoup)
-    private var swiftSoup
     @Dependency(\.dismiss)
     private var dismiss
-    @Dependency(\.contentClient)
+    @Dependency(SwiftSoupClient.self)
+    private var swiftSoup
+    @Dependency(ContentClient.self)
     private var contentClient
     /// - State
     @ObservableState

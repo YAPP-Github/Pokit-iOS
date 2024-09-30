@@ -14,8 +14,8 @@ import Util
 public struct NickNameSettingFeature {
     /// - Dependency
     @Dependency(\.dismiss) var dismiss
-    @Dependency(\.userClient) var userClient
     @Dependency(\.mainQueue) var mainQueue
+    @Dependency(UserClient.self) var userClient
     /// - State
     @ObservableState
     public struct State: Equatable {

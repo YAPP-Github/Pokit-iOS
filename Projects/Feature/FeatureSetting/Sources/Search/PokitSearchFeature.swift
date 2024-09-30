@@ -19,11 +19,11 @@ public struct PokitSearchFeature {
     private var dismiss
     @Dependency(\.mainQueue)
     private var mainQueue
-    @Dependency(\.pasteboard)
+    @Dependency(PasteboardClient.self)
     private var pasteboard
-    @Dependency(\.userDefaults)
+    @Dependency(UserDefaultsClient.self)
     private var userDefaults
-    @Dependency(\.contentClient)
+    @Dependency(ContentClient.self)
     private var contentClient
     /// - State
     @ObservableState

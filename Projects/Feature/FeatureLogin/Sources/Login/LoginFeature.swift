@@ -11,12 +11,18 @@ import Util
 @Reducer
 public struct LoginFeature {
     /// - Dependency
-    @Dependency(\.dismiss) var dismiss
-    @Dependency(\.socialLogin) var socialLogin
-    @Dependency(\.authClient) var authClient
-    @Dependency(\.userClient) var userClient
-    @Dependency(\.userDefaults) var userDefaults
-    @Dependency(\.keychain) var keychain
+    @Dependency(\.dismiss) 
+    var dismiss
+    @Dependency(SocialLoginClient.self) 
+    var socialLogin
+    @Dependency(AuthClient.self)
+    var authClient
+    @Dependency(UserClient.self) 
+    var userClient
+    @Dependency(UserDefaultsClient.self) 
+    var userDefaults
+    @Dependency(KeychainClient.self)
+    var keychain
     /// - State
     @ObservableState
     public struct State {
