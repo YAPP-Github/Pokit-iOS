@@ -7,7 +7,7 @@ on:
   # pull_request:
   #   branches: [ "develop" ]
   push:
-    branches: [ "feature/#135/*" ]
+    branches: [ "feature/#135-cicd-improvement" ]
 
 jobs:
   build:
