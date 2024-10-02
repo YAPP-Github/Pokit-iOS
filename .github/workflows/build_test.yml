@@ -4,8 +4,10 @@
 name: build-test
 
 on:
-  pull_request:
-    branches: [ "develop" ]
+  # pull_request:
+  #   branches: [ "develop" ]
+  push:
+    branches: [ "feature/#135/*"]
 
 jobs:
   build:
