@@ -24,38 +24,24 @@ platform :ios do
     app_identifier:["com.pokitmons.pokit"],
     readonly: true
     )
-
-    Dir.chdir("../") do
-      sh("make release")
-    end
   end
 
   lane :test do
     setup_ci
 
     match(
-    type: "appstore",
+    type: "development",
     app_identifier:["com.pokitmons.pokit"],
     readonly: true
     )
-
-    Dir.chdir("../") do
-      sh("make test")
-    end
   end
 
   lane :build do
     build_app(
     workspace: "Pokit.xcworkspace",
     scheme: "App",
-    export_method: "app-store",
-    export_options: {
-      method: "app-store",
-      signingStyle: "manual",
-      provisioningProfiles: {
-        "com.pokitmons.pokit" => "match AppStore com.pokitmons.pokit 1721720816"
-      }
-    }
+    configuration: "Debug",
+    export_method: "development",
     )
   end
 

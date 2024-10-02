@@ -39,7 +39,9 @@ jobs:
         MATCH_URL: ${{ secrets.MATCH_URL }}
         APP_STORE_CONNECT_TEAM_ID: ${{ secrets.APP_STORE_CONNECT_TEAM_ID }}
         DEVELOPMENT_TEAM: ${{ secrets.DEVELOPMENT_TEAM }}
-      run: fastlane test
+      run: |
+        fastlane test
+        make test
 
     - name: Build Test
       run: fastlane build
