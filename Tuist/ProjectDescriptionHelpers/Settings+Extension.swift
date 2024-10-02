@@ -12,6 +12,17 @@ public extension Settings {
         return .settings(
             base: [
                 "OTHER_LDFLAGS": "$(inherited) -ObjC",
+                "CODE_SIGN_STYLE": "Manual"
+            ],
+            configurations: [
+                .debug(name: "Debug", xcconfig: .relativeToRoot("xcconfig/Debug.xcconfig")),
+                .release(
+                    name: "Release",
+                    settings: [
+                        "CODE_SIGN_IDENTITY": "Apple Distribution"
+                    ],
+                    xcconfig: .relativeToRoot("xcconfig/Release.xcconfig")
+                )
             ]
         )
     }

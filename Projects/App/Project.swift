@@ -36,19 +36,7 @@ let project = Project(
                 // TODO: 의존성 추가
                 .external(name: "FirebaseMessaging")
             ],
-            settings: .settings(
-                base: [
-                    "OTHER_LDFLAGS": "$(inherited) -ObjC",
-                    "CODE_SIGN_IDENTITY": "Apple Distribution",
-                    "PROVISIONING_PROFILE_SPECIFIER": "match AppStore com.pokitmons.pokit 1721720816",
-                    "PROVISIONING_PROFILE": "match AppStore com.pokitmons.pokit 1721720816",
-                    "DEVELOPMENT_TEAM": "\(developmentTeam ?? "")"
-                ],
-                configurations: [
-                    .debug(name: "Debug", xcconfig: .relativeToRoot("xcconfig/Secret.xcconfig")),
-                    .release(name: "Release", xcconfig: .relativeToRoot("xcconfig/Secret.xcconfig"))
-                ]
-            )
+            settings: .settings
         )
     ]
 )
