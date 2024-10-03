@@ -23,7 +23,7 @@ let project = Project(
             dependencies: [
                 // TODO: 의존성 추가
             ],
-            settings: .settings
+            settings: .settings()
         )
     ]
 )

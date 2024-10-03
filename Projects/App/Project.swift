@@ -36,7 +36,15 @@ let project = Project(
                 // TODO: 의존성 추가
                 .external(name: "FirebaseMessaging")
             ],
-            settings: .settings
+            settings: .settings(
+                .release(
+                    name: "Release",
+                    settings: [
+                        "CODE_SIGN_IDENTITY": "Apple Distribution"
+                    ],
+                    xcconfig: .relativeToRoot("xcconfig/Release.xcconfig")
+                )
+            )
         )
     ]
 )

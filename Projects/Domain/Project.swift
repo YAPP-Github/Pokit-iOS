@@ -26,7 +26,7 @@ let project = Project(
                 .project(target: "SharedThirdPartyLib", path: .relativeToRoot("Projects/SharedThirdPartyLib")),
                 .project(target: "CoreKit", path: .relativeToRoot("Projects/CoreKit"))
             ],
-            settings: .settings
+            settings: .settings()
         )
     ]
 )

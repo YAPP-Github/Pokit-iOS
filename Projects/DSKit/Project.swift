@@ -27,7 +27,7 @@ let project = Project(
                 .project(target: "Util", path: .relativeToRoot("Projects/Util")),
                 .external(name: "NukeUI")
             ],
-            settings: .settings
+            settings: .settings()
         )
     ]
 )

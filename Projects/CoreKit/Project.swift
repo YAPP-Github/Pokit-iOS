@@ -37,11 +37,10 @@ let coreKit: Target = .target(
         .external(name: "KakaoSDKShare"),
         .external(name: "KakaoSDKTemplate"),
     ],
-    settings: .settings
+    settings: .settings()
 )
 
 let project = Project(
     name: "CoreKit",
-    settings: .settings,
     targets: [coreKit]
 )
