@@ -4,8 +4,10 @@
 name: testflight_release
 
 on:
+  # push:
+  #   branches: [ "develop" ]
   push:
-    branches: [ "develop" ]
+    branches: [ "feature/#135-cicd-improvement" ]
 
   workflow_dispatch:
 
