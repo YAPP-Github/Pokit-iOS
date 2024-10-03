@@ -38,11 +38,9 @@ jobs:
     - name: Test Generate
       env:
         MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
-        MATCH_URL: ${{ secrets.MATCH_URL }}
-        APP_STORE_CONNECT_TEAM_ID: ${{ secrets.APP_STORE_CONNECT_TEAM_ID }}
         DEVELOPMENT_TEAM: ${{ secrets.DEVELOPMENT_TEAM }}
       run: |
-        fastlane test
+        fastlane development_profile
         make test
 
     - name: Build Test

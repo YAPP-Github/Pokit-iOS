@@ -16,7 +16,7 @@
 default_platform(:ios)
 
 platform :ios do
-  lane :generate do
+  lane :appstore_profile do
     setup_ci
 
     match(
@@ -26,7 +26,7 @@ platform :ios do
     )
   end
 
-  lane :test do
+  lane :development_profile do
     setup_ci
 
     match(
@@ -65,14 +65,8 @@ platform :ios do
     build_app(
     workspace: "Pokit.xcworkspace",
     scheme: "App",
-    export_method: "app-store",
-    export_options: {
-      method: "app-store",
-      signingStyle: "manual",
-      provisioningProfiles: {
-        "com.pokitmons.pokit" => "match AppStore com.pokitmons.pokit 1721720816"
-      }
-    }
+    configuration: "Release",
+    export_method: "app-store"
     )
   end
 
