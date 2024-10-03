@@ -70,7 +70,7 @@ platform :ios do
     )
   end
 
-  lane :release do
+  lane :testflight_release do
     api_key = app_store_connect_api_key(
     key_id: ENV['APP_STORE_CONNECT_KEY_ID'],
     issuer_id: ENV['APP_STORE_CONNECT_ISSUER_ID'],
@@ -79,7 +79,8 @@ platform :ios do
 
     upload_to_testflight(
     api_key: api_key,
-    distribute_external: false,
+    distribute_external: true,
+    groups: ["Pokitmons"],
     changelog: ""
     )
   end

@@ -7,6 +7,8 @@ on:
   push:
     branches: [ "develop" ]
 
+  workflow_dispatch:
+
 jobs:
   build:
     runs-on: macos-latest
@@ -36,10 +38,10 @@ jobs:
     - name: Generate Project
       env:
         MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
-        MATCH_URL: ${{ secrets.MATCH_URL }}
-        APP_STORE_CONNECT_TEAM_ID: ${{ secrets.APP_STORE_CONNECT_TEAM_ID }}
         DEVELOPMENT_TEAM: ${{ secrets.DEVELOPMENT_TEAM }}
-      run: fastlane generate
+      run: |
+        fastlane appstore_profile
+        make release
 
     - name: Build Archive
       env:
@@ -48,9 +50,9 @@ jobs:
         APP_STORE_CONNECT_API: ${{ secrets.APP_STORE_CONNECT_API }}
       run: fastlane archive
 
-    - name: Beta Release
+    - name: Testflight Release
       env:
         APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
         APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
         APP_STORE_CONNECT_API: ${{ secrets.APP_STORE_CONNECT_API }}
-      run: fastlane release
+      run: fastlane testflight_release

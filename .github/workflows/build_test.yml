@@ -4,10 +4,10 @@
 name: build-test
 
 on:
-  # pull_request:
-  #   branches: [ "develop" ]
-  push:
-    branches: [ "feature/#135-cicd-improvement" ]
+  pull_request:
+    branches: [ "develop" ]
+
+  workflow_dispatch:
 
 jobs:
   build:
