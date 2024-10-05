@@ -54,10 +54,3 @@ jobs:
         APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
         APP_STORE_CONNECT_API: ${{ secrets.APP_STORE_CONNECT_API }}
       run: fastlane appstore_release
-
-    - name: Check Appstore Review
-      env:
-        APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
-        APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
-        APP_STORE_CONNECT_API: ${{ secrets.APP_STORE_CONNECT_API }}
-      run: fastlane check_app_store_review
