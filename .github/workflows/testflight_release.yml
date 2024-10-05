@@ -4,15 +4,15 @@
 name: testflight_release
 
 on:
-  # push:
-  #   branches: [ "develop" ]
-  push:
-    branches: [ "feature/#135-cicd-improvement" ]
+  pull_request:
+    branches: [ "develop" ]
+    types: [closed]
 
   workflow_dispatch:
 
 jobs:
   build:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true }}
     runs-on: macos-latest
 
     steps:
