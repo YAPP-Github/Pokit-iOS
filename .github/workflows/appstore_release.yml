@@ -33,9 +33,6 @@ jobs:
     - name: initial tuist
       run: mise install tuist
 
-    - name: Install GitHub CLI
-      run: sudo apt-get install gh
-
     - name: Generate Project
       env:
         MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
