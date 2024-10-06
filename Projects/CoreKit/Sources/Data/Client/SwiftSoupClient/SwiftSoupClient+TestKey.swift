@@ -11,5 +11,4 @@ import Dependencies
 
 extension SwiftSoupClient: TestDependencyKey {
     public static let testValue = Self()
-    public static let previewValue = liveValue
 }
