@@ -97,16 +97,15 @@ private extension RegisterNicknameFeature {
     func handleViewAction(_ action: Action.ViewAction, state: inout State) -> Effect<Action> {
         switch action {
         case .다음_버튼_눌렀을때:
-                return .run { [nickName = state.nicknameText] send in
-                    await send(.delegate(.pushSelectFieldView(nickname: nickName)))
-                }
+            let nickname = state.nicknameText
+            return .send(.delegate(.pushSelectFieldView(nickname: nickname)))
         case .뒤로가기_버튼_눌렀을때:
             return .run { _ in await self.dismiss() }
         case .binding(\.nicknameText):
             state.buttonActive = false
-            return .run { send in
-                await send(.inner(.닉네임_변경되었을때))
-            }
+            return .send(
+                .inner(.닉네임_변경되었을때)
+            )
             .debounce(
                 id: CancelID.response,
                 for: 0.5,
