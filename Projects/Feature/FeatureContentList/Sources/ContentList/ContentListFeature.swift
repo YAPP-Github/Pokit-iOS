@@ -160,15 +160,13 @@ private extension ContentListFeature {
         case .컨텐츠_항목_눌렀을때(let content):
             return .send(.delegate(.링크상세(content: content)))
         case .bottomSheet(let delegate, let content):
-            return .run { send in
-                await send(.inner(.바텀시트_해제))
-                await send(.scope(.bottomSheet(delegate: delegate, content: content)))
-            }
+            return .concatenate(
+                .send(.inner(.바텀시트_해제)),
+                .send(.scope(.bottomSheet(delegate: delegate, content: content)))
+            )
         case .컨텐츠_삭제_눌렀을때:
             guard let id = state.alertItem?.id else { return .none }
-            return .run { [id] send in
-                await send(.async(.컨텐츠_삭제_API(id: id)))
-            }
+            return .send(.async(.컨텐츠_삭제_API(id: id)))
         case .binding:
             return .none
         case .정렬_버튼_눌렀을때:
@@ -180,7 +178,7 @@ private extension ContentListFeature {
         case .뒤로가기_버튼_눌렀을때:
             return .run { _ in await dismiss() }
         case .뷰가_나타났을때:
-            return .merge([
+            return .merge(
                 .send(.async(.컨텐츠_개수_조회_API)),
                 .send(.async(.컨텐츠_목록_조회_API)),
                 .run { send in
@@ -189,8 +187,7 @@ private extension ContentListFeature {
                         await send(.delegate(.linkCopyDetected(url)), animation: .pokitSpring)
                     }
                 }
-            ])
-            
+            )
         case .pagenation:
             return .send(.async(.컨텐츠_목록_조회_페이징_API))
         case .링크_공유시트_해제:
@@ -233,80 +230,43 @@ private extension ContentListFeature {
     func handleAsyncAction(_ action: Action.AsyncAction, state: inout State) -> Effect<Action> {
         switch action {
         case .컨텐츠_삭제_API(id: let id):
-            return .run { [count = state.domain.contentCount] send in
-                let newCount = count - 1
-                await send(.inner(.컨텐츠_개수_업데이트(newCount)), animation: .pokitSpring)
-                let _ = try await contentClient.컨텐츠_삭제("\(id)")
-                await send(.inner(.컨텐츠_삭제_API_반영(id: id)), animation: .pokitSpring)
-            }
+            let count = state.domain.contentCount
+            let newCount = count - 1
+            
+            return .merge(
+                .send(.inner(.컨텐츠_개수_업데이트(newCount))),
+                .run { send in
+                    let _ = try await contentClient.컨텐츠_삭제("\(id)")
+                    await send(.inner(.컨텐츠_삭제_API_반영(id: id)), animation: .pokitSpring)
+                }
+            )
             
         case .컨텐츠_목록_조회_페이징_API:
             state.domain.pageable.page += 1
             return .run { [
                 type = state.contentType,
-                pageable = state.domain.pageable
+                pageableRequest = BasePageableRequest(
+                    page: state.domain.pageable.page,
+                    size: state.domain.pageable.size,
+                    sort: state.domain.pageable.sort
+                )
             ] send in
-                var contentList: BaseContentListInquiry
+                let contentList: BaseContentListInquiry
                 switch type {
                 case .unread:
                     contentList = try await remindClient.읽지않음_컨텐츠_조회(
-                        BasePageableRequest(
-                            page: pageable.page,
-                            size: pageable.size,
-                            sort: pageable.sort
-                        )
+                        pageableRequest
                     ).toDomain()
                 case .favorite:
                     contentList = try await remindClient.즐겨찾기_링크모음_조회(
-                        BasePageableRequest(
-                            page: pageable.page,
-                            size: pageable.size,
-                            sort: pageable.sort
-                        )
+                        pageableRequest
                     ).toDomain()
                 }
                 
                 await send(.inner(.컨텐츠_목록_조회_페이징_API_반영(contentList)))
             }
         case .컨텐츠_목록_조회_API:
-            return .run { [
-                pageable = state.domain.pageable,
-                contentType = state.contentType
-            ] send in
-                let stream = AsyncThrowingStream<BaseContentListInquiry, Error> { continuation in
-                    Task {
-                        for page in 0...pageable.page {
-                            let paeagableRequest = BasePageableRequest(
-                                page: page,
-                                size: pageable.size,
-                                sort: pageable.sort
-                            )
-                            switch contentType {
-                            case .favorite:
-                                let contentList = try await remindClient.즐겨찾기_링크모음_조회(
-                                    paeagableRequest
-                                ).toDomain()
-                                continuation.yield(contentList)
-                            case .unread:
-                                let contentList = try await remindClient.읽지않음_컨텐츠_조회(
-                                    paeagableRequest
-                                ).toDomain()
-                                continuation.yield(contentList)
-                            }
-                        }
-                        continuation.finish()
-                    }
-                }
-                var contentItems: BaseContentListInquiry? = nil
-                for try await contentList in stream {
-                    let items = contentItems?.data ?? []
-                    let newItems = contentList.data ?? []
-                    contentItems = contentList
-                    contentItems?.data = items + newItems
-                }
-                guard let contentItems else { return }
-                await send(.inner(.컨텐츠_목록_조회_API_반영(contentItems)))
-            }
+            return contentListFetch(state: &state)
         case .컨텐츠_개수_조회_API:
             return .run { [ contentType = state.contentType ] send in
                 switch contentType {
@@ -348,6 +308,47 @@ private extension ContentListFeature {
             return .send(.async(.컨텐츠_목록_조회_API))
         default:
             return .none
+        }
+    }
+    
+    func contentListFetch(state: inout State) -> Effect<Action> {
+        return .run { [
+            pageable = state.domain.pageable,
+            contentType = state.contentType
+        ] send in
+            let stream = AsyncThrowingStream<BaseContentListInquiry, Error> { continuation in
+                Task {
+                    for page in 0...pageable.page {
+                        let paeagableRequest = BasePageableRequest(
+                            page: page,
+                            size: pageable.size,
+                            sort: pageable.sort
+                        )
+                        switch contentType {
+                        case .favorite:
+                            let contentList = try await remindClient.즐겨찾기_링크모음_조회(
+                                paeagableRequest
+                            ).toDomain()
+                            continuation.yield(contentList)
+                        case .unread:
+                            let contentList = try await remindClient.읽지않음_컨텐츠_조회(
+                                paeagableRequest
+                            ).toDomain()
+                            continuation.yield(contentList)
+                        }
+                    }
+                    continuation.finish()
+                }
+            }
+            var contentItems: BaseContentListInquiry? = nil
+            for try await contentList in stream {
+                let items = contentItems?.data ?? []
+                let newItems = contentList.data ?? []
+                contentItems = contentList
+                contentItems?.data = items + newItems
+            }
+            guard let contentItems else { return }
+            await send(.inner(.컨텐츠_목록_조회_API_반영(contentItems)))
         }
     }
 }
