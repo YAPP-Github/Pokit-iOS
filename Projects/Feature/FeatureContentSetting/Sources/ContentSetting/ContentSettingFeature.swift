@@ -118,7 +118,7 @@ public struct ContentSettingFeature {
             case 컨텐츠_추가_API
         }
 
-        public enum ScopeAction: Equatable { case doNothing }
+        public enum ScopeAction: Equatable { case 없음 }
 
         public enum DelegateAction: Equatable {
             case 저장하기_완료
