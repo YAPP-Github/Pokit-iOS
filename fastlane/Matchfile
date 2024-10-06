@@ -1,8 +1,8 @@
-git_url(ENV['MATCH_URL'])
+git_url('git@github.com:stealmh/Pokit_iOS_Private.git')
 
 storage_mode("git")
 
-type("appstore") # The default type, can be: appstore, adhoc, enterprise or development
+type("development") # The default type, can be: appstore, adhoc, enterprise or development
 
 app_identifier(["com.pokitmons.pokit"])
 username("shapekim98@gmail.com") # Your Apple Developer Portal username

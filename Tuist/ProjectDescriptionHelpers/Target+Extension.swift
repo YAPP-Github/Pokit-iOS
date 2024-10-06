@@ -26,7 +26,7 @@ public extension Target {
             sources: ["\(name)/Sources/**"],
             resources: resources,
             dependencies: dependencies,
-            settings: .settings
+            settings: .settings()
         )
     }
     
@@ -44,7 +44,7 @@ public extension Target {
             deploymentTargets: .appMinimunTarget,
             sources: ["Sources/\(name)/Sources/**"],
             dependencies: dependencies,
-            settings: .settings
+            settings: .settings()
         )
     }
 }

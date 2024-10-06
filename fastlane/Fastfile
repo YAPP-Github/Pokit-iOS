@@ -16,7 +16,7 @@
 default_platform(:ios)
 
 platform :ios do
-  lane :generate do
+  lane :appstore_profile do
     setup_ci
 
     match(
@@ -24,38 +24,24 @@ platform :ios do
     app_identifier:["com.pokitmons.pokit"],
     readonly: true
     )
-
-    Dir.chdir("../") do
-      sh("make release")
-    end
   end
 
-  lane :test do
+  lane :development_profile do
     setup_ci
 
     match(
-    type: "appstore",
+    type: "development",
     app_identifier:["com.pokitmons.pokit"],
     readonly: true
     )
-
-    Dir.chdir("../") do
-      sh("make test")
-    end
   end
 
   lane :build do
     build_app(
     workspace: "Pokit.xcworkspace",
     scheme: "App",
-    export_method: "app-store",
-    export_options: {
-      method: "app-store",
-      signingStyle: "manual",
-      provisioningProfiles: {
-        "com.pokitmons.pokit" => "match AppStore com.pokitmons.pokit 1721720816"
-      }
-    }
+    configuration: "Debug",
+    export_method: "development",
     )
   end
 
@@ -79,18 +65,12 @@ platform :ios do
     build_app(
     workspace: "Pokit.xcworkspace",
     scheme: "App",
-    export_method: "app-store",
-    export_options: {
-      method: "app-store",
-      signingStyle: "manual",
-      provisioningProfiles: {
-        "com.pokitmons.pokit" => "match AppStore com.pokitmons.pokit 1721720816"
-      }
-    }
+    configuration: "Release",
+    export_method: "app-store"
     )
   end
 
-  lane :release do
+  lane :testflight_release do
     api_key = app_store_connect_api_key(
     key_id: ENV['APP_STORE_CONNECT_KEY_ID'],
     issuer_id: ENV['APP_STORE_CONNECT_ISSUER_ID'],
@@ -99,8 +79,57 @@ platform :ios do
 
     upload_to_testflight(
     api_key: api_key,
-    distribute_external: false,
+    distribute_external: true,
+    groups: ["Pokitmons"],
     changelog: ""
     )
+  end
+
+  lane :appstore_release do
+    api_key = app_store_connect_api_key(
+    key_id: ENV['APP_STORE_CONNECT_KEY_ID'],
+    issuer_id: ENV['APP_STORE_CONNECT_ISSUER_ID'],
+    key_content: ENV['APP_STORE_CONNECT_API']
+    )
+
+    release_notes = File.read("release_notes.txt")
+
+    upload_to_app_store(
+    api_key: api_key,
+    skip_metadata: true,
+    skip_screenshots: true,
+    release_notes: {
+      "ko" => release_notes
+    },
+    submit_for_review: true,
+    automatic_release: true
+    )
+  end
+
+  lane :update_github_release do
+    require 'spaceship'
+
+    api_key = app_store_connect_api_key(
+    key_id: ENV['APP_STORE_CONNECT_KEY_ID'],
+    issuer_id: ENV['APP_STORE_CONNECT_ISSUER_ID'],
+    key_content: ENV['APP_STORE_CONNECT_API']
+    )
+
+    Spaceship::ConnectAPI.login(api_key: api_key)
+
+    app = Spaceship::ConnectAPI::App.find("com.pokitmons.pokit")
+
+    live_version = app.get_live_version
+    app_state = live_version.app_store_state
+    app_version = live_version.version_string
+
+    if app_state == 'READY_FOR_SALE'
+      pr_number = ENV['PR_NUMBER']
+      pr_body = sh("gh pr view #{pr_number} --json body --jq '.body'")
+      release_notes = pr_body.strip
+
+      # GitHub 릴리즈 버전 및 릴리즈 노트 업데이트
+      sh("gh release create v#{app_version} --notes '#{release_notes}'")
+    end
   end
 end

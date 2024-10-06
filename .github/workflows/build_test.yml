@@ -5,7 +5,10 @@ name: build-test
 
 on:
   pull_request:
-    branches: [ "develop" ]
+    branches:
+      - develop
+
+  workflow_dispatch:
 
 jobs:
   build:
@@ -17,7 +20,7 @@ jobs:
     - name: Set up Xcode
       uses: maxim-lobanov/setup-xcode@v1
       with:
-        xcode-version: '15.4'
+        xcode-version: latest-stable
 
     - uses: shimataro/ssh-key-action@v2
       with:
@@ -36,10 +39,10 @@ jobs:
     - name: Test Generate
       env:
         MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
-        MATCH_URL: ${{ secrets.MATCH_URL }}
-        APP_STORE_CONNECT_TEAM_ID: ${{ secrets.APP_STORE_CONNECT_TEAM_ID }}
         DEVELOPMENT_TEAM: ${{ secrets.DEVELOPMENT_TEAM }}
-      run: fastlane test
+      run: |
+        fastlane development_profile
+        make test
 
     - name: Build Test
       run: fastlane build

@@ -37,19 +37,10 @@ let coreKit: Target = .target(
         .external(name: "KakaoSDKShare"),
         .external(name: "KakaoSDKTemplate"),
     ],
-    settings: .settings(
-        base: [
-            "OTHER_LDFLAGS": "$(inherited) -ObjC",
-        ],
-        configurations: [
-            .debug(name: "Debug", xcconfig: .relativeToRoot("xcconfig/Secret.xcconfig")),
-            .release(name: "Release", xcconfig: .relativeToRoot("xcconfig/Secret.xcconfig"))
-        ]
-    )
+    settings: .settings()
 )
 
 let project = Project(
     name: "CoreKit",
-    settings: .settings,
     targets: [coreKit]
 )

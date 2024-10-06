@@ -52,13 +52,14 @@ download-privates:
 	@if [ ! -d "Pokit_iOS_Private" ]; then \
 		git clone git@github.com:stealmh/Pokit_iOS_Private.git; \
 	fi
-	@if [ -f "Pokit_iOS_Private/xcconfig/Secret.xcconfig" ]; then \
+	@if [ -f "Pokit_iOS_Private/xcconfig/Debug.xcconfig" ] && [ -f "Pokit_iOS_Private/xcconfig/Release.xcconfig" ]; then \
 		mkdir -p xcconfig; \
-		cp Pokit_iOS_Private/xcconfig/Secret.xcconfig xcconfig/Secret.xcconfig; \
+		cp Pokit_iOS_Private/xcconfig/Debug.xcconfig xcconfig/Debug.xcconfig; \
+		cp Pokit_iOS_Private/xcconfig/Release.xcconfig xcconfig/Release.xcconfig; \
 		cp Pokit_iOS_Private/auth/AuthKey.p8 Projects/CoreKit/Resources/AuthKey.p8; \
 		cp Pokit_iOS_Private/GoogleService-Info.plist Projects/App/Resources/GoogleService-Info.plist; \
 		rm -rf Pokit_iOS_Private; \
-		echo "✅ Secret 파일을 성공적으로 다운로드하고 Pokit_iOS_Private 폴더를 삭제했습니다."; \
+		echo "✅ Debug.xcconfig와 Release.xcconfig 파일을 성공적으로 다운로드하고 Pokit_iOS_Private 폴더를 삭제했습니다."; \
 	else \
-		echo "❌ Secret.xcconfig 파일을 찾을 수 없습니다."; \
+		echo "❌ Debug.xcconfig 또는 Release.xcconfig 파일을 찾을 수 없습니다." && exit 1; \
 	fi

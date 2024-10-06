@@ -26,7 +26,8 @@ let project = Project(
                 // TODO: 의존성 추가
                 .project(target: "Util", path: .relativeToRoot("Projects/Util")),
                 .external(name: "NukeUI")
-            ]
+            ],
+            settings: .settings()
         )
     ]
 )
