@@ -273,14 +273,15 @@ private extension ContentListFeature {
             return contentListFetch(state: &state)
         case .컨텐츠_개수_조회_API:
             return .run { [ contentType = state.contentType ] send in
+                let count: Int
                 switch contentType {
                 case .favorite:
-                    let count = try await remindClient.즐겨찾기_컨텐츠_개수_조회().count
-                    await send(.inner(.컨텐츠_개수_업데이트(count)), animation: .pokitSpring)
+                    count = try await remindClient.즐겨찾기_컨텐츠_개수_조회().count
                 case .unread:
-                    let count = try await remindClient.읽지않음_컨텐츠_개수_조회().count
-                    await send(.inner(.컨텐츠_개수_업데이트(count)), animation: .pokitSpring)
+                    count = try await remindClient.읽지않음_컨텐츠_개수_조회().count
                 }
+                
+                await send(.inner(.컨텐츠_개수_업데이트(count)), animation: .pokitSpring)
             }
         }
     }
