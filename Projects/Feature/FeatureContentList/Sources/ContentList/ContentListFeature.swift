@@ -82,6 +82,7 @@ public struct ContentListFeature {
             case 뷰가_나타났을때
             
             case 링크_공유시트_해제
+            case 경고시트_해제
         }
 
         public enum InnerAction: Equatable {
@@ -192,6 +193,9 @@ private extension ContentListFeature {
             return .send(.async(.컨텐츠_목록_조회_페이징_API))
         case .링크_공유시트_해제:
             state.shareSheetItem = nil
+            return .none
+        case .경고시트_해제:
+            state.alertItem = nil
             return .none
         }
     }
