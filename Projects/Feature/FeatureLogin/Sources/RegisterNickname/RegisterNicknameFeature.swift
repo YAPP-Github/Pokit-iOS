@@ -45,15 +45,17 @@ public struct RegisterNicknameFeature {
             /// - Binding
             case binding(BindingAction<State>)
             /// - Button Tapped
-            case nextButtonTapped
-            case backButtonTapped
+            case 다음_버튼_눌렀을때
+            case 뒤로가기_버튼_눌렀을때
         }
+        
         public enum InnerAction: Equatable {
-            case textChanged
-            case 닉네임_중복_체크_네트워크_결과(Bool)
+            case 닉네임_변경되었을때
+            case 닉네임_중복_체크_API_반영(Bool)
         }
+        
         public enum AsyncAction: Equatable {
-            case 닉네임_중복_체크_네트워크
+            case 닉네임_중복_체크_API
         }
         public enum ScopeAction: Equatable { case doNothing }
         public enum DelegateAction: Equatable {
@@ -94,16 +96,16 @@ private extension RegisterNicknameFeature {
     /// - View Effect
     func handleViewAction(_ action: Action.ViewAction, state: inout State) -> Effect<Action> {
         switch action {
-        case .nextButtonTapped:
+        case .다음_버튼_눌렀을때:
                 return .run { [nickName = state.nicknameText] send in
                     await send(.delegate(.pushSelectFieldView(nickname: nickName)))
                 }
-        case .backButtonTapped:
+        case .뒤로가기_버튼_눌렀을때:
             return .run { _ in await self.dismiss() }
         case .binding(\.nicknameText):
             state.buttonActive = false
             return .run { send in
-                await send(.inner(.textChanged))
+                await send(.inner(.닉네임_변경되었을때))
             }
             .debounce(
                 id: CancelID.response,
@@ -117,7 +119,7 @@ private extension RegisterNicknameFeature {
     /// - Inner Effect
     func handleInnerAction(_ action: Action.InnerAction, state: inout State) -> Effect<Action> {
         switch action {
-        case .textChanged:
+        case .닉네임_변경되었을때:
             /// [1]. 닉네임 텍스트필드가 비어있을 때
             if state.nicknameText.isEmpty {
                 state.buttonActive = false
@@ -136,10 +138,10 @@ private extension RegisterNicknameFeature {
                 return .none
             } else {
                 /// [4]. 정상 케이스일 때
-                return .run { send in await send(.async(.닉네임_중복_체크_네트워크)) }
+                return .run { send in await send(.async(.닉네임_중복_체크_API)) }
             }
 
-        case let .닉네임_중복_체크_네트워크_결과(isDuplicate):
+        case let .닉네임_중복_체크_API_반영(isDuplicate):
             if isDuplicate {
                 state.textfieldState = .error(message: "중복된 닉네임입니다.")
                 state.buttonActive = false
@@ -153,10 +155,10 @@ private extension RegisterNicknameFeature {
     /// - Async Effect
     func handleAsyncAction(_ action: Action.AsyncAction, state: inout State) -> Effect<Action> {
         switch action {
-        case .닉네임_중복_체크_네트워크:
+        case .닉네임_중복_체크_API:
             return .run { [nickName = state.nicknameText] send in
                 let result = try await userClient.닉네임_중복_체크(nickName)
-                await send(.inner(.닉네임_중복_체크_네트워크_결과(result.isDuplicate)))
+                await send(.inner(.닉네임_중복_체크_API_반영(result.isDuplicate)))
             }
         }
     }
