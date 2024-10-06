@@ -53,8 +53,8 @@ public extension ContentDetailView {
                     "링크를 정말 삭제하시겠습니까?",
                     message: "함께 저장한 모든 정보가 삭제되며, \n복구하실 수 없습니다.",
                     confirmText: "삭제",
-                    action: { send(.deleteAlertConfirmTapped) },
-                    cancelAction: { send(.alertCancelButtonTapped) }
+                    action: { send(.삭제확인_버튼_눌렀을때) },
+                    cancelAction: { send(.경고시트_해제) }
                 )
             }
             .sheet(isPresented: $store.showShareSheet) {
@@ -62,13 +62,13 @@ public extension ContentDetailView {
                    let shareURL = URL(string: content.data) {
                     PokitShareSheet(
                         items: [shareURL],
-                        completion: { send(.링크_공유_완료) }
+                        completion: { send(.링크_공유_완료되었을때) }
                     )
                     .presentationDetents([.medium, .large])
                 }
             }
             .task {
-                await send(.contentDetailViewOnAppeared, animation: .pokitDissolve).finish()
+                await send(.뷰가_나타났을때, animation: .pokitDissolve).finish()
             }
         }
     }
@@ -174,7 +174,7 @@ private extension ContentDetailView {
 
     @ViewBuilder
     func favorite(favorites: Bool) -> some View {
-        Button(action: { send(.favoriteButtonTapped, animation: .pokitDissolve) }) {
+        Button(action: { send(.즐겨찾기_버튼_눌렀을때, animation: .pokitDissolve) }) {
             Image(favorites ? .icon(.starFill) : .icon(.starFill))
                 .resizable()
                 .scaledToFit()
@@ -195,17 +195,17 @@ private extension ContentDetailView {
             Group {
                 toolbarButton(
                     .icon(.share),
-                    action: { send(.sharedButtonTapped) }
+                    action: { send(.공유_버튼_눌렀을때) }
                 )
 
                 toolbarButton(
                     .icon(.edit),
-                    action: { send(.editButtonTapped) }
+                    action: { send(.수정_버튼_눌렀을때) }
                 )
 
                 toolbarButton(
                     .icon(.trash),
-                    action: { send(.deleteButtonTapped) }
+                    action: { send(.삭제_버튼_눌렀을때) }
                 )
             }
             .disabled(store.contentId == nil)
