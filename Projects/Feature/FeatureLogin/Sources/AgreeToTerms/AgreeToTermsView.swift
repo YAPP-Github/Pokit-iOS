@@ -40,7 +40,7 @@ public extension AgreeToTermsView {
                 PokitBottomButton(
                     "다음",
                     state: store.isPersonalAndUsageArgee && store.isServiceAgree ? .filled(.primary) : .disable,
-                    action: { send(.nextButtonTapped) }
+                    action: { send(.다음_버튼_눌렀을때) }
                 )
             }
             .pokitMaxWidth()
@@ -49,7 +49,7 @@ public extension AgreeToTermsView {
                 PokitHeader {
                     PokitHeaderItems(placement: .leading) {
                         PokitToolbarButton(.icon(.arrowLeft)) {
-                            send(.backButtonTapped)
+                            send(.뒤로가기_버튼_눌렀을때)
                         }
                     }
                 }
@@ -98,19 +98,19 @@ extension AgreeToTermsView {
             termsButton(
                 "(필수)개인정보 수집 및 이용 동의",
                 isSelected: $store.isPersonalAndUsageArgee,
-                action: { send(.개인정보_동의_버튼_클릭) }
+                action: { send(.개인정보_동의_버튼_눌렀을때) }
             )
             
             termsButton(
                 "(필수)서비스 이용약관",
                 isSelected: $store.isServiceAgree,
-                action: { send(.서비스_이용약관_버튼_클릭) }
+                action: { send(.서비스_이용약관_버튼_눌렀을때) }
             )
             
             termsButton(
                 "(선택)마케팅 정보 수신",
                 isSelected: $store.isMarketingAgree,
-                action: { send(.마케팅_정보_수신_버튼_클릭) }
+                action: { send(.마케팅_정보_수신_버튼_눌렀을때) }
             )
         }
         .padding(.leading, 20)
