@@ -141,17 +141,13 @@ private extension ContentDetailFeature {
             guard let id = state.domain.contentId else {
                 return .none
             }
-            return .run { send in
-                await send(.async(.컨텐츠_상세_조회_API(id: id)))
-            }
+            return .send(.async(.컨텐츠_상세_조회_API(id: id)))
         case .공유_버튼_눌렀을때:
             state.showShareSheet = true
             return .none
         case .수정_버튼_눌렀을때:
             guard let content = state.domain.content else { return .none }
-            return .run { [content] send in
-                await send(.delegate(.editButtonTapped(contentId: content.id)))
-            }
+            return .send(.delegate(.editButtonTapped(contentId: content.id)))
         case .삭제_버튼_눌렀을때:
             state.showAlert = true
             return .none
@@ -159,9 +155,7 @@ private extension ContentDetailFeature {
             guard let id = state.domain.contentId else {
                 return .none
             }
-            return .run { send in
-                await send(.async(.컨텐츠_삭제_API(id: id)))
-            }
+            return .send(.async(.컨텐츠_삭제_API(id: id)))
         case .binding:
             return .none
         case .즐겨찾기_버튼_눌렀을때:
@@ -169,12 +163,10 @@ private extension ContentDetailFeature {
                   let favorites = state.domain.content?.favorites else {
                 return .none
             }
-            return .run { send in
-                if favorites {
-                    await send(.async(.즐겨찾기_취소_API(id: content.id)))
-                } else {
-                    await send(.async(.즐겨찾기_API(id: content.id)))
-                }
+            if favorites {
+                return .send(.async(.즐겨찾기_취소_API(id: content.id)))
+            } else {
+                return .send(.async(.즐겨찾기_API(id: content.id)))
             }
         case .링크_공유_완료되었을때:
             state.showShareSheet = false
@@ -215,10 +207,10 @@ private extension ContentDetailFeature {
             return .send(.inner(.메타데이터_조회_수행(url: url)), animation: .pokitDissolve)
         case .컨텐츠_상세_조회_API_반영(content: let content):
             state.domain.content = content
-            return .run { send in
-                await send(.delegate(.컨텐츠_조회_완료))
-                await send(.inner(.URL_유효성_확인))
-            }
+            return .merge(
+                .send(.delegate(.컨텐츠_삭제_완료)),
+                .send(.inner(.URL_유효성_확인))
+            )
         case .즐겨찾기_API_반영(let favorite):
             state.domain.content?.favorites = favorite
             return .send(.delegate(.즐겨찾기_갱신_완료))
