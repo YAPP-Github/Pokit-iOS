@@ -57,7 +57,7 @@ public struct RegisterNicknameFeature {
         public enum AsyncAction: Equatable {
             case 닉네임_중복_체크_API
         }
-        public enum ScopeAction: Equatable { case doNothing }
+        public enum ScopeAction: Equatable { case 없음 }
         public enum DelegateAction: Equatable {
             case pushSelectFieldView(nickname: String)
         }
