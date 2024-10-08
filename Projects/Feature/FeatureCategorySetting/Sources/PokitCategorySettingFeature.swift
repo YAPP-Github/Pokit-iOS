@@ -87,20 +87,22 @@ public struct PokitCategorySettingFeature {
         public enum View: BindableAction, Equatable {
             case binding(BindingAction<State>)
             case dismiss
-            case profileSettingButtonTapped
-            case saveButtonTapped
-            case onAppear
+            case 프로필_설정_버튼_눌렀을때
+            case 저장_버튼_눌렀을때
+            case 뷰가_나타났을때
         }
         
         public enum InnerAction: Equatable {
-            case 카테고리_목록_조회_결과(BaseCategoryListInquiry)
-            case 프로필_목록_조회_결과(images: [BaseCategoryImage])
+            case 카테고리_목록_조회_API_반영(BaseCategoryListInquiry)
+            case 프로필_목록_조회_API_반영(images: [BaseCategoryImage])
             case 포킷_오류_핸들링(BaseError)
             case 카테고리_인메모리_저장(BaseCategoryItem)
         }
         
         public enum AsyncAction: Equatable {
-            case 프로필_목록_조회
+            case 카테고리_목록_조회_API
+            case 프로필_목록_조회_API
+            case 클립보드_감지
         }
         
         public enum ScopeAction: Equatable {
@@ -160,12 +162,12 @@ private extension PokitCategorySettingFeature {
         case .dismiss:
             return .run { _ in await dismiss() }
             
-        case .profileSettingButtonTapped:
             /// [Profile 🎨]1. 프로필 목록 조회 API 호출
+        case .프로필_설정_버튼_눌렀을때:
             state.isProfileSheetPresented.toggle()
             return .none
 
-        case .saveButtonTapped:
+        case .저장_버튼_눌렀을때:
             return .run { [domain = state.domain,
                            type = state.type] send in
                 switch type {
@@ -186,12 +188,14 @@ private extension PokitCategorySettingFeature {
                     )
                     await send(.inner(.카테고리_인메모리_저장(responseToCategoryDomain)))
                     await send(.delegate(.settingSuccess))
+                    
                 case .수정:
                     guard let categoryId = domain.categoryId else { return }
                     guard let image = domain.categoryImage else { return }
                     let request = CategoryEditRequest(categoryName: domain.categoryName, categoryImageId: image.id)
                     let _ = try await categoryClient.카테고리_수정(categoryId, request)
                     await send(.delegate(.settingSuccess))
+                    
                 case .공유추가:
                     guard let categoryId = domain.categoryId else { return }
                     guard let image = domain.categoryImage else { return }
@@ -205,31 +209,24 @@ private extension PokitCategorySettingFeature {
                     await send(.delegate(.settingSuccess))
                 }
             } catch: { error, send in
-                guard let errorResponse = error as? ErrorResponse else {
-                    return
-                }
+                guard let errorResponse = error as? ErrorResponse else { return }
                 await send(.inner(.포킷_오류_핸들링(BaseError(response: errorResponse))))
             }
             
-        case .onAppear:
-            return .run { send in
-                let pageRequest = BasePageableRequest(page: 0, size: 100, sort: ["desc"])
-                let response = try await categoryClient.카테고리_목록_조회(pageRequest, true).toDomain()
-                await send(.inner(.카테고리_목록_조회_결과(response)))
-                await send(.async(.프로필_목록_조회))
-                
-                for await _ in self.pasteboard.changes() {
-                    let url = try await pasteboard.probableWebURL()
-                    await send(.delegate(.linkCopyDetected(url)), animation: .pokitSpring)
-                }
-            }
+        case .뷰가_나타났을때:
+            /// 단순 조회API들의 나열이라 merge사용
+            return .merge(
+                .send(.async(.카테고리_목록_조회_API)),
+                .send(.async(.프로필_목록_조회_API)),
+                .send(.async(.클립보드_감지))
+            )
         }
     }
     
     /// - Inner Effect
     func handleInnerAction(_ action: Action.InnerAction, state: inout State) -> Effect<Action> {
         switch action {
-        case let .프로필_목록_조회_결과(images):
+        case let .프로필_목록_조회_API_반영(images):
             state.domain.imageList = images
 
             guard let _ = state.selectedProfile else {
@@ -237,9 +234,11 @@ private extension PokitCategorySettingFeature {
                 return .none
             }
             return .none
-        case let .카테고리_목록_조회_결과(response):
+            
+        case let .카테고리_목록_조회_API_반영(response):
             state.domain.categoryListInQuiry = response
             return .none
+            
         case let .포킷_오류_핸들링(baseError):
             state.pokitNameTextInpuState = .error(message: baseError.message)
             return .none
@@ -253,11 +252,26 @@ private extension PokitCategorySettingFeature {
     /// - Async Effect
     func handleAsyncAction(_ action: Action.AsyncAction, state: inout State) -> Effect<Action> {
         switch action {
-        case .프로필_목록_조회:
+        case .카테고리_목록_조회_API:
             return .run { send in
-                let a = try await categoryClient.카테고리_프로필_목록_조회()
-                let b = a.map { $0.toDomain() }
-                await send(.inner(.프로필_목록_조회_결과(images: b)))
+                let pageRequest = BasePageableRequest(page: 0, size: 100, sort: ["desc"])
+                let response = try await categoryClient.카테고리_목록_조회(pageRequest, true).toDomain()
+                await send(.inner(.카테고리_목록_조회_API_반영(response)))
+            }
+            
+        case .프로필_목록_조회_API:
+            return .run { send in
+                let response = try await categoryClient.카테고리_프로필_목록_조회()
+                let images = response.map { $0.toDomain() }
+                await send(.inner(.프로필_목록_조회_API_반영(images: images)))
+            }
+        
+        case .클립보드_감지:
+            return .run { send in
+                for await _ in self.pasteboard.changes() {
+                    let url = try await pasteboard.probableWebURL()
+                    await send(.delegate(.linkCopyDetected(url)), animation: .pokitSpring)
+                }
             }
         }
     }
@@ -265,7 +279,7 @@ private extension PokitCategorySettingFeature {
     /// - Scope Effect
     func handleScopeAction(_ action: Action.ScopeAction, state: inout State) -> Effect<Action> {
         switch action {
-        case .profile(.imageSelected(let imageInfo)):
+        case .profile(.이미지_선택했을때(let imageInfo)):
             state.isProfileSheetPresented = false
             state.selectedProfile = imageInfo
             return .none
