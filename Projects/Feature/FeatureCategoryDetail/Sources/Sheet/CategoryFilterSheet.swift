@@ -66,7 +66,7 @@ private extension CategoryFilterSheet {
                 Spacer()
             }
             .overlay(alignment: .topTrailing) {
-                Button(action: { delegateSend?(.dismissButtonTapped) }) {
+                Button(action: { delegateSend?(.dismiss) }) {
                     Image(.icon(.x))
                 }
                 .buttonStyle(.plain)
@@ -105,7 +105,7 @@ private extension CategoryFilterSheet {
                 "확인",
                 state: .filled(.primary),
                 action: { delegateSend?(
-                    .okButtonTapped(
+                    .확인_버튼_눌렀을때(
                         self.sortType,
                         bookMarkSelected: self.isBookMarkSelected,
                         unReadSelected: self.isUnReadSelected
@@ -174,8 +174,8 @@ private extension CategoryFilterSheet {
 //MARK: - Delegate
 public extension CategoryFilterSheet {
     enum Delegate: Equatable {
-        case dismissButtonTapped
-        case okButtonTapped(SortType, bookMarkSelected: Bool, unReadSelected: Bool)
+        case dismiss
+        case 확인_버튼_눌렀을때(SortType, bookMarkSelected: Bool, unReadSelected: Bool)
     }
 }
 //MARK: - Preview
