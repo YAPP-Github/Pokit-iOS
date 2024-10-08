@@ -12,9 +12,6 @@ import Domain
 import CoreKit
 import Util
 
-/// - 사용되는 API 목록
-/// 1. Profile 🎨
-/// 2. 포킷 생성 🖨️
 @Reducer
 public struct PokitCategorySettingFeature {
     /// - Dependency
@@ -148,7 +145,6 @@ public struct PokitCategorySettingFeature {
     public var body: some ReducerOf<Self> {
         BindingReducer(action: \.view)
         Reduce(self.core)
-            ._printChanges()
     }
 }
 //MARK: - FeatureAction Effect
@@ -162,7 +158,6 @@ private extension PokitCategorySettingFeature {
         case .dismiss:
             return .run { _ in await dismiss() }
             
-            /// [Profile 🎨]1. 프로필 목록 조회 API 호출
         case .프로필_설정_버튼_눌렀을때:
             state.isProfileSheetPresented.toggle()
             return .none
