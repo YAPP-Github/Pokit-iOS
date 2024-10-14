@@ -1,0 +1,10 @@
+import ComposableArchitecture
+import XCTest
+
+@testable import {{ target }}
+
+final class {{ target }}Tests: XCTestCase {
+    func test() {
+    
+    }
+}
