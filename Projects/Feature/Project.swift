@@ -16,7 +16,11 @@ let demoTargets = Feature.allCases.map { feature in
     return feature.demoTarget
 }
 
+let testTargets = Feature.allCases.map { feature in
+    return feature.testTarget
+}
+
 let project = Project(
     name: "Feature",
-    targets: targets + demoTargets
+    targets: targets + demoTargets + testTargets
 )

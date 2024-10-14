@@ -45,4 +45,17 @@ public enum Feature: String, CaseIterable {
             ]
         )
     }
+    
+    public var testTarget: Target {
+        return .makeTarget(
+            name: "Feature\(self.rawValue)Tests",
+            product: .unitTests,
+            bundleName: "Feature.\(self.rawValue)Tests",
+            infoPlist: .dictionary(["ENABLE_TESTING_SEARCH_PATHS": "YES"]),
+            resources: ["Feature\(self.rawValue)Tests/Resources/**"],
+            dependencies: [
+                .target(self.target)
+            ]
+        )
+    }
 }
