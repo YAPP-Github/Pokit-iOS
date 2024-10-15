@@ -52,7 +52,7 @@ public extension RegisterNicknameView {
                 PokitHeader {
                     PokitHeaderItems(placement: .leading) {
                         PokitToolbarButton(.icon(.arrowLeft)) {
-                            send(.뒤로가기_버튼_눌렀을때)
+                            send(.dismiss)
                         }
                     }
                 }

@@ -47,10 +47,10 @@ public struct AgreeToTermsFeature {
         }
         public enum InnerAction: Equatable {
             case 동의_체크_확인
-            case 개인정보_동의_선택됐을때
-            case 서비스_이용약관_동의_선택됐을때
-            case 마케팅_정보_수신_동의_선택됐을때
-            case 전체_동의_선택됐을때
+            case 개인정보_동의_선택했을때
+            case 서비스_이용약관_동의_선택했을때
+            case 마케팅_정보_수신_동의_선택했을때
+            case 전체_동의_선택했을때
         }
         public enum AsyncAction: Equatable { case 없음 }
         public enum ScopeAction: Equatable { case 없음 }
@@ -96,13 +96,13 @@ private extension AgreeToTermsFeature {
         case .뒤로가기_버튼_눌렀을때:
             return .run { _ in await self.dismiss() }
         case .binding(\.isAgreeAllTerms):
-            return .send(.inner(.전체_동의_선택됐을때))
+            return .send(.inner(.전체_동의_선택했을때))
         case .binding(\.isPersonalAndUsageArgee):
-            return .send(.inner(.개인정보_동의_선택됐을때))
+            return .send(.inner(.개인정보_동의_선택했을때))
         case .binding(\.isServiceAgree):
-            return .send(.inner(.서비스_이용약관_동의_선택됐을때))
+            return .send(.inner(.서비스_이용약관_동의_선택했을때))
         case .binding(\.isMarketingAgree):
-            return .send(.inner(.마케팅_정보_수신_동의_선택됐을때))
+            return .send(.inner(.마케팅_정보_수신_동의_선택했을때))
         case .binding:
             return .none
         case .개인정보_동의_버튼_눌렀을때:
@@ -130,12 +130,12 @@ private extension AgreeToTermsFeature {
             state.isAgreeAllTerms = isAgreeAllterm
             return .none
         /// - 각각의 개별 동의 체크박스가 선택 되었을 때
-        case .개인정보_동의_선택됐을때,
-                .서비스_이용약관_동의_선택됐을때,
-                .마케팅_정보_수신_동의_선택됐을때:
+        case .개인정보_동의_선택했을때,
+                .서비스_이용약관_동의_선택했을때,
+                .마케팅_정보_수신_동의_선택했을때:
             return .send(.inner(.동의_체크_확인))
         /// - 전체 동의 체크박으가 선택 되었을 때
-        case .전체_동의_선택됐을때:
+        case .전체_동의_선택했을때:
             state.isPersonalAndUsageArgee = state.isAgreeAllTerms
             state.isServiceAgree          = state.isAgreeAllTerms
             state.isMarketingAgree        = state.isAgreeAllTerms

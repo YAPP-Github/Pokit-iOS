@@ -46,11 +46,11 @@ public struct RegisterNicknameFeature {
             case binding(BindingAction<State>)
             /// - Button Tapped
             case 다음_버튼_눌렀을때
-            case 뒤로가기_버튼_눌렀을때
+            case dismiss
         }
         
         public enum InnerAction: Equatable {
-            case 닉네임_변경되었을때
+            case 닉네임_텍스트_변경되었을때
             case 닉네임_중복_체크_API_반영(Bool)
         }
         
@@ -99,14 +99,11 @@ private extension RegisterNicknameFeature {
         case .다음_버튼_눌렀을때:
             let nickname = state.nicknameText
             return .send(.delegate(.pushSelectFieldView(nickname: nickname)))
-        case .뒤로가기_버튼_눌렀을때:
+        case .dismiss:
             return .run { _ in await self.dismiss() }
         case .binding(\.nicknameText):
             state.buttonActive = false
-            return .send(
-                .inner(.닉네임_변경되었을때)
-            )
-            .debounce(
+            return .send(.inner(.닉네임_텍스트_변경되었을때)).debounce(
                 id: CancelID.response,
                 for: 0.5,
                 scheduler: mainQueue
@@ -118,7 +115,7 @@ private extension RegisterNicknameFeature {
     /// - Inner Effect
     func handleInnerAction(_ action: Action.InnerAction, state: inout State) -> Effect<Action> {
         switch action {
-        case .닉네임_변경되었을때:
+        case .닉네임_텍스트_변경되었을때:
             /// [1]. 닉네임 텍스트필드가 비어있을 때
             if state.nicknameText.isEmpty {
                 state.buttonActive = false
