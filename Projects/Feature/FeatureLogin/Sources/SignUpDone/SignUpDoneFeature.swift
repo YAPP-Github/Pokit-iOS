@@ -35,16 +35,16 @@ public struct SignUpDoneFeature {
         @CasePathable
         public enum View: Equatable {
             /// - Button Tapped
-            case startButtonTapped
+            case 시작_버튼_눌렀을때
             
-            case firecrackerOnAppeared
-            case titleOnAppeared
-            case confettiOnAppeared
-            case pookiOnAppeared
+            case 폭죽불꽃_이미지_나타났을때
+            case 제목_나타났을때
+            case 폭죽_이미지_나타났을때
+            case 푸키_이미지_나타났을때
         }
-        public enum InnerAction: Equatable { case doNothing }
-        public enum AsyncAction: Equatable { case doNothing }
-        public enum ScopeAction: Equatable { case doNothing }
+        public enum InnerAction: Equatable { case 없음 }
+        public enum AsyncAction: Equatable { case 없음 }
+        public enum ScopeAction: Equatable { case 없음 }
         public enum DelegateAction: Equatable {
             case dismissLoginRootView
         }
@@ -81,18 +81,18 @@ private extension SignUpDoneFeature {
     /// - View Effect
     func handleViewAction(_ action: Action.ViewAction, state: inout State) -> Effect<Action> {
         switch action {
-        case .startButtonTapped:
+        case .시작_버튼_눌렀을때:
             return .send(.delegate(.dismissLoginRootView), animation: .pokitDissolve)
-        case .firecrackerOnAppeared:
+        case .폭죽불꽃_이미지_나타났을때:
             state.firecrackIsAppear = true
             return .none
-        case .titleOnAppeared:
+        case .제목_나타났을때:
             state.titleIsAppear = true
             return .none
-        case .confettiOnAppeared:
+        case .폭죽_이미지_나타났을때:
             state.confettiIsAppear = true
             return .none
-        case .pookiOnAppeared:
+        case .푸키_이미지_나타났을때:
             state.pookiIsAppear = true
             return .none
         }

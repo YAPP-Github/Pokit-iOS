@@ -42,7 +42,7 @@ public extension RegisterNicknameView {
                     state: store.buttonActive 
                     ? .filled(.primary)
                     : .disable,
-                    action: { send(.nextButtonTapped) }
+                    action: { send(.다음_버튼_눌렀을때) }
                 )
                 .setKeyboardHeight()
             }
@@ -52,7 +52,7 @@ public extension RegisterNicknameView {
                 PokitHeader {
                     PokitHeaderItems(placement: .leading) {
                         PokitToolbarButton(.icon(.arrowLeft)) {
-                            send(.backButtonTapped)
+                            send(.dismiss)
                         }
                     }
                 }
