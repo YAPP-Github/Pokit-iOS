@@ -163,11 +163,9 @@ private extension ContentDetailFeature {
                   let favorites = state.domain.content?.favorites else {
                 return .none
             }
-            if favorites {
-                return .send(.async(.즐겨찾기_취소_API(id: content.id)))
-            } else {
-                return .send(.async(.즐겨찾기_API(id: content.id)))
-            }
+            return favorites
+            ? .send(.async(.즐겨찾기_취소_API(id: content.id)))
+            : .send(.async(.즐겨찾기_API(id: content.id)))
         case .링크_공유_완료되었을때:
             state.showShareSheet = false
             return .none
@@ -208,7 +206,7 @@ private extension ContentDetailFeature {
         case .컨텐츠_상세_조회_API_반영(content: let content):
             state.domain.content = content
             return .merge(
-                .send(.delegate(.컨텐츠_삭제_완료)),
+                .send(.delegate(.컨텐츠_조회_완료)),
                 .send(.inner(.URL_유효성_확인))
             )
         case .즐겨찾기_API_반영(let favorite):
