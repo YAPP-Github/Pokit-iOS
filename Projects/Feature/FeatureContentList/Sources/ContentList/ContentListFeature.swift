@@ -77,7 +77,7 @@ public struct ContentListFeature {
             case 컨텐츠_항목_케밥_버튼_눌렀을때(content: BaseContentItem)
             case 컨텐츠_삭제_눌렀을때(content: BaseContentItem)
             case 정렬_버튼_눌렀을때
-            case 뒤로가기_버튼_눌렀을때
+            case dismiss
             /// - On Appeared
             case 뷰가_나타났을때
             
@@ -99,6 +99,7 @@ public struct ContentListFeature {
             case 컨텐츠_목록_조회_페이징_API
             case 컨텐츠_목록_조회_API
             case 컨텐츠_개수_조회_API
+            case 클립보드_감지
         }
 
         public enum ScopeAction: Equatable {
@@ -176,18 +177,13 @@ private extension ContentListFeature {
                 state.isListDescending ? "createdAt,desc" : "createdAt,asc"
             ]
             return .send(.inner(.페이징_초기화), animation: .pokitDissolve)
-        case .뒤로가기_버튼_눌렀을때:
+        case .dismiss:
             return .run { _ in await dismiss() }
         case .뷰가_나타났을때:
             return .merge(
                 .send(.async(.컨텐츠_개수_조회_API)),
                 .send(.async(.컨텐츠_목록_조회_API)),
-                .run { send in
-                    for await _ in self.pasteBoard.changes() {
-                        let url = try await pasteBoard.probableWebURL()
-                        await send(.delegate(.linkCopyDetected(url)), animation: .pokitSpring)
-                    }
-                }
+                .send(.async(.클립보드_감지))
             )
         case .pagenation:
             return .send(.async(.컨텐츠_목록_조회_페이징_API))
@@ -239,10 +235,7 @@ private extension ContentListFeature {
             
             return .merge(
                 .send(.inner(.컨텐츠_개수_업데이트(newCount))),
-                .run { send in
-                    let _ = try await contentClient.컨텐츠_삭제("\(id)")
-                    await send(.inner(.컨텐츠_삭제_API_반영(id: id)), animation: .pokitSpring)
-                }
+                contentDelete(contentId: id)
             )
             
         case .컨텐츠_목록_조회_페이징_API:
@@ -282,6 +275,13 @@ private extension ContentListFeature {
                 }
                 
                 await send(.inner(.컨텐츠_개수_업데이트(count)), animation: .pokitSpring)
+            }
+        case .클립보드_감지:
+            return .run { send in
+                for await _ in self.pasteBoard.changes() {
+                    let url = try await pasteBoard.probableWebURL()
+                    await send(.delegate(.linkCopyDetected(url)), animation: .pokitSpring)
+                }
             }
         }
     }
@@ -354,6 +354,13 @@ private extension ContentListFeature {
             }
             guard let contentItems else { return }
             await send(.inner(.컨텐츠_목록_조회_API_반영(contentItems)))
+        }
+    }
+    
+    func contentDelete(contentId: Int) -> Effect<Action> {
+        return .run { send in
+            let _ = try await contentClient.컨텐츠_삭제("\(contentId)")
+            await send(.inner(.컨텐츠_삭제_API_반영(id: contentId)), animation: .pokitSpring)
         }
     }
 }

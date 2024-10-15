@@ -130,7 +130,7 @@ private extension ContentListView {
         PokitHeader(title: store.contentType.title) {
             PokitHeaderItems(placement: .leading) {
                 PokitToolbarButton(.icon(.arrowLeft)) {
-                    send(.뒤로가기_버튼_눌렀을때)
+                    send(.dismiss)
                 }
             }
         }
