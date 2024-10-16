@@ -15,6 +15,51 @@ let features: [TargetDependency] = Feature.allCases.map { feature in
         .project(target: "Feature\(feature.rawValue)", path: .relativeToRoot("Projects/Feature"))
 }
 
+let projectTarget: Target = .target(
+    name: "App",
+    destinations: .appDestinations,
+    product: .app,
+    bundleId: "com.pokitmons.pokit",
+    deploymentTargets: .appMinimunTarget,
+    infoPlist: .file(path: .relativeToRoot("Projects/App/Resources/Pokit-info.plist")),
+    sources: ["Sources/**"],
+    resources: ["Resources/**"],
+    entitlements: .file(path: .relativeToRoot("Projects/App/Resources/Pokit-iOS.entitlements")),
+    dependencies: features + [
+        // TODO: 의존성 추가
+        .external(name: "FirebaseMessaging")
+    ],
+    settings: .settings(
+        .release(
+            name: "Release",
+            settings: [
+                "CODE_SIGN_IDENTITY": "Apple Distribution"
+            ],
+            xcconfig: .relativeToRoot("xcconfig/Release.xcconfig")
+        )
+    )
+)
+
+let shareExtensionTarget: Target = .target(
+    name: "ShareExtension",
+    destinations: .appDestinations,
+    product: .appExtension,
+    bundleId: "com.pokitmons.pokit.ShareExtension",
+    deploymentTargets: .appMinimunTarget,
+    infoPlist: .file(path: .relativeToRoot("Projects/App/ShareExtension/Info.plist")),
+    sources: ["ShareExtension/Sources/**"],
+    dependencies: features,
+    settings: .settings(
+        .release(
+            name: "Release",
+            settings: [
+                "CODE_SIGN_IDENTITY": "Apple Distribution"
+            ],
+            xcconfig: .relativeToRoot("xcconfig/Release.xcconfig")
+        )
+    )
+)
+
 let project = Project(
     name: "App",
     options: .options(
@@ -22,29 +67,7 @@ let project = Project(
         developmentRegion: "ko"
     ),
     targets: [
-        .target(
-            name: "App",
-            destinations: .appDestinations,
-            product: .app,
-            bundleId: "com.pokitmons.pokit",
-            deploymentTargets: .appMinimunTarget,
-            infoPlist: .file(path: .relativeToRoot("Projects/App/Resources/Pokit-info.plist")),
-            sources: ["Sources/**"],
-            resources: ["Resources/**"],
-            entitlements: .file(path: .relativeToRoot("Projects/App/Resources/Pokit-iOS.entitlements")),
-            dependencies: features + [
-                // TODO: 의존성 추가
-                .external(name: "FirebaseMessaging")
-            ],
-            settings: .settings(
-                .release(
-                    name: "Release",
-                    settings: [
-                        "CODE_SIGN_IDENTITY": "Apple Distribution"
-                    ],
-                    xcconfig: .relativeToRoot("xcconfig/Release.xcconfig")
-                )
-            )
-        )
+        projectTarget,
+        shareExtensionTarget
     ]
 )
