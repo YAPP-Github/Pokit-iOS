@@ -15,6 +15,27 @@ let features: [TargetDependency] = Feature.allCases.map { feature in
         .project(target: "Feature\(feature.rawValue)", path: .relativeToRoot("Projects/Feature"))
 }
 
+let shareExtensionTarget: Target = .target(
+    name: "ShareExtension",
+    destinations: .appDestinations,
+    product: .appExtension,
+    bundleId: "com.pokitmons.pokit.ShareExtension",
+    deploymentTargets: .appMinimunTarget,
+    infoPlist: .file(path: .relativeToRoot("Projects/App/ShareExtension/Info.plist")),
+    sources: ["ShareExtension/Sources/**"],
+    entitlements: .file(path: .relativeToRoot("Projects/App/ShareExtension/ShareExtension.entitlements")),
+    dependencies: features,
+    settings: .settings(
+        .release(
+            name: "Release",
+            settings: [
+                "CODE_SIGN_IDENTITY": "Apple Distribution"
+            ],
+            xcconfig: .relativeToRoot("xcconfig/Release.xcconfig")
+        )
+    )
+)
+
 let projectTarget: Target = .target(
     name: "App",
     destinations: .appDestinations,
@@ -27,28 +48,9 @@ let projectTarget: Target = .target(
     entitlements: .file(path: .relativeToRoot("Projects/App/Resources/Pokit-iOS.entitlements")),
     dependencies: features + [
         // TODO: 의존성 추가
-        .external(name: "FirebaseMessaging")
+        .external(name: "FirebaseMessaging"),
+        .target(shareExtensionTarget)
     ],
-    settings: .settings(
-        .release(
-            name: "Release",
-            settings: [
-                "CODE_SIGN_IDENTITY": "Apple Distribution"
-            ],
-            xcconfig: .relativeToRoot("xcconfig/Release.xcconfig")
-        )
-    )
-)
-
-let shareExtensionTarget: Target = .target(
-    name: "ShareExtension",
-    destinations: .appDestinations,
-    product: .appExtension,
-    bundleId: "com.pokitmons.pokit.ShareExtension",
-    deploymentTargets: .appMinimunTarget,
-    infoPlist: .file(path: .relativeToRoot("Projects/App/ShareExtension/Info.plist")),
-    sources: ["ShareExtension/Sources/**"],
-    dependencies: features,
     settings: .settings(
         .release(
             name: "Release",
