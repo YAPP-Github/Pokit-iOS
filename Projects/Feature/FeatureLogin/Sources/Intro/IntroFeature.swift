@@ -67,7 +67,7 @@ private extension IntroFeature {
             }
             
         case .delegate(.loginNeeded):
-            return .send(._sceneChange(.login()))
+            return .send(._sceneChange(.login()), animation: .smooth)
             
         default: return .none
         }
