@@ -23,6 +23,7 @@ let shareExtensionTarget: Target = .target(
     deploymentTargets: .appMinimunTarget,
     infoPlist: .file(path: .relativeToRoot("Projects/App/ShareExtension/Info.plist")),
     sources: ["ShareExtension/Sources/**"],
+    resources: ["ShareExtension/Resources/**"],
     entitlements: .file(path: .relativeToRoot("Projects/App/ShareExtension/ShareExtension.entitlements")),
     dependencies: features,
     settings: .settings(

@@ -7,6 +7,7 @@
 import ComposableArchitecture
 import CoreKit
 import Util
+import UIKit
 
 @Reducer
 public struct LoginFeature {
@@ -28,10 +29,15 @@ public struct LoginFeature {
     public struct State {
         var path = StackState<Path.State>()
 
-        var nickName: String?
-        var interests: [String]?
+        var nickName: String? = nil
+        var interests: [String]? = nil
+        var rootViewController: UIViewController?
         
-        public init() {}
+        public init(
+            rootViewController: UIViewController? = nil
+        ) {
+            self.rootViewController = rootViewController
+        }
     }
     /// - Action
     public enum Action: FeatureAction, ViewAction {
@@ -194,8 +200,8 @@ private extension LoginFeature {
                 await send(.async(.애플로그인_API(response)))
             }
         case .구글로그인_소셜_API:
-            return .run { send in
-                let response = try await socialLogin.googleLogin()
+            return .run { [ root = state.rootViewController] send in
+                let response = try await socialLogin.googleLogin(root)
                 await send(.async(.구글로그인_API(response)))
             }
         }

@@ -10,6 +10,7 @@ import Foundation
 import ComposableArchitecture
 import FeatureLogin
 import FeatureContentSetting
+import UIKit
 
 @Reducer
 struct ShareRootFeature {
@@ -20,12 +21,13 @@ struct ShareRootFeature {
         
         var url: URL?
         var context: NSExtensionContext?
+        var controller: UIViewController?
     }
     
     indirect enum Action {
         case intro(IntroFeature.Action)
         case contentSetting(ContentSettingFeature.Action)
-        case viewDidLoad(NSExtensionContext?)
+        case viewDidLoad(UIViewController?, NSExtensionContext?)
         case parseURL(URL)
     }
     
@@ -36,6 +38,8 @@ struct ShareRootFeature {
             state.contentSetting = .init(urlText: url.absoluteString)
             state.intro = nil
             return .none
+        case .intro(.delegate(.moveToLogin)):
+            return .send(.intro(.delegate(.onShareExtension(state.controller))))
         case .intro:
             return .none
         case .contentSetting(.delegate(.저장하기_완료)):
@@ -43,8 +47,9 @@ struct ShareRootFeature {
             return .none
         case .contentSetting:
             return .none
-        case let .viewDidLoad(context):
+        case let .viewDidLoad(controller, context):
             state.context = context
+            state.controller = controller
             return .none
         case let .parseURL(url):
             state.url = url
@@ -56,6 +61,6 @@ struct ShareRootFeature {
         Reduce(self.core)
             .ifLet(\.intro, action: \.intro) { IntroFeature() }
             .ifLet(\.contentSetting, action: \.contentSetting) { ContentSettingFeature() }
-            ._printChanges()
+//            ._printChanges()
     }
 }

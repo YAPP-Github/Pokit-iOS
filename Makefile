@@ -58,6 +58,7 @@ download-privates:
 		cp Pokit_iOS_Private/xcconfig/Release.xcconfig xcconfig/Release.xcconfig; \
 		cp Pokit_iOS_Private/auth/AuthKey.p8 Projects/CoreKit/Resources/AuthKey.p8; \
 		cp Pokit_iOS_Private/GoogleService-Info.plist Projects/App/Resources/GoogleService-Info.plist; \
+		cp Pokit_iOS_Private/GoogleService-Info.plist Projects/App/ShareExtension/Resources/GoogleService-Info.plist; \
 		rm -rf Pokit_iOS_Private; \
 		echo "✅ Debug.xcconfig와 Release.xcconfig 파일을 성공적으로 다운로드하고 Pokit_iOS_Private 폴더를 삭제했습니다."; \
 	else \

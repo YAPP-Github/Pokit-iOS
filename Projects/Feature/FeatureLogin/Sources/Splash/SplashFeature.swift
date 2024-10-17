@@ -145,7 +145,7 @@ private extension SplashFeature {
                 } catch {
                     await send(.delegate(.loginNeeded))
                 }
-                await send(.delegate(.loginNeeded))
+//                await send(.delegate(.loginNeeded))
             }
         }
     }

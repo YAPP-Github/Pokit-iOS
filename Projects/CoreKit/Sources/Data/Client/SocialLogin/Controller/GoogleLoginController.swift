@@ -12,21 +12,22 @@ public final class GoogleLoginController {
     private var continuation: CheckedContinuation<SocialLoginInfo, Error>?
     
     @MainActor
-    public func login() async throws -> SocialLoginInfo {
-        
+    public func login(root: UIViewController?) async throws -> SocialLoginInfo {
         return try await withCheckedThrowingContinuation { continuation in
             self.continuation = continuation
-            googleSignIn()
+            googleSignIn(root: root)
         }
     }
     
-    private func googleSignIn() {
-        guard let root = UIApplication.shared.rootViewController else {
+    private func googleSignIn(root: UIViewController?) {
+        let rootViewController = root ?? UIApplication.shared.rootViewController
+        
+        guard let rootViewController else {
             continuation?.resume(throwing: SocialLoginError.transferError("Root view does not exist."))
             return
         }
         
-        GIDSignIn.sharedInstance.signIn(withPresenting: root) { [weak self] signInResult, error in
+        GIDSignIn.sharedInstance.signIn(withPresenting: rootViewController) { [weak self] signInResult, error in
             guard let self else { return }
             if let error {
                 continuation?.resume(throwing: error)

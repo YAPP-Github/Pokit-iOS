@@ -16,8 +16,8 @@ extension SocialLoginClient: DependencyKey {
             appleLogin: {
                 try await appleLoginController.login()
             },
-            googleLogin: {
-                try await googleLoginController.login()
+            googleLogin: { root in
+                try await googleLoginController.login(root: root)
             },
             getClientSceret: {
                 return appleLoginController.makeJWT()

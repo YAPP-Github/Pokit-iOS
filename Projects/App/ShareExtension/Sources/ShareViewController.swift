@@ -20,7 +20,7 @@ class ShareViewController: SLComposeServiceViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        store.send(.viewDidLoad(extensionContext))
+        store.send(.viewDidLoad(self, extensionContext))
         
         let hostingController = UIHostingController(
             rootView: ShareRootView(store: store)
