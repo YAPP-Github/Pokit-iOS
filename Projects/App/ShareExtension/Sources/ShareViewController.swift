@@ -24,7 +24,7 @@ class ShareViewController: SLComposeServiceViewController {
         )
         hostingController.modalPresentationStyle = .fullScreen
         present(hostingController, animated: true, completion: nil)
-        
+
         store.send(.viewDidLoad(self, extensionContext))
     }
     

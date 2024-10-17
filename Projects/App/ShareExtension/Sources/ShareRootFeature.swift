@@ -27,13 +27,15 @@ struct ShareRootFeature {
         
         var url: URL?
         var context: NSExtensionContext?
+        var controller: UIViewController?
     }
     
-    indirect enum Action {
+    enum Action {
         case intro(IntroFeature.Action)
         case contentSetting(ContentSettingFeature.Action)
         case viewDidLoad(UIViewController?, NSExtensionContext?)
         case parseURL(URL)
+        case dismiss
     }
     
     private func core(into state: inout State, action: Action) -> Effect<Action> {
@@ -52,6 +54,7 @@ struct ShareRootFeature {
             return .none
         case let .viewDidLoad(controller, context):
             state.context = context
+            state.controller = controller
             socialLogin.setRootViewController(controller)
             guard let item = context?.inputItems.first as? NSExtensionItem,
                   let itemProvider = item.attachments?.first,
@@ -66,6 +69,17 @@ struct ShareRootFeature {
             }
         case let .parseURL(url):
             state.url = url
+            return .none
+        case .dismiss:
+            state.controller?.dismiss(animated: true) { [context = state.context] in
+                let error =  NSError(
+                    domain: "com.pokitmons.pokit.ShareExtension",
+                    code: -1,
+                    userInfo: [NSLocalizedDescriptionKey: "User cancelled the action."]
+                )
+                context?.cancelRequest(withError: error)
+            }
+            
             return .none
         }
     }
