@@ -56,6 +56,8 @@ download-privates:
 		mkdir -p xcconfig; \
 		cp Pokit_iOS_Private/xcconfig/Debug.xcconfig xcconfig/Debug.xcconfig; \
 		cp Pokit_iOS_Private/xcconfig/Release.xcconfig xcconfig/Release.xcconfig; \
+		cp Pokit_iOS_Private/xcconfig/Debug-Share.xcconfig xcconfig/Debug-Share.xcconfig; \
+		cp Pokit_iOS_Private/xcconfig/Release-Share.xcconfig xcconfig/Release-Share.xcconfig; \
 		cp Pokit_iOS_Private/auth/AuthKey.p8 Projects/CoreKit/Resources/AuthKey.p8; \
 		cp Pokit_iOS_Private/GoogleService-Info.plist Projects/App/Resources/GoogleService-Info.plist; \
 		cp Pokit_iOS_Private/GoogleService-Info.plist Projects/App/ShareExtension/Resources/GoogleService-Info.plist; \

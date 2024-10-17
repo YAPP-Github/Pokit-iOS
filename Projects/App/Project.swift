@@ -27,13 +27,18 @@ let shareExtensionTarget: Target = .target(
     entitlements: .file(path: .relativeToRoot("Projects/App/ShareExtension/ShareExtension.entitlements")),
     dependencies: features,
     settings: .settings(
-        .release(
-            name: "Release",
-            settings: [
-                "CODE_SIGN_IDENTITY": "Apple Distribution"
-            ],
-            xcconfig: .relativeToRoot("xcconfig/Release.xcconfig")
-        )
+        base: [
+            "OTHER_LDFLAGS": "$(inherited) -ObjC",
+            "CODE_SIGN_STYLE": "Manual"
+        ],
+        configurations: [
+            .debug(name: "Debug", xcconfig: .relativeToRoot("xcconfig/Debug-Share.xcconfig")),
+            .release(
+                name: "Release",
+                settings: ["CODE_SIGN_IDENTITY": "Apple Distribution"],
+                xcconfig: .relativeToRoot("xcconfig/Release-Share.xcconfig")
+            )
+        ]
     )
 )
 
