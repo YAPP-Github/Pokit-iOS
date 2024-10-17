@@ -31,13 +31,8 @@ public struct LoginFeature {
 
         var nickName: String? = nil
         var interests: [String]? = nil
-        var rootViewController: UIViewController?
         
-        public init(
-            rootViewController: UIViewController? = nil
-        ) {
-            self.rootViewController = rootViewController
-        }
+        public init() { }
     }
     /// - Action
     public enum Action: FeatureAction, ViewAction {
@@ -200,8 +195,8 @@ private extension LoginFeature {
                 await send(.async(.애플로그인_API(response)))
             }
         case .구글로그인_소셜_API:
-            return .run { [ root = state.rootViewController] send in
-                let response = try await socialLogin.googleLogin(root)
+            return .run { send in
+                let response = try await socialLogin.googleLogin()
                 await send(.async(.구글로그인_API(response)))
             }
         }

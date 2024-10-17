@@ -10,16 +10,21 @@ import GoogleSignIn
 
 public final class GoogleLoginController {
     private var continuation: CheckedContinuation<SocialLoginInfo, Error>?
+    private var root: UIViewController?
     
     @MainActor
-    public func login(root: UIViewController?) async throws -> SocialLoginInfo {
+    public func login() async throws -> SocialLoginInfo {
         return try await withCheckedThrowingContinuation { continuation in
             self.continuation = continuation
-            googleSignIn(root: root)
+            googleSignIn()
         }
     }
     
-    private func googleSignIn(root: UIViewController?) {
+    public func setRootViewController(_ root: UIViewController?) {
+        self.root = root
+    }
+    
+    private func googleSignIn() {
         let rootViewController = root ?? UIApplication.shared.rootViewController
         
         guard let rootViewController else {

@@ -14,8 +14,9 @@ extension SocialLoginClient: TestDependencyKey {
     public static let previewValue: Self = {
         Self(
             appleLogin: { .appleMock },
-            googleLogin: { _ in .googleMock },
-            getClientSceret: { "" }
+            googleLogin: { .googleMock },
+            getClientSceret: { "" },
+            setRootViewController: { _ in }
         )
     }()
 }

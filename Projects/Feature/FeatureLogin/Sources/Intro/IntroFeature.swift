@@ -28,8 +28,6 @@ public struct IntroFeature {
         
         public enum Delegate {
             case moveToTab
-            case moveToLogin
-            case onShareExtension(UIViewController?)
         }
     }
     /// initiallizer
@@ -46,10 +44,6 @@ public struct IntroFeature {
             
         case .login(.delegate(.로그인_루트_닫기)):
             return .run { send in await send(.delegate(.moveToTab), animation: .smooth) }
-            
-        case let .delegate(.onShareExtension(root)):
-            let store: LoginRootFeature.State = .login(.init(rootViewController: root))
-            return .send(._sceneChange(.login(store)))
             
         case .delegate, .login:
             return .none
@@ -73,10 +67,7 @@ private extension IntroFeature {
             }
             
         case .delegate(.loginNeeded):
-            return .concatenate(
-                .send(.delegate(.moveToLogin), animation: .smooth),
-                .send(._sceneChange(.login()))
-            )
+            return .send(._sceneChange(.login()))
             
         default: return .none
         }

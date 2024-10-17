@@ -6,14 +6,20 @@
 //
 
 import Foundation
+import UniformTypeIdentifiers
 
 import ComposableArchitecture
 import FeatureLogin
 import FeatureContentSetting
 import UIKit
+import CoreKit
+import Util
 
 @Reducer
 struct ShareRootFeature {
+    @Dependency(SocialLoginClient.self)
+    private var socialLogin
+    
     @ObservableState
     struct State {
         var intro: IntroFeature.State? = .init()
@@ -21,7 +27,6 @@ struct ShareRootFeature {
         
         var url: URL?
         var context: NSExtensionContext?
-        var controller: UIViewController?
     }
     
     indirect enum Action {
@@ -38,8 +43,6 @@ struct ShareRootFeature {
             state.contentSetting = .init(urlText: url.absoluteString)
             state.intro = nil
             return .none
-        case .intro(.delegate(.moveToLogin)):
-            return .send(.intro(.delegate(.onShareExtension(state.controller))))
         case .intro:
             return .none
         case .contentSetting(.delegate(.저장하기_완료)):
@@ -49,8 +52,18 @@ struct ShareRootFeature {
             return .none
         case let .viewDidLoad(controller, context):
             state.context = context
-            state.controller = controller
-            return .none
+            socialLogin.setRootViewController(controller)
+            guard let item = context?.inputItems.first as? NSExtensionItem,
+                  let itemProvider = item.attachments?.first,
+                  itemProvider.hasItemConformingToTypeIdentifier(UTType.url.identifier) else {
+                return .none
+            }
+            
+            return .run { send in
+                let urlItem = try await itemProvider.loadItem(forTypeIdentifier: UTType.url.identifier)
+                guard let url = urlItem as? URL else { return }
+                await send(.parseURL(url))
+            }
         case let .parseURL(url):
             state.url = url
             return .none
@@ -61,6 +74,6 @@ struct ShareRootFeature {
         Reduce(self.core)
             .ifLet(\.intro, action: \.intro) { IntroFeature() }
             .ifLet(\.contentSetting, action: \.contentSetting) { ContentSettingFeature() }
-//            ._printChanges()
+            ._printChanges()
     }
 }

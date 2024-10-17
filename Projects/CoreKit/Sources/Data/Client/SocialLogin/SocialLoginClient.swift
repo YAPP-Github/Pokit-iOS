@@ -12,8 +12,7 @@ import UIKit
 @DependencyClient
 public struct SocialLoginClient {
     public var appleLogin: @Sendable () async throws -> SocialLoginInfo
-    public var googleLogin: @Sendable (
-        _ root: UIViewController?
-    ) async throws -> SocialLoginInfo
+    public var googleLogin: @Sendable () async throws -> SocialLoginInfo
     public var getClientSceret: @Sendable () -> String = { "" }
+    public var setRootViewController: @Sendable (UIViewController?) -> Void
 }
