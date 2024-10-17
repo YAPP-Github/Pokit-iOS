@@ -23,6 +23,12 @@
 		<string>$(PRODUCT_MODULE_NAME).ShareViewController</string>
 		<key>NSExtensionPointIdentifier</key>
 		<string>com.apple.share-services</string>
+		<key>AppleKeyID</key>
+		<string>$(AppleKeyID)</string>
+		<key>GIDClientID</key>
+		<string>$(GIDClientID)</string>
+		<key>TeamID</key>
+		<string>$(TeamID)</string>
 	</dict>
 </dict>
 </plist>
