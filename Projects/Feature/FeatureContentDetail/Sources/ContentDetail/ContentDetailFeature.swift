@@ -61,36 +61,35 @@ public struct ContentDetailFeature {
             /// - Binding
             case binding(BindingAction<State>)
             /// - View OnAppeared
-            case contentDetailViewOnAppeared
+            case 뷰가_나타났을때
             /// - Button Tapped
-            case sharedButtonTapped
-            case editButtonTapped
-            case deleteButtonTapped
-            case deleteAlertConfirmTapped
-            case favoriteButtonTapped
-            case alertCancelButtonTapped
+            case 공유_버튼_눌렀을때
+            case 수정_버튼_눌렀을때
+            case 삭제_버튼_눌렀을때
+            case 삭제확인_버튼_눌렀을때
+            case 즐겨찾기_버튼_눌렀을때
+            case 경고시트_해제
 
-            case 링크_공유_완료
+            case 링크_공유_완료되었을때
         }
 
         public enum InnerAction: Equatable {
-            case fetchMetadata(url: URL)
-            case parsingInfo(title: String?, imageURL: String?)
-            case parsingURL
-            case dismissAlert
-            case 컨텐츠_상세_조회(content: BaseContentDetail)
-            case 즐겨찾기_갱신(Bool)
-            case 링크미리보기_presented
+            case linkPreview
+            case 메타데이터_조회_수행(url: URL)
+            case 메타데이터_조회_반영(title: String?, imageURL: String?)
+            case URL_유효성_확인
+            case 컨텐츠_상세_조회_API_반영(content: BaseContentDetail)
+            case 즐겨찾기_API_반영(Bool)
         }
 
         public enum AsyncAction: Equatable {
-            case 컨텐츠_상세_조회(id: Int)
-            case 즐겨찾기(id: Int)
-            case 즐겨찾기_취소(id: Int)
-            case 컨텐츠_삭제(id: Int)
+            case 컨텐츠_상세_조회_API(id: Int)
+            case 즐겨찾기_API(id: Int)
+            case 즐겨찾기_취소_API(id: Int)
+            case 컨텐츠_삭제_API(id: Int)
         }
 
-        public enum ScopeAction: Equatable { case doNothing }
+        public enum ScopeAction: Equatable { case 없음 }
 
         public enum DelegateAction: Equatable {
             case editButtonTapped(contentId: Int)
@@ -138,49 +137,39 @@ private extension ContentDetailFeature {
     /// - View Effect
     func handleViewAction(_ action: Action.View, state: inout State) -> Effect<Action> {
         switch action {
-        case .contentDetailViewOnAppeared:
+        case .뷰가_나타났을때:
             guard let id = state.domain.contentId else {
                 return .none
             }
-            return .run { send in
-                await send(.async(.컨텐츠_상세_조회(id: id)))
-            }
-        case .sharedButtonTapped:
+            return .send(.async(.컨텐츠_상세_조회_API(id: id)))
+        case .공유_버튼_눌렀을때:
             state.showShareSheet = true
             return .none
-        case .editButtonTapped:
+        case .수정_버튼_눌렀을때:
             guard let content = state.domain.content else { return .none }
-            return .run { [content] send in
-                await send(.delegate(.editButtonTapped(contentId: content.id)))
-            }
-        case .deleteButtonTapped:
+            return .send(.delegate(.editButtonTapped(contentId: content.id)))
+        case .삭제_버튼_눌렀을때:
             state.showAlert = true
             return .none
-        case .deleteAlertConfirmTapped:
+        case .삭제확인_버튼_눌렀을때:
             guard let id = state.domain.contentId else {
                 return .none
             }
-            return .run { send in
-                await send(.async(.컨텐츠_삭제(id: id)))
-            }
+            return .send(.async(.컨텐츠_삭제_API(id: id)))
         case .binding:
             return .none
-        case .favoriteButtonTapped:
+        case .즐겨찾기_버튼_눌렀을때:
             guard let content = state.domain.content,
                   let favorites = state.domain.content?.favorites else {
                 return .none
             }
-            return .run { send in
-                if favorites {
-                    await send(.async(.즐겨찾기_취소(id: content.id)))
-                } else {
-                    await send(.async(.즐겨찾기(id: content.id)))
-                }
-            }
-        case .링크_공유_완료:
+            return favorites
+            ? .send(.async(.즐겨찾기_취소_API(id: content.id)))
+            : .send(.async(.즐겨찾기_API(id: content.id)))
+        case .링크_공유_완료되었을때:
             state.showShareSheet = false
             return .none
-        case .alertCancelButtonTapped:
+        case .경고시트_해제:
             state.showAlert = false
             return .none
         }
@@ -189,22 +178,22 @@ private extension ContentDetailFeature {
     /// - Inner Effect
     func handleInnerAction(_ action: Action.InnerAction, state: inout State) -> Effect<Action> {
         switch action {
-        case .fetchMetadata(url: let url):
+        case .메타데이터_조회_수행(url: let url):
             return .run { send in
                 /// - 링크에 대한 메타데이터의 제목 및 썸네일 항목 파싱
                 let (title, imageURL) = await swiftSoup.parseOGTitleAndImage(url) {
-                    await send(.inner(.링크미리보기_presented), animation: .pokitDissolve)
+                    await send(.inner(.linkPreview), animation: .pokitDissolve)
                 }
                 await send(
-                    .inner(.parsingInfo(title: title, imageURL: imageURL)),
+                    .inner(.메타데이터_조회_반영(title: title, imageURL: imageURL)),
                     animation: .pokitDissolve
                 )
             }
-        case let .parsingInfo(title: title, imageURL: imageURL):
+        case let .메타데이터_조회_반영(title: title, imageURL: imageURL):
             state.linkTitle = title
             state.linkImageURL = imageURL
             return .none
-        case .parsingURL:
+        case .URL_유효성_확인:
             guard let urlString = state.domain.content?.data,
                   let url = URL(string: urlString) else {
                 /// 🚨 Error Case [1]: 올바른 링크가 아닐 때
@@ -213,20 +202,17 @@ private extension ContentDetailFeature {
                 state.linkImageURL = nil
                 return .none
             }
-            return .send(.inner(.fetchMetadata(url: url)), animation: .pokitDissolve)
-        case .dismissAlert:
-            state.showAlert = false
-            return .none
-        case .컨텐츠_상세_조회(content: let content):
+            return .send(.inner(.메타데이터_조회_수행(url: url)), animation: .pokitDissolve)
+        case .컨텐츠_상세_조회_API_반영(content: let content):
             state.domain.content = content
-            return .run { send in
-                await send(.delegate(.컨텐츠_조회_완료))
-                await send(.inner(.parsingURL))
-            }
-        case .즐겨찾기_갱신(let favorite):
+            return .merge(
+                .send(.delegate(.컨텐츠_조회_완료)),
+                .send(.inner(.URL_유효성_확인))
+            )
+        case .즐겨찾기_API_반영(let favorite):
             state.domain.content?.favorites = favorite
             return .send(.delegate(.즐겨찾기_갱신_완료))
-        case .링크미리보기_presented:
+        case .linkPreview:
             state.showLinkPreview = true
             return .none
         }
@@ -235,22 +221,22 @@ private extension ContentDetailFeature {
     /// - Async Effect
     func handleAsyncAction(_ action: Action.AsyncAction, state: inout State) -> Effect<Action> {
         switch action {
-        case .컨텐츠_상세_조회(id: let id):
+        case .컨텐츠_상세_조회_API(id: let id):
             return .run { send in
                 let contentResponse = try await contentClient.컨텐츠_상세_조회("\(id)").toDomain()
-                await send(.inner(.컨텐츠_상세_조회(content: contentResponse)))
+                await send(.inner(.컨텐츠_상세_조회_API_반영(content: contentResponse)))
             }
-        case .즐겨찾기(id: let id):
+        case .즐겨찾기_API(id: let id):
             return .run { send in
                 let _ = try await contentClient.즐겨찾기("\(id)")
-                await send(.inner(.즐겨찾기_갱신(true)))
+                await send(.inner(.즐겨찾기_API_반영(true)))
             }
-        case .즐겨찾기_취소(id: let id):
+        case .즐겨찾기_취소_API(id: let id):
             return .run { send in
                 try await contentClient.즐겨찾기_취소("\(id)")
-                await send(.inner(.즐겨찾기_갱신(false)))
+                await send(.inner(.즐겨찾기_API_반영(false)))
             }
-        case .컨텐츠_삭제(id: let id):
+        case .컨텐츠_삭제_API(id: let id):
             return .run { send in
                 try await contentClient.컨텐츠_삭제("\(id)")
                 await send(.delegate(.컨텐츠_삭제_완료))
