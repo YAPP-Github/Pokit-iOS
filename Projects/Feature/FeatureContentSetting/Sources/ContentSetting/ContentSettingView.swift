@@ -91,7 +91,11 @@ private extension ContentSettingView {
     var navigationBar: some View {
         PokitHeader(title: store.content == nil ? "링크 추가" : "링크 수정") {
             PokitHeaderItems(placement: .leading) {
-                PokitToolbarButton(.icon(.arrowLeft)) {
+                PokitToolbarButton(.icon(
+                    store.isShareExtension
+                    ? .x
+                    : .arrowLeft
+                )) {
                     send(.뒤로가기_버튼_눌렀을때)
                 }
             }

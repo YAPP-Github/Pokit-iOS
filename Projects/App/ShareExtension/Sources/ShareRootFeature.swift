@@ -42,7 +42,10 @@ struct ShareRootFeature {
         switch action {
         case .intro(.delegate(.moveToTab)):
             guard let url = state.url else { return .none }
-            state.contentSetting = .init(urlText: url.absoluteString)
+            state.contentSetting = .init(
+                urlText: url.absoluteString,
+                isShareExtension: true
+            )
             state.intro = nil
             return .none
         case .intro:
@@ -50,6 +53,8 @@ struct ShareRootFeature {
         case .contentSetting(.delegate(.저장하기_완료)):
             state.context?.completeRequest(returningItems: [])
             return .none
+        case .contentSetting(.delegate(.dismiss)):
+            return .send(.dismiss)
         case .contentSetting:
             return .none
         case let .viewDidLoad(controller, context):
@@ -79,7 +84,6 @@ struct ShareRootFeature {
                 )
                 context?.cancelRequest(withError: error)
             }
-            
             return .none
         }
     }
