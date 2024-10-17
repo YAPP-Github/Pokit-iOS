@@ -51,7 +51,9 @@ struct ShareRootFeature {
         case .intro:
             return .none
         case .contentSetting(.delegate(.저장하기_완료)):
-            state.context?.completeRequest(returningItems: [])
+            state.controller?.dismiss(animated: true) { [context = state.context] in
+                context?.completeRequest(returningItems: [])
+            }
             return .none
         case .contentSetting(.delegate(.dismiss)):
             return .send(.dismiss)
