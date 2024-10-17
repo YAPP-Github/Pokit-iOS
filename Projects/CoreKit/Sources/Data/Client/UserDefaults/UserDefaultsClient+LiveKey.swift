@@ -11,20 +11,20 @@ import Dependencies
 
 extension UserDefaultsClient: DependencyKey {
     public static var liveValue: Self = {
-        let defaults = { UserDefaults.standard }
+        let defaults = { UserDefaults(suiteName: "group.com.pokitmons.pokit") }
         
         return Self(
-            boolKey: { defaults().bool(forKey: $0.rawValue) },
-            stringKey: { defaults().string(forKey: $0.rawValue) },
-            stringArrayKey: { defaults().stringArray(forKey: $0.rawValue) },
+            boolKey: { defaults()?.bool(forKey: $0.rawValue) ?? false },
+            stringKey: { defaults()?.string(forKey: $0.rawValue) },
+            stringArrayKey: { defaults()?.stringArray(forKey: $0.rawValue) },
             
-            removeBool: { defaults().removeObject(forKey: $0.rawValue) },
-            removeString: { defaults().removeObject(forKey: $0.rawValue) },
-            removeStringArray: { defaults().removeObject(forKey: $0.rawValue) },
+            removeBool: { defaults()?.removeObject(forKey: $0.rawValue) },
+            removeString: { defaults()?.removeObject(forKey: $0.rawValue) },
+            removeStringArray: { defaults()?.removeObject(forKey: $0.rawValue) },
             
-            setBool: { defaults().set($0, forKey: $1.rawValue) },
-            setString: { defaults().set($0, forKey: $1.rawValue) },
-            setStringArray: { defaults().set($0, forKey: $1.rawValue) }
+            setBool: { defaults()?.set($0, forKey: $1.rawValue) },
+            setString: { defaults()?.set($0, forKey: $1.rawValue) },
+            setStringArray: { defaults()?.set($0, forKey: $1.rawValue) }
         )
     }()
 }
