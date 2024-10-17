@@ -6,25 +6,44 @@
 //
 
 import UIKit
+import SwiftUI
 import Social
+import UniformTypeIdentifiers
+
+import ComposableArchitecture
+import FeatureContentSetting
 
 class ShareViewController: SLComposeServiceViewController {
-
-    override func isContentValid() -> Bool {
-        // Do validation of contentText and/or NSExtensionContext attachments here
-        return true
+    let store = Store(initialState: ShareRootFeature.State()) {
+        ShareRootFeature()
     }
-
-    override func didSelectPost() {
-        // This is called after the user selects Post. Do the upload of contentText and/or NSExtensionContext attachments.
     
-        // Inform the host that we're done, so it un-blocks its UI. Note: Alternatively you could call super's -didSelectPost, which will similarly complete the extension context.
-        self.extensionContext!.completeRequest(returningItems: [], completionHandler: nil)
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        store.send(.viewDidLoad(extensionContext))
+        
+        let hostingController = UIHostingController(
+            rootView: ShareRootView(store: store)
+        )
+        addChild(hostingController)
+        view.addSubview(hostingController.view)
+        hostingController.view.frame = view.bounds
+        hostingController.didMove(toParent: self)
+        
+        guard let item = extensionContext?.inputItems.first as? NSExtensionItem,
+              let itemProvider = item.attachments?.first,
+              itemProvider.hasItemConformingToTypeIdentifier(UTType.url.identifier) else {
+            return
+        }
+        
+        Task { @MainActor in
+            let urlItem = try await itemProvider.loadItem(forTypeIdentifier: UTType.url.identifier)
+            guard let url = urlItem as? URL else { return }
+            store.send(.parseURL(url))
+        }
     }
-
-    override func configurationItems() -> [Any]! {
-        // To add configuration options via table cells at the bottom of the sheet, return an array of SLComposeSheetConfigurationItem here.
-        return []
+    
+    override func viewDidAppear(_ animated: Bool) {
+        textView.resignFirstResponder()
     }
-
 }
