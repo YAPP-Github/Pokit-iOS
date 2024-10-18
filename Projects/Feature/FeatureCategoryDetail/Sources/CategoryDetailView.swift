@@ -45,7 +45,7 @@ public extension CategoryDetailView {
                 if let shareURL = URL(string: content.data) {
                     PokitShareSheet(
                         items: [shareURL],
-                        completion: { send(.링크_공유_완료) }
+                        completion: { send(.링크_공유_완료되었을때) }
                     )
                     .presentationDetents([.medium, .large])
                 }
@@ -55,7 +55,7 @@ public extension CategoryDetailView {
                     PokitCategorySheet(
                         selectedItem: nil,
                         list: categories.elements,
-                        action: { send(.categorySelected($0)) }
+                        action: { send(.카테고리_선택했을때($0)) }
                     )
                     .presentationDragIndicator(.visible)
                 } else {
@@ -77,7 +77,7 @@ public extension CategoryDetailView {
                     delegateSend: { store.send(.scope(.filterBottomSheet($0))) }
                 )
             }
-            .task { await send(.onAppear).finish() }
+            .task { await send(.뷰가_나타났을때).finish() }
         }
     }
 }
@@ -92,7 +92,10 @@ private extension CategoryDetailView {
                 )
             }
             PokitHeaderItems(placement: .trailing) {
-                PokitToolbarButton(.icon(.kebab), action: { send(.categoryKebobButtonTapped(.포킷삭제, selectedItem: nil)) })
+                PokitToolbarButton(
+                    .icon(.kebab),
+                    action: { send(.카테고리_케밥_버튼_눌렀을때(.포킷삭제, selectedItem: nil)) }
+                )
             }
         }
         .padding(.top, 8)
@@ -102,7 +105,7 @@ private extension CategoryDetailView {
         VStack(spacing: 4) {
             HStack(spacing: 8) {
                 /// cateogry title
-                Button(action: { send(.categorySelectButtonTapped) }) {
+                Button(action: { send(.카테고리_선택_버튼_눌렀을때) }) {
                     Text(store.category.categoryName)
                         .foregroundStyle(.pokit(.text(.primary)))
                         .pokitFont(.title1)
@@ -125,7 +128,7 @@ private extension CategoryDetailView {
                     state: .filled(.primary),
                     size: .small,
                     shape: .round,
-                    action: { send(.filterButtonTapped) }
+                    action: { send(.필터_버튼_눌렀을때) }
                 )
             }
         }
@@ -154,8 +157,8 @@ private extension CategoryDetailView {
                                 
                                 PokitLinkCard(
                                     link: content,
-                                    action: { send(.contentItemTapped(content)) },
-                                    kebabAction: { send(.categoryKebobButtonTapped(.링크삭제, selectedItem: content)) }
+                                    action: { send(.컨텐츠_항목_눌렀을때(content)) },
+                                    kebabAction: { send(.카테고리_케밥_버튼_눌렀을때(.링크삭제, selectedItem: content)) }
                                 )
                                 .divider(isFirst: isFirst, isLast: isLast)
                                 .pokitScrollTransition(.opacity)
