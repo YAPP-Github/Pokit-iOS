@@ -39,7 +39,7 @@ public extension CategorySharingView {
                     store.error?.title ?? "에러",
                     message: store.error?.message,
                     confirmText: "확인",
-                    action: { send(.경고_확인버튼_클릭) }
+                    action: { send(.경고_확인버튼_눌렀을때) }
                 )
             }
         }
@@ -52,7 +52,7 @@ private extension CategorySharingView {
             PokitHeaderItems(placement: .leading) {
                 PokitToolbarButton(
                     .icon(.arrowLeft),
-                    action: { send(.뒤로가기버튼_클릭) }
+                    action: { send(.dismiss) }
                 )
             }
         }
@@ -79,7 +79,7 @@ private extension CategorySharingView {
                 state: .filled(.primary),
                 size: .medium,
                 shape: .rectangle,
-                action: { send(.저장버튼_클릭) }
+                action: { send(.저장_버튼_눌렀을때) }
             )
         }
     }
@@ -107,7 +107,7 @@ private extension CategorySharingView {
                                 
                                 PokitLinkCard(
                                     link: content,
-                                    action: { send(.컨텐츠_아이템_클릭(content)) }
+                                    action: { send(.컨텐츠_항목_눌렀을때(content)) }
                                 )
                                 .divider(isFirst: isFirst, isLast: isLast)
                                 .pokitScrollTransition(.opacity)
@@ -116,7 +116,7 @@ private extension CategorySharingView {
                             if store.hasNext {
                                 PokitLoading()
                                     .padding(.top, 12)
-                                    .onAppear { send(.다음페이지_로딩_onAppear) }
+                                    .onAppear { send(.페이지_로딩중일때) }
                             }
                         }
                     }
