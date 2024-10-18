@@ -34,16 +34,15 @@ struct ShareRootFeature {
         case intro(IntroFeature.Action)
         case contentSetting(ContentSettingFeature.Action)
         case viewDidLoad(UIViewController?, NSExtensionContext?)
-        case parseURL(URL)
+        case parseURL(URL?)
         case dismiss
     }
     
     private func core(into state: inout State, action: Action) -> Effect<Action> {
         switch action {
         case .intro(.delegate(.moveToTab)):
-            guard let url = state.url else { return .none }
             state.contentSetting = .init(
-                urlText: url.absoluteString,
+                urlText: state.url?.absoluteString,
                 isShareExtension: true
             )
             state.intro = nil
@@ -75,16 +74,15 @@ struct ShareRootFeature {
                     urlItem = try await itemProvider.loadItem(
                         forTypeIdentifier: UTType.url.identifier
                     )
-                    guard let url = urlItem as? URL else { return }
+                    let url = urlItem as? URL
                     await send(.parseURL(url))
                     
                 } else if itemProvider.hasItemConformingToTypeIdentifier(UTType.plainText.identifier) {
                     urlItem = try await itemProvider.loadItem(
                         forTypeIdentifier: UTType.plainText.identifier
                     )
-                    guard let urlString = urlItem as? String,
-                          let url = URL(string: urlString) else { return }
-                    await send(.parseURL(url))
+                    guard let urlString = urlItem as? String else { return }
+                    await send(.parseURL(URL(string: urlString)))
                 }
             }
         case let .parseURL(url):
