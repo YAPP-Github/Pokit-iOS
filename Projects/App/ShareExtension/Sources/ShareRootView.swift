@@ -25,15 +25,6 @@ struct ShareRootView: View {
             Group {
                 if let store = store.scope(state: \.intro, action: \.intro) {
                     IntroView(store: store)
-                        .pokitNavigationBar {
-                            PokitHeader {
-                                PokitHeaderItems(placement: .leading) {
-                                    PokitToolbarButton(.icon(.x)) {
-                                        self.store.send(.dismiss)
-                                    }
-                                }
-                            }
-                        }
                 } else if let store = store.scope(state: \.contentSetting, action: \.contentSetting) {
                     ContentSettingView(store: store)
                 }
