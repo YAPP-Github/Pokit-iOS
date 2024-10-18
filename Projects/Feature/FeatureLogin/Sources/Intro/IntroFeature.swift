@@ -6,7 +6,6 @@
 
 import ComposableArchitecture
 import CoreKit
-import UIKit
 
 @Reducer
 public struct IntroFeature {
@@ -67,7 +66,9 @@ private extension IntroFeature {
             }
             
         case .delegate(.loginNeeded):
-            return .send(._sceneChange(.login()), animation: .smooth)
+            return .run { send in
+                await send(._sceneChange(.login()), animation: .smooth)
+            }
             
         default: return .none
         }

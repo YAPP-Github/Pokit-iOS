@@ -6,12 +6,12 @@
 //
 
 import Foundation
+import UIKit
 import UniformTypeIdentifiers
 
 import ComposableArchitecture
 import FeatureLogin
 import FeatureContentSetting
-import UIKit
 import CoreKit
 import Util
 
