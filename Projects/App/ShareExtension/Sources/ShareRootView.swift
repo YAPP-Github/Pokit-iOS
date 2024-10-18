@@ -10,11 +10,13 @@ import SwiftUI
 import ComposableArchitecture
 import FeatureLogin
 import FeatureContentSetting
+import FeatureCategorySetting
 import DSKit
 
 struct ShareRootView: View {
     /// - Properties
-    private let store: StoreOf<ShareRootFeature>
+    @Perception.Bindable
+    private var store: StoreOf<ShareRootFeature>
     
     init(store: StoreOf<ShareRootFeature>) {
         self.store = store
@@ -26,7 +28,14 @@ struct ShareRootView: View {
                 if let store = store.scope(state: \.intro, action: \.intro) {
                     IntroView(store: store)
                 } else if let store = store.scope(state: \.contentSetting, action: \.contentSetting) {
-                    ContentSettingView(store: store)
+                    NavigationStack(path: $store.scope(state: \.path, action: \.path)) {
+                        ContentSettingView(store: store)
+                    } destination: { path in
+                        switch path.case {
+                        case let .categorySetting(store):
+                            PokitCategorySettingView(store: store)
+                        }
+                    }
                 }
             }
         }

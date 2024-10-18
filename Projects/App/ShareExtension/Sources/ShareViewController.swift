@@ -19,28 +19,24 @@ class ShareViewController: SLComposeServiceViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         let hostingController = UIHostingController(
             rootView: ShareRootView(store: store)
         )
         hostingController.presentationController?.delegate = self
         hostingController.modalPresentationStyle = .automatic
-        present(hostingController, animated: true, completion: nil)
-
-        store.send(.viewDidLoad(self, extensionContext))
+        present(hostingController, animated: true)
+        
+        store.send(.controller(.viewDidLoad(self, extensionContext)))
     }
     
     override func viewDidAppear(_ animated: Bool) {
-        textView.resignFirstResponder()
+        store.send(.controller(.viewDidAppear))
     }
 }
 
 extension ShareViewController: UIAdaptivePresentationControllerDelegate {
     func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
-        let error =  NSError(
-            domain: "com.pokitmons.pokit.ShareExtension",
-            code: -1,
-            userInfo: [NSLocalizedDescriptionKey: "User cancelled the action."]
-        )
-        extensionContext?.cancelRequest(withError: error)
+        store.send(.controller(.presentationControllerDidDismiss))
     }
 }
