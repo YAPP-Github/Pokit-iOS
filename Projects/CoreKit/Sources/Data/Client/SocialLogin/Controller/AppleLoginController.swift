@@ -81,7 +81,7 @@ public final class AppleLoginController: NSObject, ASAuthorizationControllerDele
 
 extension AppleLoginController {
     func makeJWT() -> String {
-        guard let appleKey = Bundle.main.object(forInfoDictionaryKey: "AppleKeyID") as? String else { return "" }
+        guard let appleKey = Bundle.module.object(forInfoDictionaryKey: "AppleKeyID") as? String else { return "" }
         let header = Header(kid: appleKey)
         struct PokitClaims: Claims {
             let iss: String
@@ -93,7 +93,7 @@ extension AppleLoginController {
         
         let iat = Int(Date().timeIntervalSince1970)
         let exp = iat + 3600
-        guard let iss = Bundle.main.object(forInfoDictionaryKey: "TeamID") as? String else { return "" }
+        guard let iss = Bundle.module.object(forInfoDictionaryKey: "TeamID") as? String else { return "" }
         let claims = PokitClaims(
             iss: iss,
             iat: iat,

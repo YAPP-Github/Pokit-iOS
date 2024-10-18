@@ -21,7 +21,7 @@ platform :ios do
 
     match(
     type: "appstore",
-    app_identifier:["com.pokitmons.pokit"],
+    app_identifier:["com.pokitmons.pokit", "com.pokitmons.pokit.ShareExtension"],
     readonly: true
     )
   end
@@ -31,7 +31,7 @@ platform :ios do
 
     match(
     type: "development",
-    app_identifier:["com.pokitmons.pokit"],
+    app_identifier:["com.pokitmons.pokit", "com.pokitmons.pokit.ShareExtension"],
     readonly: true
     )
   end

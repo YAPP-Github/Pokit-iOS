@@ -21,6 +21,9 @@ extension SocialLoginClient: DependencyKey {
             },
             getClientSceret: {
                 return appleLoginController.makeJWT()
+            },
+            setRootViewController: { rootViewController in
+                return googleLoginController.setRootViewController(rootViewController)
             }
         )
     }()

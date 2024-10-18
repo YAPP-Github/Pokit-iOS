@@ -15,7 +15,8 @@ extension SocialLoginClient: TestDependencyKey {
         Self(
             appleLogin: { .appleMock },
             googleLogin: { .googleMock },
-            getClientSceret: { "" }
+            getClientSceret: { "" },
+            setRootViewController: { _ in }
         )
     }()
 }

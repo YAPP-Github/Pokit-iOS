@@ -33,6 +33,7 @@ extension KeychainClient: DependencyKey {
 }
 private struct KeychainController {
     let service: String = "Pokit"
+    let group: String = "group.com.pokitmons.pokit"
 
     func create(_ data: Data?, key: KeychainKey) {
         guard let data = data else {
@@ -44,7 +45,8 @@ private struct KeychainController {
             kSecClass: kSecClassGenericPassword,
             kSecAttrService: service,
             kSecAttrAccount: key.rawValue,
-            kSecValueData: data
+            kSecValueData: data,
+            kSecAttrAccessGroup as String: group
         ]
 
         let status = SecItemAdd(query, nil)
@@ -63,7 +65,8 @@ private struct KeychainController {
             kSecAttrService: service,
             kSecAttrAccount: key.rawValue,
             kSecMatchLimit: kSecMatchLimitOne,
-            kSecReturnData: true
+            kSecReturnData: true,
+            kSecAttrAccessGroup as String: group
         ]
 
         var result: AnyObject?
@@ -90,7 +93,8 @@ private struct KeychainController {
         let query: NSDictionary = [
             kSecClass: kSecClassGenericPassword,
             kSecAttrService: service,
-            kSecAttrAccount: key.rawValue
+            kSecAttrAccount: key.rawValue,
+            kSecAttrAccessGroup as String: group
         ]
         let attributes: NSDictionary = [
             kSecValueData: data
@@ -110,7 +114,8 @@ private struct KeychainController {
         let query: NSDictionary = [
             kSecClass: kSecClassGenericPassword,
             kSecAttrService: service,
-            kSecAttrAccount: key.rawValue
+            kSecAttrAccount: key.rawValue,
+            kSecAttrAccessGroup as String: group
         ]
 
         let status = SecItemDelete(query)
