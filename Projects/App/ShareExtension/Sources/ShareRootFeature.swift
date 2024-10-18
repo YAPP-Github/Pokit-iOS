@@ -64,15 +64,28 @@ struct ShareRootFeature {
             state.controller = controller
             socialLogin.setRootViewController(controller)
             guard let item = context?.inputItems.first as? NSExtensionItem,
-                  let itemProvider = item.attachments?.first,
-                  itemProvider.hasItemConformingToTypeIdentifier(UTType.url.identifier) else {
+                  let itemProvider = item.attachments?.first else {
                 return .none
             }
             
             return .run { send in
-                let urlItem = try await itemProvider.loadItem(forTypeIdentifier: UTType.url.identifier)
-                guard let url = urlItem as? URL else { return }
-                await send(.parseURL(url))
+                var urlItem: (any NSSecureCoding)? = nil
+                
+                if itemProvider.hasItemConformingToTypeIdentifier(UTType.url.identifier) {
+                    urlItem = try await itemProvider.loadItem(
+                        forTypeIdentifier: UTType.url.identifier
+                    )
+                    guard let url = urlItem as? URL else { return }
+                    await send(.parseURL(url))
+                    
+                } else if itemProvider.hasItemConformingToTypeIdentifier(UTType.plainText.identifier) {
+                    urlItem = try await itemProvider.loadItem(
+                        forTypeIdentifier: UTType.plainText.identifier
+                    )
+                    guard let urlString = urlItem as? String,
+                          let url = URL(string: urlString) else { return }
+                    await send(.parseURL(url))
+                }
             }
         case let .parseURL(url):
             state.url = url
