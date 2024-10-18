@@ -45,7 +45,7 @@ public extension PokitCategorySettingView {
                     delegateSend: { store.send(.scope(.profile($0))) }
                 )
             }
-            .task { await send(.onAppear).finish() }
+            .task { await send(.뷰가_나타났을때).finish() }
         }
     }
 }
@@ -101,7 +101,7 @@ private extension PokitCategorySettingView {
                             .foregroundStyle(
                                 .pokit(.icon(.inverseWh))
                             )
-                        Button(action: { send(.profileSettingButtonTapped) }) {
+                        Button(action: { send(.프로필_설정_버튼_눌렀을때) }) {
                             Image(.icon(.edit))
                                 .resizable()
                                 .frame(width: 18, height: 18)
@@ -166,7 +166,7 @@ private extension PokitCategorySettingView {
             state: !store.categoryName.isEmpty && store.selectedProfile != nil
             ? .filled(.primary)
             : .disable,
-            action: { send(.saveButtonTapped) }
+            action: { send(.저장_버튼_눌렀을때) }
         )
     }
     /// 내포킷 Item

@@ -45,7 +45,7 @@ public extension ProfileBottomSheet {
                         transaction: .init(animation: .pokitDissolve)
                     ) { phase in
                         if let image = phase.image {
-                            Button(action: { delegateSend?(.imageSelected(item)) }) {
+                            Button(action: { delegateSend?(.이미지_선택했을때(item)) }) {
                                 image
                                     .resizable()
                                     .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
@@ -91,7 +91,7 @@ public extension ProfileBottomSheet {
 //MARK: - Delegate
 public extension ProfileBottomSheet {
     enum Delegate: Equatable {
-        case imageSelected(BaseCategoryImage)
+        case 이미지_선택했을때(BaseCategoryImage)
     }
 }
 //MARK: - Preview
