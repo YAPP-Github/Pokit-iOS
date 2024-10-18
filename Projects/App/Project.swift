@@ -52,7 +52,7 @@ let projectTarget: Target = .target(
     sources: ["Sources/**"],
     resources: ["Resources/**"],
     entitlements: .file(path: .relativeToRoot("Projects/App/Resources/Pokit-iOS.entitlements")),
-    dependencies: features + [
+    dependencies: [
         // TODO: 의존성 추가
         .external(name: "FirebaseMessaging"),
         .target(shareExtensionTarget)
