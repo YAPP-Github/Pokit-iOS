@@ -91,6 +91,7 @@ struct ShareRootFeature {
             return .none
         case .dismiss:
             state.controller?.dismiss(animated: true) { [context = state.context] in
+                /// 🚨 Error Case [1]: 사용자가 취소한 경우
                 let error =  NSError(
                     domain: "com.pokitmons.pokit.ShareExtension",
                     code: -1,
@@ -121,6 +122,7 @@ struct ShareRootFeature {
                     await send(.inner(.URL_파싱_수행_반영(url)))
                     
                 } else if itemProvider.hasItemConformingToTypeIdentifier(UTType.plainText.identifier) {
+                    /// 🚨 Error Case [1]: 유튜브 링크같이 url자체로 파싱이 안되는 경우
                     urlItem = try await itemProvider.loadItem(
                         forTypeIdentifier: UTType.plainText.identifier
                     )
@@ -173,6 +175,7 @@ struct ShareRootFeature {
             state.controller?.textView.resignFirstResponder()
             return .none
         case .presentationControllerDidDismiss:
+            /// 🚨 Error Case [2]: 사용자가 시트를 내려서 취소한 경우
             let error =  NSError(
                 domain: "com.pokitmons.pokit.ShareExtension",
                 code: -1,

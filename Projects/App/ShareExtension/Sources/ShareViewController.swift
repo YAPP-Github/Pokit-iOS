@@ -5,7 +5,6 @@
 //  Created by 김도형 on 10/16/24.
 //
 
-import UIKit
 import SwiftUI
 import Social
 
