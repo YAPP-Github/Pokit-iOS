@@ -25,7 +25,11 @@ let shareExtensionTarget: Target = .target(
     sources: ["ShareExtension/Sources/**"],
     resources: ["ShareExtension/Resources/**"],
     entitlements: .file(path: .relativeToRoot("Projects/App/ShareExtension/ShareExtension.entitlements")),
-    dependencies: features,
+    dependencies: [
+        .project(target: "FeatureLogin", path: .relativeToRoot("Projects/Feature")),
+        .project(target: "FeatureContentSetting", path: .relativeToRoot("Projects/Feature")),
+        .project(target: "FeatureCategorySetting", path: .relativeToRoot("Projects/Feature"))
+    ],
     settings: .settings(
         base: [
             "OTHER_LDFLAGS": "$(inherited) -ObjC",
@@ -52,7 +56,7 @@ let projectTarget: Target = .target(
     sources: ["Sources/**"],
     resources: ["Resources/**"],
     entitlements: .file(path: .relativeToRoot("Projects/App/Resources/Pokit-iOS.entitlements")),
-    dependencies: [
+    dependencies: features + [
         // TODO: 의존성 추가
         .external(name: "FirebaseMessaging"),
         .target(shareExtensionTarget)
