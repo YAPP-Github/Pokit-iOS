@@ -6,7 +6,6 @@
 
 import ComposableArchitecture
 import CoreKit
-import FeatureLogin
 
 @Reducer
 public struct IntroFeature {

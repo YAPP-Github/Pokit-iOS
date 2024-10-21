@@ -28,10 +28,10 @@ public struct LoginFeature {
     public struct State {
         var path = StackState<Path.State>()
 
-        var nickName: String?
-        var interests: [String]?
+        var nickName: String? = nil
+        var interests: [String]? = nil
         
-        public init() {}
+        public init() { }
     }
     /// - Action
     public enum Action: FeatureAction, ViewAction {

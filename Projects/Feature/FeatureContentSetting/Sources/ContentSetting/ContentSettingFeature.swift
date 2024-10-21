@@ -31,9 +31,11 @@ public struct ContentSettingFeature {
     public struct State: Equatable {
         public init(
             contentId: Int? = nil,
-            urlText: String? = nil
+            urlText: String? = nil,
+            isShareExtension: Bool = false
         ) {
             self.domain = .init(contentId: contentId, data: urlText)
+            self.isShareExtension = isShareExtension
         }
         fileprivate var domain: ContentSetting
         var urlText: String {
@@ -72,6 +74,7 @@ public struct ContentSettingFeature {
         var saveIsLoading: Bool = false
         var link: String?
         var showLinkPreview = false
+        var isShareExtension: Bool
     }
 
     /// - Action
@@ -124,6 +127,7 @@ public struct ContentSettingFeature {
         public enum DelegateAction: Equatable {
             case 저장하기_완료
             case 포킷추가하기
+            case dismiss
         }
     }
 
@@ -206,7 +210,9 @@ private extension ContentSettingFeature {
             
             return .send(.delegate(.포킷추가하기))
         case .뒤로가기_버튼_눌렀을때:
-            return .run { _ in await dismiss() }
+            return state.isShareExtension
+            ? .send(.delegate(.dismiss))
+            : .run { _ in await dismiss() }
         case .링크복사_버튼_눌렀을때:
             return .send(.inner(.링크복사_반영(state.link)))
         }
