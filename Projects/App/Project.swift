@@ -72,6 +72,17 @@ let projectTarget: Target = .target(
     )
 )
 
+let appTestTarget: Target = .makeTarget(
+    name: "AppTests",
+    product: .unitTests,
+    bundleName: "AppTests",
+    infoPlist: .dictionary(["ENABLE_TESTING_SEARCH_PATHS": "YES"]),
+    resources: ["AppTests/Resources/**"],
+    dependencies: [
+        .target(projectTarget)
+    ]
+)
+
 let project = Project(
     name: "App",
     options: .options(
@@ -80,6 +91,7 @@ let project = Project(
     ),
     targets: [
         projectTarget,
+        appTestTarget,
         shareExtensionTarget
     ]
 )
