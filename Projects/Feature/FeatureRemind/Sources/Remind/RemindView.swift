@@ -137,25 +137,15 @@ extension RemindView {
         Button(action: { send(.컨텐츠_항목_눌렀을때(content: content)) }) {
             recommendedContentCellLabel(content: content)
         }
-        
     }
     
     @ViewBuilder
     private func recommendedContentCellLabel(content: BaseContentItem) -> some View {
         ZStack(alignment: .bottom) {
-            LazyImage(url: .init(string: content.thumbNail)) { phase in
-                if let image = phase.image {
-                    image
-                        .resizable()
-                } else {
-                    ZStack {
-                        Color.pokit(.bg(.disable))
-                        
-                        PokitSpinner()
-                            .foregroundStyle(.pokit(.icon(.brand)))
-                            .frame(width: 48, height: 48)
-                    }
-                }
+            if let url = URL(string: content.thumbNail) {
+                recommendedContentCellImage(url: url)
+            } else {
+                imagePlaceholder
             }
             
             LinearGradient(
@@ -203,6 +193,34 @@ extension RemindView {
         }
         .frame(width: 216, height: 194)
         .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+    }
+    
+    @MainActor
+    private func recommendedContentCellImage(url: URL) -> some View {
+        var request = URLRequest(url: url)
+        request.setValue(
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36",
+            forHTTPHeaderField: "User-Agent"
+        )
+        
+        return LazyImage(request: .init(urlRequest: request)) { phase in
+            if let image = phase.image {
+                image
+                    .resizable()
+            } else {
+                imagePlaceholder
+            }
+        }
+    }
+    
+    private var imagePlaceholder: some View {
+        ZStack {
+            Color.pokit(.bg(.disable))
+            
+            PokitSpinner()
+                .foregroundStyle(.pink)
+                .frame(width: 48, height: 48)
+        }
     }
     
     @ViewBuilder
