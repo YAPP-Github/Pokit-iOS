@@ -311,6 +311,7 @@ private extension ContentSettingFeature {
             }
             return .none
         case .선택한_포킷_인메모리_삭제:
+            guard UIDevice.isPhone else { return .none }
             state.selectedPokit = nil
             return .none
         }
