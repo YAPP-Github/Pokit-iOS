@@ -128,6 +128,8 @@ public struct PokitRootFeature {
             /// 링크상세로 이동
             case contentDetailTapped(BaseContentItem)
             case 미분류_카테고리_컨텐츠_조회
+            
+            case 카테고리_삭제
         }
     }
 
@@ -332,7 +334,10 @@ private extension PokitRootFeature {
     func handleAsyncAction(_ action: Action.AsyncAction, state: inout State) -> Effect<Action> {
         switch action {
         case let .카테고리_삭제_API(categoryId):
-            return .run { _ in try await categoryClient.카테고리_삭제(categoryId) }
+            return .run { send in
+                try await categoryClient.카테고리_삭제(categoryId)
+                await send(.delegate(.카테고리_삭제))
+            }
             
         case .미분류_카테고리_페이징_조회_API:
             state.domain.pageable.page += 1
