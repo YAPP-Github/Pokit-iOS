@@ -35,20 +35,30 @@ public extension PokitSplitView {
         WithPerceptionTracking {
             NavigationSplitView(columnVisibility: $store.columnVisibility) {
                 ContentSettingView(store: store.scope(state: \.링크추가및수정, action: \.링크추가및수정))
-            } content: {
-                PokitRootView(store: store.scope(state: \.포킷, action: \.포킷))
-                    .pokitNavigationBar { pokitNavigationBar }
+                    .toolbar(.hidden, for: .navigationBar)
             } detail: {
-                if let store = store.scope(state: \.카테고리상세, action: \.카테고리상세) {
-                    CategoryDetailView(store: store)
-                }
+                detail
+                    .toolbar(.hidden, for: .navigationBar)
             }
-            
         }
     }
 }
 //MARK: - Configure View
 private extension PokitSplitView {
+    var detail: some View {
+        HStack(spacing: 0) {
+            PokitRootView(store: store.scope(state: \.포킷, action: \.포킷))
+                .pokitNavigationBar { pokitNavigationBar }
+                .frame(width: 400)
+            
+            if let store = store.scope(state: \.카테고리상세, action: \.카테고리상세) {
+                CategoryDetailView(store: store)
+            } else {
+                Spacer()
+            }
+        }
+    }
+    
     var pokitNavigationBar: some View {
         PokitHeader {
             PokitHeaderItems(placement: .leading) {
@@ -59,6 +69,13 @@ private extension PokitSplitView {
             }
             
             PokitHeaderItems(placement: .trailing) {
+                if store.columnVisibility == .detailOnly {
+                    PokitToolbarButton(
+                        .icon(.edit),
+                        action: { send(.링크추가_버튼_눌렀을때) }
+                    )
+                }
+                
                 PokitToolbarButton(
                     .icon(.search),
                     action: { send(.검색_버튼_눌렀을때) }

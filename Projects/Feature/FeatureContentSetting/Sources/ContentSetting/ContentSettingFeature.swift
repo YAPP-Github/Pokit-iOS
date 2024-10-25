@@ -212,6 +212,9 @@ private extension ContentSettingFeature {
             
             return .send(.delegate(.포킷추가하기))
         case .뒤로가기_버튼_눌렀을때:
+            guard UIDevice.isPhone else {
+                return .send(.delegate(.dismiss))
+            }
             return state.isShareExtension
             ? .send(.delegate(.dismiss))
             : .run { _ in await dismiss() }
