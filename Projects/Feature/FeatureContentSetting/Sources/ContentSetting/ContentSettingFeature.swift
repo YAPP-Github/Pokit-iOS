@@ -4,7 +4,7 @@
 //
 //  Created by 김도형 on 7/17/24.
 
-import UIKit
+import Foundation
 
 import ComposableArchitecture
 import DSKit
@@ -26,6 +26,8 @@ public struct ContentSettingFeature {
     private var contentClient
     @Dependency(CategoryClient.self)
     private var categoryClient
+    @Dependency(DeviceClient.self)
+    private var deviceClient
     /// - State
     @ObservableState
     public struct State: Equatable {
@@ -212,7 +214,7 @@ private extension ContentSettingFeature {
             
             return .send(.delegate(.포킷추가하기))
         case .뒤로가기_버튼_눌렀을때:
-            guard UIDevice.isPhone else {
+            guard deviceClient.isPhone() else {
                 return .send(.delegate(.dismiss))
             }
             return state.isShareExtension
@@ -316,7 +318,7 @@ private extension ContentSettingFeature {
             }
             return .none
         case .선택한_포킷_인메모리_삭제:
-            guard UIDevice.isPhone else { return .none }
+            guard deviceClient.isPhone() else { return .none }
             state.selectedPokit = nil
             return .none
         }
