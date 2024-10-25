@@ -16,6 +16,7 @@ import Util
 public struct RootFeature {
     @Dependency(UserDefaultsClient.self) var userDefaults
     @Dependency(UserClient.self) var userClient
+    @Dependency(DeviceClient.self) var deviceClient
     @Reducer(state: .equatable)
     public enum Destination {
         
@@ -48,7 +49,11 @@ public struct RootFeature {
             return .run { send in
                 
                 guard let fcmToken = userDefaults.stringKey(.fcmToken) else {
-                    await send(._sceneChange(UIDevice.isPhone ? .mainTab() : .mainTabSplit()))
+                    await send(._sceneChange(
+                        deviceClient.isPhone()
+                        ? .mainTab()
+                        : .mainTabSplit())
+                    )
                     return
                 }
                 let fcmRequest = FCMRequest(token: fcmToken)
@@ -56,7 +61,11 @@ public struct RootFeature {
                 
                 await userDefaults.setString(user.token, .fcmToken)
                 await userDefaults.setString("\(user.userId)", .userId)
-                await send(._sceneChange(UIDevice.isPhone ? .mainTab() : .mainTabSplit()))
+                await send(._sceneChange(
+                    deviceClient.isPhone()
+                    ? .mainTab()
+                    : .mainTabSplit()
+                ))
             }
             
         case .mainTab(.delegate(.로그아웃)),
