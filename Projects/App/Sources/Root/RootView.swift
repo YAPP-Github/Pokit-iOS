@@ -33,6 +33,10 @@ extension RootView {
                     if let store = store.scope(state: \.mainTab, action: \.mainTab) {
                         MainTabView(store: store)
                     }
+                case .mainTabSplit:
+                    if let store = store.scope(state: \.mainTabSplit, action: \.mainTabSplit) {
+                        MainTabSplitView(store: store)
+                    }
                 }
             }
             .background(.pokit(.bg(.base)))

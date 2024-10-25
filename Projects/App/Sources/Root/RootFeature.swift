@@ -5,11 +5,12 @@
 //  Created by 김민호 on 7/4/24.
 //
 
-import Foundation
+import SwiftUI
 
 import ComposableArchitecture
 import FeatureLogin
 import CoreKit
+import Util
 
 @Reducer
 public struct RootFeature {
@@ -24,6 +25,7 @@ public struct RootFeature {
     public enum State {
         case intro(IntroFeature.State = .init())
         case mainTab(MainTabFeature.State = .init())
+        case mainTabSplit(MainTabSplitFeature.State = .init())
         
         public init() { self = .intro() }
     }
@@ -32,6 +34,7 @@ public struct RootFeature {
         case _sceneChange(State)
         case intro(IntroFeature.Action)
         case mainTab(MainTabFeature.Action)
+        case mainTabSplit(MainTabSplitFeature.Action)
     }
     
     public init() {}
@@ -43,8 +46,9 @@ public struct RootFeature {
             return .none
         case .intro(.delegate(.moveToTab)):
             return .run { send in
+                
                 guard let fcmToken = userDefaults.stringKey(.fcmToken) else {
-                    await send(._sceneChange(.mainTab()))
+                    await send(._sceneChange(UIDevice.isPhone ? .mainTab() : .mainTabSplit()))
                     return
                 }
                 let fcmRequest = FCMRequest(token: fcmToken)
@@ -52,14 +56,14 @@ public struct RootFeature {
                 
                 await userDefaults.setString(user.token, .fcmToken)
                 await userDefaults.setString("\(user.userId)", .userId)
-                await send(._sceneChange(.mainTab()))
+                await send(._sceneChange(UIDevice.isPhone ? .mainTab() : .mainTabSplit()))
             }
             
         case .mainTab(.delegate(.로그아웃)),
              .mainTab(.delegate(.회원탈퇴)):
             return .run { send in await send(._sceneChange(.intro(.login()))) }
             
-        case .intro, .mainTab:
+        case .intro, .mainTab, .mainTabSplit:
             return .none
         }
     }
@@ -68,6 +72,7 @@ public struct RootFeature {
         Reduce(self.core)
             .ifCaseLet(\.intro, action: \.intro) { IntroFeature() }
             .ifCaseLet(\.mainTab, action: \.mainTab) { MainTabFeature() }
+            .ifCaseLet(\.mainTabSplit, action: \.mainTabSplit) { MainTabSplitFeature() }
             ._printChanges()
     }
 }
