@@ -16,10 +16,12 @@ import FeatureContentSetting
 import FeatureCategoryDetail
 import FeatureContentList
 import FeatureCategorySharing
+import DSKit
 
 @ViewAction(for: PokitSplitFeature.self)
 public struct PokitSplitView: View {
     /// - Properties
+    @Perception.Bindable
     public var store: StoreOf<PokitSplitFeature>
     
     /// - Initializer
@@ -31,29 +33,47 @@ public struct PokitSplitView: View {
 public extension PokitSplitView {
     var body: some View {
         WithPerceptionTracking {
-            NavigationSplitView(columnVisibility: .constant(.all)) {
+            NavigationSplitView(columnVisibility: $store.columnVisibility) {
+                ContentSettingView(store: store.scope(state: \.링크추가및수정, action: \.링크추가및수정))
+            } content: {
                 PokitRootView(store: store.scope(state: \.포킷, action: \.포킷))
-                    .toolbar(.hidden, for: .navigationBar)
+                    .pokitNavigationBar { pokitNavigationBar }
             } detail: {
-                detail
-                    .toolbar(.hidden, for: .navigationBar)
+                if let store = store.scope(state: \.카테고리상세, action: \.카테고리상세) {
+                    CategoryDetailView(store: store)
+                }
             }
+            
         }
     }
 }
 //MARK: - Configure View
 private extension PokitSplitView {
-    var detail: some View {
-        HStack(spacing: 0) {
-            if let store = store.scope(state: \.카테고리상세, action: \.카테고리상세) {
-                CategoryDetailView(store: store)
-            } else {
-                Spacer()
+    var pokitNavigationBar: some View {
+        PokitHeader {
+            PokitHeaderItems(placement: .leading) {
+                Image(.logo(.pokit))
+                    .resizable()
+                    .frame(width: 104, height: 32)
+                    .foregroundStyle(.pokit(.icon(.brand)))
             }
             
-            ContentSettingView(store: store.scope(state: \.링크추가및수정, action: \.링크추가및수정))
-                .frame(width: 375)
+            PokitHeaderItems(placement: .trailing) {
+                PokitToolbarButton(
+                    .icon(.search),
+                    action: { send(.검색_버튼_눌렀을때) }
+                )
+                PokitToolbarButton(
+                    .icon(.bell),
+                    action: { send(.알람_버튼_눌렀을때) }
+                )
+                PokitToolbarButton(
+                    .icon(.setup),
+                    action: { send(.설정_버튼_눌렀을때) }
+                )
+            }
         }
+        .padding(.vertical, 8)
     }
 }
 //MARK: - Preview

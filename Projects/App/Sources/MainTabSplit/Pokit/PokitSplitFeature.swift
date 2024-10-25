@@ -4,6 +4,8 @@
 //
 //  Created by 김도형 on 10/24/24.
 
+import SwiftUI
+
 import ComposableArchitecture
 import FeaturePokit
 import FeatureCategoryDetail
@@ -24,6 +26,8 @@ public struct PokitSplitFeature {
     /// - State
     @ObservableState
     public struct State: Equatable {
+        var columnVisibility: NavigationSplitViewVisibility = .doubleColumn
+        
         var 포킷: PokitRootFeature.State = .init()
         var 카테고리상세: CategoryDetailFeature.State?
         var 링크추가및수정: ContentSettingFeature.State = .init()
@@ -61,8 +65,13 @@ public struct PokitSplitFeature {
         case 링크상세(ContentDetailFeature.Action)
         
         @CasePathable
-        public enum View: Equatable {
+        public enum View: Equatable, BindableAction {
+            case binding(BindingAction<State>)
+            
             case 뷰가_나타났을때
+            case 검색_버튼_눌렀을때
+            case 알람_버튼_눌렀을때
+            case 설정_버튼_눌렀을때
         }
         
         public enum InnerAction: Equatable {
@@ -128,6 +137,8 @@ public struct PokitSplitFeature {
     
     /// - Reducer body
     public var body: some ReducerOf<Self> {
+        BindingReducer(action: \.view)
+        
         Scope(state: \.포킷, action: \.포킷) {
             PokitRootFeature()
         }
