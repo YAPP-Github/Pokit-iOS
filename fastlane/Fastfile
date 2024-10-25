@@ -24,6 +24,12 @@ platform :ios do
     app_identifier:["com.pokitmons.pokit", "com.pokitmons.pokit.ShareExtension"],
     readonly: true
     )
+    match(
+    type: "appstore",
+    platform: "macos",
+    app_identifier: ["com.pokitmons.pokit", "com.pokitmons.pokit.ShareExtension"],
+    readonly: false
+    )
   end
 
   lane :development_profile do
@@ -33,6 +39,12 @@ platform :ios do
     type: "development",
     app_identifier:["com.pokitmons.pokit", "com.pokitmons.pokit.ShareExtension"],
     readonly: true
+    )
+    match(
+    type: "development",
+    platform: "macos",
+    app_identifier: ["com.pokitmons.pokit", "com.pokitmons.pokit.ShareExtension"],
+    readonly: false
     )
   end
 
