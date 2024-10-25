@@ -26,7 +26,7 @@ public struct PokitSplitFeature {
     /// - State
     @ObservableState
     public struct State: Equatable {
-        var columnVisibility: NavigationSplitViewVisibility = .doubleColumn
+        var columnVisibility: NavigationSplitViewVisibility = UIDevice.current.orientation == .portrait ? .detailOnly : .all
         
         var 포킷: PokitRootFeature.State = .init()
         var 카테고리상세: CategoryDetailFeature.State?
@@ -69,6 +69,7 @@ public struct PokitSplitFeature {
             case binding(BindingAction<State>)
             
             case 뷰가_나타났을때
+            case 링크추가_버튼_눌렀을때
             case 검색_버튼_눌렀을때
             case 알람_버튼_눌렀을때
             case 설정_버튼_눌렀을때
@@ -168,7 +169,21 @@ public struct PokitSplitFeature {
 private extension PokitSplitFeature {
     /// - View Effect
     func handleViewAction(_ action: Action.View, state: inout State) -> Effect<Action> {
-        return .none
+        switch action {
+        case .binding:
+            return .none
+        case .뷰가_나타났을때:
+            return .none
+        case .링크추가_버튼_눌렀을때:
+            state.columnVisibility = .all
+            return .none
+        case .검색_버튼_눌렀을때:
+            return .none
+        case .알람_버튼_눌렀을때:
+            return .none
+        case .설정_버튼_눌렀을때:
+            return .none
+        }
     }
     
     /// - Inner Effect
@@ -200,6 +215,9 @@ private extension PokitSplitFeature {
         case .카테고리상세:
             return .none
             
+        case .링크추가및수정(.delegate(.dismiss)):
+            state.columnVisibility = .detailOnly
+            return .none
         case .링크추가및수정:
             return .none
             
