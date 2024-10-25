@@ -176,7 +176,7 @@ private extension PokitSplitFeature {
         switch action {
         case let .카테고리_상세_활성화(category):
             state.카테고리상세 = .init(category: category)
-            return .none
+            return .send(.카테고리상세(.delegate(.카테고리_내_컨텐츠_목록_조회)))
         }
     }
     

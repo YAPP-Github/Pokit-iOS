@@ -211,7 +211,7 @@ private extension PokitRootFeature {
             return .run { send in await send(.inner(.카테고리_시트_활성화(true))) }
 
         case .카테고리_눌렀을때(let category):
-            return .run { send in await send(.delegate(.categoryTapped(category))) }
+            return .run { send in await send(.delegate(.categoryTapped(category)), animation: .pokitDissolve) }
 
             /// - 링크 아이템을 눌렀을 때
         case .컨텐츠_항목_눌렀을때(let selectedItem):

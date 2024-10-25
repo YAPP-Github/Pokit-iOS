@@ -5,7 +5,7 @@
 //  Created by 김도형 on 10/24/24.
 //
 
-import UIKit
+import SwiftUI
 
 public extension UIDevice {
     static let device = UIDevice.current.userInterfaceIdiom

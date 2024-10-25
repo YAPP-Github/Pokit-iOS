@@ -120,6 +120,7 @@ public struct ContentSettingFeature {
             case 컨텐츠_수정_API
             case 컨텐츠_추가_API
             case 클립보드_감지
+            case 선택한_포킷_인메모리_구독
         }
 
         public enum ScopeAction: Equatable { case 없음 }
@@ -189,7 +190,8 @@ private extension ContentSettingFeature {
             var mergeEffect: [Effect<Action>] = [
                 .send(.async(.카테고리_목록_조회_API)),
                 .send(.inner(.URL_유효성_확인)),
-                .send(.async(.클립보드_감지))
+                .send(.async(.클립보드_감지)),
+                .send(.async(.선택한_포킷_인메모리_구독), animation: .pokitDissolve)
             ]
             if let id = state.domain.contentId {
                 mergeEffect.append(.send(.async(.컨텐츠_상세_조회_API(id: id))))
@@ -330,10 +332,10 @@ private extension ContentSettingFeature {
             return .run { send in
                 if let sharedId {
                     let category = try await categoryClient.카테고리_상세_조회("\(sharedId)").toDomain()
-                    await send(.inner(.카테고리_상세_조회_API_반영(category: category)))
+                    await send(.inner(.카테고리_상세_조회_API_반영(category: category)), animation: .pokitDissolve)
                 } else if let id {
                     let category = try await categoryClient.카테고리_상세_조회("\(id)").toDomain()
-                    await send(.inner(.카테고리_상세_조회_API_반영(category: category)))
+                    await send(.inner(.카테고리_상세_조회_API_반영(category: category)), animation: .pokitDissolve)
                 }
             }
         case .카테고리_목록_조회_API:
@@ -388,6 +390,12 @@ private extension ContentSettingFeature {
                 for await _ in self.pasteboard.changes() {
                     let url = try await pasteboard.probableWebURL()
                     await send(.inner(.linkPopup(url)), animation: .pokitSpring)
+                }
+            }
+        case .선택한_포킷_인메모리_구독:
+            return .run { [categoryId = state.$categoryId] send in
+                for await _ in categoryId.publisher.values {
+                    await send(.async(.카테고리_목록_조회_API), animation: .pokitDissolve)
                 }
             }
         }
