@@ -26,7 +26,7 @@ public struct PokitSplitFeature {
     /// - State
     @ObservableState
     public struct State: Equatable {
-        var columnVisibility: NavigationSplitViewVisibility = UIDevice.current.orientation == .portrait ? .detailOnly : .all
+        var columnVisibility: NavigationSplitViewVisibility = Device.isPortrait ? .doubleColumn : .all
         
         var 포킷: PokitRootFeature.State = .init()
         var 카테고리상세: CategoryDetailFeature.State?
@@ -205,6 +205,9 @@ private extension PokitSplitFeature {
         switch action {
         case let .포킷(.delegate(.categoryTapped(category))):
             state.categoryId = category.id
+            if Device.isPortrait {
+                state.columnVisibility = .detailOnly
+            }
             return .send(.inner(.카테고리_상세_활성화(category)))
         case .포킷(.delegate(.카테고리_삭제)):
             state.카테고리상세 = nil
@@ -216,7 +219,7 @@ private extension PokitSplitFeature {
             return .none
             
         case .링크추가및수정(.delegate(.dismiss)):
-            state.columnVisibility = .detailOnly
+            state.columnVisibility = .doubleColumn
             return .none
         case .링크추가및수정:
             return .none
