@@ -26,7 +26,7 @@ public struct PokitSplitFeature {
     /// - State
     @ObservableState
     public struct State {
-        var columnVisibility: NavigationSplitViewVisibility = Device.isPortrait ? .doubleColumn : .all
+        var columnVisibility: NavigationSplitViewVisibility = .doubleColumn
         
         var 포킷: PokitRootFeature.State = .init()
         var 카테고리상세: CategoryDetailFeature.State?
