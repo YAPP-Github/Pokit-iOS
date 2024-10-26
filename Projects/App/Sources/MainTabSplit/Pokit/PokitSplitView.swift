@@ -48,8 +48,19 @@ public extension PokitSplitView {
                 if let store = store.scope(state: \.카테고리상세, action: \.카테고리상세) {
                     CategoryDetailView(store: store)
                 } else {
-                    Color.pokit(.bg(.base))
-                        .ignoresSafeArea()
+                    VStack {
+                        Spacer()
+                        
+                        PokitCaution(
+                            image: .empty,
+                            titleKey: "선택된 포킷이 없어요!",
+                            message: "포킷 화면에서 포킷을 선택해주세요"
+                        )
+                        
+                        Spacer()
+                    }
+                    .background(.pokit(.bg(.base)))
+                    .ignoresSafeArea()
                 }
             }
         }
