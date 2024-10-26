@@ -316,7 +316,6 @@ private extension ContentSettingFeature {
             }
             return .none
         case .선택한_포킷_인메모리_삭제:
-            guard Device.isPhone else { return .none }
             state.selectedPokit = nil
             return .none
         }
@@ -339,6 +338,8 @@ private extension ContentSettingFeature {
                 } else if let id {
                     let category = try await categoryClient.카테고리_상세_조회("\(id)").toDomain()
                     await send(.inner(.카테고리_상세_조회_API_반영(category: category)), animation: .pokitDissolve)
+                } else {
+                    await send(.inner(.선택한_포킷_인메모리_삭제))
                 }
             }
         case .카테고리_목록_조회_API:

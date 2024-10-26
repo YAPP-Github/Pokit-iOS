@@ -163,6 +163,7 @@ public struct PokitSearchFeature {
             case 링크수정(contentId: Int)
             case linkCopyDetected(URL?)
             case 컨텐츠_검색
+            case 컨텐츠_삭제
         }
     }
     
@@ -435,7 +436,7 @@ private extension PokitSearchFeature {
         case let .컨텐츠_삭제_API_반영(id):
             state.alertItem = nil
             state.domain.contentList.data?.removeAll { $0.id == id }
-            return .none
+            return .send(.delegate(.컨텐츠_삭제))
             
         case let .컨텐츠_검색_페이징_API_반영(contentList):
             let list = state.domain.contentList.data ?? []

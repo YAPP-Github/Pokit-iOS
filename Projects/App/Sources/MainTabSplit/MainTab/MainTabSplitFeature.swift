@@ -109,7 +109,7 @@ private extension MainTabSplitFeature {
         case .추가_버튼_눌렀을때:
             switch state {
             case .pokit:
-                return .send(.pokit(.delegate(.링크추가및수정_활성화)))
+                return .send(.pokit(.delegate(.링크추가_활성화)))
             case .remind:
                 return .none
             }

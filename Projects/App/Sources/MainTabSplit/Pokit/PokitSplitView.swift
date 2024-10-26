@@ -36,7 +36,7 @@ public extension PokitSplitView {
     var body: some View {
         WithPerceptionTracking {
             NavigationSplitView(columnVisibility: $store.columnVisibility) {
-                ContentSettingView(store: store.scope(state: \.링크추가및수정, action: \.링크추가및수정))
+                ContentSettingView(store: store.scope(state: \.링크추가, action: \.링크추가))
                     .toolbarBackground(.hidden, for: .navigationBar)
                     .navigationTitle("")
             } content: {
@@ -45,6 +45,66 @@ public extension PokitSplitView {
                     .toolbarBackground(.hidden, for: .navigationBar)
                     .navigationTitle("")
             } detail: {
+                detail
+            }
+            .sheet(
+                item: $store.scope(
+                    state: \.포킷추가및수정,
+                    action: \.포킷추가및수정
+                )
+            ) { store in
+                PokitCategorySettingView(store: store)
+                    .pokitPresentationBackground()
+                    .pokitPresentationCornerRadius()
+            }
+            .sheet(
+                item: $store.scope(
+                    state: \.링크상세,
+                    action: \.링크상세
+                )
+            ) { store in
+                ContentDetailView(store: store)
+                    .pokitPresentationBackground()
+                    .pokitPresentationCornerRadius()
+            }
+            .sheet(
+                item: $store.scope(
+                    state: \.알림함,
+                    action: \.알림함
+                )
+            ) { store in
+                PokitAlertBoxView(store: store)
+                    .pokitPresentationBackground()
+                    .pokitPresentationCornerRadius()
+            }
+            .sheet(
+                item: $store.scope(
+                    state: \.설정,
+                    action: \.설정
+                )
+            ) { store in
+                PokitSettingView(store: store)
+                    .pokitPresentationBackground()
+                    .pokitPresentationCornerRadius()
+            }
+            .sheet(
+                item: $store.scope(
+                    state: \.링크수정,
+                    action: \.링크수정
+                )
+            ) { store in
+                ContentSettingView(store: store)
+                    .pokitPresentationBackground()
+                    .pokitPresentationCornerRadius()
+            }
+        }
+    }
+}
+//MARK: - Configure View
+private extension PokitSplitView {
+    var detail: some View {
+        NavigationStack(path: $store.scope(state: \.path, action: \.path)) {
+            Group {
                 if let store = store.scope(state: \.카테고리상세, action: \.카테고리상세) {
                     CategoryDetailView(store: store)
                 } else {
@@ -63,61 +123,12 @@ public extension PokitSplitView {
                     .ignoresSafeArea()
                 }
             }
-            .sheet(
-                item: $store.scope(
-                    state: \.포킷추가및수정,
-                    action: \.포킷추가및수정
-                )
-            ) { store in
-                PokitCategorySettingView(store: store)
-                    .pokitPresentationBackground()
-                    .pokitPresentationCornerRadius()
-            }
-            .fullScreenCover(
-                item: $store.scope(
-                    state: \.검색,
-                    action: \.검색
-                )
-            ) { store in
-                PokitSearchView(store: store)
-                    .pokitPresentationBackground()
-                    .pokitPresentationCornerRadius()
-            }
-            .sheet(
-                item: $store.scope(
-                    state: \.알람,
-                    action: \.알람
-                )
-            ) { store in
-                PokitAlertBoxView(store: store)
-                    .pokitPresentationBackground()
-                    .pokitPresentationCornerRadius()
-            }
-            .sheet(
-                item: $store.scope(
-                    state: \.설정,
-                    action: \.설정
-                )
-            ) { store in
-                PokitSettingView(store: store)
-                    .pokitPresentationBackground()
-                    .pokitPresentationCornerRadius()
-            }
-        }
-    }
-}
-//MARK: - Configure View
-private extension PokitSplitView {
-    var detail: some View {
-        HStack(spacing: 0) {
-            PokitRootView(store: store.scope(state: \.포킷, action: \.포킷))
-                .pokitNavigationBar { pokitNavigationBar }
-                .frame(width: 400)
-            
-            if let store = store.scope(state: \.카테고리상세, action: \.카테고리상세) {
-                CategoryDetailView(store: store)
-            } else {
-                Spacer()
+        } destination: { path in
+            WithPerceptionTracking {
+                switch path.case {
+                case let .검색(store):
+                    PokitSearchView(store: store)
+                }
             }
         }
     }

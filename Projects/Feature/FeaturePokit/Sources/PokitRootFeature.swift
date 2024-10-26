@@ -121,6 +121,7 @@ public struct PokitRootFeature {
             case searchButtonTapped
             case alertButtonTapped
             case settingButtonTapped
+            case 필터_버튼_눌렀을때
 
             case categoryTapped(BaseCategoryItem)
             case 수정하기(BaseCategoryItem)
@@ -187,7 +188,10 @@ private extension PokitRootFeature {
         case .필터_버튼_눌렀을때(let selectedFolderType):
             state.folderType = .folder(selectedFolderType)
             state.sortType = .sort(.최신순)
-            return .send(.inner(.sort))
+            return .merge(
+                .send(.inner(.sort)),
+                .send(.delegate(.필터_버튼_눌렀을때), animation: .pokitDissolve)
+            )
             
         case .분류_버튼_눌렀을때:
             switch state.folderType {
