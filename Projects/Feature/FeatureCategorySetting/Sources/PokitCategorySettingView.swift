@@ -9,6 +9,7 @@ import SwiftUI
 import ComposableArchitecture
 import Domain
 import DSKit
+import Util
 import NukeUI
 
 @ViewAction(for: PokitCategorySettingFeature.self)
@@ -35,7 +36,6 @@ public extension PokitCategorySettingView {
             }
             .padding(.horizontal, 20)
             .padding(.top, 16)
-            .pokitMaxWidth()
             .pokitNavigationBar { navigationBar }
             .ignoresSafeArea(edges: isFocused ? [] : .bottom)
             .sheet(isPresented: $store.isProfileSheetPresented) {
@@ -54,7 +54,7 @@ private extension PokitCategorySettingView {
     var navigationBar: some View {
         PokitHeader(title: store.type.title) {
             PokitHeaderItems(placement: .leading) {
-                PokitToolbarButton(.icon(.arrowLeft)) {
+                PokitToolbarButton(.icon(Device.isPhone ? .arrowLeft : .x)) {
                     send(.dismiss)
                 }
             }

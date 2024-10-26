@@ -8,6 +8,7 @@ import SwiftUI
 
 import ComposableArchitecture
 import DSKit
+import Util
 
 @ViewAction(for: PokitSearchFeature.self)
 public struct PokitSearchView: View {
@@ -81,7 +82,7 @@ private extension PokitSearchView {
     var navigationBar: some View {
         HStack(spacing: 8) {
             PokitToolbarButton(
-                .icon(.arrowLeft),
+                .icon(Device.isPhone ? .arrowLeft : .x),
                 action: { send(.dismiss) }
             )
             

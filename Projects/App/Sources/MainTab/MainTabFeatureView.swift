@@ -235,7 +235,6 @@ private extension MainTabView {
                     .frame(width: 60, height: 60)
             }
         }
-        .pokitMaxWidth()
         .animation(.pokitDissolve, value: store.selectedTab)
     }
     

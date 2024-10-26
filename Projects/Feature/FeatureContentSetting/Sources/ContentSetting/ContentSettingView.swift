@@ -66,7 +66,6 @@ public extension ContentSettingView {
                             )
                         }
                     }
-                    .pokitMaxWidth()
                 }
                 
                 let isDisable = store.urlText.isEmpty || store.title.isEmpty || store.memoTextAreaState == .error(message: "최대 100자까지 입력가능합니다.")
@@ -78,7 +77,6 @@ public extension ContentSettingView {
                     action: { send(.저장_버튼_눌렀을때) }
                 )
                 .padding(.horizontal, 20)
-                .pokitMaxWidth()
             }
             .pokitNavigationBar { navigationBar }
             .ignoresSafeArea(edges: focusedType == nil ? .bottom : [])

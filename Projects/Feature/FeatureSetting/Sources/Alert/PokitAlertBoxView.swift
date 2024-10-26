@@ -9,6 +9,7 @@ import SwiftUI
 import ComposableArchitecture
 import DSKit
 import Domain
+import Util
 import NukeUI
 
 @ViewAction(for: PokitAlertBoxFeature.self)
@@ -67,7 +68,7 @@ private extension PokitAlertBoxView {
     var navigationBar: some View {
         PokitHeader(title: "알림함") {
             PokitHeaderItems(placement: .leading) {
-                PokitToolbarButton(.icon(.arrowLeft)) {
+                PokitToolbarButton(.icon(Device.isPhone ? .arrowLeft : .x)) {
                     send(.dismiss)
                 }
             }
