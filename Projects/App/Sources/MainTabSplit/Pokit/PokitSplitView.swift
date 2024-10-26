@@ -16,7 +16,9 @@ import FeatureContentSetting
 import FeatureCategoryDetail
 import FeatureContentList
 import FeatureCategorySharing
+import CoreKit
 import DSKit
+import Util
 
 @ViewAction(for: PokitSplitFeature.self)
 public struct PokitSplitView: View {
@@ -35,10 +37,20 @@ public extension PokitSplitView {
         WithPerceptionTracking {
             NavigationSplitView(columnVisibility: $store.columnVisibility) {
                 ContentSettingView(store: store.scope(state: \.링크추가및수정, action: \.링크추가및수정))
-                    .toolbar(.hidden, for: .navigationBar)
+                    .toolbarBackground(.hidden, for: .navigationBar)
+                    .navigationTitle("")
+            } content: {
+                PokitRootView(store: store.scope(state: \.포킷, action: \.포킷))
+                    .pokitNavigationBar { pokitNavigationBar }
+                    .toolbarBackground(.hidden, for: .navigationBar)
+                    .navigationTitle("")
             } detail: {
-                detail
-                    .toolbar(.hidden, for: .navigationBar)
+                if let store = store.scope(state: \.카테고리상세, action: \.카테고리상세) {
+                    CategoryDetailView(store: store)
+                } else {
+                    Color.pokit(.bg(.base))
+                        .ignoresSafeArea()
+                }
             }
         }
     }
@@ -69,11 +81,12 @@ private extension PokitSplitView {
             }
             
             PokitHeaderItems(placement: .trailing) {
-                if store.columnVisibility == .detailOnly {
+                if store.columnVisibility == .doubleColumn {
                     PokitToolbarButton(
                         .icon(.edit),
                         action: { send(.링크추가_버튼_눌렀을때) }
                     )
+                    .pokitBlurReplaceTransition(.pokitDissolve)
                 }
                 
                 PokitToolbarButton(
