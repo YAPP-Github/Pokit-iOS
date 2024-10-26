@@ -155,7 +155,7 @@ public struct PokitLinkCard<Item: PokitLinkCardItem>: View {
         let edge: Edge.Set = isFirst ? .bottom : isLast ? .top : .vertical
         
         self
-            .padding(edge, 20)
+            .padding(.bottom, 20)
             .background(alignment: .bottom) {
                 if !isLast {
                     divider
