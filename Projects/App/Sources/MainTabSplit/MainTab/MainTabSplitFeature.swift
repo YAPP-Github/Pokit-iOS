@@ -99,7 +99,21 @@ public struct MainTabSplitFeature {
 private extension MainTabSplitFeature {
     /// - View Effect
     func handleViewAction(_ action: Action.View, state: inout State) -> Effect<Action> {
-        return .none
+        switch action {
+        case .포킷_버튼_눌렀을때:
+            state = .pokit(.init())
+            return .none
+        case .리마인드_버튼_눌렀을때:
+            state = .remind(.init())
+            return .none
+        case .추가_버튼_눌렀을때:
+            switch state {
+            case .pokit:
+                return .send(.pokit(.delegate(.링크추가및수정_활성화)))
+            case .remind:
+                return .none
+            }
+        }
     }
     
     /// - Inner Effect

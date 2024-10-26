@@ -40,6 +40,8 @@ public struct PokitSplitFeature {
         var 설정: PokitSettingFeature.State?
         @Presents
         var 링크상세: ContentDetailFeature.State?
+        @Presents
+        var 알람: PokitAlertBoxFeature.State?
         
         @Shared(.inMemory("SelectCategory"))
         var categoryId: Int?
@@ -59,17 +61,18 @@ public struct PokitSplitFeature {
         case 포킷(PokitRootFeature.Action)
         case 카테고리상세(CategoryDetailFeature.Action)
         case 링크추가및수정(ContentSettingFeature.Action)
-        case 포킷추가및수정(PokitCategorySettingFeature.Action)
-        case 검색(PokitSearchFeature.Action)
-        case 설정(PokitSettingFeature.Action)
-        case 링크상세(ContentDetailFeature.Action)
+        case 포킷추가및수정(PresentationAction<PokitCategorySettingFeature.Action>)
+        case 검색(PresentationAction<PokitSearchFeature.Action>)
+        case 설정(PresentationAction<PokitSettingFeature.Action>)
+        case 링크상세(PresentationAction<ContentDetailFeature.Action>)
+        case 알람(PresentationAction<PokitAlertBoxFeature.Action>)
         
         @CasePathable
         public enum View: Equatable, BindableAction {
             case binding(BindingAction<State>)
             
             case 뷰가_나타났을때
-            case 링크추가_버튼_눌렀을때
+            case 포킷추가_버튼_눌렀을때
             case 검색_버튼_눌렀을때
             case 알람_버튼_눌렀을때
             case 설정_버튼_눌렀을때
@@ -85,13 +88,16 @@ public struct PokitSplitFeature {
             case 포킷(PokitRootFeature.Action)
             case 카테고리상세(CategoryDetailFeature.Action)
             case 링크추가및수정(ContentSettingFeature.Action)
-            case 포킷추가및수정(PokitCategorySettingFeature.Action)
-            case 검색(PokitSearchFeature.Action)
-            case 설정(PokitSettingFeature.Action)
-            case 링크상세(ContentDetailFeature.Action)
+            case 포킷추가및수정(PresentationAction<PokitCategorySettingFeature.Action>)
+            case 검색(PresentationAction<PokitSearchFeature.Action>)
+            case 설정(PresentationAction<PokitSettingFeature.Action>)
+            case 링크상세(PresentationAction<ContentDetailFeature.Action>)
+            case 알람(PresentationAction<PokitAlertBoxFeature.Action>)
         }
         
-        public enum DelegateAction: Equatable { case 없음 }
+        public enum DelegateAction: Equatable {
+            case 링크추가및수정_활성화
+        }
     }
     
     /// - Initiallizer
@@ -133,6 +139,8 @@ public struct PokitSplitFeature {
             return .send(.scope(.설정(settingAction)))
         case .링크상세(let contentDetailAction):
             return .send(.scope(.링크상세(contentDetailAction)))
+        case .알람(let alertAction):
+            return .send(.scope(.알람(alertAction)))
         }
     }
     
@@ -151,17 +159,20 @@ public struct PokitSplitFeature {
             .ifLet(\.카테고리상세, action: \.카테고리상세) {
                 CategoryDetailFeature()
             }
-            .ifLet(\.포킷추가및수정, action: \.포킷추가및수정) {
+            .ifLet(\.$포킷추가및수정, action: \.포킷추가및수정) {
                 PokitCategorySettingFeature()
             }
-            .ifLet(\.검색, action: \.검색) {
+            .ifLet(\.$검색, action: \.검색) {
                 PokitSearchFeature()
             }
-            .ifLet(\.설정, action: \.설정) {
+            .ifLet(\.$설정, action: \.설정) {
                 PokitSettingFeature()
             }
-            .ifLet(\.링크상세, action: \.링크상세) {
+            .ifLet(\.$링크상세, action: \.링크상세) {
                 ContentDetailFeature()
+            }
+            .ifLet(\.$알람, action: \.알람) {
+                PokitAlertBoxFeature()
             }
     }
 }
@@ -174,14 +185,17 @@ private extension PokitSplitFeature {
             return .none
         case .뷰가_나타났을때:
             return .none
-        case .링크추가_버튼_눌렀을때:
-            state.columnVisibility = .all
+        case .포킷추가_버튼_눌렀을때:
+            state.포킷추가및수정 = .init(type: .추가)
             return .none
         case .검색_버튼_눌렀을때:
+            state.검색 = .init()
             return .none
         case .알람_버튼_눌렀을때:
+            state.알람 = .init()
             return .none
         case .설정_버튼_눌렀을때:
+            state.설정 = .init()
             return .none
         }
     }
@@ -235,12 +249,19 @@ private extension PokitSplitFeature {
             
         case .링크상세:
             return .none
+        
+        case .알람:
+            return .none
         }
     }
     
     /// - Delegate Effect
     func handleDelegateAction(_ action: Action.DelegateAction, state: inout State) -> Effect<Action> {
-        return .none
+        switch action {
+        case .링크추가및수정_활성화:
+            state.columnVisibility = .all
+            return .none
+        }
     }
 }
 

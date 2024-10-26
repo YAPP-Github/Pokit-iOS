@@ -8,6 +8,7 @@ import SwiftUI
 
 import ComposableArchitecture
 import DSKit
+import Util
 
 @ViewAction(for: PokitSettingFeature.self)
 public struct PokitSettingView: View {
@@ -127,7 +128,7 @@ private extension PokitSettingView {
     var navigationBar: some View {
         PokitHeader(title: "설정") {
             PokitHeaderItems(placement: .leading) {
-                PokitToolbarButton(.icon(.arrowLeft)) {
+                PokitToolbarButton(.icon(Device.isPhone ? .arrowLeft : .x)) {
                     send(.dismiss)
                 }
             }

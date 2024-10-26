@@ -63,7 +63,6 @@ public struct PokitAlert: View {
                 )
                 .background()
             }
-            .pokitMaxWidth()
         }
         .pokitPresentationBackground()
         .pokitPresentationCornerRadius()

@@ -63,6 +63,46 @@ public extension PokitSplitView {
                     .ignoresSafeArea()
                 }
             }
+            .sheet(
+                item: $store.scope(
+                    state: \.포킷추가및수정,
+                    action: \.포킷추가및수정
+                )
+            ) { store in
+                PokitCategorySettingView(store: store)
+                    .pokitPresentationBackground()
+                    .pokitPresentationCornerRadius()
+            }
+            .fullScreenCover(
+                item: $store.scope(
+                    state: \.검색,
+                    action: \.검색
+                )
+            ) { store in
+                PokitSearchView(store: store)
+                    .pokitPresentationBackground()
+                    .pokitPresentationCornerRadius()
+            }
+            .sheet(
+                item: $store.scope(
+                    state: \.알람,
+                    action: \.알람
+                )
+            ) { store in
+                PokitAlertBoxView(store: store)
+                    .pokitPresentationBackground()
+                    .pokitPresentationCornerRadius()
+            }
+            .sheet(
+                item: $store.scope(
+                    state: \.설정,
+                    action: \.설정
+                )
+            ) { store in
+                PokitSettingView(store: store)
+                    .pokitPresentationBackground()
+                    .pokitPresentationCornerRadius()
+            }
         }
     }
 }
@@ -92,13 +132,11 @@ private extension PokitSplitView {
             }
             
             PokitHeaderItems(placement: .trailing) {
-                if store.columnVisibility == .doubleColumn {
-                    PokitToolbarButton(
-                        .icon(.edit),
-                        action: { send(.링크추가_버튼_눌렀을때) }
-                    )
-                    .pokitBlurReplaceTransition(.pokitDissolve)
-                }
+                PokitToolbarButton(
+                    .icon(.edit),
+                    action: { send(.포킷추가_버튼_눌렀을때) }
+                )
+                .pokitBlurReplaceTransition(.pokitDissolve)
                 
                 PokitToolbarButton(
                     .icon(.search),
