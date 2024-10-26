@@ -16,7 +16,6 @@ import Util
 public struct RootFeature {
     @Dependency(UserDefaultsClient.self) var userDefaults
     @Dependency(UserClient.self) var userClient
-    @Dependency(DeviceClient.self) var deviceClient
     @Reducer(state: .equatable)
     public enum Destination {
         
@@ -50,7 +49,7 @@ public struct RootFeature {
                 
                 guard let fcmToken = userDefaults.stringKey(.fcmToken) else {
                     await send(._sceneChange(
-                        deviceClient.isPhone()
+                        Device.isPhone
                         ? .mainTab()
                         : .mainTabSplit())
                     )
@@ -62,7 +61,7 @@ public struct RootFeature {
                 await userDefaults.setString(user.token, .fcmToken)
                 await userDefaults.setString("\(user.userId)", .userId)
                 await send(._sceneChange(
-                    deviceClient.isPhone()
+                    Device.isPhone
                     ? .mainTab()
                     : .mainTabSplit()
                 ))
