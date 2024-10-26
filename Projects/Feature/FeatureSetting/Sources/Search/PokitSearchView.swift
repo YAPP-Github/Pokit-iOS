@@ -293,7 +293,10 @@ private extension PokitSearchView {
             
             if let results = store.resultList {
                 ScrollView {
-                    LazyVStack(spacing: 0) {
+                    LazyVGrid(
+                        columns: [ .init(.adaptive(minimum: 300, maximum: .infinity))],
+                        spacing: 20
+                    ) {
                         ForEach(results, id: \.id) { content in
                             let isFirst = content == results.first
                             let isLast = content == results.last
