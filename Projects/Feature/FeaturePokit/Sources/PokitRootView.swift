@@ -190,7 +190,7 @@ private extension PokitRootView {
     @ViewBuilder
     func unclassifiedList(_ unclassifiedContents: IdentifiedArrayOf<BaseContentItem>) -> some View {
         ScrollView {
-            LazyVStack(spacing: 0) {
+            LazyVStack(spacing: 20) {
                 ForEach(unclassifiedContents) { content in
                     let isFirst = content == unclassifiedContents.first
                     let isLast = content == unclassifiedContents.last
