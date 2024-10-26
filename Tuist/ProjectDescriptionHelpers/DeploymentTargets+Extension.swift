@@ -8,5 +8,5 @@
 import ProjectDescription
 
 public extension DeploymentTargets {
-    static let appMinimunTarget: DeploymentTargets = .multiplatform(iOS: "16.0", macOS: "13.0")
+    static let appMinimunTarget: DeploymentTargets = .multiplatform(iOS: "16.0")
 }
