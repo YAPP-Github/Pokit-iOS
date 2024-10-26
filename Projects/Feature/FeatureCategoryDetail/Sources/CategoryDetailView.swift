@@ -85,12 +85,15 @@ public extension CategoryDetailView {
 private extension CategoryDetailView {
     var navigationBar: some View {
         PokitHeader {
-            PokitHeaderItems(placement: .leading) {
-                PokitToolbarButton(
-                    .icon(.arrowLeft),
-                    action: { send(.dismiss) }
-                )
+            if Device.isPhone {
+                PokitHeaderItems(placement: .leading) {
+                    PokitToolbarButton(
+                        .icon(.arrowLeft),
+                        action: { send(.dismiss) }
+                    )
+                }
             }
+            
             PokitHeaderItems(placement: .trailing) {
                 PokitToolbarButton(
                     .icon(.kebab),
