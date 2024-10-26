@@ -82,7 +82,7 @@ private extension PokitSearchView {
     var navigationBar: some View {
         HStack(spacing: 8) {
             PokitToolbarButton(
-                .icon(Device.isPhone ? .arrowLeft : .x),
+                .icon(.arrowLeft),
                 action: { send(.dismiss) }
             )
             

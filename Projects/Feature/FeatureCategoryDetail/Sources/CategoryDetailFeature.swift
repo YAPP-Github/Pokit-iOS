@@ -135,6 +135,7 @@ public struct CategoryDetailFeature {
             case 포킷수정(BaseCategoryItem)
             case 포킷공유
             case 카테고리_내_컨텐츠_목록_조회
+            case 컨텐츠_삭제
         }
     }
     
@@ -256,7 +257,7 @@ private extension CategoryDetailFeature {
             state.selectedContentItem = nil
             state.isPokitDeleteSheetPresented = false
             state.kebobSelectedType = nil
-            return .none
+            return .send(.delegate(.컨텐츠_삭제))
             
         case .pagenation_API_반영(let contentList):
             let list = state.domain.contentList.data ?? []
