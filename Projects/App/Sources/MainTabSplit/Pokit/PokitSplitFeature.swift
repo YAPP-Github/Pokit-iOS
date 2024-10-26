@@ -286,6 +286,12 @@ private extension PokitSplitFeature {
         case .링크추가(.delegate(.dismiss)):
             state.columnVisibility = .doubleColumn
             return .none
+        case .링크추가(.delegate(.저장하기_완료)):
+            state.링크추가 = .init()
+            return .merge(
+                .send(.포킷(.delegate(.미분류_카테고리_컨텐츠_조회))),
+                .send(.카테고리상세(.delegate(.카테고리_내_컨텐츠_목록_조회)))
+            )
         case .링크추가:
             return .none
         
