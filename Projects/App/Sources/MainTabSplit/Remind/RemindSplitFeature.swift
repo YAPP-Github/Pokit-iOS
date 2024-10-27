@@ -330,6 +330,10 @@ private extension RemindSplitFeature {
                 mergeEffect.append(.send(.링크목록(.delegate(.컨텐츠_목록_조회))))
             }
             return .merge(mergeEffect)
+        case .링크수정(.presented(.delegate(.dismiss))):
+            return .send(.링크수정(.dismiss))
+        case .링크수정(.presented(.delegate(.포킷추가하기))):
+            return .send(.inner(.포킷추가및수정_활성화(nil)))
         case .링크수정:
             return .none
         }
