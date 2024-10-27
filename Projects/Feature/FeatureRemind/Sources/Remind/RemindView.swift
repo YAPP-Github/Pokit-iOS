@@ -266,16 +266,18 @@ extension RemindView {
                         .padding(.bottom, 16)
                     }
                     
-                    ForEach(unreadContents, id: \.id) { content in
-                        let isFirst = content == unreadContents.elements.first
-                        let isLast = content == unreadContents.elements.last
-                        
-                        PokitLinkCard(
-                            link: content,
-                            action: { send(.컨텐츠_항목_눌렀을때(content: content)) },
-                            kebabAction: { send(.컨텐츠_항목_케밥_버튼_눌렀을때(content: content)) }
-                        )
-                        .divider(isFirst: isFirst, isLast: isLast)
+                    VStack(spacing: 20) {
+                        ForEach(unreadContents, id: \.id) { content in
+                            let isFirst = content == unreadContents.elements.first
+                            let isLast = content == unreadContents.elements.last
+                            
+                            PokitLinkCard(
+                                link: content,
+                                action: { send(.컨텐츠_항목_눌렀을때(content: content)) },
+                                kebabAction: { send(.컨텐츠_항목_케밥_버튼_눌렀을때(content: content)) }
+                            )
+                            .divider(isFirst: isFirst, isLast: isLast)
+                        }
                     }
                 }
             }
@@ -300,16 +302,18 @@ extension RemindView {
                 )
                 .padding(.top, 16)
             } else {
-                ForEach(favoriteContents, id: \.id) { content in
-                    let isFirst = content == favoriteContents.elements.first
-                    let isLast = content == favoriteContents.elements.last
-                    
-                    PokitLinkCard(
-                        link: content,
-                        action: { send(.컨텐츠_항목_눌렀을때(content: content)) },
-                        kebabAction: { send(.컨텐츠_항목_케밥_버튼_눌렀을때(content: content)) }
-                    )
-                    .divider(isFirst: isFirst, isLast: isLast)
+                VStack(spacing: 20) {
+                    ForEach(favoriteContents, id: \.id) { content in
+                        let isFirst = content == favoriteContents.elements.first
+                        let isLast = content == favoriteContents.elements.last
+                        
+                        PokitLinkCard(
+                            link: content,
+                            action: { send(.컨텐츠_항목_눌렀을때(content: content)) },
+                            kebabAction: { send(.컨텐츠_항목_케밥_버튼_눌렀을때(content: content)) }
+                        )
+                        .divider(isFirst: isFirst, isLast: isLast)
+                    }
                 }
             }
         }
