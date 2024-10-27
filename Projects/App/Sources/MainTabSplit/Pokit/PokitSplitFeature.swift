@@ -17,11 +17,14 @@ import FeatureContentDetail
 import FeatureRemind
 import FeatureContentDetail
 import Domain
+import CoreKit
 import Util
 
 @Reducer
 public struct PokitSplitFeature {
     /// - Dependency
+    @Dependency(CategoryClient.self)
+    private var categoryClient
 
     /// - State
     @ObservableState
@@ -31,6 +34,7 @@ public struct PokitSplitFeature {
         var 포킷: PokitRootFeature.State = .init()
         var 카테고리상세: CategoryDetailFeature.State?
         var 링크추가: ContentSettingFeature.State = .init()
+        var error: BaseError?
         
         var path = StackState<Path.State>()
         
@@ -44,6 +48,8 @@ public struct PokitSplitFeature {
         var 알림함: PokitAlertBoxFeature.State?
         @Presents
         var 링크수정: ContentSettingFeature.State?
+        @Presents
+        var 포킷공유: CategorySharingFeature.State?
         
         @Shared(.inMemory("SelectCategory"))
         var categoryId: Int?
@@ -69,6 +75,7 @@ public struct PokitSplitFeature {
         case 링크상세(PresentationAction<ContentDetailFeature.Action>)
         case 알림함(PresentationAction<PokitAlertBoxFeature.Action>)
         case 링크수정(PresentationAction<ContentSettingFeature.Action>)
+        case 포킷공유(PresentationAction<CategorySharingFeature.Action>)
         
         @CasePathable
         public enum View: Equatable, BindableAction {
@@ -79,6 +86,8 @@ public struct PokitSplitFeature {
             case 검색_버튼_눌렀을때
             case 알람_버튼_눌렀을때
             case 설정_버튼_눌렀을때
+            case 경고확인_버튼_눌렀을때
+            case onOpenURL(url: URL)
         }
         
         public enum InnerAction: Equatable {
@@ -86,9 +95,13 @@ public struct PokitSplitFeature {
             case 포킷추가및수정_활성화(BaseCategoryItem?)
             case 링크수정_활성화(Int?)
             case 링크상세_활성화(Int)
+            case 공유포킷_활성화(CategorySharing.SharedCategory)
+            case 경고_활성화(BaseError)
         }
         
-        public enum AsyncAction: Equatable { case doNothing }
+        public enum AsyncAction: Equatable {
+            case 공유받은_카테고리_조회_API(categoryId: Int)
+        }
         
         public enum ScopeAction {
             case 포킷(PokitRootFeature.Action)
@@ -100,6 +113,7 @@ public struct PokitSplitFeature {
             case 링크상세(PresentationAction<ContentDetailFeature.Action>)
             case 알림함(PresentationAction<PokitAlertBoxFeature.Action>)
             case 링크수정(PresentationAction<ContentSettingFeature.Action>)
+            case 포킷공유(PresentationAction<CategorySharingFeature.Action>)
         }
         
         public enum DelegateAction: Equatable {
@@ -150,6 +164,8 @@ public struct PokitSplitFeature {
             return .send(.scope(.알림함(alertAction)))
         case .링크수정(let contentSettingAction):
             return .send(.scope(.링크수정(contentSettingAction)))
+        case .포킷공유(let categorySharingAction):
+            return .send(.scope(.포킷공유(categorySharingAction)))
         }
     }
     
@@ -206,6 +222,20 @@ private extension PokitSplitFeature {
         case .설정_버튼_눌렀을때:
             state.설정 = .init()
             return .none
+        case .경고확인_버튼_눌렀을때:
+            state.error = nil
+            return .none
+        case let .onOpenURL(url: url):
+            guard let components = URLComponents(url: url, resolvingAgainstBaseURL: false) else {
+                return .none
+            }
+
+            let queryItems = components.queryItems ?? []
+            guard let categoryIdString = queryItems.first(where: { $0.name == "categoryId" })?.value,
+                  let categoryId = Int(categoryIdString) else {
+                return .none
+            }
+            return .send(.async(.공유받은_카테고리_조회_API(categoryId: categoryId)))
         }
     }
     
@@ -233,12 +263,31 @@ private extension PokitSplitFeature {
         case let .링크상세_활성화(contentId):
             state.링크상세 = .init(contentId: contentId)
             return .none
+        case let .공유포킷_활성화(sharedCategory):
+            state.포킷공유 = .init(sharedCategory: sharedCategory)
+            return .none
+        case let .경고_활성화(error):
+            state.error = error
+            return .none
         }
     }
     
     /// - Async Effect
     func handleAsyncAction(_ action: Action.AsyncAction, state: inout State) -> Effect<Action> {
-        return .none
+        switch action {
+        case let .공유받은_카테고리_조회_API(categoryId: categoryId):
+            return .run { send in
+                do {
+                    let request = BasePageableRequest(page: 0, size: 10, sort: ["createdAt", "desc"])
+                    let sharedCategory = try await categoryClient.공유받은_카테고리_조회("\(categoryId)", request).toDomain()
+                    await send(.inner(.공유포킷_활성화(sharedCategory)), animation: .smooth)
+                } catch {
+                    guard let errorResponse = error as? ErrorResponse else { return }
+                    let errorDomain = BaseError(response: errorResponse)
+                    await send(.inner(.경고_활성화(errorDomain)))
+                }
+            }
+        }
     }
     
     /// - Scope Effect
@@ -379,6 +428,36 @@ private extension PokitSplitFeature {
         case .링크수정(.presented(.delegate(.포킷추가하기))):
             return .send(.inner(.포킷추가및수정_활성화(nil)))
         case .링크수정:
+            return .none
+        
+        // - MARK: 포킷공유
+        case let .포킷공유(.presented(.delegate(.컨텐츠_아이템_클릭(categoryId, content)))):
+            state.링크상세 = .init(content: BaseContentDetail(
+                id: content.id,
+                category: BaseCategoryInfo(
+                    categoryId: categoryId,
+                    categoryName: content.categoryName
+                ),
+                title: content.title,
+                data: content.data,
+                memo: content.memo,
+                createdAt: content.createdAt,
+                favorites: nil,
+                alertYn: .no
+            ))
+            return .none
+        case let .포킷공유(.presented(.delegate(.공유받은_카테고리_추가(sharedCategory)))):
+            state.포킷추가및수정 = .init(
+                type: .공유추가,
+                categoryId: sharedCategory.categoryId,
+                categoryImage: BaseCategoryImage(
+                    imageId: sharedCategory.categoryImageId,
+                    imageURL: sharedCategory.categoryImageUrl
+                ),
+                categoryName: sharedCategory.categoryName
+            )
+            return .none
+        case .포킷공유:
             return .none
         }
     }

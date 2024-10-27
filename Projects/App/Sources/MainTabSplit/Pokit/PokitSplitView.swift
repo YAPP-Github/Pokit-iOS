@@ -95,6 +95,14 @@ public extension PokitSplitView {
                     .pokitPresentationBackground()
                     .pokitPresentationCornerRadius()
             }
+            .sheet(item: $store.error) { error in
+                PokitAlert(
+                    error?.title ?? "에러",
+                    message: error?.message ?? "메세지",
+                    confirmText: "확인",
+                    action: { send(.경고_확인버튼_클릭) }
+                )
+            }
         }
     }
 }
