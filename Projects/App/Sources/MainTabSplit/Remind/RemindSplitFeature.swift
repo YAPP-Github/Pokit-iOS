@@ -268,6 +268,8 @@ private extension RemindSplitFeature {
             return .none
         
         // - MARK: 포킷추가및수정
+        case .포킷추가및수정(.presented(.delegate(.settingSuccess(_)))):
+            return .send(.포킷추가및수정(.dismiss))
         case .포킷추가및수정:
             return .none
         
