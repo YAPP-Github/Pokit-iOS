@@ -130,7 +130,7 @@ public struct PokitRootFeature {
             case contentDetailTapped(BaseContentItem)
             case 미분류_카테고리_컨텐츠_조회
             
-            case 카테고리_삭제
+            case 카테고리_삭제(Int)
         }
     }
 
@@ -340,7 +340,7 @@ private extension PokitRootFeature {
         case let .카테고리_삭제_API(categoryId):
             return .run { send in
                 try await categoryClient.카테고리_삭제(categoryId)
-                await send(.delegate(.카테고리_삭제))
+                await send(.delegate(.카테고리_삭제(categoryId)))
             }
             
         case .미분류_카테고리_페이징_조회_API:

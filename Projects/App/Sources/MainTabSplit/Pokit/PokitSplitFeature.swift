@@ -252,8 +252,11 @@ private extension PokitSplitFeature {
             }
             state.path.removeAll()
             return .send(.inner(.카테고리_상세_활성화(category)))
-        case .포킷(.delegate(.카테고리_삭제)):
-            state.카테고리상세 = nil
+        case let .포킷(.delegate(.카테고리_삭제(categoryId))):
+            if categoryId == state.categoryId {
+                state.카테고리상세 = nil
+                state.categoryId = nil
+            }
             return .none
         case let .포킷(.delegate(.수정하기(category))):
             return .send(.inner(.포킷추가및수정_활성화(category)))
