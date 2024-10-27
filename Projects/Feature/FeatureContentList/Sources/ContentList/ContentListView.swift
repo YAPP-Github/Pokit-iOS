@@ -8,6 +8,7 @@ import SwiftUI
 
 import ComposableArchitecture
 import DSKit
+import Util
 
 @ViewAction(for: ContentListFeature.self)
 public struct ContentListView: View {
@@ -131,10 +132,14 @@ private extension ContentListView {
     
     var toolbar: some View {
         PokitHeader(title: store.contentType.title) {
-            PokitHeaderItems(placement: .leading) {
-                PokitToolbarButton(.icon(.arrowLeft)) {
-                    send(.dismiss)
+            if Device.isPhone {
+                PokitHeaderItems(placement: .leading) {
+                    PokitToolbarButton(.icon(.arrowLeft)) {
+                        send(.dismiss)
+                    }
                 }
+            } else {
+                Spacer()
             }
         }
         .padding(.top, 8)
