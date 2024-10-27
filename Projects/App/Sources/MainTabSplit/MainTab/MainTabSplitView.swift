@@ -118,18 +118,20 @@ private extension MainTabSplitView {
         iconColor: Color,
         action: @escaping () -> Void
     ) -> some View {
-        VStack(spacing: 4) {
-            Image(icon)
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .frame(width: 24, height: 24)
-                .foregroundStyle(iconColor)
-            
-            Text(title)
-                .pokitFont(.detail2)
-                .foregroundStyle(titleColor)
+        Button(action: action) {
+            VStack(spacing: 4) {
+                Image(icon)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 24, height: 24)
+                    .foregroundStyle(iconColor)
+                
+                Text(title)
+                    .pokitFont(.detail2)
+                    .foregroundStyle(titleColor)
+            }
+            .padding(.horizontal, 28)
         }
-        .padding(.horizontal, 28)
     }
 }
 
