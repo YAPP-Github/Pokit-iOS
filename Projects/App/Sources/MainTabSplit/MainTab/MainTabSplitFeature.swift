@@ -101,10 +101,16 @@ private extension MainTabSplitFeature {
     func handleViewAction(_ action: Action.View, state: inout State) -> Effect<Action> {
         switch action {
         case .포킷_버튼_눌렀을때:
-            state = .pokit(.init())
+            switch state {
+            case .pokit: return .none
+            case .remind: state = .pokit(.init())
+            }
             return .none
         case .리마인드_버튼_눌렀을때:
-            state = .remind(.init())
+            switch state {
+            case .pokit: state = .remind(.init())
+            case .remind: return .none
+            }
             return .none
         case .추가_버튼_눌렀을때:
             switch state {
