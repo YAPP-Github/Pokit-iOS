@@ -1,17 +1,20 @@
 # This workflow will build a Swift project
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-swift
 
-name: build-test
+name: testflight-release-ipad
 
 on:
   pull_request:
     branches:
-      - "develop*"
+      - develop-ipad
+    types:
+      - closed
 
   workflow_dispatch:
 
 jobs:
   build:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true }}
     runs-on: macos-latest
 
     steps:
@@ -36,13 +39,24 @@ jobs:
     - name: initial tuist
       run: mise install tuist
 
-    - name: Test Generate
+    - name: Generate Project
       env:
         MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
         DEVELOPMENT_TEAM: ${{ secrets.DEVELOPMENT_TEAM }}
       run: |
-        fastlane development_profile
-        make test
+        fastlane appstore_profile
+        make release
 
-    - name: Build Test
-      run: fastlane build
+    - name: Build Archive
+      env:
+        APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+        APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+        APP_STORE_CONNECT_API: ${{ secrets.APP_STORE_CONNECT_API }}
+      run: fastlane archive
+
+    - name: Testflight Release
+      env:
+        APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+        APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+        APP_STORE_CONNECT_API: ${{ secrets.APP_STORE_CONNECT_API }}
+      run: fastlane testflight_release_ipad
