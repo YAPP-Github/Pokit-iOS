@@ -29,7 +29,7 @@ public struct RemindSplitFeature {
         var columnVisibility: NavigationSplitViewVisibility = .doubleColumn
         
         var 리마인드: RemindFeature.State = .init()
-        var 링크목록: ContentListFeature.State = .init(contentType: .unread)
+        var 링크목록: ContentListFeature.State = .init(contentType: .favorite)
         var 링크추가: ContentSettingFeature.State = .init()
         
         var path = StackState<Path.State>()
