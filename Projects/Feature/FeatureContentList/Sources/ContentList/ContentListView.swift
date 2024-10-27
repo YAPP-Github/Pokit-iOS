@@ -98,7 +98,10 @@ private extension ContentListView {
                     Spacer()
                 } else {
                     ScrollView {
-                        LazyVStack(spacing: 0) {
+                        LazyVGrid(
+                            columns: [ .init(.adaptive(minimum: 300, maximum: .infinity))],
+                            spacing: 20
+                        ) {
                             ForEach(contents) { content in
                                 let isFirst = content == contents.first
                                 let isLast = content == contents.last
