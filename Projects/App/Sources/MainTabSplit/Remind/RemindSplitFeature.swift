@@ -174,6 +174,7 @@ public struct RemindSplitFeature {
             .ifLet(\.$링크수정, action: \.링크수정) {
                 ContentSettingFeature()
             }
+            ._printChanges(.actionLabels)
     }
 }
 //MARK: - FeatureAction Effect
