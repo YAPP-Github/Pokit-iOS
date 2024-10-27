@@ -292,12 +292,22 @@ private extension PokitSplitFeature {
                 .send(.포킷(.delegate(.미분류_카테고리_컨텐츠_조회))),
                 .send(.카테고리상세(.delegate(.카테고리_내_컨텐츠_목록_조회)))
             )
+        case .링크추가(.delegate(.포킷추가하기)):
+            state.포킷추가및수정 = .init(type: .추가)
+            return .none
         case .링크추가:
             return .none
         
         // - MARK: 포킷추가및수정
-        case .포킷추가및수정(.presented(.delegate(.settingSuccess))):
-            return .send(.포킷(.delegate(.미분류_카테고리_컨텐츠_조회)))
+        case let .포킷추가및수정(.presented(.delegate(.settingSuccess(category)))):
+            var mergeEffect: [Effect<Action>] = [
+                .send(.포킷(.delegate(.미분류_카테고리_컨텐츠_조회))),
+                .send(.포킷추가및수정(.dismiss))
+            ]
+            if let category {
+                mergeEffect.append(.send(.inner(.카테고리_상세_활성화(category))))
+            }
+            return .merge(mergeEffect)
         case .포킷추가및수정:
             return .none
         

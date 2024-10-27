@@ -108,7 +108,7 @@ public struct PokitCategorySettingFeature {
         
         public enum DelegateAction: Equatable {
             /// 이전화면으로 돌아가 카테고리 항목을 추가하면됨
-            case settingSuccess
+            case settingSuccess(BaseCategoryItem?)
             case linkCopyDetected(URL?)
         }
     }
@@ -182,14 +182,25 @@ private extension PokitCategorySettingFeature {
                         createdAt: ""
                     )
                     await send(.inner(.카테고리_인메모리_저장(responseToCategoryDomain)))
-                    await send(.delegate(.settingSuccess))
+                    await send(.delegate(.settingSuccess(responseToCategoryDomain)))
                     
                 case .수정:
                     guard let categoryId = domain.categoryId else { return }
                     guard let image = domain.categoryImage else { return }
                     let request = CategoryEditRequest(categoryName: domain.categoryName, categoryImageId: image.id)
-                    let _ = try await categoryClient.카테고리_수정(categoryId, request)
-                    await send(.delegate(.settingSuccess))
+                    let response = try await categoryClient.카테고리_수정(categoryId, request)
+                    let category = BaseCategoryItem(
+                        id: response.categoryId,
+                        userId: 0,
+                        categoryName: response.categoryName,
+                        categoryImage: BaseCategoryImage(
+                            imageId: response.categoryImage.imageId,
+                            imageURL: response.categoryImage.imageUrl
+                        ),
+                        contentCount: 0,
+                        createdAt: ""
+                    )
+                    await send(.delegate(.settingSuccess(category)))
                     
                 case .공유추가:
                     guard let categoryId = domain.categoryId else { return }
@@ -201,7 +212,7 @@ private extension PokitCategorySettingFeature {
                             categoryImageId: image.id
                         )
                     )
-                    await send(.delegate(.settingSuccess))
+                    await send(.delegate(.settingSuccess(nil)))
                 }
             } catch: { error, send in
                 guard let errorResponse = error as? ErrorResponse else { return }
