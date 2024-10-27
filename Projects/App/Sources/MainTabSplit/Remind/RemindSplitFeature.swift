@@ -96,7 +96,9 @@ public struct RemindSplitFeature {
             case 링크수정(PresentationAction<ContentSettingFeature.Action>)
         }
         
-        public enum DelegateAction: Equatable { case doNothing }
+        public enum DelegateAction: Equatable {
+            case 링크추가_활성화
+        }
     }
     
     /// - Initiallizer
@@ -332,7 +334,11 @@ private extension RemindSplitFeature {
     
     /// - Delegate Effect
     func handleDelegateAction(_ action: Action.DelegateAction, state: inout State) -> Effect<Action> {
-        return .none
+        switch action {
+        case .링크추가_활성화:
+            state.columnVisibility = .all
+            return .none
+        }
     }
     
     func handlePathAction(_ action: StackActionOf<Path>, state: inout State) -> Effect<Action> {
