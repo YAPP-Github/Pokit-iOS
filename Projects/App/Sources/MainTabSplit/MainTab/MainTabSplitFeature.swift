@@ -111,7 +111,7 @@ private extension MainTabSplitFeature {
             case .pokit:
                 return .send(.pokit(.delegate(.링크추가_활성화)))
             case .remind:
-                return .none
+                return .send(.remind(.delegate(.링크추가_활성화)))
             }
         }
     }
