@@ -310,7 +310,7 @@ private extension ContentListFeature {
     func handleDelegateAction(_ action: Action.DelegateAction, state: inout State) -> Effect<Action> {
         switch action {
         case .컨텐츠_목록_조회:
-            return .send(.async(.컨텐츠_목록_조회_API))
+            return .send(.async(.컨텐츠_목록_조회_API), animation: .pokitSpring)
         default:
             return .none
         }
@@ -353,7 +353,7 @@ private extension ContentListFeature {
                 contentItems?.data = items + newItems
             }
             guard let contentItems else { return }
-            await send(.inner(.컨텐츠_목록_조회_API_반영(contentItems)))
+            await send(.inner(.컨텐츠_목록_조회_API_반영(contentItems)), animation: .pokitSpring)
         }
     }
     

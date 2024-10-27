@@ -43,6 +43,8 @@ public struct RemindSplitFeature {
         @Presents
         var 링크수정: ContentSettingFeature.State?
         
+        @Shared(.inMemory("SelectCategory"))
+        var categoryId: Int?
         @Shared(.inMemory("PushTapped"))
         var isPushTapped: Bool = false
         
@@ -198,7 +200,7 @@ private extension RemindSplitFeature {
         switch action {
         case let .링크목록_활성화(contentType):
             state.링크목록 = .init(contentType: contentType)
-            return .none
+            return .send(.링크목록(.delegate(.컨텐츠_목록_조회)), animation: .pokitSpring)
         case let .포킷추가및수정_활성화(category):
             if let category {
                 state.포킷추가및수정 = .init(
@@ -254,6 +256,7 @@ private extension RemindSplitFeature {
             return .none
         case .링크추가(.delegate(.저장하기_완료)):
             state.링크추가 = .init()
+            state.categoryId = nil
             return .merge(
                 .send(.리마인드(.delegate(.컨텐츠_상세보기_delegate_위임))),
                 .send(.링크목록(.delegate(.컨텐츠_목록_조회)))
