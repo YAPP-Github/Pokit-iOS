@@ -92,7 +92,6 @@ public struct RemindSplitFeature {
             case 링크추가(ContentSettingFeature.Action)
             case 포킷추가및수정(PresentationAction<PokitCategorySettingFeature.Action>)
             case 검색(StackElementID, PokitSearchFeature.Action)
-            case 설정(PresentationAction<PokitSettingFeature.Action>)
             case 링크상세(PresentationAction<ContentDetailFeature.Action>)
             case 알림함(PresentationAction<PokitAlertBoxFeature.Action>)
             case 링크수정(PresentationAction<ContentSettingFeature.Action>)
@@ -232,8 +231,10 @@ private extension RemindSplitFeature {
         switch action {
         // - MARK: 리마인드
         case .리마인드(.delegate(.링크목록_안읽음)):
+            state.path.removeAll()
             return .send(.inner(.링크목록_활성화(.unread)))
         case .리마인드(.delegate(.링크목록_즐겨찾기)):
+            state.path.removeAll()
             return .send(.inner(.링크목록_활성화(.favorite)))
         case let .리마인드(.delegate(.링크상세(content: content))):
             return .send(.inner(.링크상세_활성화(content.id)))
@@ -278,10 +279,6 @@ private extension RemindSplitFeature {
         case .검색(_, .delegate(.컨텐츠_삭제)):
             return .send(.리마인드(.delegate(.컨텐츠_상세보기_delegate_위임)))
         case .검색:
-            return .none
-        
-        // - MARK: 설정
-        case .설정:
             return .none
         
         // - MARK: 링크상세

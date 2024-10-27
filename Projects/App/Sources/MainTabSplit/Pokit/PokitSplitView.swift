@@ -8,7 +8,6 @@ import SwiftUI
 
 import ComposableArchitecture
 import FeaturePokit
-import FeatureRemind
 import FeatureSetting
 import FeatureCategorySetting
 import FeatureContentDetail
@@ -16,7 +15,6 @@ import FeatureContentSetting
 import FeatureCategoryDetail
 import FeatureContentList
 import FeatureCategorySharing
-import CoreKit
 import DSKit
 import Util
 
