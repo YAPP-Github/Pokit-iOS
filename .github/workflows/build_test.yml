@@ -5,8 +5,7 @@ name: build-test
 
 on:
   pull_request:
-    branches:
-      - develop
+    branches: ["develop/*"]
 
   workflow_dispatch:
 
