@@ -311,7 +311,10 @@ private extension ContentListFeature {
     func handleDelegateAction(_ action: Action.DelegateAction, state: inout State) -> Effect<Action> {
         switch action {
         case .컨텐츠_목록_조회:
-            return .send(.async(.컨텐츠_목록_조회_API), animation: .pokitSpring)
+            return .merge(
+                .send(.async(.컨텐츠_목록_조회_API), animation: .pokitSpring),
+                .send(.async(.컨텐츠_개수_조회_API), animation: .pokitSpring)
+            )
         default:
             return .none
         }
