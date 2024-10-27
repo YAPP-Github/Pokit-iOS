@@ -147,8 +147,9 @@ public struct ContentListFeature {
 
     /// - Reducer body
     public var body: some ReducerOf<Self> {
+        BindingReducer(action: \.view)
+        
         Reduce(self.core)
-            ._printChanges()
     }
 }
 //MARK: - FeatureAction Effect
@@ -162,10 +163,10 @@ private extension ContentListFeature {
         case .컨텐츠_항목_눌렀을때(let content):
             return .send(.delegate(.링크상세(content: content)))
         case .bottomSheet(let delegate, let content):
-            return .concatenate(
-                .send(.inner(.바텀시트_해제)),
-                .send(.scope(.bottomSheet(delegate: delegate, content: content)))
-            )
+            return .run { send in
+                await send(.inner(.바텀시트_해제))
+                await send(.scope(.bottomSheet(delegate: delegate, content: content)))
+            }
         case .컨텐츠_삭제_눌렀을때:
             guard let id = state.alertItem?.id else { return .none }
             return .send(.async(.컨텐츠_삭제_API(id: id)))

@@ -81,6 +81,5 @@ public struct RootFeature {
             .ifCaseLet(\.intro, action: \.intro) { IntroFeature() }
             .ifCaseLet(\.mainTab, action: \.mainTab) { MainTabFeature() }
             .ifCaseLet(\.mainTabSplit, action: \.mainTabSplit) { MainTabSplitFeature() }
-            ._printChanges()
     }
 }
