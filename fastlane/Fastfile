@@ -42,6 +42,12 @@ platform :ios do
     scheme: "App",
     configuration: "Debug",
     export_method: "development",
+    export_options: {
+        provisioningProfiles: {
+          "com.pokitmons.pokit" => "match Development com.pokitmons.pokit",
+          "com.pokitmons.pokit.ShareExtension" => "match Development com.pokitmons.pokit.ShareExtension"
+        }
+    }
     )
   end
 
@@ -66,7 +72,13 @@ platform :ios do
     workspace: "Pokit.xcworkspace",
     scheme: "App",
     configuration: "Release",
-    export_method: "app-store-connect"
+    export_method: "app-store",
+    export_options: {
+        provisioningProfiles: {
+          "com.pokitmons.pokit" => "match AppStore com.pokitmons.pokit",
+          "com.pokitmons.pokit.ShareExtension" => "match AppStore com.pokitmons.pokit.ShareExtension"
+        }
+    }
     )
   end
 
