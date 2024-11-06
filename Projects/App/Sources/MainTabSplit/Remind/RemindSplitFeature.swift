@@ -272,7 +272,7 @@ private extension RemindSplitFeature {
     /// - Scope Effect
     func handleScopeAction(_ action: Action.ScopeAction, state: inout State) -> Effect<Action> {
         switch action {
-            // - MARK: 리마인드
+        // - MARK: 리마인드
         case .리마인드(.delegate(.링크목록_안읽음)):
             state.path.removeAll()
             return .send(.inner(.링크목록_활성화(.unread)))
@@ -286,7 +286,7 @@ private extension RemindSplitFeature {
         case .리마인드:
             return .none
             
-            // - MARK: 링크목록
+        // - MARK: 링크목록
         case let .링크목록(.delegate(.링크상세(content: content))):
             return .send(.inner(.링크상세_활성화(content.id)))
         case let .링크목록(.delegate(.링크수정(contentId: contentId))):
@@ -294,7 +294,7 @@ private extension RemindSplitFeature {
         case .링크목록:
             return .none
             
-            // - MARK: 링크추가및수정
+        // - MARK: 링크추가및수정
         case .링크추가(.delegate(.dismiss)):
             state.columnVisibility = .doubleColumn
             return .none
@@ -309,14 +309,14 @@ private extension RemindSplitFeature {
             return .send(.inner(.포킷추가및수정_활성화(nil)))
         case .링크추가:
             return .none
-            
-            // - MARK: 포킷추가및수정
+        
+        // - MARK: 포킷추가및수정
         case .포킷추가및수정(.presented(.delegate(.settingSuccess(_)))):
             return .send(.포킷추가및수정(.dismiss))
         case .포킷추가및수정:
             return .none
-            
-            // - MARK: 검색
+        
+        // - MARK: 검색
         case let .검색(_, .delegate(.링크수정(contentId: contentId))):
             return .send(.inner(.링크수정_활성화(contentId)))
         case let .검색(_, .delegate(.linkCardTapped(content: content))):
@@ -326,10 +326,10 @@ private extension RemindSplitFeature {
         case .검색:
             return .none
             
-            // - MARK: 링크상세
+        // - MARK: 링크상세
         case .링크상세(.presented(.delegate(.즐겨찾기_갱신_완료))),
-                .링크상세(.presented(.delegate(.컨텐츠_조회_완료))),
-                .링크상세(.presented(.delegate(.컨텐츠_삭제_완료))):
+             .링크상세(.presented(.delegate(.컨텐츠_조회_완료))),
+             .링크상세(.presented(.delegate(.컨텐츠_삭제_완료))):
             var mergeEffect: [Effect<Action>] = [
                 .send(.리마인드(.delegate(.컨텐츠_상세보기_delegate_위임)))
             ]
@@ -348,7 +348,7 @@ private extension RemindSplitFeature {
         case .링크상세:
             return .none
             
-            // - MARK: 알람
+        // - MARK: 알람
         case let .알림함(.presented(.delegate(.moveToContentEdit(id: contentId)))):
             return .send(.inner(.링크수정_활성화(contentId)))
         case .알림함(.presented(.delegate(.alertBoxDismiss))):
@@ -356,7 +356,7 @@ private extension RemindSplitFeature {
         case .알림함:
             return .none
             
-            // - MARK: 링크수정
+        // - MARK: 링크수정
         case .링크수정(.presented(.delegate(.저장하기_완료))):
             var mergeEffect: [Effect<Action>] = [
                 .send(.리마인드(.delegate(.컨텐츠_상세보기_delegate_위임))),
@@ -379,7 +379,7 @@ private extension RemindSplitFeature {
         case .링크수정:
             return .none
             
-            // - MARK: 포킷공유
+        // - MARK: 포킷공유
         case let .포킷공유(.presented(.delegate(.컨텐츠_아이템_클릭(categoryId, content)))):
             state.링크상세 = .init(content: BaseContentDetail(
                 id: content.id,
