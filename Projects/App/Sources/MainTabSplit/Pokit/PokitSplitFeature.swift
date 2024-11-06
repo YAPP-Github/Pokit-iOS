@@ -35,6 +35,7 @@ public struct PokitSplitFeature {
         var 카테고리상세: CategoryDetailFeature.State?
         var 링크추가: ContentSettingFeature.State = .init()
         var error: BaseError?
+        var alertPresented: Bool = false
         
         var path = StackState<Path.State>()
         
@@ -176,6 +177,7 @@ public struct PokitSplitFeature {
         Scope(state: \.포킷, action: \.포킷) {
             PokitRootFeature()
         }
+        
         Scope(state: \.링크추가, action: \.링크추가) {
             ContentSettingFeature()
         }
@@ -200,6 +202,9 @@ public struct PokitSplitFeature {
             .ifLet(\.$링크수정, action: \.링크수정) {
                 ContentSettingFeature()
             }
+            .ifLet(\.$포킷공유, action: \.포킷공유) {
+                CategorySharingFeature()
+            }
     }
 }
 //MARK: - FeatureAction Effect
@@ -207,6 +212,10 @@ private extension PokitSplitFeature {
     /// - View Effect
     func handleViewAction(_ action: Action.View, state: inout State) -> Effect<Action> {
         switch action {
+        case .binding(\.alertPresented):
+            guard !state.alertPresented else { return .none }
+            state.error = nil
+            return .none
         case .binding:
             return .none
         case .뷰가_나타났을때:
@@ -223,6 +232,7 @@ private extension PokitSplitFeature {
             state.설정 = .init()
             return .none
         case .경고확인_버튼_눌렀을때:
+            state.alertPresented = false
             state.error = nil
             return .none
         case let .onOpenURL(url: url):
@@ -268,6 +278,7 @@ private extension PokitSplitFeature {
             return .none
         case let .경고_활성화(error):
             state.error = error
+            state.alertPresented = true
             return .none
         }
     }

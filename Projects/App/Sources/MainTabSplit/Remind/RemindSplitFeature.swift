@@ -31,6 +31,8 @@ public struct RemindSplitFeature {
         var 리마인드: RemindFeature.State = .init()
         var 링크목록: ContentListFeature.State = .init(contentType: .favorite)
         var 링크추가: ContentSettingFeature.State = .init()
+        var error: BaseError?
+        var alertPresented: Bool = false
         
         var path = StackState<Path.State>()
         
@@ -42,6 +44,8 @@ public struct RemindSplitFeature {
         var 알림함: PokitAlertBoxFeature.State?
         @Presents
         var 링크수정: ContentSettingFeature.State?
+        @Presents
+        var 포킷공유: CategorySharingFeature.State?
         
         @Shared(.inMemory("SelectCategory"))
         var categoryId: Int?
@@ -66,6 +70,7 @@ public struct RemindSplitFeature {
         case 링크상세(PresentationAction<ContentDetailFeature.Action>)
         case 알림함(PresentationAction<PokitAlertBoxFeature.Action>)
         case 링크수정(PresentationAction<ContentSettingFeature.Action>)
+        case 포킷공유(PresentationAction<CategorySharingFeature.Action>)
         
         @CasePathable
         public enum View: Equatable, BindableAction {
@@ -75,6 +80,8 @@ public struct RemindSplitFeature {
             
             case 검색_버튼_눌렀을때
             case 알람_버튼_눌렀을때
+            case 경고확인_버튼_눌렀을때
+            case onOpenURL(url: URL)
         }
         
         public enum InnerAction: Equatable {
@@ -82,9 +89,13 @@ public struct RemindSplitFeature {
             case 포킷추가및수정_활성화(BaseCategoryItem?)
             case 링크수정_활성화(Int?)
             case 링크상세_활성화(Int)
+            case 공유포킷_활성화(CategorySharing.SharedCategory)
+            case 경고_활성화(BaseError)
         }
         
-        public enum AsyncAction: Equatable { case doNothing }
+        public enum AsyncAction: Equatable {
+            case 공유받은_카테고리_조회_API(categoryId: Int)
+        }
         
         public enum ScopeAction {
             case 리마인드(RemindFeature.Action)
@@ -95,6 +106,7 @@ public struct RemindSplitFeature {
             case 링크상세(PresentationAction<ContentDetailFeature.Action>)
             case 알림함(PresentationAction<PokitAlertBoxFeature.Action>)
             case 링크수정(PresentationAction<ContentSettingFeature.Action>)
+            case 포킷공유(PresentationAction<CategorySharingFeature.Action>)
         }
         
         public enum DelegateAction: Equatable {
@@ -143,6 +155,8 @@ public struct RemindSplitFeature {
             return .send(.scope(.알림함(alertAction)))
         case .링크수정(let contentSettingAction):
             return .send(.scope(.링크수정(contentSettingAction)))
+        case .포킷공유(let categorySharingAction):
+            return .send(.scope(.포킷공유(categorySharingAction)))
         }
     }
     
@@ -174,7 +188,9 @@ public struct RemindSplitFeature {
             .ifLet(\.$링크수정, action: \.링크수정) {
                 ContentSettingFeature()
             }
-            ._printChanges(.actionLabels)
+            .ifLet(\.$포킷공유, action: \.포킷공유) {
+                CategorySharingFeature()
+            }
     }
 }
 //MARK: - FeatureAction Effect
@@ -182,6 +198,10 @@ private extension RemindSplitFeature {
     /// - View Effect
     func handleViewAction(_ action: Action.View, state: inout State) -> Effect<Action> {
         switch action {
+        case .binding(\.alertPresented):
+            guard !state.alertPresented else { return .none }
+            state.error = nil
+            return .none
         case .binding:
             return .none
         case .뷰가_나타났을때:
@@ -192,6 +212,21 @@ private extension RemindSplitFeature {
         case .알람_버튼_눌렀을때:
             state.알림함 = .init()
             return .none
+        case .경고확인_버튼_눌렀을때:
+            state.alertPresented = false
+            state.error = nil
+            return .none
+        case let .onOpenURL(url: url):
+            guard let components = URLComponents(url: url, resolvingAgainstBaseURL: false) else {
+                return .none
+            }
+
+            let queryItems = components.queryItems ?? []
+            guard let categoryIdString = queryItems.first(where: { $0.name == "categoryId" })?.value,
+                  let categoryId = Int(categoryIdString) else {
+                return .none
+            }
+            return .send(.async(.공유받은_카테고리_조회_API(categoryId: categoryId)))
         }
     }
     
@@ -219,6 +254,13 @@ private extension RemindSplitFeature {
         case let .링크상세_활성화(contentId):
             state.링크상세 = .init(contentId: contentId)
             return .none
+        case let .공유포킷_활성화(sharedCategory):
+            state.포킷공유 = .init(sharedCategory: sharedCategory)
+            return .none
+        case let .경고_활성화(error):
+            state.error = error
+            state.alertPresented = true
+            return .none
         }
     }
     
@@ -230,7 +272,7 @@ private extension RemindSplitFeature {
     /// - Scope Effect
     func handleScopeAction(_ action: Action.ScopeAction, state: inout State) -> Effect<Action> {
         switch action {
-        // - MARK: 리마인드
+            // - MARK: 리마인드
         case .리마인드(.delegate(.링크목록_안읽음)):
             state.path.removeAll()
             return .send(.inner(.링크목록_활성화(.unread)))
@@ -244,7 +286,7 @@ private extension RemindSplitFeature {
         case .리마인드:
             return .none
             
-        // - MARK: 링크목록
+            // - MARK: 링크목록
         case let .링크목록(.delegate(.링크상세(content: content))):
             return .send(.inner(.링크상세_활성화(content.id)))
         case let .링크목록(.delegate(.링크수정(contentId: contentId))):
@@ -252,7 +294,7 @@ private extension RemindSplitFeature {
         case .링크목록:
             return .none
             
-        // - MARK: 링크추가및수정
+            // - MARK: 링크추가및수정
         case .링크추가(.delegate(.dismiss)):
             state.columnVisibility = .doubleColumn
             return .none
@@ -267,14 +309,14 @@ private extension RemindSplitFeature {
             return .send(.inner(.포킷추가및수정_활성화(nil)))
         case .링크추가:
             return .none
-        
-        // - MARK: 포킷추가및수정
+            
+            // - MARK: 포킷추가및수정
         case .포킷추가및수정(.presented(.delegate(.settingSuccess(_)))):
             return .send(.포킷추가및수정(.dismiss))
         case .포킷추가및수정:
             return .none
-        
-        // - MARK: 검색
+            
+            // - MARK: 검색
         case let .검색(_, .delegate(.링크수정(contentId: contentId))):
             return .send(.inner(.링크수정_활성화(contentId)))
         case let .검색(_, .delegate(.linkCardTapped(content: content))):
@@ -283,11 +325,11 @@ private extension RemindSplitFeature {
             return .send(.리마인드(.delegate(.컨텐츠_상세보기_delegate_위임)))
         case .검색:
             return .none
-        
-        // - MARK: 링크상세
+            
+            // - MARK: 링크상세
         case .링크상세(.presented(.delegate(.즐겨찾기_갱신_완료))),
-             .링크상세(.presented(.delegate(.컨텐츠_조회_완료))),
-             .링크상세(.presented(.delegate(.컨텐츠_삭제_완료))):
+                .링크상세(.presented(.delegate(.컨텐츠_조회_완료))),
+                .링크상세(.presented(.delegate(.컨텐츠_삭제_완료))):
             var mergeEffect: [Effect<Action>] = [
                 .send(.리마인드(.delegate(.컨텐츠_상세보기_delegate_위임)))
             ]
@@ -306,7 +348,7 @@ private extension RemindSplitFeature {
         case .링크상세:
             return .none
             
-        // - MARK: 알람
+            // - MARK: 알람
         case let .알림함(.presented(.delegate(.moveToContentEdit(id: contentId)))):
             return .send(.inner(.링크수정_활성화(contentId)))
         case .알림함(.presented(.delegate(.alertBoxDismiss))):
@@ -314,7 +356,7 @@ private extension RemindSplitFeature {
         case .알림함:
             return .none
             
-        // - MARK: 링크수정
+            // - MARK: 링크수정
         case .링크수정(.presented(.delegate(.저장하기_완료))):
             var mergeEffect: [Effect<Action>] = [
                 .send(.리마인드(.delegate(.컨텐츠_상세보기_delegate_위임))),
@@ -335,6 +377,36 @@ private extension RemindSplitFeature {
         case .링크수정(.presented(.delegate(.포킷추가하기))):
             return .send(.inner(.포킷추가및수정_활성화(nil)))
         case .링크수정:
+            return .none
+            
+            // - MARK: 포킷공유
+        case let .포킷공유(.presented(.delegate(.컨텐츠_아이템_클릭(categoryId, content)))):
+            state.링크상세 = .init(content: BaseContentDetail(
+                id: content.id,
+                category: BaseCategoryInfo(
+                    categoryId: categoryId,
+                    categoryName: content.categoryName
+                ),
+                title: content.title,
+                data: content.data,
+                memo: content.memo,
+                createdAt: content.createdAt,
+                favorites: nil,
+                alertYn: .no
+            ))
+            return .none
+        case let .포킷공유(.presented(.delegate(.공유받은_카테고리_추가(sharedCategory)))):
+            state.포킷추가및수정 = .init(
+                type: .공유추가,
+                categoryId: sharedCategory.categoryId,
+                categoryImage: BaseCategoryImage(
+                    imageId: sharedCategory.categoryImageId,
+                    imageURL: sharedCategory.categoryImageUrl
+                ),
+                categoryName: sharedCategory.categoryName
+            )
+            return .none
+        case .포킷공유:
             return .none
         }
     }

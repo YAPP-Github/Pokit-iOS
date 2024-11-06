@@ -95,12 +95,22 @@ public extension PokitSplitView {
                     .pokitPresentationBackground()
                     .pokitPresentationCornerRadius()
             }
-            .sheet(item: $store.error) { error in
+            .sheet(
+                item: $store.scope(
+                    state: \.포킷공유,
+                    action: \.포킷공유
+                )
+            ) { store in
+                CategorySharingView(store: store)
+                    .pokitPresentationBackground()
+                    .pokitPresentationCornerRadius()
+            }
+            .sheet(isPresented: $store.alertPresented) {
                 PokitAlert(
-                    error?.title ?? "에러",
-                    message: error?.message ?? "메세지",
+                    store.error?.title ?? "에러",
+                    message: store.error?.message ?? "메세지",
                     confirmText: "확인",
-                    action: { send(.경고_확인버튼_클릭) }
+                    action: { send(.경고확인_버튼_눌렀을때) }
                 )
             }
         }
