@@ -14,15 +14,18 @@ public struct PokitLinkCard<Item: PokitLinkCardItem>: View {
     private let link: Item
     private let action: () -> Void
     private let kebabAction: (() -> Void)?
+    private let fetchMetaData: (() -> Void)?
     
     public init(
         link: Item,
         action: @escaping () -> Void,
-        kebabAction: (() -> Void)? = nil
+        kebabAction: (() -> Void)? = nil,
+        fetchMetaData: (() -> Void)? = nil
     ) {
         self.link = link
         self.action = action
         self.kebabAction = kebabAction
+        self.fetchMetaData = fetchMetaData
     }
     
     public var body: some View {
@@ -116,6 +119,9 @@ public struct PokitLinkCard<Item: PokitLinkCardItem>: View {
                     image
                         .resizable()
                         .aspectRatio(contentMode: .fill)
+                } else if phase.error != nil {
+                    placeholder
+                        .onAppear { fetchMetaData?() }
                 } else {
                     placeholder
                 }
