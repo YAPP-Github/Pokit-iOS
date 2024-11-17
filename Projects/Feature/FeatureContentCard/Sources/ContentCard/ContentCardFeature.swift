@@ -20,7 +20,7 @@ public struct ContentCardFeature {
     @ObservableState
     public struct State: Equatable, Identifiable {
         public let id = UUID()
-        var content: BaseContentItem
+        public var content: BaseContentItem
         
         public init(content: BaseContentItem) {
             self.content = content
@@ -89,6 +89,7 @@ public struct ContentCardFeature {
     /// - Reducer body
     public var body: some ReducerOf<Self> {
         Reduce(self.core)
+            ._printChanges()
     }
 }
 //MARK: - FeatureAction Effect
@@ -122,7 +123,7 @@ private extension ContentCardFeature {
                 return .none
             }
             return .run { send in
-                let imageURL = try await swiftSoupClient.parseOGImageURL(url: url)
+                let imageURL = try await swiftSoupClient.parseOGImageURL(url)
                 guard let imageURL else { return }
                 await send(.inner(.메타데이터_조회_수행_반영(imageURL)))
             }

@@ -217,12 +217,15 @@ private extension ContentListFeature {
         case .컨텐츠_삭제_API_반영(id: let id):
             state.alertItem = nil
             state.domain.contentList.data?.removeAll { $0.id == id }
+            state.contents.removeAll { $0.content.id == id }
             return .none
         case .컨텐츠_목록_조회_API_반영(let contentList):
             state.domain.contentList = contentList
+            
             var identifiedArray = IdentifiedArrayOf<ContentCardFeature.State>()
             contentList.data?.forEach { identifiedArray.append(.init(content: $0)) }
             state.contents = identifiedArray
+            
             state.isLoading = false
             return .none
         case .페이징_초기화:
