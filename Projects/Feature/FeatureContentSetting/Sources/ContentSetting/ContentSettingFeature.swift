@@ -231,10 +231,9 @@ private extension ContentSettingFeature {
             return .none
         case .메타데이터_조회_수행(url: let url):
             return .run { send in
-                let (title, imageURL) = await swiftSoup.parseOGTitleAndImage(url) {
-                    await send(.inner(.linkPreview), animation: .pokitDissolve)
-                }
-                await send(
+                async let title = swiftSoup.parseOGTitle(url)
+                async let imageURL = swiftSoup.parseOGImageURL(url)
+                try await send(
                     .inner(.메타데이텨_조회_반영(title: title, imageURL: imageURL)),
                     animation: .pokitDissolve
                 )
@@ -246,7 +245,7 @@ private extension ContentSettingFeature {
                 state.domain.title = title
             }
             state.domain.thumbNail = imageURL
-            return .none
+            return .send(.inner(.linkPreview), animation: .pokitDissolve)
         case .URL_유효성_확인:
             guard let url = URL(string: state.domain.data),
                   !state.domain.data.isEmpty else {

@@ -181,10 +181,9 @@ private extension ContentDetailFeature {
         case .메타데이터_조회_수행(url: let url):
             return .run { send in
                 /// - 링크에 대한 메타데이터의 제목 및 썸네일 항목 파싱
-                let (title, imageURL) = await swiftSoup.parseOGTitleAndImage(url) {
-                    await send(.inner(.linkPreview), animation: .pokitDissolve)
-                }
-                await send(
+                async let title = swiftSoup.parseOGTitle(url)
+                async let imageURL = swiftSoup.parseOGImageURL(url)
+                try await send(
                     .inner(.메타데이터_조회_반영(title: title, imageURL: imageURL)),
                     animation: .pokitDissolve
                 )
@@ -192,7 +191,7 @@ private extension ContentDetailFeature {
         case let .메타데이터_조회_반영(title: title, imageURL: imageURL):
             state.linkTitle = title
             state.linkImageURL = imageURL
-            return .none
+            return .send(.inner(.linkPreview), animation: .pokitDissolve)
         case .URL_유효성_확인:
             guard let urlString = state.domain.content?.data,
                   let url = URL(string: urlString) else {
