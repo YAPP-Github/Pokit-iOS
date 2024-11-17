@@ -7,6 +7,7 @@
 import SwiftUI
 
 import ComposableArchitecture
+import FeatureContentCard
 import Domain
 import DSKit
 
@@ -166,8 +167,8 @@ private extension PokitRootView {
 
     var unclassifiedView: some View {
         Group {
-            if let unclassifiedContents = store.unclassifiedContents {
-                if unclassifiedContents.isEmpty {
+            if !store.isLoading {
+                if store.contents.isEmpty {
                     VStack {
                         PokitCaution(
                             image: .empty,
@@ -179,7 +180,7 @@ private extension PokitRootView {
                         Spacer()
                     }
                 } else {
-                    unclassifiedList(unclassifiedContents)
+                    unclassifiedList
                 }
             } else {
                 PokitLoading()
@@ -187,20 +188,20 @@ private extension PokitRootView {
         }
     }
 
-    @ViewBuilder
-    func unclassifiedList(_ unclassifiedContents: IdentifiedArrayOf<BaseContentItem>) -> some View {
+    var unclassifiedList: some View {
         ScrollView {
             LazyVStack(spacing: 0) {
-                ForEach(unclassifiedContents) { content in
-                    let isFirst = content == unclassifiedContents.first
-                    let isLast = content == unclassifiedContents.last
-
-                    PokitLinkCard(
-                        link: content,
-                        action: { send(.컨텐츠_항목_눌렀을때(content)) },
-                        kebabAction: { send(.미분류_케밥_버튼_눌렀을때(content)) }
+                ForEachStore(
+                    store.scope(state: \.contents, action: \.contents)
+                ) { store in
+                    let isFirst = store.state.id == self.store.contents.first?.id
+                    let isLast = store.state.id == self.store.contents.last?.id
+                    
+                    ContentCardView(
+                        store: store,
+                        isFirst: isFirst,
+                        isLast: isLast
                     )
-                    .divider(isFirst: isFirst, isLast: isLast)
                 }
 
                 if store.unclassifiedHasNext {
