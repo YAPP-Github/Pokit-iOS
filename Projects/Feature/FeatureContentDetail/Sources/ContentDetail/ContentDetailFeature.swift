@@ -138,10 +138,14 @@ private extension ContentDetailFeature {
     func handleViewAction(_ action: Action.View, state: inout State) -> Effect<Action> {
         switch action {
         case .뷰가_나타났을때:
-            guard let id = state.domain.contentId else {
+            if let content = state.content {
+                state.domain.content = content
+                return .send(.inner(.URL_유효성_확인))
+            } else if let id = state.domain.contentId {
+                return .send(.async(.컨텐츠_상세_조회_API(id: id)))
+            } else {
                 return .none
             }
-            return .send(.async(.컨텐츠_상세_조회_API(id: id)))
         case .공유_버튼_눌렀을때:
             state.showShareSheet = true
             return .none
