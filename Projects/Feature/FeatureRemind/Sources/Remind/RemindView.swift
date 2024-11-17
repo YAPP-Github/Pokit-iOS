@@ -197,13 +197,7 @@ extension RemindView {
     
     @MainActor
     private func recommendedContentCellImage(url: URL) -> some View {
-        var request = URLRequest(url: url)
-        request.setValue(
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36",
-            forHTTPHeaderField: "User-Agent"
-        )
-        
-        return LazyImage(request: .init(urlRequest: request)) { phase in
+        LazyImage(url: url) { phase in
             if let image = phase.image {
                 image
                     .resizable()
