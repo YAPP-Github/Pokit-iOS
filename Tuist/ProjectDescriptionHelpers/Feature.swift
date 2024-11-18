@@ -65,10 +65,7 @@ public enum Feature: String, CaseIterable {
         case .contentDetail: return []
         case .contentSetting: return []
         case .categorySetting: return []
-        case .remind:
-            return [
-                .project(target: "FeatureContentCard", path: .relativeToRoot("Projects/Feature"))
-            ]
+        case .remind: return []
         case .login: return []
         case .pokit:
             return [
