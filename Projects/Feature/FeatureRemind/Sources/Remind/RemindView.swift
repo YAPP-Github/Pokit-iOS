@@ -143,7 +143,7 @@ extension RemindView {
     private func recommendedContentCellLabel(content: BaseContentItem) -> some View {
         ZStack(alignment: .bottom) {
             if let url = URL(string: content.thumbNail) {
-                recommendedContentCellImage(url: url)
+                recommendedContentCellImage(url: url, contentId: content.id)
             } else {
                 imagePlaceholder
             }
@@ -196,11 +196,14 @@ extension RemindView {
     }
     
     @MainActor
-    private func recommendedContentCellImage(url: URL) -> some View {
+    private func recommendedContentCellImage(url: URL, contentId: Int) -> some View {
         LazyImage(url: url) { phase in
             if let image = phase.image {
                 image
                     .resizable()
+            } else if phase.error != nil {
+                imagePlaceholder
+                    .task { await send(.리마인드_항목_이미지오류_나타났을때(contentId: contentId)).finish() }
             } else {
                 imagePlaceholder
             }
@@ -267,7 +270,8 @@ extension RemindView {
                         PokitLinkCard(
                             link: content,
                             action: { send(.컨텐츠_항목_눌렀을때(content: content)) },
-                            kebabAction: { send(.컨텐츠_항목_케밥_버튼_눌렀을때(content: content)) }
+                            kebabAction: { send(.컨텐츠_항목_케밥_버튼_눌렀을때(content: content)) },
+                            fetchMetaData: { send(.읽지않음_항목_이미지_조회(contentId: content.id)) }
                         )
                         .divider(isFirst: isFirst, isLast: isLast)
                     }
@@ -301,7 +305,8 @@ extension RemindView {
                     PokitLinkCard(
                         link: content,
                         action: { send(.컨텐츠_항목_눌렀을때(content: content)) },
-                        kebabAction: { send(.컨텐츠_항목_케밥_버튼_눌렀을때(content: content)) }
+                        kebabAction: { send(.컨텐츠_항목_케밥_버튼_눌렀을때(content: content)) },
+                        fetchMetaData: { send(.즐겨찾기_항목_이미지_조회(contentId: content.id)) }
                     )
                     .divider(isFirst: isFirst, isLast: isLast)
                 }
