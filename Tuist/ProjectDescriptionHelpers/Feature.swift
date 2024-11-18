@@ -78,7 +78,10 @@ public enum Feature: String, CaseIterable {
             return [
                 .project(target: "FeatureContentCard", path: .relativeToRoot("Projects/Feature"))
             ]
-        case .setting: return []
+        case .setting:
+            return [
+                .project(target: "FeatureContentCard", path: .relativeToRoot("Projects/Feature"))
+            ]
         case .contentList:
             return [
                 .project(target: "FeatureContentCard", path: .relativeToRoot("Projects/Feature"))
