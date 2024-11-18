@@ -193,6 +193,7 @@ extension RemindView {
         }
         .frame(width: 216, height: 194)
         .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+        .clipped()
     }
     
     @MainActor
@@ -201,6 +202,7 @@ extension RemindView {
             if let image = phase.image {
                 image
                     .resizable()
+                    .aspectRatio(contentMode: .fill)
             } else if phase.error != nil {
                 imagePlaceholder
                     .task { await send(.리마인드_항목_이미지오류_나타났을때(contentId: contentId)).finish() }
