@@ -89,7 +89,6 @@ public struct ContentCardFeature {
     /// - Reducer body
     public var body: some ReducerOf<Self> {
         Reduce(self.core)
-            ._printChanges()
     }
 }
 //MARK: - FeatureAction Effect

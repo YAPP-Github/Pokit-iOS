@@ -151,7 +151,6 @@ public struct ContentListFeature {
             .forEach(\.contents, action: \.contents) {
                 ContentCardFeature()
             }
-            ._printChanges()
     }
 }
 //MARK: - FeatureAction Effect

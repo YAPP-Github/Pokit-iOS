@@ -100,7 +100,7 @@ private extension ContentListView {
                 } else {
                     ScrollView {
                         LazyVStack(spacing: 0) {
-                            ForEachStore(
+                            ForEach(
                                 store.scope(state: \.contents, action: \.contents)
                             ) { store in
                                 let isFirst = store.state.id == self.store.contents.first?.id
