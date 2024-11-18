@@ -7,6 +7,7 @@
 import Foundation
 
 import ComposableArchitecture
+import FeatureContentCard
 import Domain
 import CoreKit
 import DSKit
@@ -51,16 +52,7 @@ public struct CategoryDetailFeature {
             }
             return identifiedArray
         }
-        var contents: IdentifiedArrayOf<BaseContentItem>? {
-            guard let contentList = domain.contentList.data else {
-                return nil
-            }
-            var identifiedArray = IdentifiedArrayOf<BaseContentItem>()
-            contentList.forEach { content in
-                identifiedArray.append(content)
-            }
-            return identifiedArray
-        }
+        var contents: IdentifiedArrayOf<ContentCardFeature.State> = []
         var kebobSelectedType: PokitDeleteBottomSheet.SheetType?
         var selectedContentItem: BaseContentItem?
         var shareSheetItem: BaseContentItem? = nil
@@ -73,6 +65,7 @@ public struct CategoryDetailFeature {
         var hasNext: Bool {
             domain.contentList.hasNext
         }
+        var isLoading: Bool = true
         
         public init(category: BaseCategoryItem) {
             self.domain = .init(categpry: category)
@@ -86,6 +79,7 @@ public struct CategoryDetailFeature {
         case async(AsyncAction)
         case scope(ScopeAction)
         case delegate(DelegateAction)
+        case contents(IdentifiedActionOf<ContentCardFeature>)
         
         @CasePathable
         public enum View: BindableAction, Equatable {
@@ -121,10 +115,11 @@ public struct CategoryDetailFeature {
             case 클립보드_감지
         }
         
-        public enum ScopeAction: Equatable {
+        public enum ScopeAction {
             case categoryBottomSheet(PokitBottomSheet.Delegate)
             case categoryDeleteBottomSheet(PokitDeleteBottomSheet.Delegate)
             case filterBottomSheet(CategoryFilterSheet.Delegate)
+            case contents(IdentifiedActionOf<ContentCardFeature>)
         }
         
         public enum DelegateAction: Equatable {
@@ -163,6 +158,9 @@ public struct CategoryDetailFeature {
             /// - Delegate
         case .delegate(let delegateAction):
             return handleDelegateAction(delegateAction, state: &state)
+            
+        case .contents(let contentsAction):
+            return .send(.scope(.contents(contentsAction)))
         }
     }
     
@@ -170,6 +168,9 @@ public struct CategoryDetailFeature {
     public var body: some ReducerOf<Self> {
         BindingReducer(action: \.view)
         Reduce(self.core)
+            .forEach(\.contents, action: \.contents) {
+                ContentCardFeature()
+            }
     }
 }
 //MARK: - FeatureAction Effect
@@ -191,7 +192,7 @@ private extension CategoryDetailFeature {
         case .카테고리_선택했을때(let item):
             state.domain.category = item
             return .run { send in
-                await send(.inner(.pagenation_초기화))
+                await send(.inner(.pagenation_초기화), animation: .pokitDissolve)
                 await send(.async(.카테고리_내_컨텐츠_목록_조회_API))
                 await send(.inner(.카테고리_선택_시트_활성화(false)))
             }
@@ -248,10 +249,17 @@ private extension CategoryDetailFeature {
             
         case .카테고리_내_컨텐츠_목록_조회_API_반영(let contentList):
             state.domain.contentList = contentList
+            
+            var identifiedArray = IdentifiedArrayOf<ContentCardFeature.State>()
+            contentList.data?.forEach { identifiedArray.append(.init(content: $0)) }
+            state.contents = identifiedArray
+            
+            state.isLoading = false
             return .none
             
         case let .컨텐츠_삭제_API_반영(id):
             state.domain.contentList.data?.removeAll { $0.id == id }
+            state.contents.removeAll { $0.content.id == id }
             state.domain.category.contentCount -= 1
             state.selectedContentItem = nil
             state.isPokitDeleteSheetPresented = false
@@ -264,11 +272,15 @@ private extension CategoryDetailFeature {
 
             state.domain.contentList = contentList
             state.domain.contentList.data = list + newList
+            newList.forEach { state.contents.append(.init(content: $0)) }
+            
             return .none
             
         case .pagenation_초기화:
             state.domain.pageable.page = 0
             state.domain.contentList.data = nil
+            state.isLoading = true
+            state.contents.removeAll()
             return .none
         }
     }
@@ -459,6 +471,15 @@ private extension CategoryDetailFeature {
                     .send(.async(.카테고리_내_컨텐츠_목록_조회_API))
                 )
             }
+            
+        case let .contents(.element(id: _, action: .delegate(.컨텐츠_항목_눌렀을때(content)))):
+            return .send(.delegate(.contentItemTapped(content)))
+        case let .contents(.element(id: _, action: .delegate(.컨텐츠_항목_케밥_버튼_눌렀을때(content)))):
+            state.kebobSelectedType = .링크삭제
+            state.selectedContentItem = content
+            return .send(.inner(.카테고리_시트_활성화(true)))
+        case .contents:
+            return .none
         }
     }
     

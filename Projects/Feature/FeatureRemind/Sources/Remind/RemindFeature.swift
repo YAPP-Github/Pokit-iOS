@@ -21,7 +21,8 @@ public struct RemindFeature {
     private var remindClient
     @Dependency(ContentClient.self)
     private var contentClient
-    
+    @Dependency(SwiftSoupClient.self)
+    private var swiftSoupClient
     /// - State
     @ObservableState
     public struct State: Equatable {
@@ -84,19 +85,29 @@ public struct RemindFeature {
             case 링크_공유_완료
             
             case 뷰가_나타났을때
+            case 즐겨찾기_항목_이미지_조회(contentId: Int)
+            case 읽지않음_항목_이미지_조회(contentId: Int)
+            case 리마인드_항목_이미지오류_나타났을때(contentId: Int)
         }
         public enum InnerAction: Equatable {
             case 바텀시트_해제
             case 오늘의_리마인드_조회_API_반영(contents: [BaseContentItem])
             case 읽지않음_컨텐츠_조회_API_반영(contentList: BaseContentListInquiry)
             case 즐겨찾기_링크모음_조회_API_반영(contentList: BaseContentListInquiry)
+            case 즐겨찾기_이미지_조회_수행_반영(imageURL: String, index: Int)
+            case 읽지않음_이미지_조회_수행_반영(imageURL: String, index: Int)
+            case 리마인드_이미지_조회_수행_반영(imageURL: String, index: Int)
             case 컨텐츠_삭제_API_반영(id: Int)
+            
         }
         public enum AsyncAction: Equatable {
             case 오늘의_리마인드_조회_API
             case 읽지않음_컨텐츠_조회_API
             case 즐겨찾기_링크모음_조회_API
             case 컨텐츠_삭제_API(id: Int)
+            case 즐겨찾기_이미지_조회_수행(contentId: Int)
+            case 읽지않음_이미지_조회_수행(contentId: Int)
+            case 리마인드_이미지_조회_수행(contentId: Int)
         }
         public enum ScopeAction: Equatable {
             case bottomSheet(
@@ -175,6 +186,12 @@ private extension RemindFeature {
         case .링크_공유_완료:
             state.shareSheetItem = nil
             return .none
+        case let .즐겨찾기_항목_이미지_조회(contentId):
+            return .send(.async(.즐겨찾기_이미지_조회_수행(contentId: contentId)))
+        case let .읽지않음_항목_이미지_조회(contentId):
+            return .send(.async(.읽지않음_이미지_조회_수행(contentId: contentId)))
+        case let .리마인드_항목_이미지오류_나타났을때(contentId):
+            return .send(.async(.리마인드_이미지_조회_수행(contentId: contentId)))
         }
     }
     /// - Inner Effect
@@ -197,6 +214,24 @@ private extension RemindFeature {
             state.domain.recommendedList?.removeAll { $0.id == contentId }
             state.domain.unreadList.data?.removeAll { $0.id == contentId }
             state.domain.favoriteList.data?.removeAll { $0.id == contentId }
+            return .none
+        case let .즐겨찾기_이미지_조회_수행_반영(imageURL, index):
+            var content = state.domain.favoriteList.data?.remove(at: index)
+            content?.thumbNail = imageURL
+            guard let content else { return .none }
+            state.domain.favoriteList.data?.insert(content, at: index)
+            return .none
+        case let .읽지않음_이미지_조회_수행_반영(imageURL, index):
+            var content = state.domain.unreadList.data?.remove(at: index)
+            content?.thumbNail = imageURL
+            guard let content else { return .none }
+            state.domain.unreadList.data?.insert(content, at: index)
+            return .none
+        case let .리마인드_이미지_조회_수행_반영(imageURL, index):
+            var content = state.domain.recommendedList?.remove(at: index)
+            content?.thumbNail = imageURL
+            guard let content else { return .none }
+            state.domain.recommendedList?.insert(content, at: index)
             return .none
         }
     }
@@ -234,6 +269,52 @@ private extension RemindFeature {
             return .run { send in
                 let _ = try await contentClient.컨텐츠_삭제("\(id)")
                 await send(.inner(.컨텐츠_삭제_API_반영(id: id)), animation: .pokitSpring)
+            }
+        case let .즐겨찾기_이미지_조회_수행(contentId):
+            return .run { [favoriteContents = state.favoriteContents] send in
+                guard let index = favoriteContents?.index(id: contentId),
+                      let content = favoriteContents?[index],
+                      let url = URL(string: content.data) else {
+                    return
+                }
+                
+                let imageURL = try await swiftSoupClient.parseOGImageURL(url)
+                guard let imageURL else { return }
+                
+                await send(.inner(.즐겨찾기_이미지_조회_수행_반영(
+                    imageURL: imageURL,
+                    index: index
+                )))
+            }
+        case let .읽지않음_이미지_조회_수행(contentId):
+            return .run { [unreadContents = state.unreadContents] send in
+                guard let index = unreadContents?.index(id: contentId),
+                      let content = unreadContents?[index],
+                      let url = URL(string: content.data) else {
+                    return
+                }
+                let imageURL = try await swiftSoupClient.parseOGImageURL(url)
+                guard let imageURL else { return }
+                
+                await send(.inner(.읽지않음_이미지_조회_수행_반영(
+                    imageURL: imageURL,
+                    index: index
+                )))
+            }
+        case let .리마인드_이미지_조회_수행(contentId):
+            return .run { [recommendedContents = state.recommendedContents] send in
+                guard let index = recommendedContents?.index(id: contentId),
+                      let content = recommendedContents?[index],
+                      let url = URL(string: content.data) else {
+                    return
+                }
+                let imageURL = try await swiftSoupClient.parseOGImageURL(url)
+                guard let imageURL else { return }
+                
+                await send(.inner(.리마인드_이미지_조회_수행_반영(
+                    imageURL: imageURL,
+                    index: index
+                )))
             }
         }
     }

@@ -7,6 +7,7 @@
 import Foundation
 
 import ComposableArchitecture
+import FeatureContentCard
 import Domain
 import CoreKit
 import DSKit
@@ -45,14 +46,7 @@ public struct PokitSearchFeature {
             get { domain.condition.searchWord }
             set { domain.condition.searchWord = newValue }
         }
-        var resultList: IdentifiedArrayOf<BaseContentItem>? {
-            guard let contentList = domain.contentList.data else {
-                return nil
-            }
-            var identifiedArray = IdentifiedArrayOf<BaseContentItem>()
-            contentList.forEach { identifiedArray.append($0) }
-            return identifiedArray
-        }
+        var contents: IdentifiedArrayOf<ContentCardFeature.State> = []
         var favoriteFilter: Bool {
             get { domain.condition.favorites }
             set { domain.condition.favorites = newValue }
@@ -77,6 +71,7 @@ public struct PokitSearchFeature {
         var hasNext: Bool {
             get { domain.contentList.hasNext }
         }
+        var isLoading: Bool = false
         
         /// sheet item
         var bottomSheetItem: BaseContentItem? = nil
@@ -92,6 +87,7 @@ public struct PokitSearchFeature {
         case scope(ScopeAction)
         case delegate(DelegateAction)
         case fiterBottomSheet(PresentationAction<FilterBottomFeature.Action>)
+        case contents(IdentifiedActionOf<ContentCardFeature>)
         
         @CasePathable
         public enum View: Equatable, BindableAction {
@@ -150,12 +146,13 @@ public struct PokitSearchFeature {
             case 클립보드_감지
         }
         
-        public enum ScopeAction: Equatable {
+        public enum ScopeAction {
             case filterBottomSheet(FilterBottomFeature.Action.DelegateAction)
             case bottomSheet(
                 delegate: PokitBottomSheet.Delegate,
                 content: BaseContentItem
             )
+            case contents(IdentifiedActionOf<ContentCardFeature>)
         }
         
         public enum DelegateAction: Equatable {
@@ -193,6 +190,9 @@ public struct PokitSearchFeature {
             
         case .fiterBottomSheet:
             return .none
+            
+        case .contents(let contentsAction):
+            return .send(.scope(.contents(contentsAction)))
         }
     }
     public enum CancelID { case response }
@@ -200,6 +200,9 @@ public struct PokitSearchFeature {
     public var body: some ReducerOf<Self> {
         BindingReducer(action: \.view)
         Reduce(self.core)
+            .forEach(\.contents, action: \.contents) {
+                ContentCardFeature()
+            }
             .ifLet(\.$filterBottomSheet, action: \.fiterBottomSheet) {
                 FilterBottomFeature()
             }
@@ -409,6 +412,11 @@ private extension PokitSearchFeature {
             
         case .컨텐츠_검색_API_반영(let contentList):
             state.domain.contentList = contentList
+            
+            var contents = IdentifiedArrayOf<ContentCardFeature.State>()
+            contentList.data?.forEach { contents.append(.init(content: $0)) }
+            state.contents = contents
+            state.isLoading = false
             return .send(.inner(.검색창_활성화(true)))
             
         case .최근검색어_불러오기:
@@ -435,6 +443,7 @@ private extension PokitSearchFeature {
         case let .컨텐츠_삭제_API_반영(id):
             state.alertItem = nil
             state.domain.contentList.data?.removeAll { $0.id == id }
+            state.contents.removeAll { $0.content.id == id }
             return .none
             
         case let .컨텐츠_검색_페이징_API_반영(contentList):
@@ -443,11 +452,16 @@ private extension PokitSearchFeature {
 
             state.domain.contentList = contentList
             state.domain.contentList.data = list + newList
+            
+            newList.forEach { state.contents.append(.init(content: $0)) }
+            
             return .send(.inner(.검색창_활성화(true)))
             
         case .페이징_초기화:
             state.domain.pageable.page = 0
             state.domain.contentList.data = nil
+            state.isLoading = true
+            state.contents.removeAll()
             return .send(.async(.컨텐츠_검색_API), animation: .pokitDissolve)
         }
     }
@@ -515,6 +529,8 @@ private extension PokitSearchFeature {
                     pageableRequest,
                     conditionRequest
                 ).toDomain()
+                
+                await send(.inner(.컨텐츠_검색_페이징_API_반영(contentList)))
             }
 
         case .클립보드_감지:
@@ -559,6 +575,14 @@ private extension PokitSearchFeature {
                 state.shareSheetItem = content
                 return .none
             }
+            
+        case let .contents(.element(id: _, action: .delegate(.컨텐츠_항목_눌렀을때(content)))):
+            return .send(.delegate(.linkCardTapped(content: content)))
+        case let .contents(.element(id: _, action: .delegate(.컨텐츠_항목_케밥_버튼_눌렀을때(content)))):
+            state.bottomSheetItem = content
+            return .none
+        case .contents:
+            return .none
         }
     }
     

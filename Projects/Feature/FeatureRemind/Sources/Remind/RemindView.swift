@@ -143,7 +143,7 @@ extension RemindView {
     private func recommendedContentCellLabel(content: BaseContentItem) -> some View {
         ZStack(alignment: .bottom) {
             if let url = URL(string: content.thumbNail) {
-                recommendedContentCellImage(url: url)
+                recommendedContentCellImage(url: url, contentId: content.id)
             } else {
                 imagePlaceholder
             }
@@ -193,20 +193,19 @@ extension RemindView {
         }
         .frame(width: 216, height: 194)
         .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+        .clipped()
     }
     
     @MainActor
-    private func recommendedContentCellImage(url: URL) -> some View {
-        var request = URLRequest(url: url)
-        request.setValue(
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36",
-            forHTTPHeaderField: "User-Agent"
-        )
-        
-        return LazyImage(request: .init(urlRequest: request)) { phase in
+    private func recommendedContentCellImage(url: URL, contentId: Int) -> some View {
+        LazyImage(url: url) { phase in
             if let image = phase.image {
                 image
                     .resizable()
+                    .aspectRatio(contentMode: .fill)
+            } else if phase.error != nil {
+                imagePlaceholder
+                    .task { await send(.리마인드_항목_이미지오류_나타났을때(contentId: contentId)).finish() }
             } else {
                 imagePlaceholder
             }
@@ -273,7 +272,8 @@ extension RemindView {
                         PokitLinkCard(
                             link: content,
                             action: { send(.컨텐츠_항목_눌렀을때(content: content)) },
-                            kebabAction: { send(.컨텐츠_항목_케밥_버튼_눌렀을때(content: content)) }
+                            kebabAction: { send(.컨텐츠_항목_케밥_버튼_눌렀을때(content: content)) },
+                            fetchMetaData: { send(.읽지않음_항목_이미지_조회(contentId: content.id)) }
                         )
                         .divider(isFirst: isFirst, isLast: isLast)
                     }
@@ -307,7 +307,8 @@ extension RemindView {
                     PokitLinkCard(
                         link: content,
                         action: { send(.컨텐츠_항목_눌렀을때(content: content)) },
-                        kebabAction: { send(.컨텐츠_항목_케밥_버튼_눌렀을때(content: content)) }
+                        kebabAction: { send(.컨텐츠_항목_케밥_버튼_눌렀을때(content: content)) },
+                        fetchMetaData: { send(.즐겨찾기_항목_이미지_조회(contentId: content.id)) }
                     )
                     .divider(isFirst: isFirst, isLast: isLast)
                 }

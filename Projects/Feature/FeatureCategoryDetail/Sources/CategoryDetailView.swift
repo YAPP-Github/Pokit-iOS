@@ -7,6 +7,7 @@
 import SwiftUI
 
 import ComposableArchitecture
+import FeatureContentCard
 import Domain
 import DSKit
 import Util
@@ -136,8 +137,8 @@ private extension CategoryDetailView {
     
     var contentScrollView: some View {
         Group {
-            if let contents = store.contents {
-                if contents.isEmpty {
+            if !store.isLoading {
+                if store.contents.isEmpty {
                     VStack {
                         PokitCaution(
                             image: .empty,
@@ -151,17 +152,17 @@ private extension CategoryDetailView {
                 } else {
                     ScrollView(showsIndicators: false) {
                         LazyVStack(spacing: 0) {
-                            ForEach(contents) { content in
-                                let isFirst = content == contents.first
-                                let isLast = content == contents.last
+                            ForEach(
+                                store.scope(state: \.contents, action: \.contents)
+                            ) { store in
+                                let isFirst = store.state.id == self.store.contents.first?.id
+                                let isLast = store.state.id == self.store.contents.last?.id
                                 
-                                PokitLinkCard(
-                                    link: content,
-                                    action: { send(.컨텐츠_항목_눌렀을때(content)) },
-                                    kebabAction: { send(.카테고리_케밥_버튼_눌렀을때(.링크삭제, selectedItem: content)) }
+                                ContentCardView(
+                                    store: store,
+                                    isFirst: isFirst,
+                                    isLast: isLast
                                 )
-                                .divider(isFirst: isFirst, isLast: isLast)
-                                .pokitScrollTransition(.opacity)
                             }
                             
                             if store.hasNext {

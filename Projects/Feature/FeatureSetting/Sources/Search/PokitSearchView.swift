@@ -7,6 +7,7 @@
 import SwiftUI
 
 import ComposableArchitecture
+import FeatureContentCard
 import DSKit
 
 @ViewAction(for: PokitSearchFeature.self)
@@ -290,19 +291,20 @@ private extension PokitSearchView {
             .contentTransition(.numericText())
             .padding(.horizontal, 20)
             
-            if let results = store.resultList {
+            if !store.isLoading {
                 ScrollView {
                     LazyVStack(spacing: 0) {
-                        ForEach(results, id: \.id) { content in
-                            let isFirst = content == results.first
-                            let isLast = content == results.last
+                        ForEach(
+                            store.scope(state: \.contents, action: \.contents)
+                        ) { store in
+                            let isFirst = store.state.id == self.store.contents.first?.id
+                            let isLast = store.state.id == self.store.contents.last?.id
                             
-                            PokitLinkCard(
-                                link: content,
-                                action: { send(.컨텐츠_항목_눌렀을때(content: content)) },
-                                kebabAction: { send(.컨텐츠_항목_케밥_버튼_눌렀을때(content: content)) }
+                            ContentCardView(
+                                store: store,
+                                isFirst: isFirst,
+                                isLast: isLast
                             )
-                            .divider(isFirst: isFirst, isLast: isLast)
                         }
                         
                         if store.hasNext {

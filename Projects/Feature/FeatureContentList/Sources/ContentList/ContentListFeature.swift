@@ -7,6 +7,7 @@
 import Foundation
 
 import ComposableArchitecture
+import FeatureContentCard
 import Domain
 import CoreKit
 import DSKit
@@ -32,14 +33,7 @@ public struct ContentListFeature {
 
         let contentType: ContentType
         fileprivate var domain = ContentList()
-        var contents: IdentifiedArrayOf<BaseContentItem>? {
-            guard let contentList = domain.contentList.data else {
-                return nil
-            }
-            var identifiedArray = IdentifiedArrayOf<BaseContentItem>()
-            contentList.forEach { identifiedArray.append($0) }
-            return identifiedArray
-        }
+        var contents: IdentifiedArrayOf<ContentCardFeature.State> = []
         var contentCount: Int {
             get { domain.contentCount }
         }
@@ -52,6 +46,7 @@ public struct ContentListFeature {
         var hasNext: Bool {
             domain.contentList.hasNext
         }
+        var isLoading: Bool = true
     }
 
     /// - Action
@@ -61,6 +56,7 @@ public struct ContentListFeature {
         case async(AsyncAction)
         case scope(ScopeAction)
         case delegate(DelegateAction)
+        case contents(IdentifiedActionOf<ContentCardFeature>)
 
         @CasePathable
         public enum View: Equatable, BindableAction {
@@ -102,11 +98,12 @@ public struct ContentListFeature {
             case 클립보드_감지
         }
 
-        public enum ScopeAction: Equatable {
+        public enum ScopeAction {
             case bottomSheet(
                 delegate: PokitBottomSheet.Delegate,
                 content: BaseContentItem
             )
+            case contents(IdentifiedActionOf<ContentCardFeature>)
         }
 
         public enum DelegateAction: Equatable {
@@ -142,13 +139,18 @@ public struct ContentListFeature {
             /// - Delegate
         case .delegate(let delegateAction):
             return handleDelegateAction(delegateAction, state: &state)
+            
+        case let .contents(contentAction):
+            return .send(.scope(.contents(contentAction)))
         }
     }
 
     /// - Reducer body
     public var body: some ReducerOf<Self> {
         Reduce(self.core)
-            ._printChanges()
+            .forEach(\.contents, action: \.contents) {
+                ContentCardFeature()
+            }
     }
 }
 //MARK: - FeatureAction Effect
@@ -208,17 +210,28 @@ private extension ContentListFeature {
 
             state.domain.contentList = contentList
             state.domain.contentList.data = list + newList
+            
+            newList.forEach { state.contents.append(.init(content: $0)) }
             return .none
         case .컨텐츠_삭제_API_반영(id: let id):
             state.alertItem = nil
             state.domain.contentList.data?.removeAll { $0.id == id }
+            state.contents.removeAll { $0.content.id == id }
             return .none
         case .컨텐츠_목록_조회_API_반영(let contentList):
             state.domain.contentList = contentList
+            
+            var identifiedArray = IdentifiedArrayOf<ContentCardFeature.State>()
+            contentList.data?.forEach { identifiedArray.append(.init(content: $0)) }
+            state.contents = identifiedArray
+            
+            state.isLoading = false
             return .none
         case .페이징_초기화:
             state.domain.pageable.page = 0
             state.domain.contentList.data = nil
+            state.isLoading = true
+            state.contents.removeAll()
             return .send(.async(.컨텐츠_목록_조회_API), animation: .pokitDissolve)
         case let .컨텐츠_개수_업데이트(count):
             state.domain.contentCount = count
@@ -303,6 +316,14 @@ private extension ContentListFeature {
                 state.shareSheetItem = content
                 return .none
             }
+            
+        case let .contents(.element(id: _, action: .delegate(.컨텐츠_항목_눌렀을때(content)))):
+            return .send(.delegate(.링크상세(content: content)))
+        case let .contents(.element(id: _, action: .delegate(.컨텐츠_항목_케밥_버튼_눌렀을때(content)))):
+            state.bottomSheetItem = content
+            return .none
+        case .contents:
+            return .none
         }
     }
 
@@ -353,7 +374,7 @@ private extension ContentListFeature {
                 contentItems?.data = items + newItems
             }
             guard let contentItems else { return }
-            await send(.inner(.컨텐츠_목록_조회_API_반영(contentItems)))
+            await send(.inner(.컨텐츠_목록_조회_API_반영(contentItems)), animation: .pokitDissolve)
         }
     }
     

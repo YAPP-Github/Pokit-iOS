@@ -19,6 +19,7 @@ public enum Feature: String, CaseIterable {
     case setting = "Setting"
     case contentList = "ContentList"
     case categorySharing = "CategorySharing"
+    case contentCard = "ContentCard"
     
     public var target: Target {
         return .makeTarget(
@@ -26,7 +27,7 @@ public enum Feature: String, CaseIterable {
             product: TuistRelease.isRelease ? .staticFramework : .framework,
             bundleName: "Feature.\(self.rawValue)",
             infoPlist: .file(path: .relativeToRoot("Projects/App/Resources/Pokit-info.plist")),
-            dependencies: [
+            dependencies: self.depenecies + [
                 .project(target: "DSKit", path: .relativeToRoot("Projects/DSKit")),
                 .project(target: "Domain", path: .relativeToRoot("Projects/Domain"))
             ]
@@ -57,5 +58,36 @@ public enum Feature: String, CaseIterable {
                 .target(self.target)
             ]
         )
+    }
+    
+    public var depenecies: [TargetDependency] {
+        switch self {
+        case .contentDetail: return []
+        case .contentSetting: return []
+        case .categorySetting: return []
+        case .remind: return []
+        case .login: return []
+        case .pokit:
+            return [
+                .project(target: "FeatureContentCard", path: .relativeToRoot("Projects/Feature"))
+            ]
+        case .categoryDetail:
+            return [
+                .project(target: "FeatureContentCard", path: .relativeToRoot("Projects/Feature"))
+            ]
+        case .setting:
+            return [
+                .project(target: "FeatureContentCard", path: .relativeToRoot("Projects/Feature"))
+            ]
+        case .contentList:
+            return [
+                .project(target: "FeatureContentCard", path: .relativeToRoot("Projects/Feature"))
+            ]
+        case .categorySharing:
+            return [
+                .project(target: "FeatureContentCard", path: .relativeToRoot("Projects/Feature"))
+            ]
+        case .contentCard: return []
+        }
     }
 }

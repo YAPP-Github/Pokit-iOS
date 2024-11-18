@@ -11,8 +11,11 @@ import DependenciesMacros
 
 @DependencyClient
 public struct SwiftSoupClient {
-    public var parseOGTitleAndImage: @Sendable (
-        _ url: URL,
-        _ completion: @Sendable () async -> Void
-    ) async -> (String?, String?) = { _, _ in (nil , nil) }
+    public var parseOGTitle: @Sendable (
+        _ url: URL
+    ) async throws -> String? = { _ in nil }
+    
+    public var parseOGImageURL: @Sendable (
+        _ url: URL
+    ) async throws -> String? = { _ in nil }
 }

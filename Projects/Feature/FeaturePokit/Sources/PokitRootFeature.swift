@@ -5,6 +5,7 @@
 //  Created by 김민호 on 7/16/24.
 
 import ComposableArchitecture
+import FeatureContentCard
 import Domain
 import CoreKit
 import DSKit
@@ -36,16 +37,7 @@ public struct PokitRootFeature {
             }
             return identifiedArray
         }
-        var unclassifiedContents: IdentifiedArrayOf<BaseContentItem>? {
-            guard let unclassifiedContentList = domain.unclassifiedContentList.data else {
-                return nil
-            }
-            var identifiedArray = IdentifiedArrayOf<BaseContentItem>()
-            unclassifiedContentList.forEach { content in
-                identifiedArray.append(content)
-            }
-            return identifiedArray
-        }
+        var contents: IdentifiedArrayOf<ContentCardFeature.State> = []
 
         var selectedKebobItem: BaseCategoryItem?
         var selectedUnclassifiedItem: BaseContentItem?
@@ -56,6 +48,7 @@ public struct PokitRootFeature {
         
         var hasNext: Bool { domain.categoryList.hasNext }
         var unclassifiedHasNext: Bool { domain.unclassifiedContentList.hasNext }
+        var isLoading: Bool = true
 
         public init() { }
     }
@@ -67,6 +60,7 @@ public struct PokitRootFeature {
         case async(AsyncAction)
         case scope(ScopeAction)
         case delegate(DelegateAction)
+        case contents(IdentifiedActionOf<ContentCardFeature>)
 
         @CasePathable
         public enum View: BindableAction, Equatable {
@@ -112,9 +106,10 @@ public struct PokitRootFeature {
             case 미분류_카테고리_컨텐츠_삭제_API(contentId: Int)
         }
 
-        public enum ScopeAction: Equatable {
+        public enum ScopeAction {
             case bottomSheet(PokitBottomSheet.Delegate)
             case deleteBottomSheet(PokitDeleteBottomSheet.Delegate)
+            case contents(IdentifiedActionOf<ContentCardFeature>)
         }
 
         public enum DelegateAction: Equatable {
@@ -156,6 +151,9 @@ public struct PokitRootFeature {
             /// - Delegate
         case .delegate(let delegateAction):
             return handleDelegateAction(delegateAction, state: &state)
+            
+        case .contents(let contentsAciton):
+            return .send(.scope(.contents(contentsAciton)))
         }
     }
 
@@ -163,6 +161,10 @@ public struct PokitRootFeature {
     public var body: some ReducerOf<Self> {
         BindingReducer(action: \.view)
         Reduce(self.core)
+            .forEach(\.contents, action: \.contents) {
+                ContentCardFeature()
+            }
+            
     }
 }
 //MARK: - FeatureAction Effect
@@ -279,6 +281,12 @@ private extension PokitRootFeature {
 
         case .미분류_카테고리_조회_API_반영(contentList: let contentList):
             state.domain.unclassifiedContentList = contentList
+            
+            var contents = IdentifiedArrayOf<ContentCardFeature.State>()
+            contentList.data?.forEach { contents.append(.init(content: $0)) }
+            state.contents = contents
+            
+            state.isLoading = false
             return .none
             
         case let .카테고리_조회_API_반영(categoryList):
@@ -301,6 +309,9 @@ private extension PokitRootFeature {
             state.domain.unclassifiedContentList = contentList
             state.domain.unclassifiedContentList.data = list + newList
             state.domain.pageable.size = 10
+            newList.forEach { content in
+                state.contents.append(.init(content: content))
+            }
             return .none
             
         case let .미분류_카테고리_컨텐츠_삭제_API_반영(contentId: contentId):
@@ -308,6 +319,7 @@ private extension PokitRootFeature {
                 return .none
             }
             state.domain.unclassifiedContentList.data?.remove(at: index)
+            state.contents.removeAll { $0.content.id == contentId }
             state.isPokitDeleteSheetPresented = false
             return .none
             
@@ -315,6 +327,8 @@ private extension PokitRootFeature {
             state.domain.pageable.page = 0
             state.domain.categoryList.data = nil
             state.domain.unclassifiedContentList.data = nil
+            state.isLoading = true
+            state.contents.removeAll()
             
             switch state.folderType {
             case .folder(.포킷):
@@ -524,6 +538,14 @@ private extension PokitRootFeature {
                 
             default: return .none
             }
+            
+        case let .contents(.element(id: _, action: .delegate(.컨텐츠_항목_눌렀을때(content)))):
+            return .send(.delegate(.contentDetailTapped(content)))
+        case let .contents(.element(id: _, action: .delegate(.컨텐츠_항목_케밥_버튼_눌렀을때(content)))):
+            state.selectedUnclassifiedItem = content
+            return .send(.inner(.카테고리_시트_활성화(true)))
+        case .contents:
+            return .none
             
         default: return .none
         }

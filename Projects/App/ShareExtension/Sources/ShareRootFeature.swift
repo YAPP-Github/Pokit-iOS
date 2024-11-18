@@ -200,7 +200,6 @@ struct ShareRootFeature {
             .ifLet(\.intro, action: \.intro) { IntroFeature() }
             .ifLet(\.contentSetting, action: \.contentSetting) { ContentSettingFeature() }
             .forEach(\.path, action: \.path)
-            ._printChanges()
     }
 }
 

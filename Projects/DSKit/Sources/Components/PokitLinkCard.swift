@@ -14,15 +14,18 @@ public struct PokitLinkCard<Item: PokitLinkCardItem>: View {
     private let link: Item
     private let action: () -> Void
     private let kebabAction: (() -> Void)?
+    private let fetchMetaData: (() -> Void)?
     
     public init(
         link: Item,
         action: @escaping () -> Void,
-        kebabAction: (() -> Void)? = nil
+        kebabAction: (() -> Void)? = nil,
+        fetchMetaData: (() -> Void)? = nil
     ) {
         self.link = link
         self.action = action
         self.kebabAction = kebabAction
+        self.fetchMetaData = fetchMetaData
     }
     
     public var body: some View {
@@ -110,18 +113,15 @@ public struct PokitLinkCard<Item: PokitLinkCardItem>: View {
     
     @MainActor
     private func thumbleNail(url: URL) -> some View {
-        var request = URLRequest(url: url)
-        request.setValue(
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36",
-            forHTTPHeaderField: "User-Agent"
-        )
-        
-        return LazyImage(request: .init(urlRequest: request)) { phase in
+        LazyImage(url: url) { phase in
             Group {
                 if let image = phase.image {
                     image
                         .resizable()
                         .aspectRatio(contentMode: .fill)
+                } else if phase.error != nil {
+                    placeholder
+                        .onAppear { fetchMetaData?() }
                 } else {
                     placeholder
                 }
