@@ -410,7 +410,6 @@ private extension PokitRootFeature {
                     animation: .pokitSpring
                 )
             }
-            
         case .카테고리_페이징_재조회_API:
             return .run { [pageable = state.domain.pageable] send in
                 let stream = AsyncThrowingStream<BaseCategoryListInquiry, Error> { continuation in
@@ -520,7 +519,6 @@ private extension PokitRootFeature {
                     /// 🚨 Error Case [1]: 항목을 삭제하려는데 항목이 없을 때
                     return .none
                 }
-
                 return .send(.async(.미분류_카테고리_컨텐츠_삭제_API(contentId: selectedItem.id)), animation: .pokitSpring)
 
             case .folder(.포킷):

@@ -21,5 +21,4 @@ public struct RemindClient {
     async throws -> UnreadCountResponse
     public var 즐겨찾기_컨텐츠_개수_조회: @Sendable ()
     async throws -> BookmarkCountResponse
-        
 }

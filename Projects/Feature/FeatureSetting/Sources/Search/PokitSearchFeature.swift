@@ -343,7 +343,6 @@ private extension PokitSearchFeature {
         case .링크_공유_완료되었을때:
             state.shareSheetItem = nil
             return .none
-
         case .로딩중일때:
             return .send(.async(.컨텐츠_검색_페이징_API))
         }
@@ -360,7 +359,6 @@ private extension PokitSearchFeature {
                 state.domain.contentList.data = []
             }
             return .none
-            
         case let .기간_업데이트(startDate, endDate):
             let formatter = DateFormat.dateFilter.formatter
             
@@ -529,7 +527,7 @@ private extension PokitSearchFeature {
                     pageableRequest,
                     conditionRequest
                 ).toDomain()
-                
+
                 await send(.inner(.컨텐츠_검색_페이징_API_반영(contentList)))
             }
 

@@ -265,7 +265,6 @@ private extension CategoryDetailFeature {
             state.isPokitDeleteSheetPresented = false
             state.kebobSelectedType = nil
             return .none
-            
         case .pagenation_API_반영(let contentList):
             let list = state.domain.contentList.data ?? []
             guard let newList = contentList.data else { return .none }
@@ -273,7 +272,6 @@ private extension CategoryDetailFeature {
             state.domain.contentList = contentList
             state.domain.contentList.data = list + newList
             newList.forEach { state.contents.append(.init(content: $0)) }
-            
             return .none
             
         case .pagenation_초기화:
@@ -310,7 +308,6 @@ private extension CategoryDetailFeature {
                 let contentList = try await contentClient.카테고리_내_컨텐츠_목록_조회(
                     "\(id)", request, conditionRequest
                 ).toDomain()
-
                 pageable.page == 0
                 ? await send(.inner(.카테고리_내_컨텐츠_목록_조회_API_반영(contentList)), animation: .pokitDissolve)
                 : await send(.inner(.pagenation_API_반영(contentList)))
