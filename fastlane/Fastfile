@@ -108,11 +108,12 @@ platform :ios do
 
     upload_to_app_store(
     api_key: api_key,
-    skip_metadata: true,
+    skip_metadata: false,
     skip_screenshots: true,
+    skip_binary_upload: true,
     precheck_include_in_app_purchases: false,
     release_notes: {
-      "ko" => release_notes
+      'default' => release_notes
     },
     submit_for_review: true,
     automatic_release: true
