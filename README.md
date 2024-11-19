@@ -7,7 +7,9 @@
 <img src="https://github.com/user-attachments/assets/5902a53b-0a69-4866-961c-c9e1c83316e2" alt="b5">
 
 ## 아키텍쳐
-1.0.4버전에 공개예정! 열심히 정리중이에요 😃
+
+<img src="https://github.com/user-attachments/assets/ab54c44f-9ac2-4e03-ba3d-61fe430ed32b" width=800>
+<img src="https://github.com/user-attachments/assets/36ea9d35-3773-4d63-8477-2645c641dcf6" width=800>
 
 ## Dependencies 
 <table style="text-align: center;">
@@ -46,7 +48,7 @@
         </tr>
         <tr>
             <td>Feat</td>
-            <td>KakoSDK</td>
+            <td>KakaoSDK</td>
             <td>2.22.5</td>
         </tr>
         <tr>
