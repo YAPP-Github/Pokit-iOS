@@ -110,6 +110,7 @@ platform :ios do
     api_key: api_key,
     skip_metadata: true,
     skip_screenshots: true,
+    precheck_include_in_app_purchases: false,
     release_notes: {
       "ko" => release_notes
     },
