@@ -8,7 +8,7 @@
 
 ## 아키텍쳐
 
-<img src="https://github.com/user-attachments/assets/ab54c44f-9ac2-4e03-ba3d-61fe430ed32b" width=800>
+<img src="https://github.com/user-attachments/assets/452c4a60-f558-46f6-a067-5b210d076762" width=800>
 <img src="https://github.com/user-attachments/assets/36ea9d35-3773-4d63-8477-2645c641dcf6" width=800>
 
 ## Dependencies 
