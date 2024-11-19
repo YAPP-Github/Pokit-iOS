@@ -37,9 +37,6 @@ public struct ContentListFeature {
         var contentCount: Int {
             get { domain.contentCount }
         }
-        var contentCount: Int {
-            get { domain.contentCount }
-        }
         var isListDescending = true
         /// sheet item
         var bottomSheetItem: BaseContentItem? = nil
@@ -237,9 +234,6 @@ private extension ContentListFeature {
             state.contents.removeAll()
             return .send(.async(.컨텐츠_목록_조회_API), animation: .pokitDissolve)
         case let .컨텐츠_개수_업데이트(count):
-            state.domain.contentCount = count
-            return .none
-        case let .컨텐츠_개수_갱신(count):
             state.domain.contentCount = count
             return .none
         }
