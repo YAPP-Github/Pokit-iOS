@@ -51,13 +51,13 @@ public struct PokitLinkPreview: View {
                 .animation(.pokitDissolve, value: phase.image)
             }
             .frame(width: 124, height: 108)
+            .clipped()
             
             info(title: title)
             
             Spacer()
         }
         .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-        .clipped()
         .background {
             RoundedRectangle(cornerRadius: 12, style: .continuous)
                 .fill(.pokit(.bg(.base)))

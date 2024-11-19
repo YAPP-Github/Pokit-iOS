@@ -31,7 +31,7 @@ public extension PokitAlertBoxView {
                         VStack {
                             PokitCaution(
                                 image: .pooki,
-                                titleKey: "알람이 없어요",
+                                titleKey: "알림이 없어요",
                                 message: "리마인드 알림을 설정하세요"
                             )
                             .padding(.top, 84)
