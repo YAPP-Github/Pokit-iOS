@@ -116,7 +116,8 @@ platform :ios do
       'default' => release_notes
     },
     submit_for_review: true,
-    automatic_release: true
+    automatic_release: true,
+    force: true
     )
   end
 
