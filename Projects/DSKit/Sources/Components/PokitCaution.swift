@@ -72,20 +72,14 @@ public enum CautionType {
 }
 
 public struct PokitCaution: View {
-    private let image: PokitImage.Character
-    private let titleKey: String
-    private let message: String
+    private let type: CautionType
     private let action: (() -> Void)?
     
     public init(
-        image: PokitImage.Character,
-        titleKey: String,
-        message: String,
+        type: CautionType,
         action: (() -> Void)? = nil
     ) {
-        self.image = image
-        self.titleKey = titleKey
-        self.message = message
+        self.type = type
         self.action = action
     }
     
@@ -94,27 +88,28 @@ public struct PokitCaution: View {
             Spacer()
             
             VStack(spacing: 0) {
-                Image(.character(image))
+                Image(.character(type.image))
                     .resizable()
                     .aspectRatio(contentMode: .fill)
                     .frame(width: 180, height: 180)
                     .padding(.bottom, 16)
                 
-                Text(titleKey)
+                Text(type.title)
                     .pokitFont(.title2)
                     .foregroundStyle(.pokit(.text(.secondary)))
                     .padding(.bottom, 8)
                 
-                Text(message)
+                Text(type.message)
                     .pokitFont(.b2(.m))
                     .foregroundStyle(.pokit(.text(.secondary)))
                     .padding(.bottom, 16)
                 
-                if let action {
+                if let action,
+                   let actionTitle = type.actionTitle {
                     PokitTextButton(
-                        "다시시도",
-                        state: .default(.secondary),
-                        size: .small,
+                        actionTitle,
+                        state: .stroke(.secondary),
+                        size: .medium,
                         shape: .rectangle,
                         action: action
                     )
@@ -128,9 +123,7 @@ public struct PokitCaution: View {
 
 #Preview {
     PokitCaution(
-        image: .empty,
-        titleKey: "저장된 포킷이 없어요!",
-        message: "포킷을 생성해 링크를 저장해보세요",
+        type: .미분류_링크없음,
         action: {}
     )
 }

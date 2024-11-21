@@ -29,11 +29,7 @@ public extension PokitAlertBoxView {
                 if let alertContents = store.alertContents {
                     if alertContents.isEmpty {
                         VStack {
-                            PokitCaution(
-                                image: .pooki,
-                                titleKey: "알림이 없어요",
-                                message: "리마인드 알림을 설정하세요"
-                            )
+                            PokitCaution(type: .알림없음)
                             .padding(.top, 84)
                             Spacer()
                         }
