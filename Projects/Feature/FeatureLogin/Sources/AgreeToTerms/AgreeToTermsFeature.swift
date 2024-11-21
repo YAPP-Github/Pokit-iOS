@@ -39,21 +39,21 @@ public struct AgreeToTermsFeature {
             /// - Binding
             case binding(BindingAction<State>)
             /// - Button Tapped
-            case nextButtonTapped
-            case backButtonTapped
-            case 개인정보_동의_버튼_클릭
-            case 서비스_이용약관_버튼_클릭
-            case 마케팅_정보_수신_버튼_클릭
+            case 다음_버튼_눌렀을때
+            case 뒤로가기_버튼_눌렀을때
+            case 개인정보_동의_버튼_눌렀을때
+            case 서비스_이용약관_버튼_눌렀을때
+            case 마케팅_정보_수신_버튼_눌렀을때
         }
         public enum InnerAction: Equatable {
-            case checkAgreements
-            case personalAndUsageAgreeSelected
-            case serviceAgreeSelected
-            case marketingAgreeSelected
-            case allAgreementSelected
+            case 동의_체크_확인
+            case 개인정보_동의_선택했을때
+            case 서비스_이용약관_동의_선택했을때
+            case 마케팅_정보_수신_동의_선택했을때
+            case 전체_동의_선택했을때
         }
-        public enum AsyncAction: Equatable { case doNothing }
-        public enum ScopeAction: Equatable { case doNothing }
+        public enum AsyncAction: Equatable { case 없음 }
+        public enum ScopeAction: Equatable { case 없음 }
         public enum DelegateAction: Equatable {
             case pushRegisterNicknameView
         }
@@ -91,29 +91,29 @@ private extension AgreeToTermsFeature {
     /// - View Effect
     func handleViewAction(_ action: Action.ViewAction, state: inout State) -> Effect<Action> {
         switch action {
-        case .nextButtonTapped:
+        case .다음_버튼_눌렀을때:
             return .send(.delegate(.pushRegisterNicknameView))
-        case .backButtonTapped:
+        case .뒤로가기_버튼_눌렀을때:
             return .run { _ in await self.dismiss() }
         case .binding(\.isAgreeAllTerms):
-            return .send(.inner(.allAgreementSelected))
+            return .send(.inner(.전체_동의_선택했을때))
         case .binding(\.isPersonalAndUsageArgee):
-            return .send(.inner(.personalAndUsageAgreeSelected))
+            return .send(.inner(.개인정보_동의_선택했을때))
         case .binding(\.isServiceAgree):
-            return .send(.inner(.serviceAgreeSelected))
+            return .send(.inner(.서비스_이용약관_동의_선택했을때))
         case .binding(\.isMarketingAgree):
-            return .send(.inner(.marketingAgreeSelected))
+            return .send(.inner(.마케팅_정보_수신_동의_선택했을때))
         case .binding:
             return .none
-        case .개인정보_동의_버튼_클릭:
+        case .개인정보_동의_버튼_눌렀을때:
             state.webViewURL = Constants.개인정보_처리방침_주소
             state.isWebViewPresented = true
             return .none
-        case .서비스_이용약관_버튼_클릭:
+        case .서비스_이용약관_버튼_눌렀을때:
             state.webViewURL = Constants.서비스_이용약관_주소
             state.isWebViewPresented = true
             return .none
-        case .마케팅_정보_수신_버튼_클릭:
+        case .마케팅_정보_수신_버튼_눌렀을때:
             state.webViewURL = Constants.마케팅_정보_수신_주소
             state.isWebViewPresented = true
             return .none
@@ -123,19 +123,19 @@ private extension AgreeToTermsFeature {
     func handleInnerAction(_ action: Action.InnerAction, state: inout State) -> Effect<Action> {
         switch action {
         /// - 개별 동의 체크 박스를 확인 하여 전체 동의 체크 여부 결정
-        case .checkAgreements:
+        case .동의_체크_확인:
             let isAgreeAllterm = state.isPersonalAndUsageArgee
             && state.isServiceAgree
             && state.isMarketingAgree
             state.isAgreeAllTerms = isAgreeAllterm
             return .none
         /// - 각각의 개별 동의 체크박스가 선택 되었을 때
-        case .personalAndUsageAgreeSelected,
-                .serviceAgreeSelected,
-                .marketingAgreeSelected:
-            return .send(.inner(.checkAgreements))
+        case .개인정보_동의_선택했을때,
+                .서비스_이용약관_동의_선택했을때,
+                .마케팅_정보_수신_동의_선택했을때:
+            return .send(.inner(.동의_체크_확인))
         /// - 전체 동의 체크박으가 선택 되었을 때
-        case .allAgreementSelected:
+        case .전체_동의_선택했을때:
             state.isPersonalAndUsageArgee = state.isAgreeAllTerms
             state.isServiceAgree          = state.isAgreeAllTerms
             state.isMarketingAgree        = state.isAgreeAllTerms

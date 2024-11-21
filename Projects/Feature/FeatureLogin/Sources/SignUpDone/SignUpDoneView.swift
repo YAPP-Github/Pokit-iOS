@@ -41,7 +41,7 @@ public extension SignUpDoneView {
                 PokitBottomButton(
                     "시작하기",
                     state: .filled(.primary),
-                    action: { send(.startButtonTapped) }
+                    action: { send(.시작_버튼_눌렀을때) }
                 )
                 .pokitMaxWidth()
                 .padding(.horizontal, 20)
@@ -65,7 +65,7 @@ extension SignUpDoneView {
                     store.firecrackIsAppear ? 1 : 0,
                     anchor: .bottomTrailing
                 )
-                .onAppear { send(.firecrackerOnAppeared, animation: .pokitSpring) }
+                .onAppear { send(.폭죽불꽃_이미지_나타났을때, animation: .pokitSpring) }
             
             Spacer()
         }
@@ -83,7 +83,7 @@ extension SignUpDoneView {
                 .multilineTextAlignment(.center)
         }
         .opacity(store.titleIsAppear ? 1 : 0)
-        .onAppear { send(.titleOnAppeared, animation: .pokitDissolve) }
+        .onAppear { send(.제목_나타났을때, animation: .pokitDissolve) }
     }
     
     private var images: some View {
@@ -97,7 +97,7 @@ extension SignUpDoneView {
                     store.confettiIsAppear ? 1 : 0,
                     anchor: .bottom
                 )
-                .onAppear { send(.confettiOnAppeared, animation: .pokitSpring) }
+                .onAppear { send(.폭죽_이미지_나타났을때, animation: .pokitSpring) }
             
             Image(.character(.pooki))
                 .resizable()
@@ -107,7 +107,7 @@ extension SignUpDoneView {
                     store.pookiIsAppear ? 1 : 0,
                     anchor: .bottom
                 )
-                .onAppear{ send(.pookiOnAppeared, animation: .pokitSpring) }
+                .onAppear{ send(.푸키_이미지_나타났을때, animation: .pokitSpring) }
         }
     }
 }

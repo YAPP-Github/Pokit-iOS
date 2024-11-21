@@ -7,6 +7,7 @@
 import SwiftUI
 
 import ComposableArchitecture
+import FeatureContentCard
 import Domain
 import DSKit
 
@@ -49,7 +50,7 @@ public extension PokitRootView {
                 if let shareURL = URL(string: content.data) {
                     PokitShareSheet(
                         items: [shareURL],
-                        completion: { send(.링크_공유_완료) }
+                        completion: { send(.링크_공유_완료되었을때) }
                     )
                     .presentationDetents([.medium, .large])
                 }
@@ -62,7 +63,7 @@ public extension PokitRootView {
                     delegateSend: { store.send(.scope(.deleteBottomSheet($0)), animation: .pokitSpring) }
                 )
             }
-            .task { await send(.pokitRootViewOnAppeared).finish() }
+            .task { await send(.뷰가_나타났을때).finish() }
         }
     }
 }
@@ -78,7 +79,7 @@ private extension PokitRootView {
                 : .default(.secondary),
                 size: .small,
                 shape: .round,
-                action: { send(.filterButtonTapped(.포킷)) }
+                action: { send(.필터_버튼_눌렀을때(.포킷)) }
             )
 
             PokitIconLButton(
@@ -89,7 +90,7 @@ private extension PokitRootView {
                 : .default(.secondary),
                 size: .small,
                 shape: .round,
-                action: { send(.filterButtonTapped(.미분류)) }
+                action: { send(.필터_버튼_눌렀을때(.미분류)) }
             )
 
             Spacer()
@@ -98,7 +99,7 @@ private extension PokitRootView {
                 store.sortType == .sort(.최신순) ?
                 "최신순" : store.folderType == .folder(.포킷) ? "이름순" : "오래된순",
                 icon: .icon(.align),
-                action: { send(.sortButtonTapped) }
+                action: { send(.분류_버튼_눌렀을때) }
             )
             .contentTransition(.numericText())
         }
@@ -149,15 +150,15 @@ private extension PokitRootView {
                     ForEach(categories, id: \.id) { item in
                         PokitCard(
                             category: item,
-                            action: { send(.categoryTapped(item)) },
-                            kebabAction: { send(.kebobButtonTapped(item)) }
+                            action: { send(.카테고리_눌렀을때(item)) },
+                            kebabAction: { send(.케밥_버튼_눌렀을때(item)) }
                         )
                     }
                 }
 
                 if store.hasNext {
                     PokitLoading()
-                        .onAppear { send(.다음페이지_로딩_presented) }
+                        .onAppear { send(.페이지_로딩중일때) }
                 }
             }
             .padding(.bottom, 150)
@@ -166,8 +167,8 @@ private extension PokitRootView {
 
     var unclassifiedView: some View {
         Group {
-            if let unclassifiedContents = store.unclassifiedContents {
-                if unclassifiedContents.isEmpty {
+            if !store.isLoading {
+                if store.contents.isEmpty {
                     VStack {
                         PokitCaution(
                             image: .empty,
@@ -179,7 +180,7 @@ private extension PokitRootView {
                         Spacer()
                     }
                 } else {
-                    unclassifiedList(unclassifiedContents)
+                    unclassifiedList
                 }
             } else {
                 PokitLoading()
@@ -187,25 +188,25 @@ private extension PokitRootView {
         }
     }
 
-    @ViewBuilder
-    func unclassifiedList(_ unclassifiedContents: IdentifiedArrayOf<BaseContentItem>) -> some View {
+    var unclassifiedList: some View {
         ScrollView {
             LazyVStack(spacing: 0) {
-                ForEach(unclassifiedContents) { content in
-                    let isFirst = content == unclassifiedContents.first
-                    let isLast = content == unclassifiedContents.last
-
-                    PokitLinkCard(
-                        link: content,
-                        action: { send(.contentItemTapped(content)) },
-                        kebabAction: { send(.unclassifiedKebobButtonTapped(content)) }
+                ForEach(
+                    store.scope(state: \.contents, action: \.contents)
+                ) { store in
+                    let isFirst = store.state.id == self.store.contents.first?.id
+                    let isLast = store.state.id == self.store.contents.last?.id
+                    
+                    ContentCardView(
+                        store: store,
+                        isFirst: isFirst,
+                        isLast: isLast
                     )
-                    .divider(isFirst: isFirst, isLast: isLast)
                 }
 
                 if store.unclassifiedHasNext {
                     PokitLoading()
-                        .onAppear(perform: { send(.다음페이지_로딩_presented) })
+                        .onAppear(perform: { send(.페이지_로딩중일때) })
                 }
             }
             .padding(.bottom, 150)

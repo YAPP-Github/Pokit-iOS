@@ -24,7 +24,7 @@ let project = Project(
                 // TODO: 의존성 추가
                 .external(name: "ComposableArchitecture")
             ],
-            settings: .settings
+            settings: .settings()
         )
     ]
 )

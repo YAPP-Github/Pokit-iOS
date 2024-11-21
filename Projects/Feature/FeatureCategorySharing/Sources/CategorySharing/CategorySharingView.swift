@@ -7,6 +7,7 @@
 import SwiftUI
 
 import ComposableArchitecture
+import FeatureContentCard
 import Domain
 import DSKit
 
@@ -34,12 +35,13 @@ public extension CategorySharingView {
             .padding(.top, 12)
             .pokitNavigationBar { navigationBar }
             .ignoresSafeArea(edges: .bottom)
+            .onAppear { send(.뷰가_나타났을때, animation: .pokitDissolve) }
             .sheet(isPresented: $store.isErrorSheetPresented) {
                 PokitAlert(
                     store.error?.title ?? "에러",
                     message: store.error?.message,
                     confirmText: "확인",
-                    action: { send(.경고_확인버튼_클릭) }
+                    action: { send(.경고_확인버튼_눌렀을때) }
                 )
             }
         }
@@ -52,7 +54,7 @@ private extension CategorySharingView {
             PokitHeaderItems(placement: .leading) {
                 PokitToolbarButton(
                     .icon(.arrowLeft),
-                    action: { send(.뒤로가기버튼_클릭) }
+                    action: { send(.dismiss) }
                 )
             }
         }
@@ -79,15 +81,15 @@ private extension CategorySharingView {
                 state: .filled(.primary),
                 size: .medium,
                 shape: .rectangle,
-                action: { send(.저장버튼_클릭) }
+                action: { send(.저장_버튼_눌렀을때) }
             )
         }
     }
     
     var contentScrollView: some View {
         Group {
-            if let contents = store.contents {
-                if contents.isEmpty {
+            if !store.isLoading {
+                if store.contents.isEmpty {
                     VStack {
                         PokitCaution(
                             image: .empty,
@@ -101,22 +103,23 @@ private extension CategorySharingView {
                 } else {
                     ScrollView(showsIndicators: false) {
                         LazyVStack(spacing: 0) {
-                            ForEach(contents) { content in
-                                let isFirst = content == contents.first
-                                let isLast = content == contents.last
+                            ForEach(
+                                store.scope(state: \.contents, action: \.contents)
+                            ) { store in
+                                let isFirst = store.state.id == self.store.contents.first?.id
+                                let isLast = store.state.id == self.store.contents.last?.id
                                 
-                                PokitLinkCard(
-                                    link: content,
-                                    action: { send(.컨텐츠_아이템_클릭(content)) }
+                                ContentCardView(
+                                    store: store,
+                                    isFirst: isFirst,
+                                    isLast: isLast
                                 )
-                                .divider(isFirst: isFirst, isLast: isLast)
-                                .pokitScrollTransition(.opacity)
                             }
                             
                             if store.hasNext {
                                 PokitLoading()
                                     .padding(.top, 12)
-                                    .onAppear { send(.다음페이지_로딩_onAppear) }
+                                    .onAppear { send(.페이지_로딩중일때) }
                             }
                         }
                     }

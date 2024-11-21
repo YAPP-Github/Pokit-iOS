@@ -35,7 +35,7 @@ public extension RemindView {
                     PokitBottomSheet(
                         items: [.share, .edit, .delete],
                         height: 224
-                    ) { send(.bottomSheetButtonTapped(delegate: $0, content: content)) }
+                    ) { send(.bottomSheet(delegate: $0, content: content)) }
                 }
                 .sheet(item: $store.shareSheetItem) { content in
                     if let shareURL = URL(string: content.data) {
@@ -51,9 +51,9 @@ public extension RemindView {
                         "링크를 정말 삭제하시겠습니까?",
                         message: "함께 저장한 모든 정보가 삭제되며, \n복구하실 수 없습니다.",
                         confirmText: "삭제"
-                    ) { send(.deleteAlertConfirmTapped(content: content)) }
+                    ) { send(.링크_삭제_눌렀을때(content: content)) }
                 }
-                .task { await send(.remindViewOnAppeared, animation: .pokitDissolve).finish() }
+                .task { await send(.뷰가_나타났을때, animation: .pokitDissolve).finish() }
         }
     }
 }
@@ -134,28 +134,18 @@ extension RemindView {
     
     @ViewBuilder
     private func recommendedContentCell(content: BaseContentItem) -> some View {
-        Button(action: { send(.linkCardTapped(content: content)) }) {
+        Button(action: { send(.컨텐츠_항목_눌렀을때(content: content)) }) {
             recommendedContentCellLabel(content: content)
         }
-        
     }
     
     @ViewBuilder
     private func recommendedContentCellLabel(content: BaseContentItem) -> some View {
         ZStack(alignment: .bottom) {
-            LazyImage(url: .init(string: content.thumbNail)) { phase in
-                if let image = phase.image {
-                    image
-                        .resizable()
-                } else {
-                    ZStack {
-                        Color.pokit(.bg(.disable))
-                        
-                        PokitSpinner()
-                            .foregroundStyle(.pokit(.icon(.brand)))
-                            .frame(width: 48, height: 48)
-                    }
-                }
+            if let url = URL(string: content.thumbNail) {
+                recommendedContentCellImage(url: url, contentId: content.id)
+            } else {
+                imagePlaceholder
             }
             
             LinearGradient(
@@ -186,7 +176,7 @@ extension RemindView {
                     Spacer()
                     
                     kebabButton {
-                        send(.kebabButtonTapped(content: content))
+                        send(.컨텐츠_항목_케밥_버튼_눌렀을때(content: content))
                     }
                     .foregroundStyle(.pokit(.icon(.inverseWh)))
                     .zIndex(1)
@@ -203,6 +193,33 @@ extension RemindView {
         }
         .frame(width: 216, height: 194)
         .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+        .clipped()
+    }
+    
+    @MainActor
+    private func recommendedContentCellImage(url: URL, contentId: Int) -> some View {
+        LazyImage(url: url) { phase in
+            if let image = phase.image {
+                image
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+            } else if phase.error != nil {
+                imagePlaceholder
+                    .task { await send(.리마인드_항목_이미지오류_나타났을때(contentId: contentId)).finish() }
+            } else {
+                imagePlaceholder
+            }
+        }
+    }
+    
+    private var imagePlaceholder: some View {
+        ZStack {
+            Color.pokit(.bg(.disable))
+            
+            PokitSpinner()
+                .foregroundStyle(.pink)
+                .frame(width: 48, height: 48)
+        }
     }
     
     @ViewBuilder
@@ -243,7 +260,7 @@ extension RemindView {
                 VStack(spacing: 0) {
                     VStack(spacing: 0) {
                         listNavigationLink("한번도 읽지 않았어요") {
-                            send(.unreadNavigationLinkTapped)
+                            send(.안읽음_목록_버튼_눌렀을때)
                         }
                         .padding(.bottom, 16)
                     }
@@ -254,8 +271,9 @@ extension RemindView {
                         
                         PokitLinkCard(
                             link: content,
-                            action: { send(.linkCardTapped(content: content)) },
-                            kebabAction: { send(.kebabButtonTapped(content: content)) }
+                            action: { send(.컨텐츠_항목_눌렀을때(content: content)) },
+                            kebabAction: { send(.컨텐츠_항목_케밥_버튼_눌렀을때(content: content)) },
+                            fetchMetaData: { send(.읽지않음_항목_이미지_조회(contentId: content.id)) }
                         )
                         .divider(isFirst: isFirst, isLast: isLast)
                     }
@@ -270,7 +288,7 @@ extension RemindView {
     ) -> some View {
         VStack(spacing: 0) {
             listNavigationLink("즐겨찾기 링크만 모았어요") {
-                send(.favoriteNavigationLinkTapped)
+                send(.즐겨찾기_목록_버튼_눌렀을때)
             }
             .padding(.bottom, 16)
             
@@ -288,8 +306,9 @@ extension RemindView {
                     
                     PokitLinkCard(
                         link: content,
-                        action: { send(.linkCardTapped(content: content)) },
-                        kebabAction: { send(.kebabButtonTapped(content: content)) }
+                        action: { send(.컨텐츠_항목_눌렀을때(content: content)) },
+                        kebabAction: { send(.컨텐츠_항목_케밥_버튼_눌렀을때(content: content)) },
+                        fetchMetaData: { send(.즐겨찾기_항목_이미지_조회(contentId: content.id)) }
                     )
                     .divider(isFirst: isFirst, isLast: isLast)
                 }

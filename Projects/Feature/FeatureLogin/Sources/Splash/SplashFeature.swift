@@ -13,10 +13,14 @@ import Util
 @Reducer
 public struct SplashFeature {
     /// - Dependency
-    @Dependency(\.continuousClock) var clock
-    @Dependency(\.userDefaults) var userDefaults
-    @Dependency(\.authClient) var authClient
-    @Dependency(\.keychain) var keychain
+    @Dependency(\.continuousClock) 
+    var clock
+    @Dependency(UserDefaultsClient.self) 
+    var userDefaults
+    @Dependency(AuthClient.self) 
+    var authClient
+    @Dependency(KeychainClient.self)
+    var keychain
     /// - State
     @ObservableState
     public struct State: Equatable {
@@ -122,14 +126,14 @@ private extension SplashFeature {
                 }
                 /// 🚨 Error Case [1]: 로그인 했던 플랫폼 정보가 없을 때
                 guard let _ = userDefaults.stringKey(.authPlatform) else {
-                    await send(.delegate(.loginNeeded))
+                    await send(.delegate(.loginNeeded), animation: .smooth)
                     return
                 }
                 /// 🚨 Error Case [2]: refresh Token이 없을 때
                 guard let refreshToken = keychain.read(.refreshToken) else {
                     keychain.delete(.accessToken)
                     keychain.delete(.refreshToken)
-                    await send(.delegate(.loginNeeded))
+                    await send(.delegate(.loginNeeded), animation: .smooth)
                     return
                 }
 
@@ -139,9 +143,8 @@ private extension SplashFeature {
                     keychain.save(.accessToken, tokenResponse.accessToken)
                     await send(.delegate(.autoLoginSuccess))
                 } catch {
-                    await send(.delegate(.loginNeeded))
+                    await send(.delegate(.loginNeeded), animation: .smooth)
                 }
-                await send(.delegate(.loginNeeded))
             }
         }
     }

@@ -7,6 +7,7 @@
 import SwiftUI
 
 import ComposableArchitecture
+import FeatureContentCard
 import DSKit
 
 @ViewAction(for: PokitSearchFeature.self)
@@ -54,13 +55,13 @@ public extension PokitSearchView {
                 PokitBottomSheet(
                     items: [.share, .edit, .delete],
                     height: 224
-                ) { send(.bottomSheetButtonTapped(delegate: $0, content: content)) }
+                ) { send(.bottomSheet(delegate: $0, content: content)) }
             }
             .sheet(item: $store.shareSheetItem) { content in
                 if let shareURL = URL(string: content.data) {
                     PokitShareSheet(
                         items: [shareURL],
-                        completion: { send(.링크_공유_완료) }
+                        completion: { send(.링크_공유_완료되었을때) }
                     )
                     .presentationDetents([.medium, .large])
                 }
@@ -70,9 +71,9 @@ public extension PokitSearchView {
                     "링크를 정말 삭제하시겠습니까?",
                     message: "함께 저장한 모든 정보가 삭제되며, \n복구하실 수 없습니다.",
                     confirmText: "삭제"
-                ) { send(.deleteAlertConfirmTapped) }
+                ) { send(.링크_삭제_눌렀을때) }
             }
-            .task { await send(.onAppear).finish() }
+            .task { await send(.뷰가_나타났을때).finish() }
         }
     }
 }
@@ -82,7 +83,7 @@ private extension PokitSearchView {
         HStack(spacing: 8) {
             PokitToolbarButton(
                 .icon(.arrowLeft),
-                action: { send(.backButtonTapped) }
+                action: { send(.dismiss) }
             )
             
             PokitIconRInput(
@@ -91,8 +92,8 @@ private extension PokitSearchView {
                 shape: .round,
                 focusState: $focused,
                 equals: true,
-                onSubmit: { send(.searchTextInputOnSubmitted) },
-                iconTappedAction: store.isSearching ? { send(.searchTextInputIconTapped) } : nil
+                onSubmit: { send(.검색_키보드_엔터_눌렀을때) },
+                iconTappedAction: store.isSearching ? { send(.검색_버튼_눌렀을때) } : nil
             )
         }
         .padding(.vertical, 8)
@@ -110,7 +111,7 @@ private extension PokitSearchView {
             PokitTextLink(
                 "전체 삭제",
                 color: .text(.tertiary),
-                action: { send(.recentSearchAllRemoveButtonTapped) }
+                action: { send(.전체_삭제_버튼_눌렀을때) }
             )
             
             Text("|")
@@ -120,7 +121,7 @@ private extension PokitSearchView {
             PokitTextLink(
                 "자동저장 \(store.isAutoSaveSearch ? "끄기" : "켜기")",
                 color: .text(.tertiary),
-                action: { send(.autoSaveButtonTapped, animation: .pokitSpring) }
+                action: { send(.자동저장_버튼_눌렀을때, animation: .pokitSpring) }
             )
             .contentTransition(.numericText())
         }
@@ -162,10 +163,10 @@ private extension PokitSearchView {
                         state: .default(.primary),
                         size: .small,
                         action: {
-                            send(.searchTextChipButtonTapped(text: text), animation: .pokitSpring)
+                            send(.최근검색_태그_눌렀을때(text: text), animation: .pokitSpring)
                         },
                         iconTappedAction: {
-                            send(.recentSearchChipIconTapped(searchText: text), animation: .pokitSpring)
+                            send(.최근검색_태그_삭제_눌렀을때(searchText: text), animation: .pokitSpring)
                         }
                     )
                     .pokitScrollTransition(.opacity)
@@ -207,7 +208,7 @@ private extension PokitSearchView {
             state: store.isFiltered ? .filled(.primary) : .stroke(.secondary),
             size: .small,
             shape: .round,
-            action: { send(.filterButtonTapped) }
+            action: { send(.필터링_버튼_눌렀을때) }
         )
     }
     
@@ -219,7 +220,7 @@ private extension PokitSearchView {
                     icon: .icon(.arrowDown),
                     state: .default(.primary),
                     size: .small,
-                    action: { send(.categoryFilterButtonTapped) }
+                    action: { send(.카테고리_버튼_눌렀을때) }
                 )
             } else {
                 ForEach(store.categoryFilter) { category in
@@ -227,7 +228,7 @@ private extension PokitSearchView {
                         category.categoryName,
                         state: .stroke(.primary),
                         size: .small,
-                        action: { send(.categoryFilterChipTapped(category: category), animation: .pokitSpring) }
+                        action: { send(.카테고리_태그_눌렀을때(category: category), animation: .pokitSpring) }
                     )
                     .pokitBlurReplaceTransition(.pokitDissolve)
                 }
@@ -243,7 +244,7 @@ private extension PokitSearchView {
                     icon: .icon(.arrowDown),
                     state: .default(.primary),
                     size: .small,
-                    action: { send(.contentTypeFilterButtonTapped) }
+                    action: { send(.모아보기_버튼_눌렀을때) }
                 )
             } else {
                 if store.favoriteFilter {
@@ -251,7 +252,7 @@ private extension PokitSearchView {
                         "즐겨찾기",
                         state: .stroke(.primary),
                         size: .small,
-                        action: { send(.favoriteChipTapped, animation: .pokitSpring) }
+                        action: { send(.즐겨찾기_태그_눌렀을때, animation: .pokitSpring) }
                     )
                     .pokitBlurReplaceTransition(.pokitDissolve)
                 }
@@ -261,7 +262,7 @@ private extension PokitSearchView {
                         "안읽음",
                         state: .stroke(.primary),
                         size: .small,
-                        action: { send(.unreadChipTapped, animation: .pokitSpring) }
+                        action: { send(.안읽음_태그_눌렀을때, animation: .pokitSpring) }
                     )
                     .pokitBlurReplaceTransition(.pokitDissolve)
                 }
@@ -275,7 +276,7 @@ private extension PokitSearchView {
             icon: store.dateFilterText == "기간" ? .icon(.arrowDown) : .icon(.x),
             state: store.dateFilterText == "기간" ? .default(.primary) : .stroke(.primary),
             size: .small,
-            action: { send(.dateFilterButtonTapped, animation: .pokitSpring) }
+            action: { send(.기간_버튼_눌렀을때, animation: .pokitSpring) }
         )
         .pokitBlurReplaceTransition(.pokitDissolve)
     }
@@ -285,29 +286,30 @@ private extension PokitSearchView {
             PokitIconLTextLink(
                 store.isResultAscending ? "오래된순" : "최신순",
                 icon: .icon(.align),
-                action: { send(.sortTextLinkTapped) }
+                action: { send(.정렬_버튼_눌렀을때) }
             )
             .contentTransition(.numericText())
             .padding(.horizontal, 20)
             
-            if let results = store.resultList {
+            if !store.isLoading {
                 ScrollView {
                     LazyVStack(spacing: 0) {
-                        ForEach(results, id: \.id) { content in
-                            let isFirst = content == results.first
-                            let isLast = content == results.last
+                        ForEach(
+                            store.scope(state: \.contents, action: \.contents)
+                        ) { store in
+                            let isFirst = store.state.id == self.store.contents.first?.id
+                            let isLast = store.state.id == self.store.contents.last?.id
                             
-                            PokitLinkCard(
-                                link: content,
-                                action: { send(.linkCardTapped(content: content)) },
-                                kebabAction: { send(.kebabButtonTapped(content: content)) }
+                            ContentCardView(
+                                store: store,
+                                isFirst: isFirst,
+                                isLast: isLast
                             )
-                            .divider(isFirst: isFirst, isLast: isLast)
                         }
                         
                         if store.hasNext {
                             PokitLoading()
-                                .task { await send(.로딩_isPresented, animation: .pokitDissolve).finish() }
+                                .task { await send(.로딩중일때, animation: .pokitDissolve).finish() }
                         }
                     }
                     .padding(.horizontal, 20)

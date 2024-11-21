@@ -7,6 +7,7 @@
 import Foundation
 
 import ComposableArchitecture
+import FeatureContentCard
 import Domain
 import CoreKit
 import Util
@@ -16,30 +17,21 @@ public struct CategorySharingFeature {
     /// - Dependency
     @Dependency(\.dismiss)
     private var dismiss
-    @Dependency(\.categoryClient)
+    @Dependency(CategoryClient.self)
     private var categoryClient
-    @Dependency(\.contentClient)
+    @Dependency(ContentClient.self)
     private var contentClient
 
     /// - State
     @ObservableState
     public struct State: Equatable {
         fileprivate var domain: CategorySharing
-        var category: CategorySharing.Category {
-            get { domain.sharedCategory.category }
-        }
-        var contents: IdentifiedArrayOf<CategorySharing.Content>? {
-            var identifiedArray = IdentifiedArrayOf<CategorySharing.Content>()
-            domain.sharedCategory.contentList.data.forEach { content in
-                identifiedArray.append(content)
-            }
-            return identifiedArray
-        }
-        var hasNext: Bool {
-            get { domain.sharedCategory.contentList.hasNext }
-        }
+        var category: CategorySharing.Category { domain.sharedCategory.category }
+        var contents: IdentifiedArrayOf<ContentCardFeature.State> = []
+        var hasNext: Bool { domain.sharedCategory.contentList.hasNext }
         var error: BaseError?
         var isErrorSheetPresented: Bool = false
+        var isLoading: Bool = true
         
         public init(sharedCategory: CategorySharing.SharedCategory) {
             domain = .init(
@@ -60,30 +52,32 @@ public struct CategorySharingFeature {
         case async(AsyncAction)
         case scope(ScopeAction)
         case delegate(DelegateAction)
+        case contents(IdentifiedActionOf<ContentCardFeature>)
         
         @CasePathable
         public enum View: Equatable, BindableAction {
-            case 저장버튼_클릭
-            case 컨텐츠_아이템_클릭(CategorySharing.Content)
-            case 뒤로가기버튼_클릭
-            case 경고_확인버튼_클릭
-            
-            case 다음페이지_로딩_onAppear
-            
             case binding(BindingAction<State>)
+            case dismiss
+            
+            case 저장_버튼_눌렀을때
+            case 경고_확인버튼_눌렀을때
+            case 페이지_로딩중일때
+            case 뷰가_나타났을때
         }
         
         public enum InnerAction: Equatable {
-            case 공유받은_카테고리_갱신(CategorySharing.SharedCategory)
+            case 공유받은_카테고리_API_반영(CategorySharing.SharedCategory)
             case 경고_닫음
             case 경고_띄움(BaseError)
         }
         
         public enum AsyncAction: Equatable {
-            case 공유받은_카테고리_조회
+            case 공유받은_카테고리_조회_API
         }
         
-        public enum ScopeAction: Equatable { case doNothing }
+        public enum ScopeAction {
+            case contents(IdentifiedActionOf<ContentCardFeature>)
+        }
         
         public enum DelegateAction: Equatable {
             case 컨텐츠_아이템_클릭(categoryId: Int, content: CategorySharing.Content)
@@ -116,6 +110,9 @@ public struct CategorySharingFeature {
             /// - Delegate
         case .delegate(let delegateAction):
             return handleDelegateAction(delegateAction, state: &state)
+            
+        case .contents(let contentsAction):
+            return .send(.scope(.contents(contentsAction)))
         }
     }
     
@@ -123,6 +120,9 @@ public struct CategorySharingFeature {
     public var body: some ReducerOf<Self> {
         BindingReducer(action: \.view)
         Reduce(self.core)
+            .forEach(\.contents, action: \.contents) {
+                ContentCardFeature()
+            }
     }
 }
 //MARK: - FeatureAction Effect
@@ -130,32 +130,67 @@ private extension CategorySharingFeature {
     /// - View Effect
     func handleViewAction(_ action: Action.View, state: inout State) -> Effect<Action> {
         switch action {
-        case .저장버튼_클릭:
-            let sharedCategory = state.domain.sharedCategory.category
-            return .send(.delegate(.공유받은_카테고리_추가(sharedCategory: sharedCategory)))
-        case let .컨텐츠_아이템_클릭(content):
-            return .send(.delegate(.컨텐츠_아이템_클릭(categoryId: state.category.categoryId , content: content)))
-        case .뒤로가기버튼_클릭:
-            return .run { _ in await dismiss() }
-        case .경고_확인버튼_클릭:
-            return .none
         case .binding:
             return .none
-        case .다음페이지_로딩_onAppear:
-            return .send(.async(.공유받은_카테고리_조회))
+            
+        case .dismiss:
+            return .run { _ in await dismiss() }
+            
+        case .저장_버튼_눌렀을때:
+            let sharedCategory = state.domain.sharedCategory.category
+            return .send(.delegate(.공유받은_카테고리_추가(sharedCategory: sharedCategory)))
+            
+        case .경고_확인버튼_눌렀을때:
+            return .none
+            
+        case .페이지_로딩중일때:
+            return .send(.async(.공유받은_카테고리_조회_API))
+        case .뷰가_나타났을때:
+            state.domain.sharedCategory.contentList.data.forEach { content in
+                state.contents.append(.init(content: .init(
+                    id: content.id,
+                    categoryName: content.categoryName,
+                    categoryId: state.category.categoryId,
+                    title: content.title,
+                    thumbNail: content.thumbNail,
+                    data: content.data,
+                    domain: content.domain,
+                    createdAt: content.createdAt,
+                    isRead: content.isRead
+                )))
+            }
+            state.isLoading = false
+            return .none
         }
     }
     
     /// - Inner Effect
     func handleInnerAction(_ action: Action.InnerAction, state: inout State) -> Effect<Action> {
         switch action {
-        case let .공유받은_카테고리_갱신(sharedCategory):
+        case let .공유받은_카테고리_API_반영(sharedCategory):
             state.domain.sharedCategory = sharedCategory
+            
+            sharedCategory.contentList.data.forEach { content in
+                state.contents.append(.init(content: .init(
+                    id: content.id,
+                    categoryName: content.categoryName,
+                    categoryId: state.category.categoryId,
+                    title: content.title,
+                    thumbNail: content.thumbNail,
+                    data: content.data,
+                    domain: content.domain,
+                    createdAt: content.createdAt,
+                    isRead: content.isRead
+                )))
+            }
+            state.isLoading = false
             return .none
+            
         case let .경고_띄움(baseError):
             state.error = baseError
             state.isErrorSheetPresented = true
             return .none
+            
         case .경고_닫음:
             state.isErrorSheetPresented = false
             state.error = nil
@@ -166,28 +201,38 @@ private extension CategorySharingFeature {
     /// - Async Effect
     func handleAsyncAction(_ action: Action.AsyncAction, state: inout State) -> Effect<Action> {
         switch action {
-        case .공유받은_카테고리_조회:
+        case .공유받은_카테고리_조회_API:
             state.domain.pageable.page += 1
             return .run { [
                 categoryId = state.domain.sharedCategory.category.categoryId,
                 pageable = state.domain.pageable
             ] send in
+                let request = BasePageableRequest(page: pageable.page, size: pageable.size, sort: pageable.sort)
                 let sharedCategory = try await categoryClient.공유받은_카테고리_조회(
                     "\(categoryId)",
-                    BasePageableRequest(
-                        page: pageable.page,
-                        size: pageable.size,
-                        sort: pageable.sort
-                    )
+                    request
                 ).toDomain()
-                await send(.inner(.공유받은_카테고리_갱신(sharedCategory)), animation: .pokitDissolve)
+                await send(.inner(.공유받은_카테고리_API_반영(sharedCategory)), animation: .pokitDissolve)
             }
         }
     }
     
     /// - Scope Effect
     func handleScopeAction(_ action: Action.ScopeAction, state: inout State) -> Effect<Action> {
-        return .none
+        switch action {
+        case let .contents(.element(id: _, action: .delegate(.컨텐츠_항목_눌렀을때(content)))):
+            let sharedContent = state.domain.sharedCategory.contentList.data.first { item in
+                item.id == content.id
+            }
+            guard let sharedContent else { return .none }
+            
+            return .send(.delegate(.컨텐츠_아이템_클릭(
+                categoryId: state.category.categoryId,
+                content: sharedContent
+            )))
+        case .contents:
+            return .none
+        }
     }
     
     /// - Delegate Effect

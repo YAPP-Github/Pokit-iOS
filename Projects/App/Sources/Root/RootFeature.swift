@@ -8,12 +8,13 @@
 import Foundation
 
 import ComposableArchitecture
+import FeatureLogin
 import CoreKit
 
 @Reducer
 public struct RootFeature {
-    @Dependency(\.userDefaults) var userDefaults
-    @Dependency(\.userClient) var userClient
+    @Dependency(UserDefaultsClient.self) var userDefaults
+    @Dependency(UserClient.self) var userClient
     @Reducer(state: .equatable)
     public enum Destination {
         

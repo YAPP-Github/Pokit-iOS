@@ -1,6 +1,6 @@
 //
 //  UserDefaultsKey.swift
-//  Data
+//  CoreKit
 //
 //  Created by 김민호 on 7/30/24.
 //

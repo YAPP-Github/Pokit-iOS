@@ -8,5 +8,13 @@
 	<array>
 		<string>Default</string>
 	</array>
+	<key>com.apple.security.application-groups</key>
+	<array>
+		<string>group.com.pokitmons.pokit</string>
+	</array>
+	<key>keychain-access-groups</key>
+	<array>
+		<string>$(AppIdentifierPrefix)group.com.pokitmons.pokit</string>
+	</array>
 </dict>
 </plist>

@@ -14,15 +14,18 @@ public struct PokitLinkCard<Item: PokitLinkCardItem>: View {
     private let link: Item
     private let action: () -> Void
     private let kebabAction: (() -> Void)?
+    private let fetchMetaData: (() -> Void)?
     
     public init(
         link: Item,
         action: @escaping () -> Void,
-        kebabAction: (() -> Void)? = nil
+        kebabAction: (() -> Void)? = nil,
+        fetchMetaData: (() -> Void)? = nil
     ) {
         self.link = link
         self.action = action
         self.kebabAction = kebabAction
+        self.fetchMetaData = fetchMetaData
     }
     
     public var body: some View {
@@ -34,7 +37,11 @@ public struct PokitLinkCard<Item: PokitLinkCardItem>: View {
     @MainActor
     private var buttonLabel: some View {
         HStack(spacing: 12) {
-            thumbleNail
+            if let url = URL(string: link.thumbNail) {
+                thumbleNail(url: url)
+            } else {
+                placeholder
+            }
             
             VStack(spacing: 8) {
                 HStack {
@@ -105,33 +112,42 @@ public struct PokitLinkCard<Item: PokitLinkCardItem>: View {
     }
     
     @MainActor
-    private var thumbleNail: some View {
-        LazyImage(url: .init(string: link.thumbNail)) { phase in
+    private func thumbleNail(url: URL) -> some View {
+        LazyImage(url: url) { phase in
             Group {
                 if let image = phase.image {
                     image
                         .resizable()
                         .aspectRatio(contentMode: .fill)
+                } else if phase.error != nil {
+                    placeholder
+                        .onAppear { fetchMetaData?() }
                 } else {
-                    ZStack {
-                        Color.pokit(.bg(.disable))
-                        
-                        PokitSpinner()
-                            .foregroundStyle(.pokit(.icon(.brand)))
-                            .frame(width: 48, height: 48)
-                    }
+                    placeholder
                 }
             }
             .animation(.pokitDissolve, value: phase.image)
+            .frame(width: 124, height: 94)
+            .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
         }
-        .frame(width: 124, height: 94)
-        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
     }
     
     private var divider: some View {
         Rectangle()
             .fill(.pokit(.color(.grayScale(._100))))
             .frame(height: 1)
+    }
+    
+    private var placeholder: some View {
+        ZStack {
+            Color.pokit(.bg(.disable))
+            
+            PokitSpinner()
+                .foregroundStyle(.pokit(.icon(.brand)))
+                .frame(width: 48, height: 48)
+        }
+        .frame(width: 124, height: 94)
+        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
     }
     
     @ViewBuilder

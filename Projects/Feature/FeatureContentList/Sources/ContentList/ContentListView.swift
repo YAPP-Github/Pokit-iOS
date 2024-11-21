@@ -7,6 +7,7 @@
 import SwiftUI
 
 import ComposableArchitecture
+import FeatureContentCard
 import DSKit
 
 @ViewAction(for: ContentListFeature.self)
@@ -38,7 +39,7 @@ public extension ContentListView {
                     items: [.share, .edit, .delete],
                     height: 224,
                     delegateSend: {
-                        send(.bottomSheetButtonTapped(delegate: $0, content: content))
+                        send(.bottomSheet(delegate: $0, content: content))
                     }
                 )
             }
@@ -46,7 +47,7 @@ public extension ContentListView {
                 if let shareURL = URL(string: content.data) {
                     PokitShareSheet(
                         items: [shareURL],
-                        completion: { send(.링크_공유_완료) }
+                        completion: { send(.링크_공유시트_해제) }
                     )
                     .presentationDetents([.medium, .large])
                 }
@@ -55,10 +56,12 @@ public extension ContentListView {
                 PokitAlert(
                     "링크를 정말 삭제하시겠습니까?",
                     message: "함께 저장한 모든 정보가 삭제되며, \n복구하실 수 없습니다.",
-                    confirmText: "삭제"
-                ) { send(.deleteAlertConfirmTapped(content: content)) }
+                    confirmText: "삭제",
+                    action: { send(.컨텐츠_삭제_눌렀을때(content: content)) },
+                    cancelAction: { send(.경고시트_해제) }
+                )
             }
-            .task { await send(.contentListViewOnAppeared, animation: .pokitDissolve).finish() }
+            .task { await send(.뷰가_나타났을때, animation: .pokitDissolve).finish() }
         }
     }
 }
@@ -76,7 +79,7 @@ private extension ContentListView {
             PokitIconLTextLink(
                 store.isListDescending ? "최신순" : "오래된순",
                 icon: .icon(.align),
-                action: { send(.sortTextLinkTapped) }
+                action: { send(.정렬_버튼_눌렀을때) }
             )
             .contentTransition(.numericText())
         }
@@ -84,8 +87,8 @@ private extension ContentListView {
     
     var list: some View {
         Group {
-            if let contents = store.contents {
-                if contents.isEmpty {
+            if !store.isLoading {
+                if store.contents.isEmpty {
                     PokitCaution(
                         image: .empty,
                         titleKey: "즐겨찾기 링크가 없어요!",
@@ -97,16 +100,17 @@ private extension ContentListView {
                 } else {
                     ScrollView {
                         LazyVStack(spacing: 0) {
-                            ForEach(contents) { content in
-                                let isFirst = content == contents.first
-                                let isLast = content == contents.last
+                            ForEach(
+                                store.scope(state: \.contents, action: \.contents)
+                            ) { store in
+                                let isFirst = store.state.id == self.store.contents.first?.id
+                                let isLast = store.state.id == self.store.contents.last?.id
                                 
-                                PokitLinkCard(
-                                    link: content,
-                                    action: { send(.linkCardTapped(content: content)) },
-                                    kebabAction: { send(.kebabButtonTapped(content: content)) }
+                                ContentCardView(
+                                    store: store,
+                                    isFirst: isFirst,
+                                    isLast: isLast
                                 )
-                                .divider(isFirst: isFirst, isLast: isLast)
                             }
                             
                             if store.hasNext {
@@ -128,7 +132,7 @@ private extension ContentListView {
         PokitHeader(title: store.contentType.title) {
             PokitHeaderItems(placement: .leading) {
                 PokitToolbarButton(.icon(.arrowLeft)) {
-                    send(.backButtonTapped)
+                    send(.dismiss)
                 }
             }
         }

@@ -14,9 +14,9 @@ import KakaoSDKCommon
 
 @Reducer
 public struct AppDelegateFeature {
-    @Dependency(\.userNotifications) var userNotifications
-    @Dependency(\.remoteNotifications.register) var registerForRemoteNotifications
-    @Dependency(\.userDefaults) var userDefaults
+    @Dependency(UserNotificationClient.self) var userNotifications
+    @Dependency(RemoteNotificationsClient.self) var registerForRemoteNotifications
+    @Dependency(UserDefaultsClient.self) var userDefaults
     
     @ObservableState
     public struct State {
@@ -64,7 +64,7 @@ public struct AppDelegateFeature {
                                 else { return }
                             default: return
                             }
-                            await self.registerForRemoteNotifications()
+                            await self.registerForRemoteNotifications.register()
                         }
                     }
                 }

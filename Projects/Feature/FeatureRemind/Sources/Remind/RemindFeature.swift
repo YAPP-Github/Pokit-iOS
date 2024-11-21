@@ -4,6 +4,8 @@
 //
 //  Created by 김도형 on 7/12/24.
 
+import SwiftUI
+
 import ComposableArchitecture
 import Domain
 import CoreKit
@@ -15,11 +17,12 @@ public struct RemindFeature {
     /// - Dependency
     @Dependency(\.dismiss)
     private var dismiss
-    @Dependency(\.remindClient)
+    @Dependency(RemindClient.self)
     private var remindClient
-    @Dependency(\.contentClient)
+    @Dependency(ContentClient.self)
     private var contentClient
-    
+    @Dependency(SwiftSoupClient.self)
+    private var swiftSoupClient
     /// - State
     @ObservableState
     public struct State: Equatable {
@@ -65,35 +68,46 @@ public struct RemindFeature {
         
         public enum View: Equatable, BindableAction {
             case binding(BindingAction<State>)
-            /// - Button Tapped
-            case bellButtonTapped
-            case searchButtonTapped
-            case linkCardTapped(content: BaseContentItem)
-            case kebabButtonTapped(content: BaseContentItem)
-            case unreadNavigationLinkTapped
-            case favoriteNavigationLinkTapped
-            case bottomSheetButtonTapped(
+            case bottomSheet(
                 delegate: PokitBottomSheet.Delegate,
                 content: BaseContentItem
             )
-            case deleteAlertConfirmTapped(content: BaseContentItem)
+            
+            /// - Button Tapped
+            case 알림_버튼_눌렀을때
+            case 검색_버튼_눌렀을때
+            case 컨텐츠_항목_눌렀을때(content: BaseContentItem)
+            case 컨텐츠_항목_케밥_버튼_눌렀을때(content: BaseContentItem)
+            case 안읽음_목록_버튼_눌렀을때
+            case 즐겨찾기_목록_버튼_눌렀을때
+            case 링크_삭제_눌렀을때(content: BaseContentItem)
             
             case 링크_공유_완료
             
-            case remindViewOnAppeared
+            case 뷰가_나타났을때
+            case 즐겨찾기_항목_이미지_조회(contentId: Int)
+            case 읽지않음_항목_이미지_조회(contentId: Int)
+            case 리마인드_항목_이미지오류_나타났을때(contentId: Int)
         }
         public enum InnerAction: Equatable {
-            case dismissBottomSheet
-            case 오늘의_리마인드_조회(contents: [BaseContentItem])
-            case 읽지않음_컨텐츠_조회(contentList: BaseContentListInquiry)
-            case 즐겨찾기_링크모음_조회(contentList: BaseContentListInquiry)
-            case 컨텐츠_삭제_반영(id: Int)
+            case 바텀시트_해제
+            case 오늘의_리마인드_조회_API_반영(contents: [BaseContentItem])
+            case 읽지않음_컨텐츠_조회_API_반영(contentList: BaseContentListInquiry)
+            case 즐겨찾기_링크모음_조회_API_반영(contentList: BaseContentListInquiry)
+            case 즐겨찾기_이미지_조회_수행_반영(imageURL: String, index: Int)
+            case 읽지않음_이미지_조회_수행_반영(imageURL: String, index: Int)
+            case 리마인드_이미지_조회_수행_반영(imageURL: String, index: Int)
+            case 컨텐츠_삭제_API_반영(id: Int)
+            
         }
         public enum AsyncAction: Equatable {
-            case 오늘의_리마인드_조회
-            case 읽지않음_컨텐츠_조회
-            case 즐겨찾기_링크모음_조회
-            case 컨텐츠_삭제(id: Int)
+            case 오늘의_리마인드_조회_API
+            case 읽지않음_컨텐츠_조회_API
+            case 즐겨찾기_링크모음_조회_API
+            case 컨텐츠_삭제_API(id: Int)
+            case 즐겨찾기_이미지_조회_수행(contentId: Int)
+            case 읽지않음_이미지_조회_수행(contentId: Int)
+            case 리마인드_이미지_조회_수행(contentId: Int)
         }
         public enum ScopeAction: Equatable {
             case bottomSheet(
@@ -108,7 +122,7 @@ public struct RemindFeature {
             case 링크수정(id: Int)
             case 링크목록_안읽음
             case 링크목록_즐겨찾기
-            case 컨텐츠목록_조회
+            case 컨텐츠_상세보기_delegate_위임
         }
     }
     /// initiallizer
@@ -144,74 +158,92 @@ private extension RemindFeature {
     /// - View Effect
     func handleViewAction(_ action: Action.View, state: inout State) -> Effect<Action> {
         switch action {
-        case .bellButtonTapped:
-            return .run { send in await send(.delegate(.alertButtonTapped)) }
-        case .searchButtonTapped:
-            return .run { send in await send(.delegate(.searchButtonTapped)) }
-        case .favoriteNavigationLinkTapped:
-            return .send(.delegate(.링크목록_즐겨찾기))
-        case .unreadNavigationLinkTapped:
-            return .send(.delegate(.링크목록_안읽음))
-        case .kebabButtonTapped(let content):
-            state.bottomSheetItem = content
-            return .none
-        case .linkCardTapped(let content):
-            return .send(.delegate(.링크상세(content: content)))
-        case .bottomSheetButtonTapped(let delegate, let content):
-            return .run { send in
-                await send(.inner(.dismissBottomSheet))
-                await send(.scope(.bottomSheet(delegate: delegate, content: content)))
-            }
-        case .deleteAlertConfirmTapped:
-            guard let id = state.alertItem?.id else { return .none }
-            return .run { [id] send in
-                await send(.async(.컨텐츠_삭제(id: id)))
-            }
         case .binding:
             return .none
-        case .remindViewOnAppeared:
+        case .bottomSheet(let delegate, let content):
             return .run { send in
-                await send(.async(.오늘의_리마인드_조회), animation: .pokitDissolve)
-                await send(.async(.읽지않음_컨텐츠_조회), animation: .pokitDissolve)
-                await send(.async(.즐겨찾기_링크모음_조회), animation: .pokitDissolve)
+                await send(.inner(.바텀시트_해제))
+                await send(.scope(.bottomSheet(delegate: delegate, content: content)))
             }
+        case .알림_버튼_눌렀을때:
+            return .send(.delegate(.alertButtonTapped))
+        case .검색_버튼_눌렀을때:
+            return .send(.delegate(.searchButtonTapped))
+        case .즐겨찾기_목록_버튼_눌렀을때:
+            return .send(.delegate(.링크목록_즐겨찾기))
+        case .안읽음_목록_버튼_눌렀을때:
+            return .send(.delegate(.링크목록_안읽음))
+        case .컨텐츠_항목_케밥_버튼_눌렀을때(let content):
+            state.bottomSheetItem = content
+            return .none
+        case .컨텐츠_항목_눌렀을때(let content):
+            return .send(.delegate(.링크상세(content: content)))
+        case .링크_삭제_눌렀을때:
+            guard let id = state.alertItem?.id else { return .none }
+            return .send(.async(.컨텐츠_삭제_API(id: id)))
+        case .뷰가_나타났을때:
+            return allContentFetch(animation: .pokitDissolve)
         case .링크_공유_완료:
             state.shareSheetItem = nil
             return .none
+        case let .즐겨찾기_항목_이미지_조회(contentId):
+            return .send(.async(.즐겨찾기_이미지_조회_수행(contentId: contentId)))
+        case let .읽지않음_항목_이미지_조회(contentId):
+            return .send(.async(.읽지않음_이미지_조회_수행(contentId: contentId)))
+        case let .리마인드_항목_이미지오류_나타났을때(contentId):
+            return .send(.async(.리마인드_이미지_조회_수행(contentId: contentId)))
         }
     }
     /// - Inner Effect
     func handleInnerAction(_ action: Action.InnerAction, state: inout State) -> Effect<Action> {
         switch action {
-        case .dismissBottomSheet:
+        case .바텀시트_해제:
             state.bottomSheetItem = nil
             return .none
-        case .오늘의_리마인드_조회(contents: let contents):
+        case .오늘의_리마인드_조회_API_반영(contents: let contents):
             state.domain.recommendedList = contents
             return .none
-        case .읽지않음_컨텐츠_조회(contentList: let contentList):
+        case .읽지않음_컨텐츠_조회_API_반영(contentList: let contentList):
             state.domain.unreadList = contentList
             return .none
-        case .즐겨찾기_링크모음_조회(contentList: let contentList):
+        case .즐겨찾기_링크모음_조회_API_반영(contentList: let contentList):
             state.domain.favoriteList = contentList
             return .none
-        case .컨텐츠_삭제_반영(id: let contentId):
+        case .컨텐츠_삭제_API_반영(id: let contentId):
             state.alertItem = nil
             state.domain.recommendedList?.removeAll { $0.id == contentId }
             state.domain.unreadList.data?.removeAll { $0.id == contentId }
             state.domain.favoriteList.data?.removeAll { $0.id == contentId }
+            return .none
+        case let .즐겨찾기_이미지_조회_수행_반영(imageURL, index):
+            var content = state.domain.favoriteList.data?.remove(at: index)
+            content?.thumbNail = imageURL
+            guard let content else { return .none }
+            state.domain.favoriteList.data?.insert(content, at: index)
+            return .none
+        case let .읽지않음_이미지_조회_수행_반영(imageURL, index):
+            var content = state.domain.unreadList.data?.remove(at: index)
+            content?.thumbNail = imageURL
+            guard let content else { return .none }
+            state.domain.unreadList.data?.insert(content, at: index)
+            return .none
+        case let .리마인드_이미지_조회_수행_반영(imageURL, index):
+            var content = state.domain.recommendedList?.remove(at: index)
+            content?.thumbNail = imageURL
+            guard let content else { return .none }
+            state.domain.recommendedList?.insert(content, at: index)
             return .none
         }
     }
     /// - Async Effect
     func handleAsyncAction(_ action: Action.AsyncAction, state: inout State) -> Effect<Action> {
         switch action {
-        case .오늘의_리마인드_조회:
+        case .오늘의_리마인드_조회_API:
             return .run { send in
                 let contents = try await remindClient.오늘의_리마인드_조회().map { $0.toDomain() }
-                await send(.inner(.오늘의_리마인드_조회(contents: contents)), animation: .pokitDissolve)
+                await send(.inner(.오늘의_리마인드_조회_API_반영(contents: contents)), animation: .pokitDissolve)
             }
-        case .읽지않음_컨텐츠_조회:
+        case .읽지않음_컨텐츠_조회_API:
             return .run { [pageable = state.domain.unreadListPageable] send in
                 let contentList = try await remindClient.읽지않음_컨텐츠_조회(
                     BasePageableRequest(
@@ -220,9 +252,9 @@ private extension RemindFeature {
                         sort: pageable.sort
                     )
                 ).toDomain()
-                await send(.inner(.읽지않음_컨텐츠_조회(contentList: contentList)), animation: .pokitDissolve)
+                await send(.inner(.읽지않음_컨텐츠_조회_API_반영(contentList: contentList)), animation: .pokitDissolve)
             }
-        case .즐겨찾기_링크모음_조회:
+        case .즐겨찾기_링크모음_조회_API:
             return .run { [pageable = state.domain.favoriteListPageable] send in
                 let contentList = try await remindClient.즐겨찾기_링크모음_조회(
                     BasePageableRequest(
@@ -231,12 +263,58 @@ private extension RemindFeature {
                         sort: pageable.sort
                     )
                 ).toDomain()
-                await send(.inner(.즐겨찾기_링크모음_조회(contentList: contentList)), animation: .pokitDissolve)
+                await send(.inner(.즐겨찾기_링크모음_조회_API_반영(contentList: contentList)), animation: .pokitDissolve)
             }
-        case .컨텐츠_삭제(id: let id):
-            return .run { [id] send in
+        case .컨텐츠_삭제_API(id: let id):
+            return .run { send in
                 let _ = try await contentClient.컨텐츠_삭제("\(id)")
-                await send(.inner(.컨텐츠_삭제_반영(id: id)), animation: .pokitSpring)
+                await send(.inner(.컨텐츠_삭제_API_반영(id: id)), animation: .pokitSpring)
+            }
+        case let .즐겨찾기_이미지_조회_수행(contentId):
+            return .run { [favoriteContents = state.favoriteContents] send in
+                guard let index = favoriteContents?.index(id: contentId),
+                      let content = favoriteContents?[index],
+                      let url = URL(string: content.data) else {
+                    return
+                }
+                
+                let imageURL = try await swiftSoupClient.parseOGImageURL(url)
+                guard let imageURL else { return }
+                
+                await send(.inner(.즐겨찾기_이미지_조회_수행_반영(
+                    imageURL: imageURL,
+                    index: index
+                )))
+            }
+        case let .읽지않음_이미지_조회_수행(contentId):
+            return .run { [unreadContents = state.unreadContents] send in
+                guard let index = unreadContents?.index(id: contentId),
+                      let content = unreadContents?[index],
+                      let url = URL(string: content.data) else {
+                    return
+                }
+                let imageURL = try await swiftSoupClient.parseOGImageURL(url)
+                guard let imageURL else { return }
+                
+                await send(.inner(.읽지않음_이미지_조회_수행_반영(
+                    imageURL: imageURL,
+                    index: index
+                )))
+            }
+        case let .리마인드_이미지_조회_수행(contentId):
+            return .run { [recommendedContents = state.recommendedContents] send in
+                guard let index = recommendedContents?.index(id: contentId),
+                      let content = recommendedContents?[index],
+                      let url = URL(string: content.data) else {
+                    return
+                }
+                let imageURL = try await swiftSoupClient.parseOGImageURL(url)
+                guard let imageURL else { return }
+                
+                await send(.inner(.리마인드_이미지_조회_수행_반영(
+                    imageURL: imageURL,
+                    index: index
+                )))
             }
         }
     }
@@ -262,13 +340,17 @@ private extension RemindFeature {
     /// - Delegate Effect
     func handleDelegateAction(_ action: Action.DelegateAction, state: inout State) -> Effect<Action> {
         switch action {
-        case .컨텐츠목록_조회:
-            return .run { send in
-                await send(.async(.오늘의_리마인드_조회))
-                await send(.async(.읽지않음_컨텐츠_조회))
-                await send(.async(.즐겨찾기_링크모음_조회))
-            }
+        case .컨텐츠_상세보기_delegate_위임:
+            return allContentFetch()
         default: return .none
+        }
+    }
+    
+    func allContentFetch(animation: Animation? = nil) -> Effect<Action> {
+        return .run { send in
+            await send(.async(.오늘의_리마인드_조회_API), animation: animation)
+            await send(.async(.읽지않음_컨텐츠_조회_API), animation: animation)
+            await send(.async(.즐겨찾기_링크모음_조회_API), animation: animation)
         }
     }
 }

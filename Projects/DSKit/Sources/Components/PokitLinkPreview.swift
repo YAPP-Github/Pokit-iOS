@@ -41,6 +41,7 @@ public struct PokitLinkPreview: View {
                     if let image = phase.image {
                         image
                             .resizable()
+                            .aspectRatio(contentMode: .fill)
                     } else {
                         PokitSpinner()
                             .foregroundStyle(.pokit(.icon(.brand)))
@@ -50,6 +51,7 @@ public struct PokitLinkPreview: View {
                 .animation(.pokitDissolve, value: phase.image)
             }
             .frame(width: 124, height: 108)
+            .clipped()
             
             info(title: title)
             

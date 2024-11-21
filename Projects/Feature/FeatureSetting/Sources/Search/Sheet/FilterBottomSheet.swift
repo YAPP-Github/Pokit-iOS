@@ -35,7 +35,7 @@ public extension FilterBottomSheet {
                 switch store.currentType {
                 case .pokit:
                     pokitList
-                        .onAppear { send(.pokitListOnAppeared) }
+                        .onAppear { send(.뷰가_나타났을때) }
                 case .contentType:
                     contentTypes
                 case .date:
@@ -53,7 +53,7 @@ public extension FilterBottomSheet {
                     PokitBottomButton(
                         "검색하기",
                         state: .filled(.primary),
-                        action: { send(.searchButtonTapped, animation: .pokitSpring) }
+                        action: { send(.검색하기_버튼_눌렀을때, animation: .pokitSpring) }
                     )
                     .padding(.horizontal, 20)
                 }
@@ -100,7 +100,7 @@ private extension FilterBottomSheet {
                 PokitList(
                     selectedItem: nil,
                     list: pokitList,
-                    action: { send(.pokitListCellTapped(pokit: $0), animation: .pokitSpring) }
+                    action: { send(.포킷_항목_눌렀을때(pokit: $0), animation: .pokitSpring) }
                 )
             } else {
                 PokitLoading()
@@ -113,13 +113,13 @@ private extension FilterBottomSheet {
             contentTypeButton(
                 "즐겨찾기",
                 isSelected: $store.isFavorite,
-                action: { send(.favoriteButtonTapped, animation: .pokitSpring) }
+                action: { send(.즐겨찾기_체크박스_눌렀을때, animation: .pokitSpring) }
             )
             
             contentTypeButton(
                 "안읽음",
                 isSelected: $store.isUnread,
-                action: { send(.unreadButtonTapped, animation: .pokitSpring) }
+                action: { send(.안읽음_체크박스_눌렀을때, animation: .pokitSpring) }
             )
             
             Spacer()
@@ -160,7 +160,7 @@ private extension FilterBottomSheet {
                         category.categoryName,
                         state: .stroke(.primary),
                         size: .small,
-                        action: { send(.pokitChipTapped(category), animation: .pokitSpring) }
+                        action: { send(.포킷_태그_눌렀을때(category), animation: .pokitSpring) }
                     )
                     .pokitBlurReplaceTransition(.pokitDissolve)
                 }
@@ -170,7 +170,7 @@ private extension FilterBottomSheet {
                         "즐겨찾기",
                         state: .stroke(.primary),
                         size: .small,
-                        action: { send(.favoriteChipTapped, animation: .pokitSpring) }
+                        action: { send(.즐겨찾기_태그_눌렀을때, animation: .pokitSpring) }
                     )
                     .pokitBlurReplaceTransition(.pokitDissolve)
                 }
@@ -180,7 +180,7 @@ private extension FilterBottomSheet {
                         "안읽음",
                         state: .stroke(.primary),
                         size: .small,
-                        action: { send(.unreadChipTapped, animation: .pokitSpring) }
+                        action: { send(.안읽음_태그_눌렀을때, animation: .pokitSpring) }
                     )
                     .pokitBlurReplaceTransition(.pokitDissolve)
                 }
@@ -191,7 +191,7 @@ private extension FilterBottomSheet {
                         sameDate ? "\(store.startDateText)" : "\(store.startDateText)~\(store.endDateText)",
                         state: .stroke(.primary),
                         size: .small,
-                        action: { send(.dateChipTapped, animation: .pokitSpring) }
+                        action: { send(.기간_태그_눌렀을때, animation: .pokitSpring) }
                     )
                     .pokitBlurReplaceTransition(.pokitDissolve)
                     .contentTransition(.numericText())
@@ -222,7 +222,7 @@ private extension FilterBottomSheet {
                 startDateFilter: nil,
                 endDateFilter: nil
             ),
-            reducer: { FilterBottomFeature() }
+            reducer: { FilterBottomFeature()._printChanges() }
         )
     )
 }

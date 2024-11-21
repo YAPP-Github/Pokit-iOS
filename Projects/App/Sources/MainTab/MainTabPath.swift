@@ -145,7 +145,7 @@ public extension MainTabFeature {
                     case .pokit:
                         return .send(.pokit(.delegate(.미분류_카테고리_컨텐츠_조회)))
                     case .remind:
-                        return .send(.remind(.delegate(.컨텐츠목록_조회)))
+                        return .send(.remind(.delegate(.컨텐츠_상세보기_delegate_위임)))
                     }
                 }
                 switch lastPath {

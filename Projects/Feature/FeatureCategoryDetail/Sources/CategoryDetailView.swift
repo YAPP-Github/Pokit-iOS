@@ -7,6 +7,7 @@
 import SwiftUI
 
 import ComposableArchitecture
+import FeatureContentCard
 import Domain
 import DSKit
 import Util
@@ -45,7 +46,7 @@ public extension CategoryDetailView {
                 if let shareURL = URL(string: content.data) {
                     PokitShareSheet(
                         items: [shareURL],
-                        completion: { send(.링크_공유_완료) }
+                        completion: { send(.링크_공유_완료되었을때) }
                     )
                     .presentationDetents([.medium, .large])
                 }
@@ -55,7 +56,7 @@ public extension CategoryDetailView {
                     PokitCategorySheet(
                         selectedItem: nil,
                         list: categories.elements,
-                        action: { send(.categorySelected($0)) }
+                        action: { send(.카테고리_선택했을때($0)) }
                     )
                     .presentationDragIndicator(.visible)
                 } else {
@@ -77,7 +78,7 @@ public extension CategoryDetailView {
                     delegateSend: { store.send(.scope(.filterBottomSheet($0))) }
                 )
             }
-            .task { await send(.onAppear).finish() }
+            .task { await send(.뷰가_나타났을때).finish() }
         }
     }
 }
@@ -92,7 +93,10 @@ private extension CategoryDetailView {
                 )
             }
             PokitHeaderItems(placement: .trailing) {
-                PokitToolbarButton(.icon(.kebab), action: { send(.categoryKebobButtonTapped(.포킷삭제, selectedItem: nil)) })
+                PokitToolbarButton(
+                    .icon(.kebab),
+                    action: { send(.카테고리_케밥_버튼_눌렀을때(.포킷삭제, selectedItem: nil)) }
+                )
             }
         }
         .padding(.top, 8)
@@ -102,7 +106,7 @@ private extension CategoryDetailView {
         VStack(spacing: 4) {
             HStack(spacing: 8) {
                 /// cateogry title
-                Button(action: { send(.categorySelectButtonTapped) }) {
+                Button(action: { send(.카테고리_선택_버튼_눌렀을때) }) {
                     Text(store.category.categoryName)
                         .foregroundStyle(.pokit(.text(.primary)))
                         .pokitFont(.title1)
@@ -125,7 +129,7 @@ private extension CategoryDetailView {
                     state: .filled(.primary),
                     size: .small,
                     shape: .round,
-                    action: { send(.filterButtonTapped) }
+                    action: { send(.필터_버튼_눌렀을때) }
                 )
             }
         }
@@ -133,8 +137,8 @@ private extension CategoryDetailView {
     
     var contentScrollView: some View {
         Group {
-            if let contents = store.contents {
-                if contents.isEmpty {
+            if !store.isLoading {
+                if store.contents.isEmpty {
                     VStack {
                         PokitCaution(
                             image: .empty,
@@ -148,17 +152,17 @@ private extension CategoryDetailView {
                 } else {
                     ScrollView(showsIndicators: false) {
                         LazyVStack(spacing: 0) {
-                            ForEach(contents) { content in
-                                let isFirst = content == contents.first
-                                let isLast = content == contents.last
+                            ForEach(
+                                store.scope(state: \.contents, action: \.contents)
+                            ) { store in
+                                let isFirst = store.state.id == self.store.contents.first?.id
+                                let isLast = store.state.id == self.store.contents.last?.id
                                 
-                                PokitLinkCard(
-                                    link: content,
-                                    action: { send(.contentItemTapped(content)) },
-                                    kebabAction: { send(.categoryKebobButtonTapped(.링크삭제, selectedItem: content)) }
+                                ContentCardView(
+                                    store: store,
+                                    isFirst: isFirst,
+                                    isLast: isLast
                                 )
-                                .divider(isFirst: isFirst, isLast: isLast)
-                                .pokitScrollTransition(.opacity)
                             }
                             
                             if store.hasNext {

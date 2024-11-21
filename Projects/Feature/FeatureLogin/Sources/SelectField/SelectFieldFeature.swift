@@ -13,7 +13,7 @@ import Util
 public struct SelectFieldFeature {
     /// - Dependency
     @Dependency(\.dismiss) var dismiss
-    @Dependency(\.userClient) var userClient
+    @Dependency(UserClient.self) var userClient
     /// - State
     @ObservableState
     public struct State: Equatable {
@@ -48,8 +48,8 @@ public struct SelectFieldFeature {
         public enum InnerAction: Equatable {
             case 관심사_목록_조회_결과(interests: [InterestResponse])
         }
-        public enum AsyncAction: Equatable { case doNothing }
-        public enum ScopeAction: Equatable { case doNothing }
+        public enum AsyncAction: Equatable { case 없음 }
+        public enum ScopeAction: Equatable { case 없음 }
         public enum DelegateAction: Equatable {
             case pushSignUpDoneView(interests: [String])
         }

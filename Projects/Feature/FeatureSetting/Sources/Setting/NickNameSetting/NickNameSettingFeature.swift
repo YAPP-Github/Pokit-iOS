@@ -14,8 +14,8 @@ import Util
 public struct NickNameSettingFeature {
     /// - Dependency
     @Dependency(\.dismiss) var dismiss
-    @Dependency(\.userClient) var userClient
     @Dependency(\.mainQueue) var mainQueue
+    @Dependency(UserClient.self) var userClient
     /// - State
     @ObservableState
     public struct State: Equatable {
@@ -46,25 +46,24 @@ public struct NickNameSettingFeature {
         public enum View: BindableAction, Equatable {
             case binding(BindingAction<State>)
             case dismiss
-            case saveButtonTapped
-            
-            case onAppear
+            case 저장_버튼_눌렀을때
+            case 뷰가_나타났을때
         }
         
         public enum InnerAction: Equatable {
-            case textChanged
-            case 닉네임_중복_체크_네트워크_결과(Bool)
-            case 유저정보_갱신(BaseUser)
+            case 닉네임_텍스트_변경되었을때
+            case 닉네임_중복_확인_API_반영(Bool)
+            case 닉네임_조회_API_반영(BaseUser)
         }
         
         public enum AsyncAction: Equatable {
-            case 닉네임_중복_체크_네트워크
-            case 닉네임_조회
+            case 닉네임_중복_확인_API
+            case 닉네임_조회_API
         }
         
-        public enum ScopeAction: Equatable { case doNothing }
+        public enum ScopeAction: Equatable { case 없음 }
         
-        public enum DelegateAction: Equatable { case doNothing }
+        public enum DelegateAction: Equatable { case 없음 }
     }
     
     /// - Initiallizer
@@ -109,34 +108,36 @@ private extension NickNameSettingFeature {
         case .binding(\.text):
             state.buttonState = .disable
             return .run { send in
-                await send(.inner(.textChanged))
+                await send(.inner(.닉네임_텍스트_변경되었을때))
             }
             .debounce(
                 id: CancelID.response,
                 for: 0.5,
                 scheduler: mainQueue
             )
+            
         case .binding:
             return .none
             
         case .dismiss:
             return .run { _ in await dismiss() }
             
-        case .saveButtonTapped:
+        case .저장_버튼_눌렀을때:
             return .run { [nickName = state.text] send in
                 let request = NicknameEditRequest(nickname: nickName)
                 let _ = try await userClient.닉네임_수정(request)
                 await dismiss()
             }
-        case .onAppear:
-            return .send(.async(.닉네임_조회))
+            
+        case .뷰가_나타났을때:
+            return .send(.async(.닉네임_조회_API))
         }
     }
     
     /// - Inner Effect
     func handleInnerAction(_ action: Action.InnerAction, state: inout State) -> Effect<Action> {
         switch action {
-        case .textChanged:
+        case .닉네임_텍스트_변경되었을때:
             /// [1]. 닉네임 텍스트필드가 비어있을 때
             if state.text.isEmpty {
                 state.buttonState = .disable
@@ -155,18 +156,20 @@ private extension NickNameSettingFeature {
                 return .none
             } else {
                 /// [4]. 정상 케이스일 때
-                return .run { send in await send(.async(.닉네임_중복_체크_네트워크)) }
+                return .run { send in await send(.async(.닉네임_중복_확인_API)) }
             }
-        case let .닉네임_중복_체크_네트워크_결과(isDuplicate):
-            if isDuplicate {
-                state.textfieldState = .error(message: "중복된 닉네임입니다.")
-                state.buttonState = .disable
-            } else {
-                state.textfieldState = .active
-                state.buttonState = .filled(.primary)
-            }
+            
+        case let .닉네임_중복_확인_API_반영(isDuplicate):
+            state.textfieldState = isDuplicate
+            ? .error(message: "중복된 닉네임입니다.")
+            : .active
+            
+            state.buttonState = isDuplicate
+            ? .disable
+            : .filled(.primary)
             return .none
-        case let .유저정보_갱신(user):
+            
+        case let .닉네임_조회_API_반영(user):
             state.domain.user = user
             state.domain.nickname = user.nickname
             return .none
@@ -176,15 +179,16 @@ private extension NickNameSettingFeature {
     /// - Async Effect
     func handleAsyncAction(_ action: Action.AsyncAction, state: inout State) -> Effect<Action> {
         switch action {
-        case .닉네임_중복_체크_네트워크:
+        case .닉네임_중복_확인_API:
             return .run { [nickName = state.text] send in
                 let result = try await userClient.닉네임_중복_체크(nickName)
-                await send(.inner(.닉네임_중복_체크_네트워크_결과(result.isDuplicate)))
+                await send(.inner(.닉네임_중복_확인_API_반영(result.isDuplicate)))
             }
-        case .닉네임_조회:
+            
+        case .닉네임_조회_API:
             return .run { send in
                 let user = try await userClient.닉네임_조회().toDomain()
-                await send(.inner(.유저정보_갱신(user)), animation: .easeInOut)
+                await send(.inner(.닉네임_조회_API_반영(user)), animation: .easeInOut)
             }
         }
     }

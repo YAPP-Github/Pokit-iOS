@@ -6,12 +6,11 @@
 
 import ComposableArchitecture
 import CoreKit
-import FeatureLogin
 
 @Reducer
 public struct IntroFeature {
     /// - Dependency
-    @Dependency(\.userDefaults) var userDefaults
+    @Dependency(UserDefaultsClient.self) var userDefaults
     /// - State
     @ObservableState
     public enum State {

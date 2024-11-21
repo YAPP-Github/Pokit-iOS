@@ -14,7 +14,7 @@ public struct BaseContentItem: Identifiable, Equatable, PokitLinkCardItem, Sorta
     public let categoryName: String
     public let categoryId: Int
     public let title: String
-    public let thumbNail: String
+    public var thumbNail: String
     public let data: String
     public let domain: String
     public let createdAt: String

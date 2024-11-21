@@ -56,12 +56,13 @@ public extension ContentSettingView {
                                 isPresented: $store.showMaxCategoryPopup,
                                 type: .text
                             )
+                            .animation(.pokitSpring, value: store.showMaxCategoryPopup)
                         } else if store.state.showDetectedURLPopup {
                             PokitLinkPopup(
                                 "복사한 링크 저장하기",
                                 isPresented: $store.showDetectedURLPopup,
                                 type: .link(url: store.link ?? ""),
-                                action: { send(.linkCopyButtonTapped, animation: .pokitSpring) }
+                                action: { send(.링크복사_버튼_눌렀을때, animation: .pokitSpring) }
                             )
                         }
                     }
@@ -74,14 +75,14 @@ public extension ContentSettingView {
                     "저장하기",
                     state: isDisable ? .disable : .filled(.primary),
                     isLoading: $store.saveIsLoading,
-                    action: { send(.saveBottomButtonTapped) }
+                    action: { send(.저장_버튼_눌렀을때) }
                 )
                 .padding(.horizontal, 20)
                 .pokitMaxWidth()
             }
             .pokitNavigationBar { navigationBar }
             .ignoresSafeArea(edges: focusedType == nil ? .bottom : [])
-            .onAppear { send(.contentSettingViewOnAppeared) }
+            .onAppear { send(.뷰가_나타났을때) }
         }
     }
 }
@@ -90,8 +91,12 @@ private extension ContentSettingView {
     var navigationBar: some View {
         PokitHeader(title: store.content == nil ? "링크 추가" : "링크 수정") {
             PokitHeaderItems(placement: .leading) {
-                PokitToolbarButton(.icon(.arrowLeft)) {
-                    send(.dismiss)
+                PokitToolbarButton(.icon(
+                    store.isShareExtension
+                    ? .x
+                    : .arrowLeft
+                )) {
+                    send(.뒤로가기_버튼_눌렀을때)
                 }
             }
         }
@@ -134,7 +139,7 @@ private extension ContentSettingView {
             selectedItem: $store.selectedPokit,
             label: "포킷",
             list: store.pokitList,
-            action: { send(.pokitSelectItemButtonTapped(pokit: $0), animation: .pokitDissolve) }
+            action: { send(.포킷선택_항목_눌렀을때(pokit: $0), animation: .pokitDissolve) }
         )
     }
     
@@ -144,7 +149,7 @@ private extension ContentSettingView {
             state: .filled(.primary),
             size: .large,
             shape: .rectangle
-        ) { send(.addPokitButtonTapped, animation: .pokitSpring) }
+        ) { send(.포킷추가_버튼_눌렀을때, animation: .pokitSpring) }
     }
     
     var memoTextArea: some View {
