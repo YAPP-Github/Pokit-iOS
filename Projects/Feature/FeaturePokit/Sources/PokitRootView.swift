@@ -126,6 +126,7 @@ private extension PokitRootView {
                     VStack {
                         PokitCaution(
                             type: .카테고리없음,
+                            action: { send(.포킷추가_버튼_눌렀을때) }
                         )
                         .padding(.top, 36)
 
@@ -170,6 +171,7 @@ private extension PokitRootView {
                     VStack {
                         PokitCaution(
                             type: .미분류_링크없음,
+                            action: { send(.링크추가_버튼_눌렀을때) }
                         )
                         .padding(.top, 36)
 
