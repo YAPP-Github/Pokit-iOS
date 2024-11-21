@@ -140,11 +140,7 @@ private extension CategoryDetailView {
             if !store.isLoading {
                 if store.contents.isEmpty {
                     VStack {
-                        PokitCaution(
-                            image: .empty,
-                            titleKey: "저장된 링크가 없어요!",
-                            message: "다양한 링크를 한 곳에 저장해보세요"
-                        )
+                        PokitCaution(type: .링크없음)
                         .padding(.top, 20)
                         
                         Spacer()

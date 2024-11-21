@@ -68,11 +68,7 @@ extension RemindView {
                    unreadContents.isEmpty &&
                    favoriteContents.isEmpty {
                     VStack {
-                        PokitCaution(
-                            image: .sad,
-                            titleKey: "링크가 부족해요!",
-                            message: "링크를 5개 이상 저장하고 추천을 받아보세요"
-                        )
+                        PokitCaution(type: .링크부족)
                         .padding(.top, 100)
                         
                         Spacer()
@@ -111,11 +107,7 @@ extension RemindView {
                 .padding(.horizontal, 20)
             
             if recommendedContents.isEmpty {
-                PokitCaution(
-                    image: .sad,
-                    titleKey: "링크가 부족해요!",
-                    message: "링크를 5개 이상 저장하고 추천을 받아보세요"
-                )
+                PokitCaution(type: .링크부족)
                 .padding(.top, 24)
                 .padding(.bottom, 32)
             } else {
@@ -293,11 +285,7 @@ extension RemindView {
             .padding(.bottom, 16)
             
             if favoriteContents.isEmpty {
-                PokitCaution(
-                    image: .empty,
-                    titleKey: "즐겨찾기 링크가 없어요!",
-                    message: "링크를 즐겨찾기로 관리해보세요"
-                )
+                PokitCaution(type: .즐겨찾기_링크없음)
                 .padding(.top, 16)
             } else {
                 ForEach(favoriteContents, id: \.id) { content in
