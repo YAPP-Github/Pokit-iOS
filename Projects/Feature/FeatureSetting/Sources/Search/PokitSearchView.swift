@@ -89,6 +89,7 @@ private extension PokitSearchView {
             PokitIconRInput(
                 text: $store.searchText,
                 icon: store.isSearching ? .icon(.x) : .icon(.search),
+                placeholder: "제목, 메모를 검색해보세요.",
                 shape: .round,
                 focusState: $focused,
                 equals: true,
