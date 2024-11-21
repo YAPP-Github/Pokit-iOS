@@ -7,6 +7,70 @@
 
 import SwiftUI
 
+public enum CautionType {
+    case 카테고리없음
+    case 미분류_링크없음
+    case 링크없음
+    case 즐겨찾기_링크없음
+    case 링크부족
+    case 알림없음
+    
+    var image: PokitImage.Character {
+        switch self {
+        case .카테고리없음, .링크없음, .즐겨찾기_링크없음, .미분류_링크없음:
+            return .empty
+        case .링크부족:
+            return .sad
+        case .알림없음:
+            return .pooki
+        }
+    }
+    
+    var title: String {
+        switch self {
+        case .카테고리없음:
+            return "저장된 포킷이 없어요!"
+        case .미분류_링크없음:
+            return "미분류 링크가 없어요!"
+        case .링크없음:
+            return "저장된 링크가 없어요!"
+        case .즐겨찾기_링크없음:
+            return "즐겨찾기 링크가 없어요!"
+        case .링크부족:
+            return "링크가 부족해요!"
+        case .알림없음:
+            return "알림이 없어요"
+        }
+    }
+    
+    var message: String {
+        switch self {
+        case .카테고리없음:
+            return "포킷을 생성해 링크를 저장해보세요"
+        case .미분류_링크없음:
+            return "링크를 포킷에 깔끔하게 분류하셨어요"
+        case .링크없음:
+            return "다양한 링크를 한 곳에 저장해보세요"
+        case .즐겨찾기_링크없음:
+            return "링크를 즐겨찾기로 관리해보세요"
+        case .링크부족:
+            return "링크를 5개 이상 저장하고 추천을 받아보세요"
+        case .알림없음:
+            return "리마인드 알림을 설정하세요"
+        }
+    }
+    
+    var actionTitle: String? {
+        switch self {
+        case .카테고리없음:
+            return "포킷 추가하기"
+        case .미분류_링크없음:
+            return "링크 추가하기"
+        default: return nil
+        }
+    }
+}
+
 public struct PokitCaution: View {
     private let image: PokitImage.Character
     private let titleKey: String
