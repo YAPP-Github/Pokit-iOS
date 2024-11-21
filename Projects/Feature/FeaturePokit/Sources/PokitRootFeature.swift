@@ -72,6 +72,8 @@ public struct PokitRootFeature {
             case 분류_버튼_눌렀을때
             case 케밥_버튼_눌렀을때(BaseCategoryItem)
             case 미분류_케밥_버튼_눌렀을때(BaseContentItem)
+            case 포킷추가_버튼_눌렀을때
+            case 링크추가_버튼_눌렀을때
             case 카테고리_눌렀을때(BaseCategoryItem)
             case 컨텐츠_항목_눌렀을때(BaseContentItem)
             case 링크_공유_완료되었을때
@@ -123,6 +125,9 @@ public struct PokitRootFeature {
             /// 링크상세로 이동
             case contentDetailTapped(BaseContentItem)
             case 미분류_카테고리_컨텐츠_조회
+            
+            case 포킷추가_버튼_눌렀을때
+            case 링크추가_버튼_눌렀을때
         }
     }
 
@@ -209,6 +214,12 @@ private extension PokitRootFeature {
         case .미분류_케밥_버튼_눌렀을때(let selectedItem):
             state.selectedUnclassifiedItem = selectedItem
             return .run { send in await send(.inner(.카테고리_시트_활성화(true))) }
+            
+        case .포킷추가_버튼_눌렀을때:
+            return .run { send in await send(.delegate(.포킷추가_버튼_눌렀을때)) }
+            
+        case .링크추가_버튼_눌렀을때:
+            return .run { send in await send(.delegate(.링크추가_버튼_눌렀을때)) }
 
         case .카테고리_눌렀을때(let category):
             return .run { send in await send(.delegate(.categoryTapped(category))) }

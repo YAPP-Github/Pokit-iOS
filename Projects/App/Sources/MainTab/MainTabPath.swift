@@ -90,7 +90,8 @@ public extension MainTabFeature {
 
             /// - 포킷 `추가` 버튼 눌렀을 때
             case .delegate(.포킷추가하기),
-                 .path(.element(_, action: .링크추가및수정(.delegate(.포킷추가하기)))):
+                 .path(.element(_, action: .링크추가및수정(.delegate(.포킷추가하기)))),
+                 .pokit(.delegate(.포킷추가_버튼_눌렀을때)):
                 state.path.append(.포킷추가및수정(PokitCategorySettingFeature.State(type: .추가)))
                 return .none
 
@@ -164,7 +165,8 @@ public extension MainTabFeature {
                 state.path.append(.링크추가및수정(ContentSettingFeature.State(contentId: id)))
                 return .none
             /// - 링크 추가하기
-            case .delegate(.링크추가하기):
+            case .delegate(.링크추가하기),
+                 .pokit(.delegate(.링크추가_버튼_눌렀을때)):
                 state.categoryId = nil
                 state.path.append(.링크추가및수정(ContentSettingFeature.State(urlText: state.link)))
                 state.link = nil
