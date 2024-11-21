@@ -89,11 +89,7 @@ private extension ContentListView {
         Group {
             if !store.isLoading {
                 if store.contents.isEmpty {
-                    PokitCaution(
-                        image: .empty,
-                        titleKey: "즐겨찾기 링크가 없어요!",
-                        message: "링크를 즐겨찾기로 관리해보세요"
-                    )
+                    PokitCaution(type: .즐겨찾기_링크없음)
                     .padding(.top, 100)
                     
                     Spacer()

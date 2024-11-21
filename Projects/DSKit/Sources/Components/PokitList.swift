@@ -30,11 +30,7 @@ public struct PokitList<Item: PokitSelectItem>: View {
     public var body: some View {
         if list.isEmpty {
             VStack {
-                PokitCaution(
-                    image: .empty,
-                    titleKey: "저장된 포킷이 없어요!",
-                    message: "포킷을 생성해 링크를 저장해보세요"
-                )
+                PokitCaution(type: .카테고리없음)
                 
                 Spacer()
             }
