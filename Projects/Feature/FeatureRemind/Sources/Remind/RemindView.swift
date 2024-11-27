@@ -156,7 +156,7 @@ extension RemindView {
             )
             
             VStack(alignment: .leading, spacing: 0) {
-                PokitBadge(content.categoryName, state: .small)
+                PokitBadge(state: .small(content.categoryName))
                 
                 HStack(spacing: 4) {
                     Text(content.title)

@@ -91,12 +91,13 @@ public struct PokitLinkCard<Item: PokitLinkCardItem>: View {
         
         HStack(spacing: 6) {
             PokitBadge(
-                link.categoryName,
-                state: isUnCategorized ? .unCategorized : .default
+                state: isUnCategorized
+                ? .unCategorized
+                : .default(link.categoryName)
             )
             
             if let isRead = link.isRead, !isRead {
-                PokitBadge("안읽음", state: .unRead)
+                PokitBadge(state: .unRead)
             }
         }
     }

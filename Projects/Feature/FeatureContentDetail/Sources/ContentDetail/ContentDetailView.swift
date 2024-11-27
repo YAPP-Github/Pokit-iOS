@@ -90,7 +90,7 @@ private extension ContentDetailView {
                     }
             }
 
-            PokitBadge(content.category.categoryName, state: .default)
+            PokitBadge(state: .default(content.category.categoryName))
 
             Spacer()
         }
