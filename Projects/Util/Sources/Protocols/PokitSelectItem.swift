@@ -8,6 +8,9 @@
 import Foundation
 
 public protocol PokitSelectItem: Identifiable, Equatable {
+    associatedtype Thumbnail: CategoryImage
+    
     var categoryName: String { get }
     var contentCount: Int { get }
+    var categoryImage: Thumbnail { get }
 }
