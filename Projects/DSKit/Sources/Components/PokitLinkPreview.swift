@@ -33,7 +33,7 @@ public struct PokitLinkPreview: View {
         }
     }
     
-    @MainActor
+
     private var buttonLabel: some View {
         HStack(spacing: 16) {
             Group {
@@ -68,7 +68,7 @@ public struct PokitLinkPreview: View {
         }
     }
     
-    @ViewBuilder
+    @MainActor
     private func thumbnail(url: String) -> some View {
         LazyImage(url: URL(string: url)) { phase in
             Group {
