@@ -13,9 +13,11 @@ public struct ContentBaseResponse: Decodable {
     public let data: String
     public let domain: String
     public let title: String
+    public let memo: String?
     public let thumbNail: String
     public let createdAt: String
     public let isRead: Bool?
+    public let isFavorite: Bool?
 }
 
 extension ContentBaseResponse {
@@ -29,9 +31,11 @@ extension ContentBaseResponse {
             data: "https://www.youtube.com/watch?v=wtSwdGJzQCQ",
             domain: "youtube",
             title: "신서유기",
+            memo: nil,
             thumbNail: "https://i.ytimg.com/vi/NnOC4_kH0ok/hqdefault.jpg?sqp=-oaymwEjCNACELwBSFryq4qpAxUIARUAAAAAGAElAADIQj0AgKJDeAE=&rs=AOn4CLDN6u6mTjbaVmRZ4biJS_aDq4uvAQ",
             createdAt: "2024.08.08",
-            isRead: false
+            isRead: false,
+            isFavorite: true
         )
     }
 }
