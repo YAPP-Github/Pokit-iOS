@@ -258,16 +258,18 @@ extension RemindView {
                     }
                     
                     ForEach(unreadContents, id: \.id) { content in
-                        let isFirst = content == unreadContents.elements.first
-                        let isLast = content == unreadContents.elements.last
+                        let isFirst = content.id == unreadContents.first?.id
+                        let isLast = content.id == unreadContents.last?.id
                         
                         PokitLinkCard(
                             link: content,
+                            state: isFirst
+                            ? .top
+                            : isLast ? .bottom : .middle,
                             action: { send(.컨텐츠_항목_눌렀을때(content: content)) },
                             kebabAction: { send(.컨텐츠_항목_케밥_버튼_눌렀을때(content: content)) },
                             fetchMetaData: { send(.읽지않음_항목_이미지_조회(contentId: content.id)) }
                         )
-                        .divider(isFirst: isFirst, isLast: isLast)
                     }
                 }
             }
@@ -289,16 +291,18 @@ extension RemindView {
                 .padding(.top, 16)
             } else {
                 ForEach(favoriteContents, id: \.id) { content in
-                    let isFirst = content == favoriteContents.elements.first
-                    let isLast = content == favoriteContents.elements.last
+                    let isFirst = content.id == favoriteContents.first?.id
+                    let isLast = content.id == favoriteContents.last?.id
                     
                     PokitLinkCard(
                         link: content,
+                        state: isFirst
+                        ? .top
+                        : isLast ? .bottom : .middle,
                         action: { send(.컨텐츠_항목_눌렀을때(content: content)) },
                         kebabAction: { send(.컨텐츠_항목_케밥_버튼_눌렀을때(content: content)) },
                         fetchMetaData: { send(.즐겨찾기_항목_이미지_조회(contentId: content.id)) }
                     )
-                    .divider(isFirst: isFirst, isLast: isLast)
                 }
             }
         }
