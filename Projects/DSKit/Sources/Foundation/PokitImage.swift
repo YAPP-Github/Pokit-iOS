@@ -79,6 +79,30 @@ public enum PokitImage {
                 return DSKitAsset.iconGoogle.swiftUIImage
             case .spinner:
                 return DSKitAsset.iconSpinner.swiftUIImage
+            case .invite:
+                return DSKitAsset.iconInvite.swiftUIImage
+            case .memo:
+                return DSKitAsset.iconMemo.swiftUIImage
+            case .arrowDown2:
+                return DSKitAsset.iconArrowDown2.swiftUIImage
+            case .hashtag:
+                return DSKitAsset.iconHashtag.swiftUIImage
+            case .savePokit:
+                return DSKitAsset.iconSavepokit.swiftUIImage
+            case .pin:
+                return DSKitAsset.iconPin.swiftUIImage
+            case .member:
+                return DSKitAsset.iconMember.swiftUIImage
+            case .lock:
+                return DSKitAsset.iconLock.swiftUIImage
+            case .movePokit:
+                return DSKitAsset.iconMovepokit.swiftUIImage
+            case .allCheck:
+                return DSKitAsset.iconAllcheck.swiftUIImage
+            case .allUncheck:
+                return DSKitAsset.iconAlluncheck.swiftUIImage
+            case .report:
+                return DSKitAsset.iconReport.swiftUIImage
             }
         case .logo(let name):
             switch name {
@@ -138,6 +162,18 @@ public extension PokitImage {
         case check
         case google
         case spinner
+        case invite
+        case memo
+        case arrowDown2
+        case hashtag
+        case savePokit
+        case pin
+        case member
+        case lock
+        case movePokit
+        case allCheck
+        case allUncheck
+        case report
     }
     
     enum Logo {

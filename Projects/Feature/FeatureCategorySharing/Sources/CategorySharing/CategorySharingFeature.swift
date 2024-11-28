@@ -152,11 +152,13 @@ private extension CategorySharingFeature {
                     categoryName: content.categoryName,
                     categoryId: state.category.categoryId,
                     title: content.title,
+                    memo: content.memo,
                     thumbNail: content.thumbNail,
                     data: content.data,
                     domain: content.domain,
                     createdAt: content.createdAt,
-                    isRead: content.isRead
+                    isRead: content.isRead,
+                    isFavorite: content.isFavorite
                 )))
             }
             state.isLoading = false
@@ -176,11 +178,13 @@ private extension CategorySharingFeature {
                     categoryName: content.categoryName,
                     categoryId: state.category.categoryId,
                     title: content.title,
+                    memo: content.memo,
                     thumbNail: content.thumbNail,
                     data: content.data,
                     domain: content.domain,
                     createdAt: content.createdAt,
-                    isRead: content.isRead
+                    isRead: content.isRead,
+                    isFavorite: content.isFavorite
                 )))
             }
             state.isLoading = false

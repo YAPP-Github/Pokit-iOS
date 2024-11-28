@@ -12,25 +12,48 @@ import NukeUI
 
 public struct PokitLinkCard<Item: PokitLinkCardItem>: View {
     private let link: Item
+    private let state: PokitLinkCard.State
+    private let type: PokitLinkCard.CardType
     private let action: () -> Void
     private let kebabAction: (() -> Void)?
     private let fetchMetaData: (() -> Void)?
+    private let favoriteAction: (() -> Void)?
+    private let selectAction: (() -> Void)?
     
     public init(
         link: Item,
+        state: PokitLinkCard.State,
+        type: PokitLinkCard.CardType = .accept,
         action: @escaping () -> Void,
         kebabAction: (() -> Void)? = nil,
-        fetchMetaData: (() -> Void)? = nil
+        fetchMetaData: (() -> Void)? = nil,
+        favoriteAction: (() -> Void)? = nil,
+        selectAction: (() -> Void)? = nil
     ) {
         self.link = link
+        self.state = state
+        self.type = type
         self.action = action
         self.kebabAction = kebabAction
         self.fetchMetaData = fetchMetaData
+        self.favoriteAction = favoriteAction
+        self.selectAction = selectAction
     }
     
     public var body: some View {
-        Button(action: action) {
-            buttonLabel
+        VStack(spacing: 20) {
+            Button(action: action) {
+                buttonLabel
+            }
+            .padding(.top, state == .top ? 0 : 20)
+            
+            if case .top = state {
+                divider
+            }
+            
+            if case .middle = state {
+                divider
+            }
         }
     }
     
@@ -68,6 +91,27 @@ public struct PokitLinkCard<Item: PokitLinkCardItem>: View {
                 }
             }
         }
+        .overlay(alignment: .bottomLeading) {
+            if let isFavorite = link.isFavorite {
+                PokitBookmark(
+                    state: isFavorite ? .active : .default,
+                    action: { favoriteAction?() }
+                )
+                .padding(4)
+            }
+        }
+        .overlay(alignment: .topLeading) {
+            if case .unCatgorized(let isSelected) = type {
+                PokitCheckBox(
+                    baseState: .default,
+                    selectedState: .filled,
+                    isSelected: .constant(isSelected),
+                    shape: .rectangle,
+                    action: { selectAction?() }
+                )
+                .padding(4)
+            }
+        }
     }
     
     private var title: some View {
@@ -90,13 +134,18 @@ public struct PokitLinkCard<Item: PokitLinkCardItem>: View {
         let isUnCategorized = link.categoryName == "미분류"
         
         HStack(spacing: 6) {
+            if let isRead = link.isRead, !isRead {
+                PokitBadge(state: .unRead)
+            }
+            
             PokitBadge(
-                link.categoryName,
-                state: isUnCategorized ? .unCategorized : .default
+                state: isUnCategorized
+                ? .unCategorized
+                : .default(link.categoryName)
             )
             
-            if let isRead = link.isRead, !isRead {
-                PokitBadge("안읽음", state: .unRead)
+            if let memo = link.memo, !memo.isEmpty {
+                PokitBadge(state: .memo)
             }
         }
     }
@@ -149,17 +198,18 @@ public struct PokitLinkCard<Item: PokitLinkCardItem>: View {
         .frame(width: 124, height: 94)
         .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
     }
+}
+
+extension PokitLinkCard {
+    public enum State {
+        case top
+        case middle
+        case bottom
+    }
     
-    @ViewBuilder
-    public func divider(isFirst: Bool, isLast: Bool) -> some View {
-        let edge: Edge.Set = isFirst ? .bottom : isLast ? .top : .vertical
-        
-        self
-            .padding(edge, 20)
-            .background(alignment: .bottom) {
-                if !isLast {
-                    divider
-                }
-            }
+    public enum CardType {
+        case linkList
+        case unCatgorized(isSelected: Bool)
+        case accept
     }
 }

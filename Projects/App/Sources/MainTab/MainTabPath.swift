@@ -216,7 +216,7 @@ public extension MainTabFeature {
                     ),
                     title: content.title,
                     data: content.data,
-                    memo: content.memo,
+                    memo: content.memo ?? "",
                     createdAt: content.createdAt,
                     favorites: nil,
                     alertYn: .no

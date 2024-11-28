@@ -39,7 +39,7 @@ public struct PokitTextButton: View {
         Text(self.labelText)
             .pokitFont(self.size.font)
             .foregroundStyle(self.state.textColor)
-            .padding(.horizontal, self.hPadding)
+            .padding(.horizontal, self.size.hPadding)
             .padding(.vertical, self.size.vPadding)
             .background {
                 RoundedRectangle(cornerRadius: shape.radius(size: self.size), style: .continuous)
@@ -49,16 +49,6 @@ public struct PokitTextButton: View {
                             .stroke(self.state.backgroundStrokeColor, lineWidth: 1)
                     }
             }
-    }
-    
-    private var hPadding: CGFloat {
-        switch self.size {
-        case .small:
-            return 12.5
-        case .medium:
-            return 26
-        case .large:
-            return 34.5
-        }
+            .frame(minWidth: self.size.minWidth)
     }
 }

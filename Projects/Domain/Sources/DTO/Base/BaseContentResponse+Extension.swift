@@ -17,11 +17,13 @@ public extension ContentBaseResponse {
             categoryName: self.category.categoryName,
             categoryId: self.category.categoryId,
             title: self.title,
+            memo: self.memo,
             thumbNail: self.thumbNail,
             data: self.data,
             domain: self.domain,
             createdAt: self.createdAt,
-            isRead: self.isRead
+            isRead: self.isRead,
+            isFavorite: self.isFavorite
         )
     }
 }
