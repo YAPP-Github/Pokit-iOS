@@ -69,7 +69,9 @@ public extension ContentSettingView {
                     .pokitMaxWidth()
                 }
                 
-                let isDisable = store.urlText.isEmpty || store.title.isEmpty || store.memoTextAreaState == .error(message: "최대 100자까지 입력가능합니다.")
+                let isDisable = store.urlText.isEmpty ||
+                                store.title.isEmpty ||
+                                store.memoTextAreaState == .error(message: "최대 100자까지 입력가능합니다.")
                 
                 PokitBottomButton(
                     "저장하기",
@@ -104,13 +106,15 @@ private extension ContentSettingView {
     }
     var linkTextField: some View {
         VStack(spacing: 16) {
-            if store.showLinkPreview {
+            if !store.urlText.isEmpty {
+                let isParsed = store.linkTitle != nil || store.linkImageURL != nil
+                
                 PokitLinkPreview(
-                    title: store.linkTitle ?? (
-                        store.title.isEmpty ? "제목을 입력해주세요" : store.title
-                    ),
-                    url: store.urlText,
-                    imageURL: store.linkImageURL ?? "https://pokit-storage.s3.ap-northeast-2.amazonaws.com/logo/pokit.png"
+                    title: store.linkTitle == "제목을 입력해주세요"
+                    ? store.title.isEmpty ? "제목을 입력해주세요" : store.title
+                    : store.linkTitle,
+                    url: isParsed ? store.urlText : nil,
+                    imageURL: store.linkImageURL
                 )
                 .pokitBlurReplaceTransition(.pokitDissolve)
             }
@@ -123,6 +127,7 @@ private extension ContentSettingView {
                 equals: .link
             )
         }
+        .animation(.pokitSpring, value: store.urlText)
     }
     
     var titleTextField: some View {
@@ -131,7 +136,8 @@ private extension ContentSettingView {
             label: "제목", 
             state: $store.titleTextInpuState,
             focusState: $focusedType,
-            equals: .title) { }
+            equals: .title
+        ) { }
     }
     
     var pokitSelectButton: some View {

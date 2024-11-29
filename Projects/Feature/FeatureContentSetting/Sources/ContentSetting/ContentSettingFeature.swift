@@ -197,6 +197,9 @@ private extension ContentSettingFeature {
             return .merge(mergeEffect)
         case .저장_버튼_눌렀을때:
             let isEdit = state.domain.categoryId != nil
+            if state.domain.title == "제목을 입력해주세요" {
+                state.domain.title = state.title
+            }
             
             return isEdit
             ? .send(.async(.컨텐츠_수정_API))
@@ -239,8 +242,9 @@ private extension ContentSettingFeature {
                 )
             }
         case let .메타데이텨_조회_반영(title: title, imageURL: imageURL):
-            state.linkTitle = title
-            state.linkImageURL = imageURL
+            let contentTitle = state.title.isEmpty ? "제목을 입력해주세요" : state.title
+            state.linkTitle = title ?? contentTitle
+            state.linkImageURL = imageURL ?? "https://pokit-storage.s3.ap-northeast-2.amazonaws.com/logo/pokit.png"
             if let title, state.domain.title.isEmpty {
                 state.domain.title = title
             }
