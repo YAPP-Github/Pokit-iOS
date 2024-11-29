@@ -36,11 +36,7 @@ public extension ContentSettingView {
                             
                             titleTextField
                             
-                            HStack(alignment: .bottom, spacing: 8) {
-                                pokitSelectButton
-                                
-                                addPokitButton
-                            }
+                            pokitSelectButton
                             
                             memoTextArea
                             
@@ -155,17 +151,9 @@ private extension ContentSettingView {
             selectedItem: $store.selectedPokit,
             label: "포킷",
             list: store.pokitList,
-            action: { send(.포킷선택_항목_눌렀을때(pokit: $0), animation: .pokitDissolve) }
+            action: { send(.포킷선택_항목_눌렀을때(pokit: $0), animation: .pokitDissolve) },
+            addAction: { send(.포킷추가_버튼_눌렀을때, animation: .pokitSpring) }
         )
-    }
-    
-    var addPokitButton: some View {
-        PokitIconButton(
-            .icon(.plusR),
-            state: .filled(.primary),
-            size: .large,
-            shape: .rectangle
-        ) { send(.포킷추가_버튼_눌렀을때, animation: .pokitSpring) }
     }
     
     var memoTextArea: some View {

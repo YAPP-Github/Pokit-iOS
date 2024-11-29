@@ -20,13 +20,15 @@ public struct PokitSelect<Item: PokitSelectItem>: View {
     private let label: String
     private let list: [Item]?
     private let action: (Item) -> Void
+    private let addAction: (() -> Void)?
     
     public init(
         selectedItem: Binding<Item?> = .constant(nil),
         state: PokitSelect.SelectState = .default,
         label: String,
         list: [Item]?,
-        action: @escaping (Item) -> Void
+        action: @escaping (Item) -> Void,
+        addAction: (() -> Void)?
     ) {
         self._selectedItem = selectedItem
         if selectedItem.wrappedValue != nil {
@@ -37,6 +39,7 @@ public struct PokitSelect<Item: PokitSelectItem>: View {
         self.label = label
         self.list = list
         self.action = action
+        self.addAction = addAction
     }
     
     public var body: some View {
@@ -96,17 +99,56 @@ public struct PokitSelect<Item: PokitSelectItem>: View {
     private var listSheet: some View {
         Group {
             if let list {
-                PokitList(
-                    selectedItem: selectedItem,
-                    list: list
-                ) { item in
-                    action(item)
-                    listCellTapped(item)
+                VStack(spacing: 0) {
+                    if let addAction {
+                        addButton {
+                            listDismiss()
+                            addAction()
+                        }
+                    }
+                    
+                    PokitList(
+                        selectedItem: selectedItem,
+                        list: list
+                    ) { item in
+                        action(item)
+                        listCellTapped(item)
+                    }
                 }
-                .padding(.top, 36)
+                .padding(.top, 24)
                 .padding(.bottom, 20)
             } else {
                 PokitLoading()
+            }
+        }
+    }
+    
+    @ViewBuilder
+    private func addButton(
+        action: @escaping () -> Void
+    ) -> some View {
+        Button(action: action) {
+            HStack(spacing: 20) {
+                PokitIconButton(
+                    .icon(.plusR),
+                    state: .default(.secondary),
+                    size: .medium,
+                    shape: .round,
+                    action: action
+                )
+                
+                Text("포킷 추가하기")
+                    .pokitFont(.b1(.b))
+                    .foregroundStyle(.pokit(.text(.primary)))
+                
+                Spacer()
+            }
+            .padding(.vertical, 22)
+            .padding(.horizontal, 30)
+            .background(alignment: .bottom) {
+                Rectangle()
+                    .fill(.pokit(.border(.tertiary)))
+                    .frame(height: 1)
             }
         }
     }
@@ -124,6 +166,10 @@ public struct PokitSelect<Item: PokitSelectItem>: View {
     
     private func onChangedSeletedItem(_ newValue: Item?) {
         state = newValue != nil ? .input : .default
+    }
+    
+    private func listDismiss() {
+        showSheet = false
     }
 }
 
