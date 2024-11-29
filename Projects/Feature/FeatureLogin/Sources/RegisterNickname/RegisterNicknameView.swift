@@ -72,6 +72,7 @@ extension RegisterNicknameView {
     private var textField: some View {
         PokitTextInput(
             text: $store.nicknameText,
+            shape: .rectangle,
             state: $store.textfieldState,
             info: "한글, 영어, 숫자로만 입력이 가능합니다.",
             maxLetter: 10,

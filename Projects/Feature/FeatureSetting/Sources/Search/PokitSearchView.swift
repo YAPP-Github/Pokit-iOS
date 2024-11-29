@@ -86,15 +86,18 @@ private extension PokitSearchView {
                 action: { send(.dismiss) }
             )
             
-            PokitIconRInput(
+            PokitTextInput(
                 text: $store.searchText,
-                icon: store.isSearching ? .icon(.x) : .icon(.search),
-                placeholder: "제목, 메모를 검색해보세요.",
+                type: .iconR(
+                    icon: store.isSearching ? .icon(.x) : .icon(.search),
+                    action: store.isSearching ? { send(.검색_버튼_눌렀을때) } : nil
+                ),
                 shape: .round,
+                state: .constant(.default),
+                placeholder: "제목, 메모를 검색해보세요.",
                 focusState: $focused,
                 equals: true,
-                onSubmit: { send(.검색_키보드_엔터_눌렀을때) },
-                iconTappedAction: store.isSearching ? { send(.검색_버튼_눌렀을때) } : nil
+                onSubmit: { send(.검색_키보드_엔터_눌렀을때) }
             )
         }
         .padding(.vertical, 8)

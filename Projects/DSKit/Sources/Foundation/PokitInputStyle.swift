@@ -78,4 +78,16 @@ public enum PokitInputStyle: Equatable {
             }
         }
     }
+    
+    public enum InputType {
+        case text
+        case iconR(
+            icon: PokitImage,
+            action: (() -> Void)? = nil
+        )
+        case iconL(
+            icon: PokitImage,
+            action: (() -> Void)? = nil
+        )
+    }
 }

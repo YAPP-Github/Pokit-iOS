@@ -121,9 +121,14 @@ private extension PokitCategorySettingView {
             Text("포킷명")
                 .pokitFont(.b2(.m))
                 .foregroundStyle(.pokit(.text(.secondary)))
+            
             PokitTextInput(
                 text: $store.categoryName,
-                state: $store.pokitNameTextInpuState,
+                type: .iconR(
+                    icon: .icon(.x),
+                    action: { }
+                ),
+                shape: .rectangle, state: $store.pokitNameTextInpuState,
                 placeholder: "포킷명을 입력해주세요.",
                 maxLetter: 10,
                 focusState: $isFocused,

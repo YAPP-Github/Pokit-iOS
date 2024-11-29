@@ -119,30 +119,34 @@ private extension ContentSettingView {
                 .pokitBlurReplaceTransition(.pokitDissolve)
             }
             
-            PokitIconRInput(
+            PokitTextInput(
                 text: $store.urlText,
-                icon: .icon(.x),
-                state: $store.linkTextInputState,
                 label: "링크",
+                type: .iconR(
+                    icon: .icon(.x),
+                    action: { send(.링크지우기_버튼_눌렀을때) }
+                ),
                 shape: .rectangle,
+                state: $store.linkTextInputState,
                 focusState: $focusedType,
-                equals: .link,
-                iconTappedAction: { send(.링크지우기_버튼_눌렀을때) }
+                equals: .link
             )
         }
         .animation(.pokitSpring, value: store.urlText)
     }
     
     var titleTextField: some View {
-        PokitIconRInput(
+        PokitTextInput(
             text: $store.title,
-            icon: .icon(.x),
-            state: $store.titleTextInpuState,
             label: "제목",
+            type: .iconR(
+                icon: .icon(.x),
+                action: { send(.제목지우기_버튼_눌렀을때) }
+            ),
             shape: .rectangle,
+            state: $store.titleTextInpuState,
             focusState: $focusedType,
-            equals: .title,
-            iconTappedAction: { send(.제목지우기_버튼_눌렀을때) }
+            equals: .title
         )
     }
     
