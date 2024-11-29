@@ -96,7 +96,8 @@ public struct ContentSettingFeature {
             case 저장_버튼_눌렀을때
             case 포킷추가_버튼_눌렀을때
             case 링크복사_버튼_눌렀을때
-
+            case 링크지우기_버튼_눌렀을때
+            case 제목지우기_버튼_눌렀을때
             case 뒤로가기_버튼_눌렀을때
         }
 
@@ -218,6 +219,12 @@ private extension ContentSettingFeature {
             : .run { _ in await dismiss() }
         case .링크복사_버튼_눌렀을때:
             return .send(.inner(.링크복사_반영(state.link)))
+        case .링크지우기_버튼_눌렀을때:
+            state.domain.data = ""
+            return .none
+        case .제목지우기_버튼_눌렀을때:
+            state.title = ""
+            return .none
         }
     }
 
