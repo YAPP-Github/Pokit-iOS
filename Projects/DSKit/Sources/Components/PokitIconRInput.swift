@@ -12,12 +12,13 @@ public struct PokitIconRInput<Value: Hashable>: View {
     
     private let icon: PokitImage
     
-    @State private var state: PokitInputStyle.State
+    @Binding private var state: PokitInputStyle.State
     
     private var focusState: FocusState<Value>.Binding
     
     private let shape: PokitInputStyle.Shape
     private let equals: Value
+    private let label: String?
     private let placeholder: String
     private let onSubmit: (() -> Void)?
     private let iconTappedAction: (() -> Void)?
@@ -25,7 +26,8 @@ public struct PokitIconRInput<Value: Hashable>: View {
     public init(
         text: Binding<String>,
         icon: PokitImage,
-        state: PokitInputStyle.State = .default,
+        state: Binding<PokitInputStyle.State> = .constant(.default),
+        label: String? = nil,
         placeholder: String = "내용을 입력해주세요.",
         shape: PokitInputStyle.Shape,
         focusState: FocusState<Value>.Binding,
@@ -35,7 +37,8 @@ public struct PokitIconRInput<Value: Hashable>: View {
     ) {
         self._text = text
         self.icon = icon
-        self._state = State(initialValue: state)
+        self._state = state
+        self.label = label
         self.shape = shape
         self.focusState = focusState
         self.equals = equals
@@ -45,19 +48,25 @@ public struct PokitIconRInput<Value: Hashable>: View {
     }
     
     public var body: some View {
-        HStack(spacing: 8) {
-            textField
+        VStack(alignment: .leading, spacing: 8) {
+            if let label {
+                PokitLabel(text: label, size: .large)
+            }
             
-            iconButton(icon: icon)
+            HStack(spacing: 8) {
+                textField
+                
+                iconButton(icon: icon)
+            }
+            .onChange(of: text) { onChangedText($0) }
+            .padding(.vertical, shape == .round ? 8 : 13)
+            .padding(.leading, shape == .round ? 20 : 12)
+            .padding(.trailing, 13)
+            .background(
+                state: self.state,
+                shape: shape
+            )
         }
-        .onChange(of: text) { onChangedText($0) }
-        .padding(.vertical, shape == .round ? 8 : 13)
-        .padding(.leading, shape == .round ? 20 : 12)
-        .padding(.trailing, 13)
-        .background(
-            state: self.state,
-            shape: shape
-        )
     }
     
     private var textField: some View {
