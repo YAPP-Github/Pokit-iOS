@@ -31,6 +31,10 @@ public extension NickNameSettingView {
                 } else {
                     PokitTextInput(
                         text: $store.text,
+                        type: .iconR(
+                            icon: .icon(.x),
+                            action: { send(.닉네임지우기_버튼_눌렀을때) }
+                        ),
                         shape: .rectangle,
                         state: $store.textfieldState,
                         info: "한글, 영어, 숫자로만 입력이 가능합니다.",
