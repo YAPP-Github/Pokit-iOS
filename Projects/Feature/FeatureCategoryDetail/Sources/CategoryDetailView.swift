@@ -66,7 +66,7 @@ public extension CategoryDetailView {
             }
             .sheet(isPresented: $store.isPokitDeleteSheetPresented) {
                 PokitDeleteBottomSheet(
-                    type: store.kebobSelectedType ?? .포킷삭제,
+                    type: .포킷삭제,
                     delegateSend: { store.send(.scope(.categoryDeleteBottomSheet($0))) }
                 )
             }
@@ -95,7 +95,7 @@ private extension CategoryDetailView {
             PokitHeaderItems(placement: .trailing) {
                 PokitToolbarButton(
                     .icon(.kebab),
-                    action: { send(.카테고리_케밥_버튼_눌렀을때(.포킷삭제, selectedItem: nil)) }
+                    action: { send(.카테고리_케밥_버튼_눌렀을때) }
                 )
             }
         }
