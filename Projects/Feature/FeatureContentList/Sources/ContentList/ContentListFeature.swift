@@ -38,10 +38,6 @@ public struct ContentListFeature {
             get { domain.contentCount }
         }
         var isListDescending = true
-        /// sheet item
-        var bottomSheetItem: BaseContentItem? = nil
-        var alertItem: BaseContentItem? = nil
-        var shareSheetItem: BaseContentItem? = nil
         /// pagenation
         var hasNext: Bool {
             domain.contentList.hasNext
@@ -64,34 +60,22 @@ public struct ContentListFeature {
             case binding(BindingAction<State>)
             
             case pagenation
-            /// - Button Tapped
-            case bottomSheet(
-                delegate: PokitBottomSheet.Delegate,
-                content: BaseContentItem
-            )
+            
             case 컨텐츠_항목_눌렀을때(content: BaseContentItem)
-            case 컨텐츠_항목_케밥_버튼_눌렀을때(content: BaseContentItem)
-            case 컨텐츠_삭제_눌렀을때(content: BaseContentItem)
             case 정렬_버튼_눌렀을때
             case dismiss
             /// - On Appeared
             case 뷰가_나타났을때
-            
-            case 링크_공유시트_해제
-            case 경고시트_해제
         }
 
         public enum InnerAction: Equatable {
-            case 바텀시트_해제
             case 컨텐츠_목록_조회_API_반영(BaseContentListInquiry)
-            case 컨텐츠_삭제_API_반영(id: Int)
             case 컨텐츠_목록_조회_페이징_API_반영(BaseContentListInquiry)
             case 페이징_초기화
             case 컨텐츠_개수_업데이트(Int)
         }
 
         public enum AsyncAction: Equatable {
-            case 컨텐츠_삭제_API(id: Int)
             case 컨텐츠_목록_조회_페이징_API
             case 컨텐츠_목록_조회_API
             case 컨텐츠_개수_조회_API
@@ -99,10 +83,6 @@ public struct ContentListFeature {
         }
 
         public enum ScopeAction {
-            case bottomSheet(
-                delegate: PokitBottomSheet.Delegate,
-                content: BaseContentItem
-            )
             case contents(IdentifiedActionOf<ContentCardFeature>)
         }
 
@@ -158,19 +138,8 @@ private extension ContentListFeature {
     /// - View Effect
     func handleViewAction(_ action: Action.View, state: inout State) -> Effect<Action> {
         switch action {
-        case .컨텐츠_항목_케밥_버튼_눌렀을때(let content):
-            state.bottomSheetItem = content
-            return .none
         case .컨텐츠_항목_눌렀을때(let content):
             return .send(.delegate(.링크상세(content: content)))
-        case .bottomSheet(let delegate, let content):
-            return .concatenate(
-                .send(.inner(.바텀시트_해제)),
-                .send(.scope(.bottomSheet(delegate: delegate, content: content)))
-            )
-        case .컨텐츠_삭제_눌렀을때:
-            guard let id = state.alertItem?.id else { return .none }
-            return .send(.async(.컨텐츠_삭제_API(id: id)))
         case .binding:
             return .none
         case .정렬_버튼_눌렀을때:
@@ -189,21 +158,12 @@ private extension ContentListFeature {
             )
         case .pagenation:
             return .send(.async(.컨텐츠_목록_조회_페이징_API))
-        case .링크_공유시트_해제:
-            state.shareSheetItem = nil
-            return .none
-        case .경고시트_해제:
-            state.alertItem = nil
-            return .none
         }
     }
 
     /// - Inner Effect
     func handleInnerAction(_ action: Action.InnerAction, state: inout State) -> Effect<Action> {
         switch action {
-        case .바텀시트_해제:
-            state.bottomSheetItem = nil
-            return .none
         case .컨텐츠_목록_조회_페이징_API_반영(let contentList):
             let list = state.domain.contentList.data ?? []
             guard let newList = contentList.data else { return .none }
@@ -212,11 +172,6 @@ private extension ContentListFeature {
             state.domain.contentList.data = list + newList
             
             newList.forEach { state.contents.append(.init(content: $0)) }
-            return .none
-        case .컨텐츠_삭제_API_반영(id: let id):
-            state.alertItem = nil
-            state.domain.contentList.data?.removeAll { $0.id == id }
-            state.contents.removeAll { $0.content.id == id }
             return .none
         case .컨텐츠_목록_조회_API_반영(let contentList):
             state.domain.contentList = contentList
@@ -242,15 +197,6 @@ private extension ContentListFeature {
     /// - Async Effect
     func handleAsyncAction(_ action: Action.AsyncAction, state: inout State) -> Effect<Action> {
         switch action {
-        case .컨텐츠_삭제_API(id: let id):
-            let count = state.domain.contentCount
-            let newCount = count - 1
-            
-            return .merge(
-                .send(.inner(.컨텐츠_개수_업데이트(newCount))),
-                contentDelete(contentId: id)
-            )
-            
         case .컨텐츠_목록_조회_페이징_API:
             state.domain.pageable.page += 1
             return .run { [
@@ -303,25 +249,10 @@ private extension ContentListFeature {
     func handleScopeAction(_ action: Action.ScopeAction, state: inout State) -> Effect<Action> {
         /// - 링크에 대한 `공유` /  `수정` / `삭제` delegate
         switch action {
-        case .bottomSheet(let delegate, let content):
-            switch delegate {
-            case .deleteCellButtonTapped:
-                state.alertItem = content
-                return .none
-            case .editCellButtonTapped:
-                return .send(.delegate(.링크수정(contentId: content.id)))
-            case .favoriteCellButtonTapped:
-                return .none
-            case .shareCellButtonTapped:
-                state.shareSheetItem = content
-                return .none
-            }
-            
         case let .contents(.element(id: _, action: .delegate(.컨텐츠_항목_눌렀을때(content)))):
             return .send(.delegate(.링크상세(content: content)))
         case let .contents(.element(id: _, action: .delegate(.컨텐츠_항목_케밥_버튼_눌렀을때(content)))):
-            state.bottomSheetItem = content
-            return .none
+            return .send(.delegate(.링크상세(content: content)))
         case .contents:
             return .none
         }
@@ -375,13 +306,6 @@ private extension ContentListFeature {
             }
             guard let contentItems else { return }
             await send(.inner(.컨텐츠_목록_조회_API_반영(contentItems)), animation: .pokitDissolve)
-        }
-    }
-    
-    func contentDelete(contentId: Int) -> Effect<Action> {
-        return .run { send in
-            let _ = try await contentClient.컨텐츠_삭제("\(contentId)")
-            await send(.inner(.컨텐츠_삭제_API_반영(id: contentId)), animation: .pokitSpring)
         }
     }
 }
