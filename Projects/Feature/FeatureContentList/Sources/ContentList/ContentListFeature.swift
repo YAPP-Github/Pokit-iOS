@@ -61,7 +61,6 @@ public struct ContentListFeature {
             
             case pagenation
             
-            case 컨텐츠_항목_눌렀을때(content: BaseContentItem)
             case 정렬_버튼_눌렀을때
             case dismiss
             /// - On Appeared
@@ -138,8 +137,6 @@ private extension ContentListFeature {
     /// - View Effect
     func handleViewAction(_ action: Action.View, state: inout State) -> Effect<Action> {
         switch action {
-        case .컨텐츠_항목_눌렀을때(let content):
-            return .send(.delegate(.링크상세(content: content)))
         case .binding:
             return .none
         case .정렬_버튼_눌렀을때:

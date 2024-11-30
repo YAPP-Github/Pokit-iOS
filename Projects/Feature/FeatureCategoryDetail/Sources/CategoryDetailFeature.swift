@@ -53,7 +53,6 @@ public struct CategoryDetailFeature {
             return identifiedArray
         }
         var contents: IdentifiedArrayOf<ContentCardFeature.State> = []
-        var shareSheetItem: BaseContentItem? = nil
         /// sheet Presented
         var isCategorySheetPresented: Bool = false
         var isCategorySelectSheetPresented: Bool = false
@@ -88,9 +87,7 @@ public struct CategoryDetailFeature {
             case 카테고리_선택_버튼_눌렀을때
             case 카테고리_선택했을때(BaseCategoryItem)
             case 필터_버튼_눌렀을때
-            case 컨텐츠_항목_눌렀을때(BaseContentItem)
             case 뷰가_나타났을때
-            case 링크_공유_완료되었을때
         }
         
         public enum InnerAction: Equatable {
@@ -100,7 +97,6 @@ public struct CategoryDetailFeature {
             
             case 카테고리_목록_조회_API_반영(BaseCategoryListInquiry)
             case 카테고리_내_컨텐츠_목록_조회_API_반영(BaseContentListInquiry)
-            case 컨텐츠_삭제_API_반영(id: Int)
             case pagenation_API_반영(BaseContentListInquiry)
             case pagenation_초기화
         }
@@ -196,9 +192,6 @@ private extension CategoryDetailFeature {
             state.isFilterSheetPresented.toggle()
             return .none
             
-        case .컨텐츠_항목_눌렀을때(let selectedItem):
-            return .run { send in await send(.delegate(.contentItemTapped(selectedItem))) }
-            
         case .dismiss:
             return .run { _ in await dismiss() }
             
@@ -212,10 +205,6 @@ private extension CategoryDetailFeature {
         case .pagenation:
             state.domain.pageable.page += 1
             return .send(.async(.카테고리_내_컨텐츠_목록_조회_API))
-
-        case .링크_공유_완료되었을때:
-            state.shareSheetItem = nil
-            return .none
         }
     }
     
@@ -252,12 +241,6 @@ private extension CategoryDetailFeature {
             state.isLoading = false
             return .none
             
-        case let .컨텐츠_삭제_API_반영(id):
-            state.domain.contentList.data?.removeAll { $0.id == id }
-            state.contents.removeAll { $0.content.id == id }
-            state.domain.category.contentCount -= 1
-            state.isPokitDeleteSheetPresented = false
-            return .none
         case .pagenation_API_반영(let contentList):
             let list = state.domain.contentList.data ?? []
             guard let newList = contentList.data else { return .none }

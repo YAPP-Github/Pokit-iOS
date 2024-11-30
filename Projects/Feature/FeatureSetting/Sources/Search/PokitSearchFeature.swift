@@ -100,7 +100,6 @@ public struct PokitSearchFeature {
             case 즐겨찾기_태그_눌렀을때
             case 안읽음_태그_눌렀을때
             case 전체_삭제_버튼_눌렀을때
-            case 컨텐츠_항목_눌렀을때(content: BaseContentItem)
             case 정렬_버튼_눌렀을때
             case 검색_키보드_엔터_눌렀을때
             case 뷰가_나타났을때
@@ -261,9 +260,6 @@ private extension PokitSearchFeature {
             }
             state.recentSearchTexts.remove(at: predicate)
             return .send(.async(.최근검색어_갱신_수행))
-            
-        case let .컨텐츠_항목_눌렀을때(content):
-            return .send(.delegate(.linkCardTapped(content: content)))
             
         case .정렬_버튼_눌렀을때:
             state.isResultAscending.toggle()
