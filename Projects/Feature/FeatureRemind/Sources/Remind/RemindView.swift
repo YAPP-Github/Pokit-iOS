@@ -93,7 +93,6 @@ extension RemindView {
                     HStack(spacing: 12) {
                         ForEach(recommendedContents, id: \.id) { content in
                             recommendedContentCell(content: content)
-                            
                         }
                     }
                     .padding(.horizontal, 20)
@@ -112,12 +111,6 @@ extension RemindView {
     @ViewBuilder
     private func recommendedContentCellLabel(content: BaseContentItem) -> some View {
         ZStack(alignment: .bottom) {
-            if let url = URL(string: content.thumbNail) {
-                recommendedContentCellImage(url: url, contentId: content.id)
-            } else {
-                imagePlaceholder
-            }
-            
             LinearGradient(
                 stops: [
                     Gradient.Stop(
@@ -162,6 +155,13 @@ extension RemindView {
             .padding(12)
         }
         .frame(width: 216, height: 194)
+        .background {
+            if let url = URL(string: content.thumbNail) {
+                recommendedContentCellImage(url: url, contentId: content.id)
+            } else {
+                imagePlaceholder
+            }
+        }
         .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
         .clipped()
     }
