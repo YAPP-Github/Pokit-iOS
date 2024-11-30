@@ -73,11 +73,9 @@ public extension MainTabView {
                             }
                         }
                         
-                        if self.store.isLinkSheetPresented {
+                        if self.store.linkPopup != nil {
                             PokitLinkPopup(
-                                "복사한 링크 저장하기",
-                                isPresented: $store.isLinkSheetPresented,
-                                type: .link(url: self.store.link ?? ""),
+                                type: $store.linkPopup,
                                 action: { send(.linkCopyButtonTapped) }
                             )
                         }
@@ -94,11 +92,9 @@ private extension MainTabView {
         tabView
             .overlay(alignment: .bottom) {
                 VStack(spacing: 0) {
-                    if store.isLinkSheetPresented {
+                    if store.linkPopup != nil {
                         PokitLinkPopup(
-                            "복사한 링크 저장하기",
-                            isPresented: $store.isLinkSheetPresented,
-                            type: .link(url: store.link ?? ""),
+                            type: $store.linkPopup,
                             action: { send(.linkCopyButtonTapped) }
                         )
                         .padding(.bottom, 20)

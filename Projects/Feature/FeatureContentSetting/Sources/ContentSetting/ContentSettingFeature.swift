@@ -68,8 +68,7 @@ public struct ContentSettingFeature {
         var selectedPokit: BaseCategoryItem?
         var linkTitle: String? = nil
         var linkImageURL: String? = nil
-        var showMaxCategoryPopup: Bool = false
-        var showDetectedURLPopup: Bool = false
+        var linkPopup: PokitLinkPopup.PopupType?
         var contentLoading: Bool = false
         var saveIsLoading: Bool = false
         var link: String?
@@ -208,7 +207,7 @@ private extension ContentSettingFeature {
         case .포킷추가_버튼_눌렀을때:
             guard state.domain.categoryTotalCount < 30 else {
                 /// 🚨 Error Case [1]: 포킷 갯수가 30개 이상일 경우
-                state.showMaxCategoryPopup = true
+                state.linkPopup = .text(title: "최대 30개의 포킷을 생성할 수 있습니다.\n포킷을 삭제한 뒤에 추가해주세요.")
                 return .none
             }
             
@@ -234,7 +233,10 @@ private extension ContentSettingFeature {
         case let .linkPopup(url):
             guard let url else { return .none }
             state.link = url.absoluteString
-            state.showDetectedURLPopup = true
+            state.linkPopup = .link(
+                title: "복사한 링크 저장하기",
+                url: url.absoluteString
+            )
             return .none
         case .linkPreview:
             state.showLinkPreview = true
@@ -261,7 +263,7 @@ private extension ContentSettingFeature {
             guard let url = URL(string: state.domain.data),
                   !state.domain.data.isEmpty else {
                 /// 🚨 Error Case [1]: 올바른 링크가 아닐 때
-                state.showDetectedURLPopup = false
+                state.linkPopup = nil
                 state.linkTitle = nil
                 state.domain.title = ""
                 state.linkImageURL = nil
@@ -270,7 +272,7 @@ private extension ContentSettingFeature {
             }
             return .send(.inner(.메타데이터_조회_수행(url: url)), animation: .pokitDissolve)
         case .링크복사_반영(let urlText):
-            state.showDetectedURLPopup = false
+            state.linkPopup = nil
             state.link = nil
             guard let urlText else { return .none }
             state.domain.data = urlText

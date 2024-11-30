@@ -11,6 +11,7 @@ import FeaturePokit
 import FeatureRemind
 import FeatureContentDetail
 import Domain
+import DSKit
 import Util
 import CoreKit
 
@@ -28,7 +29,7 @@ public struct MainTabFeature {
     public struct State: Equatable {
         var selectedTab: MainTab = .pokit
         var isBottomSheetPresented: Bool = false
-        var isLinkSheetPresented: Bool = false
+        var linkPopup: PokitLinkPopup.PopupType?
         var isErrorSheetPresented: Bool = false
         var link: String?
 
@@ -157,7 +158,7 @@ private extension MainTabFeature {
             }
 
         case .linkCopyButtonTapped:
-            state.isLinkSheetPresented = false
+            state.linkPopup = nil
             return .run { send in await send(.delegate(.링크추가하기)) }
 
         case .onAppear:
@@ -198,7 +199,10 @@ private extension MainTabFeature {
         switch action {
         case let .linkCopySuccess(url):
             guard let url else { return .none }
-            state.isLinkSheetPresented = true
+            state.linkPopup = .link(
+                title: "복사한 링크 저장하기",
+                url: url.absoluteString
+            )
             state.link = url.absoluteString
             return .none
 
