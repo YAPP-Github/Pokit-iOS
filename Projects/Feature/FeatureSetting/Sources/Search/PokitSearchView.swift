@@ -51,28 +51,6 @@ public extension PokitSearchView {
             ) { store in
                 FilterBottomSheet(store: store)
             }
-            .sheet(item: $store.bottomSheetItem) { content in
-                PokitBottomSheet(
-                    items: [.share, .edit, .delete],
-                    height: 224
-                ) { send(.bottomSheet(delegate: $0, content: content)) }
-            }
-            .sheet(item: $store.shareSheetItem) { content in
-                if let shareURL = URL(string: content.data) {
-                    PokitShareSheet(
-                        items: [shareURL],
-                        completion: { send(.링크_공유_완료되었을때) }
-                    )
-                    .presentationDetents([.medium, .large])
-                }
-            }
-            .sheet(item: $store.alertItem) { content in
-                PokitAlert(
-                    "링크를 정말 삭제하시겠습니까?",
-                    message: "함께 저장한 모든 정보가 삭제되며, \n복구하실 수 없습니다.",
-                    confirmText: "삭제"
-                ) { send(.링크_삭제_눌렀을때) }
-            }
             .task { await send(.뷰가_나타났을때).finish() }
         }
     }
