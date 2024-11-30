@@ -548,8 +548,6 @@ private extension PokitRootFeature {
             default: return .none
             }
             
-        case let .contents(.element(id: _, action: .delegate(.컨텐츠_항목_눌렀을때(content)))):
-            return .send(.delegate(.contentDetailTapped(content)))
         case let .contents(.element(id: _, action: .delegate(.컨텐츠_항목_케밥_버튼_눌렀을때(content)))):
             state.selectedUnclassifiedItem = content
             return .send(.inner(.카테고리_시트_활성화(true)))

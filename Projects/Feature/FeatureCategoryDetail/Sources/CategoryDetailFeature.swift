@@ -419,8 +419,6 @@ private extension CategoryDetailFeature {
                 )
             }
             
-        case let .contents(.element(id: _, action: .delegate(.컨텐츠_항목_눌렀을때(content)))):
-            return .send(.delegate(.contentItemTapped(content)))
         case let .contents(.element(id: _, action: .delegate(.컨텐츠_항목_케밥_버튼_눌렀을때(content)))):
             return .send(.delegate(.contentItemTapped(content)))
         case .contents:

@@ -16,6 +16,8 @@ public struct ContentCardFeature {
     /// - Dependency
     @Dependency(SwiftSoupClient.self)
     private var swiftSoupClient
+    @Dependency(\.openURL)
+    private var openURL
     /// - State
     @ObservableState
     public struct State: Equatable, Identifiable {
@@ -53,7 +55,6 @@ public struct ContentCardFeature {
         public enum ScopeAction: Equatable { case doNothing }
         
         public enum DelegateAction: Equatable {
-            case 컨텐츠_항목_눌렀을때(content: BaseContentItem)
             case 컨텐츠_항목_케밥_버튼_눌렀을때(content: BaseContentItem)
         }
     }
@@ -97,7 +98,10 @@ private extension ContentCardFeature {
     func handleViewAction(_ action: Action.View, state: inout State) -> Effect<Action> {
         switch action {
         case .컨텐츠_항목_눌렀을때:
-            return .send(.delegate(.컨텐츠_항목_눌렀을때(content: state.content)))
+            guard let url = URL(string: state.content.data) else {
+                return .none
+            }
+            return .run {  _ in await openURL(url) }
         case .컨텐츠_항목_케밥_버튼_눌렀을때:
             return .send(.delegate(.컨텐츠_항목_케밥_버튼_눌렀을때(content: state.content)))
         case .메타데이터_조회:

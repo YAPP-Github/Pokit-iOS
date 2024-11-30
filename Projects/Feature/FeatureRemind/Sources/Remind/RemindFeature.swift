@@ -17,6 +17,8 @@ public struct RemindFeature {
     /// - Dependency
     @Dependency(\.dismiss)
     private var dismiss
+    @Dependency(\.openURL)
+    private var openURL
     @Dependency(RemindClient.self)
     private var remindClient
     @Dependency(ContentClient.self)
@@ -152,7 +154,10 @@ private extension RemindFeature {
         case .컨텐츠_항목_케밥_버튼_눌렀을때(let content):
             return .send(.delegate(.링크상세(content: content)))
         case .컨텐츠_항목_눌렀을때(let content):
-            return .send(.delegate(.링크상세(content: content)))
+            guard let url = URL(string: content.data) else {
+                return .none
+            }
+            return .run { _ in await openURL(url) }
         case .뷰가_나타났을때:
             return allContentFetch(animation: .pokitDissolve)
         case let .즐겨찾기_항목_이미지_조회(contentId):

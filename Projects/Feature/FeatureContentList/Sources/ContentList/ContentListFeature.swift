@@ -249,8 +249,6 @@ private extension ContentListFeature {
     func handleScopeAction(_ action: Action.ScopeAction, state: inout State) -> Effect<Action> {
         /// - 링크에 대한 `공유` /  `수정` / `삭제` delegate
         switch action {
-        case let .contents(.element(id: _, action: .delegate(.컨텐츠_항목_눌렀을때(content)))):
-            return .send(.delegate(.링크상세(content: content)))
         case let .contents(.element(id: _, action: .delegate(.컨텐츠_항목_케밥_버튼_눌렀을때(content)))):
             return .send(.delegate(.링크상세(content: content)))
         case .contents:

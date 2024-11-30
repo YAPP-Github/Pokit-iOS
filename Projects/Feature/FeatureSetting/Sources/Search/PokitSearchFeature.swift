@@ -506,8 +506,6 @@ private extension PokitSearchFeature {
                 await send(.inner(.페이징_초기화))
             }
             
-        case let .contents(.element(id: _, action: .delegate(.컨텐츠_항목_눌렀을때(content)))):
-            return .send(.delegate(.linkCardTapped(content: content)))
         case let .contents(.element(id: _, action: .delegate(.컨텐츠_항목_케밥_버튼_눌렀을때(content)))):
             return .send(.delegate(.linkCardTapped(content: content)))
         case .contents:
