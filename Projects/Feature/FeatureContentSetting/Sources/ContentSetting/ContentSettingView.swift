@@ -49,9 +49,8 @@ public extension ContentSettingView {
                         if store.linkPopup != nil {
                             PokitLinkPopup(
                                 type: $store.linkPopup,
-                                action: { send(.링크복사_버튼_눌렀을때, animation: .pokitSpring) }
+                                action: { send(.링크팝업_버튼_눌렀을때, animation: .pokitSpring) }
                             )
-                            .animation(.pokitSpring, value: store.linkPopup)
                         }
                     }
                     .pokitMaxWidth()

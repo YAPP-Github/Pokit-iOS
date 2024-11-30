@@ -41,6 +41,7 @@ public struct MainTabFeature {
         @Presents var contentDetail: ContentDetailFeature.State?
         @Shared(.inMemory("SelectCategory")) var categoryId: Int?
         @Shared(.inMemory("PushTapped")) var isPushTapped: Bool = false
+        var savedContentId: Int?
 
         public init() {
             self.pokit = .init()
@@ -65,7 +66,7 @@ public struct MainTabFeature {
         public enum View: Equatable {
             case addButtonTapped
             case addSheetTypeSelected(TabAddSheetType)
-            case linkCopyButtonTapped
+            case 링크팝업_버튼_눌렀을때
             case onAppear
             case onOpenURL(url: URL)
             case 경고_확인버튼_클릭
@@ -76,6 +77,7 @@ public struct MainTabFeature {
             case 공유포킷_이동(sharedCategory: CategorySharing.SharedCategory)
             case 경고_띄움(BaseError)
             case errorSheetPresented(Bool)
+            case 링크팝업_활성화(PokitLinkPopup.PopupType)
         }
         public enum AsyncAction: Equatable {
             case 공유받은_카테고리_조회(categoryId: Int)
@@ -94,6 +96,10 @@ public struct MainTabFeature {
     /// - Reducer Core
     private func core(into state: inout State, action: Action) -> Effect<Action> {
         switch action {
+        case .binding(\.linkPopup):
+            guard state.linkPopup == nil else { return .none }
+            state.savedContentId = nil
+            return .none
         case .binding:
             return .none
         case let .pushAlertTapped(isTapped):
@@ -157,9 +163,8 @@ private extension MainTabFeature {
             case .포킷추가: return .send(.delegate(.포킷추가하기))
             }
 
-        case .linkCopyButtonTapped:
-            state.linkPopup = nil
-            return .run { send in await send(.delegate(.링크추가하기)) }
+        case .링크팝업_버튼_눌렀을때:
+            return linkPopupButtonTapped(state: &state)
 
         case .onAppear:
             if state.isPushTapped {
@@ -213,6 +218,10 @@ private extension MainTabFeature {
         case let .errorSheetPresented(isPresented):
             state.isErrorSheetPresented = isPresented
             return .none
+            
+        case let .링크팝업_활성화(type):
+            state.linkPopup = type
+            return .none
 
         default: return .none
         }
@@ -241,5 +250,20 @@ private extension MainTabFeature {
     /// - Delegate Effect
     func handleDelegateAction(_ action: Action.DelegateAction, state: inout State) -> Effect<Action> {
         return .none
+    }
+    
+    func linkPopupButtonTapped(state: inout State) -> Effect<Action> {
+        switch state.linkPopup {
+        case .link:
+            state.linkPopup = nil
+            return .send(.delegate(.링크추가하기))
+        case .success:
+            state.linkPopup = nil
+            state.contentDetail = .init(contentId: state.savedContentId)
+            state.savedContentId = nil
+            return .none
+        case .error, .text, .warning, .none:
+            return .none
+        }
     }
 }
