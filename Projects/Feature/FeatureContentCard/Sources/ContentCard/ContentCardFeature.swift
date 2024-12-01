@@ -9,6 +9,7 @@ import Foundation
 import ComposableArchitecture
 import Domain
 import CoreKit
+import DSKit
 import Util
 
 @Reducer
@@ -18,6 +19,8 @@ public struct ContentCardFeature {
     private var swiftSoupClient
     @Dependency(\.openURL)
     private var openURL
+    @Dependency(ContentClient.self)
+    private var contentClient
     /// - State
     @ObservableState
     public struct State: Equatable, Identifiable {
@@ -41,15 +44,19 @@ public struct ContentCardFeature {
         public enum View: Equatable {
             case 컨텐츠_항목_눌렀을때
             case 컨텐츠_항목_케밥_버튼_눌렀을때
+            case 즐겨찾기_버튼_눌렀을때
             case 메타데이터_조회
         }
         
         public enum InnerAction: Equatable {
             case 메타데이터_조회_수행_반영(String)
+            case 즐겨찾기_API_반영(Bool)
         }
         
         public enum AsyncAction: Equatable {
             case 메타데이터_조회_수행
+            case 즐겨찾기_API
+            case 즐겨찾기_취소_API
         }
         
         public enum ScopeAction: Equatable { case doNothing }
@@ -106,6 +113,13 @@ private extension ContentCardFeature {
             return .send(.delegate(.컨텐츠_항목_케밥_버튼_눌렀을때(content: state.content)))
         case .메타데이터_조회:
             return .send(.async(.메타데이터_조회_수행))
+        case .즐겨찾기_버튼_눌렀을때:
+            guard let isFavorite = state.content.isFavorite else {
+                return .none
+            }
+            return isFavorite
+            ? .send(.async(.즐겨찾기_취소_API))
+            : .send(.async(.즐겨찾기_API))
         }
     }
     
@@ -114,6 +128,9 @@ private extension ContentCardFeature {
         switch action {
         case let .메타데이터_조회_수행_반영(imageURL):
             state.content.thumbNail = imageURL
+            return .none
+        case .즐겨찾기_API_반영(let favorite):
+            state.content.isFavorite = favorite
             return .none
         }
     }
@@ -129,6 +146,16 @@ private extension ContentCardFeature {
                 let imageURL = try await swiftSoupClient.parseOGImageURL(url)
                 guard let imageURL else { return }
                 await send(.inner(.메타데이터_조회_수행_반영(imageURL)))
+            }
+        case .즐겨찾기_API:
+            return .run { [id = state.content.id] send in
+                let _ = try await contentClient.즐겨찾기("\(id)")
+                await send(.inner(.즐겨찾기_API_반영(true)), animation: .pokitDissolve)
+            }
+        case .즐겨찾기_취소_API:
+            return .run { [id = state.content.id] send in
+                try await contentClient.즐겨찾기_취소("\(id)")
+                await send(.inner(.즐겨찾기_API_반영(false)), animation: .pokitDissolve)
             }
         }
     }

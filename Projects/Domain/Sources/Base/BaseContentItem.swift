@@ -20,7 +20,7 @@ public struct BaseContentItem: Identifiable, Equatable, PokitLinkCardItem, Sorta
     public let domain: String
     public let createdAt: String
     public let isRead: Bool?
-    public let isFavorite: Bool?
+    public var isFavorite: Bool?
     
     public init(
         id: Int,

@@ -43,7 +43,8 @@ public extension ContentCardView {
                 type: type,
                 action: { send(.컨텐츠_항목_눌렀을때) },
                 kebabAction: { send(.컨텐츠_항목_케밥_버튼_눌렀을때) },
-                fetchMetaData: { send(.메타데이터_조회) }
+                fetchMetaData: { send(.메타데이터_조회) },
+                favoriteAction: { send(.즐겨찾기_버튼_눌렀을때) }
             )
         }
     }
