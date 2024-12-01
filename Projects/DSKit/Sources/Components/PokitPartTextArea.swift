@@ -10,24 +10,26 @@ import SwiftUI
 public struct PokitPartTextArea<Value: Hashable>: View {
     @Binding private var text: String
     
-    @State private var state: PokitInputStyle.State
+    @Binding private var state: PokitInputStyle.State
     
     private var focusState: FocusState<Value>.Binding
-    
+    private let baseState: PokitInputStyle.State
     private let equals: Value
     private let placeholder: String
     private let onSubmit: (() -> Void)?
     
     public init(
         text: Binding<String>,
-        state: PokitInputStyle.State = .default,
+        state: Binding<PokitInputStyle.State>,
+        baseState: PokitInputStyle.State = .default,
         placeholder: String = "내용을 입력해주세요.",
         focusState: FocusState<Value>.Binding,
         equals: Value,
         onSubmit: (() -> Void)? = nil
     ) {
         self._text = text
-        self._state = State(initialValue: state)
+        self._state = state
+        self.baseState = baseState
         self.focusState = focusState
         self.equals = equals
         self.placeholder = placeholder
@@ -47,7 +49,11 @@ public struct PokitPartTextArea<Value: Hashable>: View {
             .foregroundStyle(.pokit(.text(.primary)))
             .scrollContentBackground(.hidden)
             .focused(focusState, equals: equals)
-            .disabled(state == .disable || state == .readOnly)
+            .disabled(
+                state == .disable ||
+                state == .readOnly ||
+                state == .memo(isReadOnly: true)
+            )
             .onSubmit {
                 onSubmit?()
             }
@@ -77,7 +83,7 @@ public struct PokitPartTextArea<Value: Hashable>: View {
             case .error(message: let message):
                 state = .error(message: message)
             default:
-                state = .default
+                state = baseState
             }
         }
     }

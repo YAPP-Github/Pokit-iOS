@@ -37,9 +37,9 @@ public struct PokitListButton: View {
         VStack(alignment: .leading, spacing: 4) {
             HStack {
                 switch type {
-                case let .default(icon),
-                    let .bottomSheet(icon),
-                    let .subText(icon, _):
+                case let .default(icon, iconColor),
+                    let .bottomSheet(icon, iconColor),
+                    let .subText(icon, iconColor, _):
                     Text(title)
                         .pokitFont(.b1(.m))
                         .foregroundStyle(.pokit(.text(.secondary)))
@@ -49,7 +49,7 @@ public struct PokitListButton: View {
                     Image(icon)
                         .resizable()
                         .frame(width: 24, height: 24)
-                        .foregroundStyle(.pokit(.icon(.primary)))
+                        .foregroundStyle(iconColor)
                 case .toggle:
                     Toggle(isOn: $isOn) {
                         Text(title)
@@ -61,7 +61,7 @@ public struct PokitListButton: View {
                 
             }
             
-            if case let .subText(_, subeText) = type {
+            if case let .subText(_, _, subeText) = type {
                 Text(subeText)
                     .pokitFont(.detail1)
                     .foregroundStyle(.pokit(.text(.tertiary)))
@@ -89,9 +89,9 @@ public struct PokitListButton: View {
 
 extension PokitListButton {
     public enum ListButtonType {
-        case `default`(icon: PokitImage)
-        case bottomSheet(icon: PokitImage)
-        case subText(icon: PokitImage, subeText: String)
+        case `default`(icon: PokitImage, iconColor: Color)
+        case bottomSheet(icon: PokitImage, iconColor: Color)
+        case subText(icon: PokitImage, iconColor: Color, subeText: String)
         case toggle(subeText: String)
         
     }
@@ -104,13 +104,19 @@ extension PokitListButton {
     
     PokitListButton(
         title: "공지사항",
-        type: .default(icon: .icon(.arrowRight)),
+        type: .default(
+            icon: .icon(.arrowRight),
+            iconColor: .pokit(.icon(.primary))
+        ),
         action: { }
     )
     
     PokitListButton(
         title: "공지사항",
-        type: .bottomSheet(icon: .icon(.edit)),
+        type: .bottomSheet(
+            icon: .icon(.edit),
+            iconColor: .pokit(.icon(.primary))
+        ),
         action: { }
     )
     
@@ -118,6 +124,7 @@ extension PokitListButton {
         title: "공지사항",
         type: .subText(
             icon: .icon(.arrowRight),
+            iconColor: .pokit(.icon(.primary)),
             subeText: "포킷에 저장된 링크가 다른 사용자에게 추천됩니다."
         ),
         action: { }

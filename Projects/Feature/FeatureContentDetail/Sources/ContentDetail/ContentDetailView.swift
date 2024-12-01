@@ -15,7 +15,8 @@ public struct ContentDetailView: View {
     /// - Properties
     @Perception.Bindable
     public var store: StoreOf<ContentDetailFeature>
-
+    @FocusState
+    private var isFocused: Bool
     /// - Initializer
     public init(store: StoreOf<ContentDetailFeature>) {
         self.store = store
@@ -26,16 +27,18 @@ public extension ContentDetailView {
     var body: some View {
         WithPerceptionTracking {
             VStack(spacing: 0) {
-                if let content = store.content {
+                if let content = store.content,
+                   let favorites = content.favorites {
                     title(content: content)
                     ScrollView {
-                        VStack {
-                            contentLinkPreview(content: content)
-                                .padding(.vertical, 24)
+                        VStack(spacing: 0) {
+                            contentMemo
+                            
+                            Divider()
+                                .foregroundStyle(.pokit(.border(.tertiary)))
+                            
+                            bottomList(favorites: favorites)
                         }
-                    }
-                    .overlay(alignment: .bottom) {
-                        bottomToolbar(content: content)
                     }
                 } else {
                     PokitLoading()
@@ -47,7 +50,14 @@ public extension ContentDetailView {
             .pokitPresentationBackground()
             .pokitPresentationCornerRadius()
             .presentationDragIndicator(.visible)
-            .presentationDetents([.medium, .large])
+            .presentationDetents([.height(588), .large])
+            .overlay(alignment: .bottom) {
+                if store.linkPopup != nil {
+                    PokitLinkPopup(type: $store.linkPopup)
+                }
+            }
+            .dismissKeyboard(focused: $isFocused)
+            .onChange(of: isFocused) { send(.메모포커스_변경되었을때($0)) }
             .sheet(isPresented: $store.showAlert) {
                 PokitAlert(
                     "링크를 정말 삭제하시겠습니까?",
@@ -124,113 +134,79 @@ private extension ContentDetailView {
         }
     }
 
-    @ViewBuilder
-    func contentLinkPreview(content: BaseContentDetail) -> some View {
-        VStack(spacing: 16) {
-            if store.showLinkPreview {
-                PokitLinkPreview(
-                    title: store.linkTitle ?? content.title,
-                    url: content.data,
-                    imageURL: store.linkImageURL ?? "https://pokit-storage.s3.ap-northeast-2.amazonaws.com/logo/pokit.png"
-                )
-                .pokitBlurReplaceTransition(.pokitDissolve)
+    var contentMemo: some View {
+        VStack(spacing: 12) {
+            HStack(alignment: .bottom) {
+                Text("메모")
+                    .pokitFont(.b1(.m))
+                    .foregroundStyle(.pokit(.text(.primary)))
+                    .padding(.top, 16)
+                
+                Spacer()
+                
+                Image(.icon(.memo))
+                    .resizable()
+                    .frame(width: 24, height: 24)
+                    .foregroundStyle(.pokit(.border(.primary)))
             }
-
-            contentMemo(content: content)
+            
+            PokitTextArea(
+                text: $store.memo,
+                state: $store.memoTextAreaState,
+                baseState: .memo(isReadOnly: false),
+                placeholder: "메모를 입력해주세요.",
+                maxLetter: 100,
+                focusState: $isFocused,
+                equals: true
+            )
+            .frame(minHeight: 132)
         }
+        .padding(.bottom, 24)
         .padding(.horizontal, 20)
     }
 
     @ViewBuilder
-    func contentMemo(content: BaseContentDetail) -> some View {
-        let isEmpty = content.memo.isEmpty
-
-        HStack {
-            VStack {
-                Group {
-                    if isEmpty {
-                        Text("메모를 작성해보세요.")
-                            .foregroundStyle(.pokit(.text(.tertiary)))
-                    } else {
-                        Text(content.memo)
-                            .foregroundStyle(.pokit(.text(.primary)))
-                    }
-                }
-                .pokitFont(.b3(.r))
-                .multilineTextAlignment(.leading)
-
-                Spacer()
-            }
-            .padding(16)
-
-            Spacer()
-        }
-        .frame(minHeight: 132)
-        .background {
-            RoundedRectangle(cornerRadius: 8, style: .continuous)
-                .fill(Color(red: 1, green: 0.96, blue: 0.89))
-        }
-    }
-
-    @ViewBuilder
-    func favorite(favorites: Bool) -> some View {
-        Button(action: { send(.즐겨찾기_버튼_눌렀을때, animation: .pokitDissolve) }) {
-            Image(favorites ? .icon(.starFill) : .icon(.starFill))
-                .resizable()
-                .scaledToFit()
-                .foregroundStyle(.pokit(.icon(favorites ? .brand : .tertiary)))
-                .frame(width: 24, height: 24)
-        }
-    }
-
-    @ViewBuilder
-    func bottomToolbar(content: BaseContentDetail) -> some View {
-        HStack(spacing: 14) {
-            if let favorites = content.favorites {
-                favorite(favorites: favorites)
-            }
-
-            Spacer()
-
-            Group {
-                toolbarButton(
-                    .icon(.share),
-                    action: { send(.공유_버튼_눌렀을때) }
-                )
-
-                toolbarButton(
-                    .icon(.edit),
-                    action: { send(.수정_버튼_눌렀을때) }
-                )
-
-                toolbarButton(
-                    .icon(.trash),
-                    action: { send(.삭제_버튼_눌렀을때) }
-                )
-            }
-            .disabled(store.contentId == nil)
-            .opacity(store.contentId == nil ? 0 : 1)
-        }
-        .padding(.top, 12)
-        .padding(.bottom, 40)
-        .padding(.horizontal, 16)
-        .background(.pokit(.bg(.base)))
-        .overlay(alignment: .top) {
-            Divider()
-                .foregroundStyle(.pokit(.border(.tertiary)))
-        }
-    }
-
-    @ViewBuilder
-    func toolbarButton(
-        _ icon: PokitImage,
-        action: @escaping () -> Void
-    ) -> some View {
-        Button(action: action) {
-            Image(icon)
-                .resizable()
-                .frame(width: 24, height: 24)
-                .foregroundStyle(.pokit(.icon(.secondary)))
+    func bottomList(favorites: Bool) -> some View {
+        VStack(spacing: 0) {
+            PokitListButton(
+                title: "즐겨찾기",
+                type: .bottomSheet(
+                    icon: favorites
+                    ? .icon(.starFill)
+                    : .icon(.star),
+                    iconColor: favorites
+                    ? .pokit(.icon(.brand))
+                    : .pokit(.icon(.primary))
+                ),
+                action: { send(.즐겨찾기_버튼_눌렀을때) }
+            )
+            
+            PokitListButton(
+                title: "공유하기",
+                type: .bottomSheet(
+                    icon: .icon(.share),
+                    iconColor: .pokit(.icon(.primary))
+                ),
+                action: { send(.공유_버튼_눌렀을때) }
+            )
+            
+            PokitListButton(
+                title: "수정하기",
+                type: .bottomSheet(
+                    icon: .icon(.edit),
+                    iconColor: .pokit(.icon(.primary))
+                ),
+                action: { send(.수정_버튼_눌렀을때) }
+            )
+            
+            PokitListButton(
+                title: "삭제하기",
+                type: .bottomSheet(
+                    icon: .icon(.trash),
+                    iconColor: .pokit(.icon(.primary))
+                ),
+                action: { send(.삭제_버튼_눌렀을때) }
+            )
         }
     }
 }
