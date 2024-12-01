@@ -93,6 +93,7 @@ public struct RemindFeature {
             case 오늘의_리마인드_조회_API
             case 읽지않음_컨텐츠_조회_API
             case 즐겨찾기_링크모음_조회_API
+            case 썸네일_수정_API(imageURL: String, contentId: Int)
             case 즐겨찾기_이미지_조회_수행(contentId: Int)
             case 읽지않음_이미지_조회_수행(contentId: Int)
             case 리마인드_이미지_조회_수행(contentId: Int)
@@ -185,19 +186,19 @@ private extension RemindFeature {
             content?.thumbNail = imageURL
             guard let content else { return .none }
             state.domain.favoriteList.data?.insert(content, at: index)
-            return .none
+            return .send(.async(.썸네일_수정_API(imageURL: imageURL, contentId: content.id)))
         case let .읽지않음_이미지_조회_수행_반영(imageURL, index):
             var content = state.domain.unreadList.data?.remove(at: index)
             content?.thumbNail = imageURL
             guard let content else { return .none }
             state.domain.unreadList.data?.insert(content, at: index)
-            return .none
+            return .send(.async(.썸네일_수정_API(imageURL: imageURL, contentId: content.id)))
         case let .리마인드_이미지_조회_수행_반영(imageURL, index):
             var content = state.domain.recommendedList?.remove(at: index)
             content?.thumbNail = imageURL
             guard let content else { return .none }
             state.domain.recommendedList?.insert(content, at: index)
-            return .none
+            return .send(.async(.썸네일_수정_API(imageURL: imageURL, contentId: content.id)))
         }
     }
     /// - Async Effect
@@ -275,6 +276,15 @@ private extension RemindFeature {
                     imageURL: imageURL,
                     index: index
                 )))
+            }
+        case let .썸네일_수정_API(imageURL, contentId):
+            return .run { send in
+                let request = ThumbnailRequest(thumbnail: imageURL)
+                
+                try await contentClient.썸네일_수정(
+                    contentId: "\(contentId)",
+                    model: request
+                )
             }
         }
     }

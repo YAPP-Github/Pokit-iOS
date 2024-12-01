@@ -40,5 +40,9 @@ public struct ContentClient {
         _ pageable: BasePageableRequest,
         _ condition: BaseConditionRequest
     ) async throws -> ContentListInquiryResponse
+    public var 썸네일_수정: @Sendable (
+        _ contentId: String,
+        _ model: ThumbnailRequest
+    ) async throws -> Void
 }
 

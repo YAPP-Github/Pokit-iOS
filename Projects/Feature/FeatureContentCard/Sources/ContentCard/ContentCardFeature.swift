@@ -57,6 +57,7 @@ public struct ContentCardFeature {
             case 메타데이터_조회_수행
             case 즐겨찾기_API
             case 즐겨찾기_취소_API
+            case 썸네일_수정_API
         }
         
         public enum ScopeAction: Equatable { case doNothing }
@@ -128,7 +129,7 @@ private extension ContentCardFeature {
         switch action {
         case let .메타데이터_조회_수행_반영(imageURL):
             state.content.thumbNail = imageURL
-            return .none
+            return .send(.async(.썸네일_수정_API))
         case .즐겨찾기_API_반영(let favorite):
             state.content.isFavorite = favorite
             return .none
@@ -156,6 +157,15 @@ private extension ContentCardFeature {
             return .run { [id = state.content.id] send in
                 try await contentClient.즐겨찾기_취소("\(id)")
                 await send(.inner(.즐겨찾기_API_반영(false)), animation: .pokitDissolve)
+            }
+        case .썸네일_수정_API:
+            return .run { [content = state.content] _ in
+                let request = ThumbnailRequest(thumbnail: content.thumbNail)
+                
+                try await contentClient.썸네일_수정(
+                    contentId: "\(content.id)",
+                    model: request
+                )
             }
         }
     }

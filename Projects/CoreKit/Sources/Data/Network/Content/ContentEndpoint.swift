@@ -27,6 +27,7 @@ public enum ContentEndpoint {
         pageable: BasePageableRequest,
         condition: BaseConditionRequest
     )
+    case 썸네일_수정(contentId: String, model: ThumbnailRequest)
 }
 
 extension ContentEndpoint: TargetType {
@@ -54,6 +55,8 @@ extension ContentEndpoint: TargetType {
             return "/uncategorized"
         case .컨텐츠_검색:
             return ""
+        case let .썸네일_수정(contentId, _):
+            return "/thumbnail/\(contentId)"
         }
     }
     
@@ -68,7 +71,8 @@ extension ContentEndpoint: TargetType {
              .컨텐츠_추가:
             return .post
             
-        case .컨텐츠_수정:
+        case .컨텐츠_수정,
+             .썸네일_수정:
             return .patch
             
         case .카태고리_내_컨텐츠_목록_조회,
@@ -129,6 +133,8 @@ extension ContentEndpoint: TargetType {
                 ],
                 encoding: URLEncoding.default
             )
+        case let .썸네일_수정(_, model):
+            return .requestJSONEncodable(model)
         }
     }
     
