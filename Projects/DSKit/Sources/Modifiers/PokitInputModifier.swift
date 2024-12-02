@@ -20,16 +20,13 @@ struct PokitInputModifier: ViewModifier {
     }
     
     func body(content: Content) -> some View {
-        let backgroundColor = state == .active ? .pokit(.bg(.base)) : self.state.backgroundColor
-        let backgroundStrokeColor = state == .active ? .pokit(.border(.brand)) : self.state.backgroundStrokeColor
-        
         content
             .background {
                 RoundedRectangle(cornerRadius: shape.radius, style: .continuous)
-                    .fill(backgroundColor)
+                    .fill(self.state.backgroundColor)
                     .overlay {
                         RoundedRectangle(cornerRadius: shape.radius, style: .continuous)
-                            .stroke(backgroundStrokeColor, lineWidth: 1)
+                            .stroke(self.state.backgroundStrokeColor, lineWidth: 1)
                     }
             }
             .animation(.pokitDissolve, value: state)
