@@ -213,7 +213,10 @@ private extension ContentDetailFeature {
         case .컨텐츠_상세_조회_API(id: let id):
             return .run { send in
                 let contentResponse = try await contentClient.컨텐츠_상세_조회("\(id)").toDomain()
-                await send(.inner(.컨텐츠_상세_조회_API_반영(content: contentResponse)))
+                await send(
+                    .inner(.컨텐츠_상세_조회_API_반영(content: contentResponse)),
+                    animation: .pokitDissolve
+                )
             }
         case .즐겨찾기_API(id: let id):
             return .run { send in
