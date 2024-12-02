@@ -124,7 +124,7 @@ private extension PokitCategorySettingView {
             
             PokitTextInput(
                 text: $store.categoryName,
-                type: .iconR(
+                type: store.categoryName.isEmpty ? .text : .iconR(
                     icon: .icon(.x),
                     action: { send(.포킷명지우기_버튼_눌렀을때) }
                 ),

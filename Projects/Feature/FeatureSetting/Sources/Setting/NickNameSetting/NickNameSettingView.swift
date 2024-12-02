@@ -31,7 +31,7 @@ public extension NickNameSettingView {
                 } else {
                     PokitTextInput(
                         text: $store.text,
-                        type: .iconR(
+                        type: store.text.isEmpty ? .text : .iconR(
                             icon: .icon(.x),
                             action: { send(.닉네임지우기_버튼_눌렀을때) }
                         ),

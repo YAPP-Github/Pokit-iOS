@@ -109,7 +109,7 @@ private extension ContentSettingView {
             PokitTextInput(
                 text: $store.urlText,
                 label: "링크",
-                type: .iconR(
+                type: store.urlText.isEmpty ? .text : .iconR(
                     icon: .icon(.x),
                     action: { send(.링크지우기_버튼_눌렀을때) }
                 ),
@@ -126,7 +126,7 @@ private extension ContentSettingView {
         PokitTextInput(
             text: $store.title,
             label: "제목",
-            type: .iconR(
+            type: store.title.isEmpty ? .text : .iconR(
                 icon: .icon(.x),
                 action: { send(.제목지우기_버튼_눌렀을때) }
             ),

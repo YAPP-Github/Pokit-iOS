@@ -60,12 +60,14 @@ public struct PokitTextInput<Value: Hashable>: View {
             HStack(spacing: 8) {
                 if case let .iconL(icon, action) = type {
                     iconButton(icon: icon, action: action)
+                        .pokitBlurReplaceTransition(.pokitDissolve)
                 }
                 
                 textField
                 
                 if case let .iconR(icon, action) = type {
                     iconButton(icon: icon, action: action)
+                        .pokitBlurReplaceTransition(.pokitDissolve)
                 }
             }
             .padding(.vertical, vPadding)
