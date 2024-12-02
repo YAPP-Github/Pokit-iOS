@@ -159,7 +159,8 @@ private extension ContentDetailView {
                 focusState: $isFocused,
                 equals: true
             )
-            .frame(minHeight: 132)
+            .frame(minHeight: isFocused ? 164 : 132)
+            .animation(.pokitDissolve, value: isFocused)
         }
         .padding(.bottom, 24)
         .padding(.horizontal, 20)
