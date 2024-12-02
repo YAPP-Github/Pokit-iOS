@@ -181,7 +181,7 @@ private extension PokitRootView {
         ScrollView {
             LazyVStack(spacing: 0) {
                 ForEach(
-                    store.scope(state: \.contents, action: \.contents)
+                    Array(store.scope(state: \.contents, action: \.contents))
                 ) { store in
                     let isFirst = store.state.id == self.store.contents.first?.id
                     let isLast = store.state.id == self.store.contents.last?.id
