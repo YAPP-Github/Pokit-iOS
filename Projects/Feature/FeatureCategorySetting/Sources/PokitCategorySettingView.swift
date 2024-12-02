@@ -126,9 +126,10 @@ private extension PokitCategorySettingView {
                 text: $store.categoryName,
                 type: .iconR(
                     icon: .icon(.x),
-                    action: { }
+                    action: { send(.포킷명지우기_버튼_눌렀을때) }
                 ),
-                shape: .rectangle, state: $store.pokitNameTextInpuState,
+                shape: .rectangle,
+                state: $store.pokitNameTextInpuState,
                 placeholder: "포킷명을 입력해주세요.",
                 maxLetter: 10,
                 focusState: $isFocused,
