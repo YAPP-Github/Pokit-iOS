@@ -284,6 +284,7 @@ private extension PokitSearchView {
                             
                             ContentCardView(
                                 store: store,
+                                type: .linkList,
                                 isFirst: isFirst,
                                 isLast: isLast
                             )

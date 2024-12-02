@@ -92,7 +92,8 @@ public struct PokitLinkCard<Item: PokitLinkCardItem>: View {
             }
         }
         .overlay(alignment: .bottomLeading) {
-            if let isFavorite = link.isFavorite {
+            if case .linkList = type,
+               let isFavorite = link.isFavorite {
                 PokitBookmark(
                     state: isFavorite ? .active : .default,
                     action: { favoriteAction?() }

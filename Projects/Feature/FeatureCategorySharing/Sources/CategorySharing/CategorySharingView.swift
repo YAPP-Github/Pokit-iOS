@@ -107,6 +107,7 @@ private extension CategorySharingView {
                                 
                                 ContentCardView(
                                     store: store,
+                                    type: .linkList,
                                     isFirst: isFirst,
                                     isLast: isLast
                                 )
