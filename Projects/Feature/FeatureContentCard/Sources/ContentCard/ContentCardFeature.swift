@@ -4,7 +4,7 @@
 //
 //  Created by 김도형 on 11/17/24.
 
-import Foundation
+import SwiftUI
 
 import ComposableArchitecture
 import Domain
@@ -118,6 +118,8 @@ private extension ContentCardFeature {
             guard let isFavorite = state.content.isFavorite else {
                 return .none
             }
+            UIImpactFeedbackGenerator(style: .light)
+                .impactOccurred()
             return isFavorite
             ? .send(.async(.즐겨찾기_취소_API))
             : .send(.async(.즐겨찾기_API))

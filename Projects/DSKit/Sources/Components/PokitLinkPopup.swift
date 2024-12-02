@@ -46,6 +46,7 @@ public struct PokitLinkPopup: View {
             }
             second += 1
         }
+        .onAppear(perform: feedback)
     }
     
     private var popup: some View {
@@ -100,6 +101,21 @@ public struct PokitLinkPopup: View {
         withAnimation(.pokitSpring) {
             second = 0
             type = nil
+        }
+    }
+    
+    private func feedback() {
+        switch type {
+        case .link, .text, .warning:
+            UINotificationFeedbackGenerator()
+                .notificationOccurred(.warning)
+        case .success:
+            UINotificationFeedbackGenerator()
+                .notificationOccurred(.success)
+        case .error:
+            UINotificationFeedbackGenerator()
+                .notificationOccurred(.error)
+        case .none: break
         }
     }
     
