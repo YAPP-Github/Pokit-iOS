@@ -8,6 +8,7 @@ import SwiftUI
 
 import ComposableArchitecture
 import DSKit
+import Util
 
 @ViewAction(for: ContentSettingFeature.self)
 public struct ContentSettingView: View {
@@ -97,8 +98,8 @@ private extension ContentSettingView {
                 let isParsed = store.linkTitle != nil || store.linkImageURL != nil
                 
                 PokitLinkPreview(
-                    title: store.linkTitle == "제목을 입력해주세요"
-                    ? store.title.isEmpty ? "제목을 입력해주세요" : store.title
+                    title: store.linkTitle == Constants.제목을_입력해주세요_문구
+                    ? store.title.isEmpty ? Constants.제목을_입력해주세요_문구 : store.title
                     : store.linkTitle,
                     url: isParsed ? store.urlText : nil,
                     imageURL: store.linkImageURL

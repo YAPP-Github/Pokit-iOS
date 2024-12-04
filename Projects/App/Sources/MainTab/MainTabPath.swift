@@ -16,6 +16,7 @@ import FeatureContentSetting
 import FeatureContentList
 import FeatureCategorySharing
 import Domain
+import Util
 
 @Reducer
 public struct MainTabPath {
@@ -180,10 +181,10 @@ public extension MainTabFeature {
                 case .검색:
                     return .merge(
                         .send(.path(.element(id: stackElementId, action: .검색(.delegate(.컨텐츠_검색))))),
-                        .send(.inner(.링크팝업_활성화(.success(title: "링크 저장 완료"))), animation: .pokitSpring)
+                        .send(.inner(.링크팝업_활성화(.success(title: Constants.링크_저장_완료_문구))), animation: .pokitSpring)
                     )
                 default:
-                    return .send(.inner(.링크팝업_활성화(.success(title: "링크 저장 완료"))), animation: .pokitSpring)
+                    return .send(.inner(.링크팝업_활성화(.success(title: Constants.링크_저장_완료_문구))), animation: .pokitSpring)
                 }
             /// - 각 화면에서 링크 복사 감지했을 때 (링크 추가 및 수정 화면 제외)
             case let .path(.element(_, action: .알림함(.delegate(.linkCopyDetected(url))))),

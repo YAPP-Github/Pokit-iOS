@@ -141,15 +141,14 @@ private extension ContentDetailFeature {
         case .뷰가_나타났을때:
             /// - 나중에 공유 받은 컨텐츠인지 확인해야함
             state.memoTextAreaState = .memo(isReadOnly: false)
-            
             if let id = state.domain.contentId {
                 return .send(.async(.컨텐츠_상세_조회_API(id: id)))
-            } else if let content = state.domain.content {
+            }
+            if let content = state.domain.content {
                 state.memo = content.memo
                 return .none
-            } else {
-                return .none
             }
+            return .none
         case .공유_버튼_눌렀을때:
             state.showShareSheet = true
             return .none
@@ -255,7 +254,7 @@ private extension ContentDetailFeature {
                     model: request
                 )
                 await send(
-                    .inner(.링크팝업_활성화(.success(title: "메모 수정 완료"))),
+                    .inner(.링크팝업_활성화(.success(title: Constants.메모_수정_완료_문구))),
                     animation: .pokitSpring
                 )
             } catch: { error, send in

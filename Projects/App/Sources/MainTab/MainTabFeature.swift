@@ -205,7 +205,7 @@ private extension MainTabFeature {
         case let .linkCopySuccess(url):
             guard let url else { return .none }
             state.linkPopup = .link(
-                title: "복사한 링크 저장하기",
+                title: Constants.복사한_링크_저장하기_문구,
                 url: url.absoluteString
             )
             state.link = url.absoluteString

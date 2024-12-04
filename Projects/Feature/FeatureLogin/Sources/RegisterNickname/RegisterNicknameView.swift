@@ -7,6 +7,7 @@
 import ComposableArchitecture
 import SwiftUI
 import DSKit
+import Util
 
 @ViewAction(for: RegisterNicknameFeature.self)
 public struct RegisterNicknameView: View {
@@ -74,7 +75,7 @@ extension RegisterNicknameView {
             text: $store.nicknameText,
             shape: .rectangle,
             state: $store.textfieldState,
-            info: "한글, 영어, 숫자로만 입력이 가능합니다.",
+            info: Constants.한글_영어_숫자_입력_문구,
             maxLetter: 10,
             focusState: $isFocused,
             equals: true

@@ -100,7 +100,7 @@ public struct ContentSettingFeature {
             case 뒤로가기_버튼_눌렀을때
         }
 
-        public enum InnerAction: Equatable {
+        public enum InnerAction {
             case linkPopup(URL?)
             case linkPreview
             case 메타데이터_조회_수행(url: URL)
@@ -112,6 +112,7 @@ public struct ContentSettingFeature {
             case 카테고리_목록_조회_API_반영(categoryList: BaseCategoryListInquiry)
             case 선택한_포킷_인메모리_삭제
             case 링크팝업_활성화(PokitLinkPopup.PopupType)
+            case error(Error)
         }
 
         public enum AsyncAction: Equatable {
@@ -198,7 +199,7 @@ private extension ContentSettingFeature {
             return .merge(mergeEffect)
         case .저장_버튼_눌렀을때:
             let isEdit = state.domain.categoryId != nil
-            if state.domain.title == "제목을 입력해주세요" {
+            if state.domain.title == Constants.제목을_입력해주세요_문구 {
                 state.domain.title = state.title
             }
             state.saveIsLoading = true
@@ -209,7 +210,7 @@ private extension ContentSettingFeature {
         case .포킷추가_버튼_눌렀을때:
             guard state.domain.categoryTotalCount < 30 else {
                 /// 🚨 Error Case [1]: 포킷 갯수가 30개 이상일 경우
-                state.linkPopup = .text(title: "최대 30개의 포킷을 생성할 수 있습니다.\n포킷을 삭제한 뒤에 추가해주세요.")
+                state.linkPopup = .text(title: Constants.포킷_최대_갯수_문구)
                 return .none
             }
             
@@ -237,7 +238,7 @@ private extension ContentSettingFeature {
             guard let url else { return .none }
             state.link = url.absoluteString
             state.linkPopup = .link(
-                title: "복사한 링크 저장하기",
+                title: Constants.복사한_링크_저장하기_문구,
                 url: url.absoluteString
             )
             return .none
@@ -254,9 +255,11 @@ private extension ContentSettingFeature {
                 )
             }
         case let .메타데이텨_조회_반영(title: title, imageURL: imageURL):
-            let contentTitle = state.title.isEmpty ? "제목을 입력해주세요" : state.title
+            let contentTitle = state.title.isEmpty
+            ? Constants.제목을_입력해주세요_문구
+            : state.title
             state.linkTitle = title ?? contentTitle
-            state.linkImageURL = imageURL ?? "https://pokit-storage.s3.ap-northeast-2.amazonaws.com/logo/pokit.png"
+            state.linkImageURL = imageURL ?? Constants.기본_썸네일_주소.absoluteString
             if let title, state.domain.title.isEmpty {
                 state.domain.title = title
             }
@@ -332,6 +335,12 @@ private extension ContentSettingFeature {
             state.linkPopup = type
             state.saveIsLoading = false
             return .none
+        case let .error(error):
+            guard let errorResponse = error as? ErrorResponse else { return .none }
+            return .send(
+                .inner(.링크팝업_활성화(.error(title: errorResponse.message))),
+                animation: .pokitSpring
+            )
         }
     }
 
@@ -387,11 +396,7 @@ private extension ContentSettingFeature {
                 await send(.inner(.선택한_포킷_인메모리_삭제))
                 await send(.delegate(.저장하기_완료(contentId: contentId)))
             } catch: { error, send in
-                guard let errorResponse = error as? ErrorResponse else { return }
-                await send(
-                    .inner(.링크팝업_활성화(.error(title: errorResponse.message))),
-                    animation: .pokitSpring
-                )
+                await send(.inner(.error(error)))
             }
         case .컨텐츠_추가_API:
             guard let categoryId = state.selectedPokit?.id else {
@@ -410,11 +415,7 @@ private extension ContentSettingFeature {
                 await send(.inner(.선택한_포킷_인메모리_삭제))
                 await send(.delegate(.저장하기_완료(contentId: content.contentId)))
             } catch: { error, send in
-                guard let errorResponse = error as? ErrorResponse else { return }
-                await send(
-                    .inner(.링크팝업_활성화(.error(title: errorResponse.message))),
-                    animation: .pokitSpring
-                )
+                await send(.inner(.error(error)))
             }
         case .클립보드_감지:
             return .run { send in
@@ -425,7 +426,7 @@ private extension ContentSettingFeature {
             }
         }
     }
-
+    
     /// - Scope Effect
     func handleScopeAction(_ action: Action.ScopeAction, state: inout State) -> Effect<Action> {
         return .none
@@ -434,21 +435,6 @@ private extension ContentSettingFeature {
     /// - Delegate Effect
     func handleDelegateAction(_ action: Action.DelegateAction, state: inout State) -> Effect<Action> {
         return .none
-    }
-    
-    func contentEdit(request: ContentBaseRequest, contentId: Int) -> Effect<Action> {
-        return .run { _ in
-            let _ = try await contentClient.컨텐츠_수정(
-                "\(contentId)",
-                request
-            )
-        } catch: { error, send in
-            guard let errorResponse = error as? ErrorResponse else { return }
-            await send(
-                .inner(.링크팝업_활성화(.error(title: errorResponse.message))),
-                animation: .pokitSpring
-            )
-        }
     }
     
     func categoryListFetch(request: BasePageableRequest) -> Effect<Action> {

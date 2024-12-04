@@ -40,7 +40,7 @@ public struct PokitLinkPopup: View {
         .frame(width: 335, height: 60)
         .transition(.move(edge: .bottom).combined(with: .opacity))
         .onReceive(timer) { _ in
-            guard second < 2 && type != nil else {
+            guard second < 2 else {
                 closedPopup()
                 return
             }
@@ -99,8 +99,8 @@ public struct PokitLinkPopup: View {
     
     private func closedPopup() {
         withAnimation(.pokitSpring) {
-            second = 0
             type = nil
+            second = 0
         }
     }
     
