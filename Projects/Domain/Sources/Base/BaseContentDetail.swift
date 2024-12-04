@@ -12,7 +12,7 @@ public struct BaseContentDetail: Equatable {
     public let category: BaseCategoryInfo
     public let title: String
     public let data: String
-    public let memo: String
+    public var memo: String
     public let createdAt: String
     public var favorites: Bool?
     public var alertYn: RemindState

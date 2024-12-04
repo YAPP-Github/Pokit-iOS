@@ -40,8 +40,6 @@ public struct PokitRootFeature {
         var contents: IdentifiedArrayOf<ContentCardFeature.State> = []
 
         var selectedKebobItem: BaseCategoryItem?
-        var selectedUnclassifiedItem: BaseContentItem?
-        var shareSheetItem: BaseContentItem? = nil
 
         var isKebobSheetPresented: Bool = false
         var isPokitDeleteSheetPresented: Bool = false
@@ -71,12 +69,10 @@ public struct PokitRootFeature {
             case 필터_버튼_눌렀을때(PokitRootFilterType.Folder)
             case 분류_버튼_눌렀을때
             case 케밥_버튼_눌렀을때(BaseCategoryItem)
-            case 미분류_케밥_버튼_눌렀을때(BaseContentItem)
             case 포킷추가_버튼_눌렀을때
             case 링크추가_버튼_눌렀을때
             case 카테고리_눌렀을때(BaseCategoryItem)
             case 컨텐츠_항목_눌렀을때(BaseContentItem)
-            case 링크_공유_완료되었을때
             case 뷰가_나타났을때
             case 페이지_로딩중일때
         }
@@ -105,7 +101,6 @@ public struct PokitRootFeature {
             case 미분류_카테고리_조회_API
             case 미분류_카테고리_페이징_조회_API
             case 미분류_카테고리_페이징_재조회_API
-            case 미분류_카테고리_컨텐츠_삭제_API(contentId: Int)
         }
 
         public enum ScopeAction {
@@ -210,10 +205,6 @@ private extension PokitRootFeature {
         case .케밥_버튼_눌렀을때(let selectedItem):
             state.selectedKebobItem = selectedItem
             return .run { send in await send(.inner(.카테고리_시트_활성화(true))) }
-
-        case .미분류_케밥_버튼_눌렀을때(let selectedItem):
-            state.selectedUnclassifiedItem = selectedItem
-            return .run { send in await send(.inner(.카테고리_시트_활성화(true))) }
             
         case .포킷추가_버튼_눌렀을때:
             return .run { send in await send(.delegate(.포킷추가_버튼_눌렀을때)) }
@@ -255,10 +246,6 @@ private extension PokitRootFeature {
                 
             default: return .none
             }
-            
-        case .링크_공유_완료되었을때:
-            state.shareSheetItem = nil
-            return .none
         }
     }
 
@@ -449,13 +436,6 @@ private extension PokitRootFeature {
                 guard let categoryItems else { return }
                 await send(.inner(.카테고리_조회_API_반영(categoryList: categoryItems)), animation: .pokitSpring)
             }
-            
-        case let .미분류_카테고리_컨텐츠_삭제_API(contentId):
-            return .run { send in
-                let _ = try await contentClient.컨텐츠_삭제("\(contentId)")
-                await send(.inner(.미분류_카테고리_컨텐츠_삭제_API_반영(contentId: contentId)), animation: .pokitSpring)
-            }
-            
         }
     }
 
@@ -465,51 +445,26 @@ private extension PokitRootFeature {
         /// - Kebob BottomSheet Delegate
         case .bottomSheet(.shareCellButtonTapped):
             /// Todo: 공유하기
-            switch state.folderType {
-            case .folder(.미분류):
-                guard let selectedItem = state.selectedUnclassifiedItem else {
-                    /// 🚨 Error Case [1]: 항목을 공유하려는데 항목이 없을 때
-                    return .none
-                }
-                state.isKebobSheetPresented = false
-                state.shareSheetItem = selectedItem
+            guard let selectedItem = state.selectedKebobItem else {
+                /// 🚨 Error Case [1]: 항목을 공유하려는데 항목이 없을 때
                 return .none
-            case .folder(.포킷):
-                guard let selectedItem = state.selectedKebobItem else {
-                    /// 🚨 Error Case [1]: 항목을 공유하려는데 항목이 없을 때
-                    return .none
-                }
-                kakaoShareClient.카테고리_카카오톡_공유(
-                    CategoryKaKaoShareModel(
-                        categoryName: selectedItem.categoryName,
-                        categoryId: selectedItem.id,
-                        imageURL: selectedItem.categoryImage.imageURL
-                    )
-                )
-                state.isKebobSheetPresented = false
-                return .none
-
-            default: return .none
             }
+            kakaoShareClient.카테고리_카카오톡_공유(
+                CategoryKaKaoShareModel(
+                    categoryName: selectedItem.categoryName,
+                    categoryId: selectedItem.id,
+                    imageURL: selectedItem.categoryImage.imageURL
+                )
+            )
+            state.isKebobSheetPresented = false
+            return .none
 
         case .bottomSheet(.editCellButtonTapped):
-            switch state.folderType {
-            case .folder(.미분류):
-                state.isKebobSheetPresented = false
-                return .run { [item = state.selectedUnclassifiedItem] send in
-                    guard let item else { return }
-                    await send(.delegate(.링크수정하기(id: item.id)))
-                }
-
-            case .folder(.포킷):
-                /// [1] 케밥을 종료
-                state.isKebobSheetPresented = false
-                /// [2] 수정하기로 이동
-                return .run { [item = state.selectedKebobItem] send in
-                    guard let item else { return }
-                    await send(.delegate(.수정하기(item)))
-                }
-            default: return .none
+            state.isKebobSheetPresented = false
+            /// [2] 수정하기로 이동
+            return .run { [item = state.selectedKebobItem] send in
+                guard let item else { return }
+                await send(.delegate(.수정하기(item)))
             }
 
         case .bottomSheet(.deleteCellButtonTapped):
@@ -524,35 +479,20 @@ private extension PokitRootFeature {
             return .none
 
         case .deleteBottomSheet(.deleteButtonTapped):
-            switch state.folderType {
-            case .folder(.미분류):
-                guard let selectedItem = state.selectedUnclassifiedItem else {
-                    /// 🚨 Error Case [1]: 항목을 삭제하려는데 항목이 없을 때
-                    return .none
-                }
-                return .send(.async(.미분류_카테고리_컨텐츠_삭제_API(contentId: selectedItem.id)), animation: .pokitSpring)
-
-            case .folder(.포킷):
-                guard let selectedItem = state.selectedKebobItem else {
-                    /// 🚨 Error Case [1]: 항목을 삭제하려는데 항목이 없을 때
-                    return .none
-                }
-                guard let index = state.domain.categoryList.data?.firstIndex(of: selectedItem) else {
-                    return .none
-                }
-                state.domain.categoryList.data?.remove(at: index)
-                state.isPokitDeleteSheetPresented = false
-
-                return .run { send in await send(.async(.카테고리_삭제_API(categoryId: selectedItem.id))) }
-                
-            default: return .none
+            guard let selectedItem = state.selectedKebobItem else {
+                /// 🚨 Error Case [1]: 항목을 삭제하려는데 항목이 없을 때
+                return .none
             }
+            guard let index = state.domain.categoryList.data?.firstIndex(of: selectedItem) else {
+                return .none
+            }
+            state.domain.categoryList.data?.remove(at: index)
+            state.isPokitDeleteSheetPresented = false
+
+            return .run { send in await send(.async(.카테고리_삭제_API(categoryId: selectedItem.id))) }
             
-        case let .contents(.element(id: _, action: .delegate(.컨텐츠_항목_눌렀을때(content)))):
-            return .send(.delegate(.contentDetailTapped(content)))
         case let .contents(.element(id: _, action: .delegate(.컨텐츠_항목_케밥_버튼_눌렀을때(content)))):
-            state.selectedUnclassifiedItem = content
-            return .send(.inner(.카테고리_시트_활성화(true)))
+            return .send(.delegate(.contentDetailTapped(content)))
         case .contents:
             return .none
             

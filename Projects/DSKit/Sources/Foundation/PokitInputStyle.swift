@@ -15,6 +15,7 @@ public enum PokitInputStyle: Equatable {
         case disable
         case readOnly
         case error(message: String)
+        case memo(isReadOnly: Bool)
         
         var infoColor: Color {
             switch self {
@@ -28,23 +29,27 @@ public enum PokitInputStyle: Equatable {
         var backgroundColor: Color {
             switch self {
             case .default, .input, .active, .error:
-                return .pokit(.bg(.primary))
+                return .pokit(.bg(.base))
             case .disable:
                 return .pokit(.bg(.disable))
             case .readOnly:
                 return .pokit(.bg(.secondary))
+            case let .memo(isReadOnly):
+                return isReadOnly
+                ? .pokit(.bg(.primary))
+                : Color(red: 1, green: 0.96, blue: 0.89)
             }
         }
         
         var backgroundStrokeColor: Color {
             switch self {
-            case .default, .input:
+            case .input, .memo:
                 return .clear
             case .active:
                 return .pokit(.border(.brand))
             case .disable:
                 return .pokit(.border(.disable))
-            case .readOnly:
+            case .readOnly, .default:
                 return .pokit(.border(.secondary))
             case .error:
                 return .pokit(.border(.error))
@@ -53,7 +58,7 @@ public enum PokitInputStyle: Equatable {
         
         var iconColor: Color {
             switch self {
-            case .default, .readOnly:
+            case .default, .readOnly, .memo:
                 return .pokit(.icon(.secondary))
             case .input, .active:
                 return .pokit(.icon(.primary))
@@ -77,5 +82,17 @@ public enum PokitInputStyle: Equatable {
                 return 9999
             }
         }
+    }
+    
+    public enum InputType {
+        case text
+        case iconR(
+            icon: PokitImage,
+            action: (() -> Void)? = nil
+        )
+        case iconL(
+            icon: PokitImage,
+            action: (() -> Void)? = nil
+        )
     }
 }

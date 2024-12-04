@@ -42,15 +42,6 @@ public extension CategoryDetailView {
                     delegateSend: { store.send(.scope(.categoryBottomSheet($0))) }
                 )
             }
-            .sheet(item: $store.shareSheetItem) { content in
-                if let shareURL = URL(string: content.data) {
-                    PokitShareSheet(
-                        items: [shareURL],
-                        completion: { send(.링크_공유_완료되었을때) }
-                    )
-                    .presentationDetents([.medium, .large])
-                }
-            }
             .sheet(isPresented: $store.isCategorySelectSheetPresented) {
                 if let categories = store.categories {
                     PokitCategorySheet(
@@ -66,7 +57,7 @@ public extension CategoryDetailView {
             }
             .sheet(isPresented: $store.isPokitDeleteSheetPresented) {
                 PokitDeleteBottomSheet(
-                    type: store.kebobSelectedType ?? .포킷삭제,
+                    type: .포킷삭제,
                     delegateSend: { store.send(.scope(.categoryDeleteBottomSheet($0))) }
                 )
             }
@@ -95,7 +86,7 @@ private extension CategoryDetailView {
             PokitHeaderItems(placement: .trailing) {
                 PokitToolbarButton(
                     .icon(.kebab),
-                    action: { send(.카테고리_케밥_버튼_눌렀을때(.포킷삭제, selectedItem: nil)) }
+                    action: { send(.카테고리_케밥_버튼_눌렀을때) }
                 )
             }
         }
@@ -149,13 +140,14 @@ private extension CategoryDetailView {
                     ScrollView(showsIndicators: false) {
                         LazyVStack(spacing: 0) {
                             ForEach(
-                                store.scope(state: \.contents, action: \.contents)
+                                Array(store.scope(state: \.contents, action: \.contents))
                             ) { store in
                                 let isFirst = store.state.id == self.store.contents.first?.id
                                 let isLast = store.state.id == self.store.contents.last?.id
                                 
                                 ContentCardView(
                                     store: store,
+                                    type: .linkList,
                                     isFirst: isFirst,
                                     isLast: isLast
                                 )

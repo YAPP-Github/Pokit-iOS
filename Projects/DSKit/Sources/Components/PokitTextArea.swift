@@ -15,9 +15,10 @@ public struct PokitTextArea<Value: Hashable>: View {
     
     private var focusState: FocusState<Value>.Binding
     
+    private let baseState: PokitInputStyle.State
     private let errorMessage: String?
     private let equals: Value
-    private let label: String
+    private let label: String?
     private let placeholder: String
     private let info: String?
     private let maxLetter: Int
@@ -25,8 +26,9 @@ public struct PokitTextArea<Value: Hashable>: View {
     
     public init(
         text: Binding<String>,
-        label: String,
+        label: String? = nil,
         state: Binding<PokitInputStyle.State>,
+        baseState: PokitInputStyle.State = .default,
         errorMessage: String? = nil,
         placeholder: String = "내용을 입력해주세요.",
         info: String? = nil,
@@ -38,6 +40,7 @@ public struct PokitTextArea<Value: Hashable>: View {
         self._text = text
         self.label = label
         self._state = state
+        self.baseState = baseState
         self.errorMessage = errorMessage
         self.focusState = focusState
         self.equals = equals
@@ -49,18 +52,20 @@ public struct PokitTextArea<Value: Hashable>: View {
     
     public var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            PokitLabel(text: label, size: .large)
-                .padding(.bottom, 8)
+            if let label {
+                PokitLabel(text: label, size: .large)
+                    .padding(.bottom, 8)
+            }
             
             PokitPartTextArea(
                 text: $text,
-                state: state,
+                state: $state,
+                baseState: baseState,
                 placeholder: placeholder,
                 focusState: focusState,
                 equals: equals,
                 onSubmit: onSubmit
             )
-            .onChange(of: focusState.wrappedValue) { onChangedFocuseState($0) }
             .onChange(of: state) { onChangedState($0) }
             
             infoLabel
@@ -94,21 +99,29 @@ public struct PokitTextArea<Value: Hashable>: View {
             
             Spacer()
             
-            Group {
-                switch state {
-                case .error:
-                    Text("\(text.count > maxLetter ? maxLetter : text.count)/\(maxLetter)")
-                        .foregroundStyle(.pokit(.text(.error)))
-                default:
-                    Text("\(text.count > maxLetter ? maxLetter : text.count)/\(maxLetter)")
-                        .foregroundStyle(.pokit(.text(.tertiary)))
-                }
+            if state != .memo(isReadOnly: true) &&
+               state != .memo(isReadOnly: false) {
+                textCount
+                    .pokitBlurReplaceTransition(.pokitDissolve)
             }
-            .pokitFont(.detail1)
-            .contentTransition(.numericText())
-            .animation(.pokitDissolve, value: text)
         }
         .padding(.top, 4)
+    }
+    
+    private var textCount: some View {
+        Group {
+            switch state {
+            case .error:
+                Text("\(text.count > maxLetter ? maxLetter : text.count)/\(maxLetter)")
+                    .foregroundStyle(.pokit(.text(.error)))
+            default:
+                Text("\(text.count > maxLetter ? maxLetter : text.count)/\(maxLetter)")
+                    .foregroundStyle(.pokit(.text(.tertiary)))
+            }
+        }
+        .pokitFont(.detail1)
+        .contentTransition(.numericText())
+        .animation(.pokitDissolve, value: text)
     }
     
     private func onChangedText(_ newValue: String) {
@@ -120,19 +133,6 @@ public struct PokitTextArea<Value: Hashable>: View {
     
     private func onChangedIsMaxLetters(_ newValue: Bool) {
         state = newValue ? .error(message: "최대 \(maxLetter)자까지 입력가능합니다.") : .active
-    }
-    
-    private func onChangedFocuseState(_ newValue: Value) {
-        if newValue == equals {
-            state = .active
-        } else {
-            switch state {
-            case .error(message: let message):
-                state = .error(message: message)
-            default:
-                state = .default
-            }
-        }
     }
     
     private func onChangedState(_ newValue: PokitInputStyle.State) {

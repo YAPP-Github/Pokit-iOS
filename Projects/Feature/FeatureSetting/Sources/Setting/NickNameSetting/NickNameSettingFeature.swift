@@ -48,6 +48,7 @@ public struct NickNameSettingFeature {
             case dismiss
             case 저장_버튼_눌렀을때
             case 뷰가_나타났을때
+            case 닉네임지우기_버튼_눌렀을때
         }
         
         public enum InnerAction: Equatable {
@@ -131,6 +132,9 @@ private extension NickNameSettingFeature {
             
         case .뷰가_나타났을때:
             return .send(.async(.닉네임_조회_API))
+        case .닉네임지우기_버튼_눌렀을때:
+            state.domain.nickname = ""
+            return .none
         }
     }
     

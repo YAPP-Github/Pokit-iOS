@@ -72,11 +72,6 @@ public struct PokitSearchFeature {
             get { domain.contentList.hasNext }
         }
         var isLoading: Bool = false
-        
-        /// sheet item
-        var bottomSheetItem: BaseContentItem? = nil
-        var alertItem: BaseContentItem? = nil
-        var shareSheetItem: BaseContentItem? = nil
     }
     
     /// - Action
@@ -93,10 +88,6 @@ public struct PokitSearchFeature {
         public enum View: Equatable, BindableAction {
             case binding(BindingAction<State>)
             case dismiss
-            case bottomSheet(
-                delegate: PokitBottomSheet.Delegate,
-                content: BaseContentItem
-            )
             case 자동저장_버튼_눌렀을때
             case 검색_버튼_눌렀을때
             case 최근검색_태그_눌렀을때(text: String)
@@ -109,15 +100,10 @@ public struct PokitSearchFeature {
             case 즐겨찾기_태그_눌렀을때
             case 안읽음_태그_눌렀을때
             case 전체_삭제_버튼_눌렀을때
-            case 컨텐츠_항목_눌렀을때(content: BaseContentItem)
-            case 컨텐츠_항목_케밥_버튼_눌렀을때(content: BaseContentItem)
             case 정렬_버튼_눌렀을때
             case 검색_키보드_엔터_눌렀을때
-            case 링크_삭제_눌렀을때
-            case 링크_공유_완료되었을때
             case 뷰가_나타났을때
             case 로딩중일때
-            
         }
         
         public enum InnerAction: Equatable {
@@ -127,10 +113,8 @@ public struct PokitSearchFeature {
             case 모아보기_업데이트(favoriteFilter: Bool, unreadFilter: Bool)
             case 필터_업데이트
             case 카테고리_ID_목록_업데이트
-            case 바텀시트_해제
             case 컨텐츠_검색_API_반영(BaseContentListInquiry)
             case 컨텐츠_검색_페이징_API_반영(BaseContentListInquiry)
-            case 컨텐츠_삭제_API_반영(id: Int)
             case 최근검색어_불러오기
             case 자동저장_불러오기
             case 최근검색어_추가
@@ -141,17 +125,12 @@ public struct PokitSearchFeature {
             case 컨텐츠_검색_API
             case 최근검색어_갱신_수행
             case 자동저장_수행
-            case 컨텐츠_삭제_API(id: Int)
             case 컨텐츠_검색_페이징_API
             case 클립보드_감지
         }
         
         public enum ScopeAction {
             case filterBottomSheet(FilterBottomFeature.Action.DelegateAction)
-            case bottomSheet(
-                delegate: PokitBottomSheet.Delegate,
-                content: BaseContentItem
-            )
             case contents(IdentifiedActionOf<ContentCardFeature>)
         }
         
@@ -282,24 +261,6 @@ private extension PokitSearchFeature {
             state.recentSearchTexts.remove(at: predicate)
             return .send(.async(.최근검색어_갱신_수행))
             
-        case let .컨텐츠_항목_눌렀을때(content):
-            return .send(.delegate(.linkCardTapped(content: content)))
-            
-        case let .컨텐츠_항목_케밥_버튼_눌렀을때(content):
-            state.bottomSheetItem = content
-            return .none
-            
-        case .bottomSheet(delegate: let delegate, content: let content):
-            return .run { send in
-                await send(.inner(.바텀시트_해제))
-                await send(.scope(.bottomSheet(delegate: delegate, content: content)))
-            }
-            
-        case .링크_삭제_눌렀을때:
-            guard let id = state.alertItem?.id else { return .none }
-            state.alertItem = nil
-            return .send(.async(.컨텐츠_삭제_API(id: id)))
-            
         case .정렬_버튼_눌렀을때:
             state.isResultAscending.toggle()
             state.domain.pageable.sort = [
@@ -340,9 +301,6 @@ private extension PokitSearchFeature {
             state.domain.condition.isRead = false
             return .send(.inner(.페이징_초기화))
             
-        case .링크_공유_완료되었을때:
-            state.shareSheetItem = nil
-            return .none
         case .로딩중일때:
             return .send(.async(.컨텐츠_검색_페이징_API))
         }
@@ -392,10 +350,6 @@ private extension PokitSearchFeature {
             state.domain.condition.isRead = unreadFilter
             return .none
             
-        case .바텀시트_해제:
-            state.bottomSheetItem = nil
-            return .none
-            
         case .필터_업데이트:
             state.isFiltered = !state.categoryFilter.isEmpty
             || state.favoriteFilter
@@ -438,12 +392,6 @@ private extension PokitSearchFeature {
             }
             return .send(.async(.최근검색어_갱신_수행))
             
-        case let .컨텐츠_삭제_API_반영(id):
-            state.alertItem = nil
-            state.domain.contentList.data?.removeAll { $0.id == id }
-            state.contents.removeAll { $0.content.id == id }
-            return .none
-            
         case let .컨텐츠_검색_페이징_API_반영(contentList):
             let list = state.domain.contentList.data ?? []
             guard let newList = contentList.data else { return .none }
@@ -482,12 +430,6 @@ private extension PokitSearchFeature {
         case .자동저장_수행:
             return .run { [isAutoSaveSearch = state.isAutoSaveSearch] _ in
                 await userDefaults.setBool(isAutoSaveSearch, .autoSaveSearch)
-            }
-            
-        case let .컨텐츠_삭제_API(id):
-            return .run { send in
-                let _ = try await contentClient.컨텐츠_삭제("\(id)")
-                await send(.inner(.컨텐츠_삭제_API_반영(id: id)), animation: .pokitSpring)
             }
             
         case .컨텐츠_검색_페이징_API:
@@ -560,25 +502,8 @@ private extension PokitSearchFeature {
                 await send(.inner(.페이징_초기화))
             }
             
-        case .bottomSheet(let delegate, let content):
-            switch delegate {
-            case .deleteCellButtonTapped:
-                state.alertItem = content
-                return .none
-            case .editCellButtonTapped:
-                return .send(.delegate(.링크수정(contentId: content.id)))
-            case .favoriteCellButtonTapped:
-                return .none
-            case .shareCellButtonTapped:
-                state.shareSheetItem = content
-                return .none
-            }
-            
-        case let .contents(.element(id: _, action: .delegate(.컨텐츠_항목_눌렀을때(content)))):
-            return .send(.delegate(.linkCardTapped(content: content)))
         case let .contents(.element(id: _, action: .delegate(.컨텐츠_항목_케밥_버튼_눌렀을때(content)))):
-            state.bottomSheetItem = content
-            return .none
+            return .send(.delegate(.linkCardTapped(content: content)))
         case .contents:
             return .none
         }

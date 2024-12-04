@@ -224,16 +224,6 @@ private extension CategorySharingFeature {
     /// - Scope Effect
     func handleScopeAction(_ action: Action.ScopeAction, state: inout State) -> Effect<Action> {
         switch action {
-        case let .contents(.element(id: _, action: .delegate(.컨텐츠_항목_눌렀을때(content)))):
-            let sharedContent = state.domain.sharedCategory.contentList.data.first { item in
-                item.id == content.id
-            }
-            guard let sharedContent else { return .none }
-            
-            return .send(.delegate(.컨텐츠_아이템_클릭(
-                categoryId: state.category.categoryId,
-                content: sharedContent
-            )))
         case .contents:
             return .none
         }

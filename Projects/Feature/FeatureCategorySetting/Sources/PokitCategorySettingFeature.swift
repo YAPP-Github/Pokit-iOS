@@ -87,6 +87,7 @@ public struct PokitCategorySettingFeature {
             case 프로필_설정_버튼_눌렀을때
             case 저장_버튼_눌렀을때
             case 뷰가_나타났을때
+            case 포킷명지우기_버튼_눌렀을때
         }
         
         public enum InnerAction: Equatable {
@@ -215,6 +216,9 @@ private extension PokitCategorySettingFeature {
                 .send(.async(.프로필_목록_조회_API)),
                 .send(.async(.클립보드_감지))
             )
+        case .포킷명지우기_버튼_눌렀을때:
+            state.domain.categoryName = ""
+            return .none
         }
     }
     

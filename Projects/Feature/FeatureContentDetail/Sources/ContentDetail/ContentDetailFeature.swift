@@ -40,12 +40,13 @@ public struct ContentDetailFeature {
         var contentId: Int? {
             get { domain.contentId }
         }
-
+        var memo: String = ""
         var linkTitle: String? = nil
         var linkImageURL: String? = nil
         var showAlert: Bool = false
-        var showLinkPreview = false
         var showShareSheet: Bool = false
+        var memoTextAreaState: PokitInputStyle.State = .memo(isReadOnly: true)
+        var linkPopup: PokitLinkPopup.PopupType?
     }
 
     /// - Action
@@ -71,15 +72,13 @@ public struct ContentDetailFeature {
             case 경고시트_해제
 
             case 링크_공유_완료되었을때
+            case 메모포커스_변경되었을때(Bool)
         }
 
         public enum InnerAction: Equatable {
-            case linkPreview
-            case 메타데이터_조회_수행(url: URL)
-            case 메타데이터_조회_반영(title: String?, imageURL: String?)
-            case URL_유효성_확인
             case 컨텐츠_상세_조회_API_반영(content: BaseContentDetail)
             case 즐겨찾기_API_반영(Bool)
+            case 링크팝업_활성화(PokitLinkPopup.PopupType)
         }
 
         public enum AsyncAction: Equatable {
@@ -87,6 +86,7 @@ public struct ContentDetailFeature {
             case 즐겨찾기_API(id: Int)
             case 즐겨찾기_취소_API(id: Int)
             case 컨텐츠_삭제_API(id: Int)
+            case 컨텐츠_수정_API
         }
 
         public enum ScopeAction: Equatable { case 없음 }
@@ -129,6 +129,7 @@ public struct ContentDetailFeature {
 
     /// - Reducer body
     public var body: some ReducerOf<Self> {
+        BindingReducer(action: \.view)
         Reduce(self.core)
     }
 }
@@ -138,14 +139,16 @@ private extension ContentDetailFeature {
     func handleViewAction(_ action: Action.View, state: inout State) -> Effect<Action> {
         switch action {
         case .뷰가_나타났을때:
-            if let content = state.content {
-                state.domain.content = content
-                return .send(.inner(.URL_유효성_확인))
-            } else if let id = state.domain.contentId {
+            /// - 나중에 공유 받은 컨텐츠인지 확인해야함
+            state.memoTextAreaState = .memo(isReadOnly: false)
+            if let id = state.domain.contentId {
                 return .send(.async(.컨텐츠_상세_조회_API(id: id)))
-            } else {
+            }
+            if let content = state.domain.content {
+                state.memo = content.memo
                 return .none
             }
+            return .none
         case .공유_버튼_눌렀을때:
             state.showShareSheet = true
             return .none
@@ -176,47 +179,29 @@ private extension ContentDetailFeature {
         case .경고시트_해제:
             state.showAlert = false
             return .none
+        case let .메모포커스_변경되었을때(isFocused):
+            guard
+                !isFocused,
+                state.memo != state.domain.content?.memo
+            else { return .none }
+            let memo = state.memo
+            state.domain.content?.memo = memo
+            return .send(.async(.컨텐츠_수정_API))
         }
     }
 
     /// - Inner Effect
     func handleInnerAction(_ action: Action.InnerAction, state: inout State) -> Effect<Action> {
         switch action {
-        case .메타데이터_조회_수행(url: let url):
-            return .run { send in
-                /// - 링크에 대한 메타데이터의 제목 및 썸네일 항목 파싱
-                async let title = swiftSoup.parseOGTitle(url)
-                async let imageURL = swiftSoup.parseOGImageURL(url)
-                try await send(
-                    .inner(.메타데이터_조회_반영(title: title, imageURL: imageURL)),
-                    animation: .pokitDissolve
-                )
-            }
-        case let .메타데이터_조회_반영(title: title, imageURL: imageURL):
-            state.linkTitle = title
-            state.linkImageURL = imageURL
-            return .send(.inner(.linkPreview), animation: .pokitDissolve)
-        case .URL_유효성_확인:
-            guard let urlString = state.domain.content?.data,
-                  let url = URL(string: urlString) else {
-                /// 🚨 Error Case [1]: 올바른 링크가 아닐 때
-                state.showLinkPreview = false
-                state.linkTitle = nil
-                state.linkImageURL = nil
-                return .none
-            }
-            return .send(.inner(.메타데이터_조회_수행(url: url)), animation: .pokitDissolve)
         case .컨텐츠_상세_조회_API_반영(content: let content):
             state.domain.content = content
-            return .merge(
-                .send(.delegate(.컨텐츠_조회_완료)),
-                .send(.inner(.URL_유효성_확인))
-            )
+            state.memo = state.domain.content?.memo ?? ""
+            return .send(.delegate(.컨텐츠_조회_완료))
         case .즐겨찾기_API_반영(let favorite):
             state.domain.content?.favorites = favorite
             return .send(.delegate(.즐겨찾기_갱신_완료))
-        case .linkPreview:
-            state.showLinkPreview = true
+        case let .링크팝업_활성화(type):
+            state.linkPopup = type
             return .none
         }
     }
@@ -227,23 +212,57 @@ private extension ContentDetailFeature {
         case .컨텐츠_상세_조회_API(id: let id):
             return .run { send in
                 let contentResponse = try await contentClient.컨텐츠_상세_조회("\(id)").toDomain()
-                await send(.inner(.컨텐츠_상세_조회_API_반영(content: contentResponse)))
+                await send(
+                    .inner(.컨텐츠_상세_조회_API_반영(content: contentResponse)),
+                    animation: .pokitDissolve
+                )
             }
         case .즐겨찾기_API(id: let id):
             return .run { send in
                 let _ = try await contentClient.즐겨찾기("\(id)")
-                await send(.inner(.즐겨찾기_API_반영(true)))
+                await send(.inner(.즐겨찾기_API_반영(true)), animation: .pokitDissolve)
             }
         case .즐겨찾기_취소_API(id: let id):
             return .run { send in
                 try await contentClient.즐겨찾기_취소("\(id)")
-                await send(.inner(.즐겨찾기_API_반영(false)))
+                await send(.inner(.즐겨찾기_API_반영(false)), animation: .pokitDissolve)
             }
         case .컨텐츠_삭제_API(id: let id):
             return .run { send in
                 try await contentClient.컨텐츠_삭제("\(id)")
                 await send(.delegate(.컨텐츠_삭제_완료))
                 await dismiss()
+            }
+        case .컨텐츠_수정_API:
+            guard
+                let content = state.domain.content,
+                let url = URL(string: content.data)
+            else { return .none }
+            return .run { send in
+                let imageURL = try? await swiftSoup.parseOGImageURL(url)
+                
+                let request = ContentBaseRequest(
+                    data: content.data,
+                    title: content.title,
+                    categoryId: content.category.categoryId,
+                    memo: content.memo,
+                    alertYn: content.alertYn.rawValue,
+                    thumbNail: imageURL
+                )
+                let _ = try await contentClient.컨텐츠_수정(
+                    contentId: "\(content.id)",
+                    model: request
+                )
+                await send(
+                    .inner(.링크팝업_활성화(.success(title: Constants.메모_수정_완료_문구))),
+                    animation: .pokitSpring
+                )
+            } catch: { error, send in
+                guard let errorResponse = error as? ErrorResponse else { return }
+                await send(
+                    .inner(.링크팝업_활성화(.error(title: errorResponse.message))),
+                    animation: .pokitSpring
+                )
             }
         }
     }

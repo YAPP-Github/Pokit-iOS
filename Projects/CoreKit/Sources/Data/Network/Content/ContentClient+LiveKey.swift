@@ -50,6 +50,11 @@ extension ContentClient: DependencyKey {
                         condition: condition
                     )
                 )
+            },
+            썸네일_수정: { id, model in
+                try await provider.requestNoBody(
+                    .썸네일_수정(contentId: id, model: model)
+                )
             }
         )
     }()

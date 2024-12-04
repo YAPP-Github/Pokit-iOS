@@ -8,6 +8,7 @@ import SwiftUI
 
 import ComposableArchitecture
 import DSKit
+import Util
 
 @ViewAction(for: ContentSettingFeature.self)
 public struct ContentSettingView: View {
@@ -36,11 +37,7 @@ public extension ContentSettingView {
                             
                             titleTextField
                             
-                            HStack(alignment: .bottom, spacing: 8) {
-                                pokitSelectButton
-                                
-                                addPokitButton
-                            }
+                            pokitSelectButton
                             
                             memoTextArea
                             
@@ -50,26 +47,19 @@ public extension ContentSettingView {
                         .padding(.top, 16)
                     }
                     .overlay(alignment: .bottom) {
-                        if store.state.showMaxCategoryPopup {
+                        if store.linkPopup != nil {
                             PokitLinkPopup(
-                                "최대 30개의 포킷을 생성할 수 있습니다. \n포킷을 삭제한 뒤에 추가해주세요.",
-                                isPresented: $store.showMaxCategoryPopup,
-                                type: .text
-                            )
-                            .animation(.pokitSpring, value: store.showMaxCategoryPopup)
-                        } else if store.state.showDetectedURLPopup {
-                            PokitLinkPopup(
-                                "복사한 링크 저장하기",
-                                isPresented: $store.showDetectedURLPopup,
-                                type: .link(url: store.link ?? ""),
-                                action: { send(.링크복사_버튼_눌렀을때, animation: .pokitSpring) }
+                                type: $store.linkPopup,
+                                action: { send(.링크팝업_버튼_눌렀을때, animation: .pokitSpring) }
                             )
                         }
                     }
                     .pokitMaxWidth()
                 }
                 
-                let isDisable = store.urlText.isEmpty || store.title.isEmpty || store.memoTextAreaState == .error(message: "최대 100자까지 입력가능합니다.")
+                let isDisable = store.urlText.isEmpty ||
+                                store.title.isEmpty ||
+                                store.memoTextAreaState == .error(message: "최대 100자까지 입력가능합니다.")
                 
                 PokitBottomButton(
                     "저장하기",
@@ -104,34 +94,48 @@ private extension ContentSettingView {
     }
     var linkTextField: some View {
         VStack(spacing: 16) {
-            if store.showLinkPreview {
+            if !store.urlText.isEmpty {
+                let isParsed = store.linkTitle != nil || store.linkImageURL != nil
+                
                 PokitLinkPreview(
-                    title: store.linkTitle ?? (
-                        store.title.isEmpty ? "제목을 입력해주세요" : store.title
-                    ),
-                    url: store.urlText,
-                    imageURL: store.linkImageURL ?? "https://pokit-storage.s3.ap-northeast-2.amazonaws.com/logo/pokit.png"
+                    title: store.linkTitle == Constants.제목을_입력해주세요_문구
+                    ? store.title.isEmpty ? Constants.제목을_입력해주세요_문구 : store.title
+                    : store.linkTitle,
+                    url: isParsed ? store.urlText : nil,
+                    imageURL: store.linkImageURL
                 )
                 .pokitBlurReplaceTransition(.pokitDissolve)
             }
             
             PokitTextInput(
                 text: $store.urlText,
-                label: "링크", 
+                label: "링크",
+                type: store.urlText.isEmpty ? .text : .iconR(
+                    icon: .icon(.x),
+                    action: { send(.링크지우기_버튼_눌렀을때) }
+                ),
+                shape: .rectangle,
                 state: $store.linkTextInputState,
                 focusState: $focusedType,
                 equals: .link
             )
         }
+        .animation(.pokitSpring, value: store.urlText)
     }
     
     var titleTextField: some View {
         PokitTextInput(
             text: $store.title,
-            label: "제목", 
+            label: "제목",
+            type: store.title.isEmpty ? .text : .iconR(
+                icon: .icon(.x),
+                action: { send(.제목지우기_버튼_눌렀을때) }
+            ),
+            shape: .rectangle,
             state: $store.titleTextInpuState,
             focusState: $focusedType,
-            equals: .title) { }
+            equals: .title
+        )
     }
     
     var pokitSelectButton: some View {
@@ -139,17 +143,9 @@ private extension ContentSettingView {
             selectedItem: $store.selectedPokit,
             label: "포킷",
             list: store.pokitList,
-            action: { send(.포킷선택_항목_눌렀을때(pokit: $0), animation: .pokitDissolve) }
+            action: { send(.포킷선택_항목_눌렀을때(pokit: $0), animation: .pokitDissolve) },
+            addAction: { send(.포킷추가_버튼_눌렀을때, animation: .pokitSpring) }
         )
-    }
-    
-    var addPokitButton: some View {
-        PokitIconButton(
-            .icon(.plusR),
-            state: .filled(.primary),
-            size: .large,
-            shape: .rectangle
-        ) { send(.포킷추가_버튼_눌렀을때, animation: .pokitSpring) }
     }
     
     var memoTextArea: some View {

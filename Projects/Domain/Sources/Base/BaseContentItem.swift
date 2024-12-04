@@ -14,13 +14,13 @@ public struct BaseContentItem: Identifiable, Equatable, PokitLinkCardItem, Sorta
     public let categoryName: String
     public let categoryId: Int
     public let title: String
-    public let memo: String?
+    public var memo: String?
     public var thumbNail: String
     public let data: String
     public let domain: String
     public let createdAt: String
     public let isRead: Bool?
-    public let isFavorite: Bool?
+    public var isFavorite: Bool?
     
     public init(
         id: Int,
