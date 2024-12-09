@@ -224,9 +224,10 @@ private extension ContentSettingFeature {
             return .send(.inner(.링크복사_반영(state.link)))
         case .링크지우기_버튼_눌렀을때:
             state.domain.data = ""
+            state.domain.title = ""
             return .none
         case .제목지우기_버튼_눌렀을때:
-            state.title = ""
+            state.domain.title = ""
             return .none
         }
     }
