@@ -175,7 +175,7 @@ public extension MainTabFeature {
 
             /// - 링크추가 및 수정에서 저장하기 눌렀을 때
             case let .path(.element(stackElementId, action: .링크추가및수정(.delegate(.저장하기_완료(contentId))))):
-                state.savedContentId = contentId
+                state.categoryOfSavedContent = contentId
                 state.path.removeLast()
                 switch state.path.last {
                 case .검색:
