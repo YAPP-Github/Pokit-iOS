@@ -40,8 +40,6 @@ public extension ContentSettingView {
                             pokitSelectButton
                             
                             memoTextArea
-                            
-                            remindSwitchRadio
                         }
                         .padding(.horizontal, 20)
                         .padding(.top, 16)
@@ -157,39 +155,6 @@ private extension ContentSettingView {
             equals: .memo
         )
         .frame(height: 192)
-    }
-    
-    var remindSwitchRadio: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            Text("리마인드 알림을 보내드릴까요?")
-                .pokitFont(.b2(.m))
-                .foregroundStyle(.pokit(.text(.secondary)))
-                .padding(.bottom, 12)
-            
-            PokitSwitchRadio {
-                PokitPartSwitchRadio(
-                    labelText: "안받을래요",
-                    selection: $store.isRemind,
-                    to: .no,
-                    style: .stroke
-                )
-                .background()
-                
-                PokitPartSwitchRadio(
-                    labelText: "받을래요",
-                    selection: $store.isRemind,
-                    to: .yes,
-                    style: .stroke
-                )
-                .background()
-            }
-            .padding(.bottom, 8)
-            
-            Text("일주일 후에 알림을 전송해드립니다")
-                .pokitFont(.detail1)
-                .foregroundStyle(.pokit(.text(.tertiary)))
-        }
-        .padding(.bottom, 16)
     }
 }
 private extension ContentSettingView {

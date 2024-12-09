@@ -50,10 +50,6 @@ public struct ContentSettingFeature {
             get { domain.memo }
             set { domain.memo = newValue }
         }
-        var isRemind: BaseContentDetail.RemindState {
-            get { domain.alertYn }
-            set { domain.alertYn = newValue }
-        }
         var content: BaseContentDetail? {
             get { domain.content }
         }
