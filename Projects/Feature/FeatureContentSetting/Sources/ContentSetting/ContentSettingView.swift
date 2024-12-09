@@ -114,6 +114,7 @@ private extension ContentSettingView {
                 ),
                 shape: .rectangle,
                 state: $store.linkTextInputState,
+                placeholder: "링크를 입력해주세요.",
                 focusState: $focusedType,
                 equals: .link
             )
@@ -131,6 +132,7 @@ private extension ContentSettingView {
             ),
             shape: .rectangle,
             state: $store.titleTextInpuState,
+            placeholder: "제목을 입력해주세요.",
             focusState: $focusedType,
             equals: .title
         )
@@ -151,6 +153,7 @@ private extension ContentSettingView {
             text: $store.memo,
             label: "메모",
             state: $store.memoTextAreaState,
+            placeholder: "메모를 입력해주세요.",
             focusState: $focusedType,
             equals: .memo
         )
