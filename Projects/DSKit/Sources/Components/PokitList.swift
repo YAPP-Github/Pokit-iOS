@@ -81,7 +81,7 @@ public struct PokitList<Item: PokitSelectItem>: View {
                 
                 Spacer()
             }
-            .padding(.vertical, 18)
+            .padding(.vertical, 12)
             .padding(.horizontal, 20)
             .background {
                 if isSelected {
