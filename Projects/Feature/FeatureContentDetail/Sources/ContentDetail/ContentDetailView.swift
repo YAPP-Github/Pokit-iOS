@@ -56,8 +56,8 @@ public extension ContentDetailView {
                     PokitLinkPopup(type: $store.linkPopup)
                 }
             }
-            .dismissKeyboard(focused: $isFocused)
-            .onChange(of: isFocused) { send(.메모포커스_변경되었을때($0)) }
+//            .dismissKeyboard(focused: $isFocused)
+//            .onChange(of: isFocused) { send(.메모포커스_변경되었을때($0)) }
             .sheet(isPresented: $store.showAlert) {
                 PokitAlert(
                     "링크를 정말 삭제하시겠습니까?",
@@ -159,11 +159,28 @@ private extension ContentDetailView {
                 focusState: $isFocused,
                 equals: true
             )
+            .toolbar { keyboardToolBar }
             .frame(minHeight: isFocused ? 164 : 132)
             .animation(.pokitDissolve, value: isFocused)
         }
         .padding(.bottom, 24)
         .padding(.horizontal, 20)
+    }
+    
+    var keyboardToolBar: some ToolbarContent {
+        ToolbarItemGroup(placement: .keyboard) {
+            Button("취소") {
+                isFocused = false
+                send(.키보드_취소_버튼_눌렀을때)
+            }
+            
+            Spacer()
+            
+            Button("완료") {
+                isFocused = false
+                send(.키보드_완료_버튼_눌렀울때)
+            }
+        }
     }
 
     @ViewBuilder
