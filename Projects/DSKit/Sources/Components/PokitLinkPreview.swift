@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+import Util
 import NukeUI
 
 public struct PokitLinkPreview: View {
@@ -33,7 +34,6 @@ public struct PokitLinkPreview: View {
         }
     }
     
-
     private var buttonLabel: some View {
         HStack(spacing: 16) {
             Group {
@@ -54,18 +54,13 @@ public struct PokitLinkPreview: View {
         .background {
             RoundedRectangle(cornerRadius: 12, style: .continuous)
                 .fill(.pokit(.bg(.base)))
+                .shadow(color: .black.opacity(0.06), radius: 3, x: 2, y: 2)
         }
         .overlay {
             RoundedRectangle(cornerRadius: 12, style: .continuous)
                 .stroke(.pokit(.border(.tertiary)), lineWidth: 1)
         }
-        .shadow(color: .black.opacity(0.06), radius: 3, x: 2, y: 2)
-        .onAppear {
-            withAnimation {
-                UINotificationFeedbackGenerator()
-                    .notificationOccurred(.success)
-            }
-        }
+        .onChange(of: imageURL, perform: onChangeImageURL)
     }
     
     @MainActor
@@ -133,6 +128,14 @@ public struct PokitLinkPreview: View {
             let url = URL(string: urlString)
         else { return }
         openURL(url)
+    }
+    
+    private func onChangeImageURL(_ imageURL: String?) {
+        guard imageURL != nil else { return }
+        let isError = title == Constants.제목을_입력해주세요_문구
+        print("\(#function): \(isError), \(title)")
+        UINotificationFeedbackGenerator()
+            .notificationOccurred(isError ? .error : .success)
     }
 }
 

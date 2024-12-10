@@ -255,8 +255,8 @@ private extension ContentSettingFeature {
             let contentTitle = state.title.isEmpty
             ? Constants.제목을_입력해주세요_문구
             : state.title
-            state.linkTitle = title ?? contentTitle
             state.linkImageURL = imageURL ?? Constants.기본_썸네일_주소.absoluteString
+            state.linkTitle = title ?? contentTitle
             if let title, state.domain.title.isEmpty {
                 state.domain.title = title
             }
