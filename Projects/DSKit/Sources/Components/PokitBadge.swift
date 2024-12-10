@@ -19,12 +19,6 @@ public struct PokitBadge: View {
             .background {
                 RoundedRectangle(cornerRadius: 4, style: .continuous)
                     .fill(backgroundColor)
-                    .overlay {
-                        if state == .unRead {
-                            RoundedRectangle(cornerRadius: 4, style: .continuous)
-                                .stroke(.pokit(.border(.brand)), lineWidth: 1)
-                        }
-                    }
             }
     }
     
@@ -32,7 +26,7 @@ public struct PokitBadge: View {
         switch self.state {
         case .default, .small, .memo, .member: return .pokit(.bg(.primary))
         case .unCategorized: return .pokit(.color(.grayScale(._50)))
-        case .unRead: return .pokit(.bg(.base))
+        case .unRead: return Color(red: 1, green: 0.95, blue: 0.92)
         }
     }
     
