@@ -123,6 +123,8 @@ public struct PokitRootFeature {
             
             case 포킷추가_버튼_눌렀을때
             case 링크추가_버튼_눌렀을때
+            
+            case 미분류_카테고리_활성화
         }
     }
 
@@ -513,6 +515,10 @@ private extension PokitRootFeature {
                 
             default: return .none
             }
+        case .미분류_카테고리_활성화:
+            state.folderType = .folder(.미분류)
+            state.sortType = .sort(.최신순)
+            return .send(.inner(.sort))
         default:
             return .none
         }

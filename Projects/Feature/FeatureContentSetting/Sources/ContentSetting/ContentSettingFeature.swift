@@ -50,10 +50,6 @@ public struct ContentSettingFeature {
             get { domain.memo }
             set { domain.memo = newValue }
         }
-        var isRemind: BaseContentDetail.RemindState {
-            get { domain.alertYn }
-            set { domain.alertYn = newValue }
-        }
         var content: BaseContentDetail? {
             get { domain.content }
         }
@@ -127,7 +123,7 @@ public struct ContentSettingFeature {
         public enum ScopeAction: Equatable { case 없음 }
 
         public enum DelegateAction: Equatable {
-            case 저장하기_완료(contentId: Int)
+            case 저장하기_완료(category: BaseCategoryItem)
             case 포킷추가하기
             case dismiss
         }
@@ -224,9 +220,10 @@ private extension ContentSettingFeature {
             return .send(.inner(.링크복사_반영(state.link)))
         case .링크지우기_버튼_눌렀을때:
             state.domain.data = ""
+            state.domain.title = ""
             return .none
         case .제목지우기_버튼_눌렀을때:
-            state.title = ""
+            state.domain.title = ""
             return .none
         }
     }
@@ -258,8 +255,8 @@ private extension ContentSettingFeature {
             let contentTitle = state.title.isEmpty
             ? Constants.제목을_입력해주세요_문구
             : state.title
-            state.linkTitle = title ?? contentTitle
             state.linkImageURL = imageURL ?? Constants.기본_썸네일_주소.absoluteString
+            state.linkTitle = title ?? contentTitle
             if let title, state.domain.title.isEmpty {
                 state.domain.title = title
             }
@@ -376,10 +373,13 @@ private extension ContentSettingFeature {
                 categoryListFetch(request: request)
             )
         case .컨텐츠_수정_API:
-            guard let contentId = state.domain.contentId,
-                  let categoryId = state.selectedPokit?.id else {
-                return .none
-            }
+            guard
+                let contentId = state.domain.contentId,
+                let categoryId = state.selectedPokit?.id,
+                let category = state.domain.categoryListInQuiry.data?.first(where: {
+                    $0.id == categoryId
+                })
+            else { return .none }
             let request = ContentBaseRequest(
                 data: state.domain.data,
                 title: state.domain.title,
@@ -394,14 +394,17 @@ private extension ContentSettingFeature {
                     request
                 )
                 await send(.inner(.선택한_포킷_인메모리_삭제))
-                await send(.delegate(.저장하기_완료(contentId: contentId)))
+                await send(.delegate(.저장하기_완료(category: category)))
             } catch: { error, send in
                 await send(.inner(.error(error)))
             }
         case .컨텐츠_추가_API:
-            guard let categoryId = state.selectedPokit?.id else {
-                return .none
-            }
+            guard
+                let categoryId = state.selectedPokit?.id,
+                let category = state.domain.categoryListInQuiry.data?.first(where: {
+                    $0.id == categoryId
+                })
+            else { return .none }
             let request = ContentBaseRequest(
                 data: state.domain.data,
                 title: state.domain.title,
@@ -413,7 +416,7 @@ private extension ContentSettingFeature {
             return .run { send in
                 let content = try await contentClient.컨텐츠_추가(request)
                 await send(.inner(.선택한_포킷_인메모리_삭제))
-                await send(.delegate(.저장하기_완료(contentId: content.contentId)))
+                await send(.delegate(.저장하기_완료(category: category)))
             } catch: { error, send in
                 await send(.inner(.error(error)))
             }

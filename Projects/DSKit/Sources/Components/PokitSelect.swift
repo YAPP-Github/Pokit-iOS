@@ -50,11 +50,11 @@ public struct PokitSelect<Item: PokitSelectItem>: View {
         }
         .onChange(of: selectedItem) { onChangedSeletedItem($0) }
         .sheet(isPresented: $showSheet) {
-            listSheet
-                .presentationDragIndicator(.visible)
-                .pokitPresentationCornerRadius()
-                .presentationDetents([.medium])
-                .pokitPresentationBackground()
+                listSheet
+                    .presentationDragIndicator(.visible)
+                    .pokitPresentationCornerRadius()
+                    .presentationDetents([.height(564)])
+                    .pokitPresentationBackground()
         }
     }
     
@@ -115,7 +115,7 @@ public struct PokitSelect<Item: PokitSelectItem>: View {
                         listCellTapped(item)
                     }
                 }
-                .padding(.top, 24)
+                .padding(.top, 12)
                 .padding(.bottom, 20)
             } else {
                 PokitLoading()

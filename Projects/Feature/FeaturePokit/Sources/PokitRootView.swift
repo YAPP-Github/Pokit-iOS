@@ -86,13 +86,15 @@ private extension PokitRootView {
 
             Spacer()
 
-            PokitIconLTextLink(
-                store.sortType == .sort(.최신순) ?
-                "최신순" : store.folderType == .folder(.포킷) ? "이름순" : "오래된순",
-                icon: .icon(.align),
-                action: { send(.분류_버튼_눌렀을때) }
-            )
-            .contentTransition(.numericText())
+            if !store.contents.isEmpty {
+                PokitIconLTextLink(
+                    store.sortType == .sort(.최신순) ?
+                    "최신순" : store.folderType == .folder(.포킷) ? "이름순" : "오래된순",
+                    icon: .icon(.align),
+                    action: { send(.분류_버튼_눌렀을때) }
+                )
+                .contentTransition(.numericText())
+            }
         }
         .animation(.snappy(duration: 0.7), value: store.folderType)
     }
