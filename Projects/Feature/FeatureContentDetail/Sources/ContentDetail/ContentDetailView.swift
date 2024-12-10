@@ -34,8 +34,9 @@ public extension ContentDetailView {
                         VStack(spacing: 0) {
                             contentMemo
                             
-                            Divider()
+                            Rectangle()
                                 .foregroundStyle(.pokit(.border(.tertiary)))
+                                .frame(height: 1)
                             
                             bottomList(favorites: favorites)
                         }
@@ -56,8 +57,6 @@ public extension ContentDetailView {
                     PokitLinkPopup(type: $store.linkPopup)
                 }
             }
-//            .dismissKeyboard(focused: $isFocused)
-//            .onChange(of: isFocused) { send(.메모포커스_변경되었을때($0)) }
             .sheet(isPresented: $store.showAlert) {
                 PokitAlert(
                     "링크를 정말 삭제하시겠습니까?",
@@ -110,8 +109,6 @@ private extension ContentDetailView {
     func title(content: BaseContentDetail) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             Group {
-                remindAndBadge(content: content)
-
                 Text(content.title)
                     .pokitFont(.title3)
                     .foregroundStyle(.pokit(.text(.primary)))
@@ -119,6 +116,8 @@ private extension ContentDetailView {
                     .lineLimit(2)
 
                 HStack {
+                    remindAndBadge(content: content)
+                    
                     Spacer()
 
                     Text(content.createdAt)
@@ -128,8 +127,9 @@ private extension ContentDetailView {
             }
             .padding(.horizontal, 20)
 
-            Divider()
+            Rectangle()
                 .foregroundStyle(.pokit(.border(.tertiary)))
+                .frame(height: 1)
                 .padding(.top, 4)
         }
     }
@@ -221,7 +221,8 @@ private extension ContentDetailView {
                 title: "삭제하기",
                 type: .bottomSheet(
                     icon: .icon(.trash),
-                    iconColor: .pokit(.icon(.primary))
+                    iconColor: .pokit(.icon(.primary)),
+                    isLast: true
                 ),
                 action: { send(.삭제_버튼_눌렀을때) }
             )
