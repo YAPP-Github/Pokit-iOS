@@ -38,7 +38,7 @@ public struct PokitListButton: View {
             HStack {
                 switch type {
                 case let .default(icon, iconColor),
-                    let .bottomSheet(icon, iconColor),
+                    let .bottomSheet(icon, iconColor, _),
                     let .subText(icon, iconColor, _):
                     Text(title)
                         .pokitFont(.b1(.m))
@@ -76,9 +76,9 @@ public struct PokitListButton: View {
             }
         }
         .padding(.horizontal, 24)
-        .padding(.vertical, 16)
+        .padding(.vertical, 20)
         .background(alignment: .bottom) {
-            if case .bottomSheet = type {
+            if case let .bottomSheet(_, _, isLast) = type, !isLast {
                 Rectangle()
                     .fill(.pokit(.border(.tertiary)))
                     .frame(height: 1)
@@ -90,10 +90,9 @@ public struct PokitListButton: View {
 extension PokitListButton {
     public enum ListButtonType {
         case `default`(icon: PokitImage, iconColor: Color)
-        case bottomSheet(icon: PokitImage, iconColor: Color)
+        case bottomSheet(icon: PokitImage, iconColor: Color, isLast: Bool = false)
         case subText(icon: PokitImage, iconColor: Color, subeText: String)
         case toggle(subeText: String)
-        
     }
 }
 
