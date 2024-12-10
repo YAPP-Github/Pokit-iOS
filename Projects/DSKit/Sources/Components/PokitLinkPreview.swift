@@ -133,7 +133,6 @@ public struct PokitLinkPreview: View {
     private func onChangeImageURL(_ imageURL: String?) {
         guard imageURL != nil else { return }
         let isError = title == Constants.제목을_입력해주세요_문구
-        print("\(#function): \(isError), \(title)")
         UINotificationFeedbackGenerator()
             .notificationOccurred(isError ? .error : .success)
     }
