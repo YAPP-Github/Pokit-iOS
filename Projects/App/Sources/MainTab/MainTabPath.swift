@@ -141,8 +141,10 @@ public extension MainTabFeature {
             case .contentDetail(.presented(.delegate(.즐겨찾기_갱신_완료))),
                  .contentDetail(.presented(.delegate(.컨텐츠_조회_완료))),
                  .contentDetail(.presented(.delegate(.컨텐츠_삭제_완료))):
-                guard let stackElementId = state.path.ids.last,
-                      let lastPath = state.path.last else {
+                guard
+                    let stackElementId = state.path.ids.last,
+                    let lastPath = state.path.last
+                else {
                     switch state.selectedTab {
                     case .pokit:
                         return .send(.pokit(.delegate(.미분류_카테고리_컨텐츠_조회)))
@@ -175,7 +177,7 @@ public extension MainTabFeature {
 
             /// - 링크추가 및 수정에서 저장하기 눌렀을 때
             case let .path(.element(stackElementId, action: .링크추가및수정(.delegate(.저장하기_완료(contentId))))):
-                state.savedContentId = contentId
+                state.categoryOfSavedContent = contentId
                 state.path.removeLast()
                 switch state.path.last {
                 case .검색:

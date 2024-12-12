@@ -69,10 +69,12 @@ public struct ContentDetailFeature {
             case 삭제_버튼_눌렀을때
             case 삭제확인_버튼_눌렀을때
             case 즐겨찾기_버튼_눌렀을때
+            case 키보드_취소_버튼_눌렀을때
+            case 키보드_완료_버튼_눌렀울때
+            
             case 경고시트_해제
 
             case 링크_공유_완료되었을때
-            case 메모포커스_변경되었을때(Bool)
         }
 
         public enum InnerAction: Equatable {
@@ -166,10 +168,10 @@ private extension ContentDetailFeature {
         case .binding:
             return .none
         case .즐겨찾기_버튼_눌렀을때:
-            guard let content = state.domain.content,
-                  let favorites = state.domain.content?.favorites else {
-                return .none
-            }
+            guard
+                let content = state.domain.content,
+                let favorites = state.domain.content?.favorites
+            else { return .none }
             return favorites
             ? .send(.async(.즐겨찾기_취소_API(id: content.id)))
             : .send(.async(.즐겨찾기_API(id: content.id)))
@@ -179,12 +181,12 @@ private extension ContentDetailFeature {
         case .경고시트_해제:
             state.showAlert = false
             return .none
-        case let .메모포커스_변경되었을때(isFocused):
-            guard
-                !isFocused,
-                state.memo != state.domain.content?.memo
-            else { return .none }
+        case .키보드_취소_버튼_눌렀을때:
+            state.memo = state.domain.content?.memo ?? ""
+            return .none
+        case .키보드_완료_버튼_눌렀울때:
             let memo = state.memo
+            guard memo != state.domain.content?.memo else { return .none }
             state.domain.content?.memo = memo
             return .send(.async(.컨텐츠_수정_API))
         }

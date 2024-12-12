@@ -236,10 +236,11 @@ private extension PokitSearchFeature {
             return .send(.inner(.filterBottomSheet(filterType: .contentType)))
             
         case .기간_버튼_눌렀을때:
-            guard state.domain.condition.startDate != nil && state.domain.condition.endDate != nil else {
+            guard
+                state.domain.condition.startDate != nil &&
+                state.domain.condition.endDate != nil
                 /// - 선택된 기간이 없을 경우
-                return .send(.inner(.filterBottomSheet(filterType: .date)))
-            }
+            else { return .send(.inner(.filterBottomSheet(filterType: .date))) }
             state.domain.condition.startDate = nil
             state.domain.condition.endDate = nil
             return .run { send in
@@ -323,8 +324,7 @@ private extension PokitSearchFeature {
             state.domain.condition.startDate = startDate
             state.domain.condition.endDate = endDate
             
-            guard let startDate,
-                  let endDate else {
+            guard let startDate, let endDate else {
                 /// 🚨 Error Case : 날짜 필터가 선택 안되었을 경우
                 state.dateFilterText = "기간"
                 return .none
@@ -513,9 +513,10 @@ private extension PokitSearchFeature {
     func handleDelegateAction(_ action: Action.DelegateAction, state: inout State) -> Effect<Action> {
         switch action {
         case .컨텐츠_검색:
-            guard let contentList = state.domain.contentList.data, !contentList.isEmpty else {
-                return .none
-            }
+            guard
+                let contentList = state.domain.contentList.data,
+                !contentList.isEmpty
+            else { return .none }
             return .send(.async(.컨텐츠_검색_API), animation: .pokitSpring)
         default: return .none
         }

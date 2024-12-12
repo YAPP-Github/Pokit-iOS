@@ -231,11 +231,11 @@ private extension RemindFeature {
             }
         case let .즐겨찾기_이미지_조회_수행(contentId):
             return .run { [favoriteContents = state.favoriteContents] send in
-                guard let index = favoriteContents?.index(id: contentId),
-                      let content = favoriteContents?[index],
-                      let url = URL(string: content.data) else {
-                    return
-                }
+                guard
+                    let index = favoriteContents?.index(id: contentId),
+                    let content = favoriteContents?[index],
+                    let url = URL(string: content.data)
+                else { return }
                 
                 let imageURL = try await swiftSoupClient.parseOGImageURL(url)
                 guard let imageURL else { return }
@@ -247,11 +247,11 @@ private extension RemindFeature {
             }
         case let .읽지않음_이미지_조회_수행(contentId):
             return .run { [unreadContents = state.unreadContents] send in
-                guard let index = unreadContents?.index(id: contentId),
-                      let content = unreadContents?[index],
-                      let url = URL(string: content.data) else {
-                    return
-                }
+                guard
+                    let index = unreadContents?.index(id: contentId),
+                    let content = unreadContents?[index],
+                    let url = URL(string: content.data)
+                else { return }
                 let imageURL = try await swiftSoupClient.parseOGImageURL(url)
                 guard let imageURL else { return }
                 
@@ -262,11 +262,11 @@ private extension RemindFeature {
             }
         case let .리마인드_이미지_조회_수행(contentId):
             return .run { [recommendedContents = state.recommendedContents] send in
-                guard let index = recommendedContents?.index(id: contentId),
-                      let content = recommendedContents?[index],
-                      let url = URL(string: content.data) else {
-                    return
-                }
+                guard
+                    let index = recommendedContents?.index(id: contentId),
+                    let content = recommendedContents?[index],
+                    let url = URL(string: content.data)
+                else { return }
                 let imageURL = try await swiftSoupClient.parseOGImageURL(url)
                 guard let imageURL else { return }
                 

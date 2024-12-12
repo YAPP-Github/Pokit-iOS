@@ -225,9 +225,11 @@ private extension CategoryDetailFeature {
             
         case let .카테고리_목록_조회_API_반영(response):
             state.domain.categoryListInQuiry = response
-            guard let first = response.data?.first(where: { item in
-                item.id == state.domain.category.id
-            }) else { return .none }
+            guard
+                let first = response.data?.first(where: { item in
+                    item.id == state.domain.category.id
+                })
+            else { return .none }
             state.domain.category = first
             return .none
             

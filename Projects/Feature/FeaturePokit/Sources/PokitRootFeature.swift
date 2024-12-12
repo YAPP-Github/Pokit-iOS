@@ -123,6 +123,8 @@ public struct PokitRootFeature {
             
             case 포킷추가_버튼_눌렀을때
             case 링크추가_버튼_눌렀을때
+            
+            case 미분류_카테고리_활성화
         }
     }
 
@@ -313,9 +315,11 @@ private extension PokitRootFeature {
             return .none
             
         case let .미분류_카테고리_컨텐츠_삭제_API_반영(contentId: contentId):
-            guard let index = state.domain.unclassifiedContentList.data?.firstIndex(where: { $0.id == contentId }) else {
-                return .none
-            }
+            guard
+                let index = state.domain.unclassifiedContentList.data?.firstIndex(where: {
+                    $0.id == contentId
+                })
+            else { return .none }
             state.domain.unclassifiedContentList.data?.remove(at: index)
             state.contents.removeAll { $0.content.id == contentId }
             state.isPokitDeleteSheetPresented = false
@@ -513,6 +517,10 @@ private extension PokitRootFeature {
                 
             default: return .none
             }
+        case .미분류_카테고리_활성화:
+            state.folderType = .folder(.미분류)
+            state.sortType = .sort(.최신순)
+            return .send(.inner(.sort))
         default:
             return .none
         }

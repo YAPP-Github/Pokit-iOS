@@ -41,7 +41,7 @@ public struct MainTabFeature {
         @Presents var contentDetail: ContentDetailFeature.State?
         @Shared(.inMemory("SelectCategory")) var categoryId: Int?
         @Shared(.inMemory("PushTapped")) var isPushTapped: Bool = false
-        var savedContentId: Int?
+        var categoryOfSavedContent: BaseCategoryItem?
 
         public init() {
             self.pokit = .init()
@@ -78,6 +78,7 @@ public struct MainTabFeature {
             case 경고_띄움(BaseError)
             case errorSheetPresented(Bool)
             case 링크팝업_활성화(PokitLinkPopup.PopupType)
+            case 카테고리상세_이동(category: BaseCategoryItem)
         }
         public enum AsyncAction: Equatable {
             case 공유받은_카테고리_조회(categoryId: Int)
@@ -98,7 +99,7 @@ public struct MainTabFeature {
         switch action {
         case .binding(\.linkPopup):
             guard state.linkPopup == nil else { return .none }
-            state.savedContentId = nil
+            state.categoryOfSavedContent = nil
             return .none
         case .binding:
             return .none
@@ -183,15 +184,15 @@ private extension MainTabFeature {
                 }
             )
         case .onOpenURL(url: let url):
-            guard let components = URLComponents(url: url, resolvingAgainstBaseURL: false) else {
-                return .none
-            }
+            guard
+                let components = URLComponents(url: url, resolvingAgainstBaseURL: false)
+            else { return .none }
 
             let queryItems = components.queryItems ?? []
-            guard let categoryIdString = queryItems.first(where: { $0.name == "categoryId" })?.value,
-                  let categoryId = Int(categoryIdString) else {
-                return .none
-            }
+            guard
+                let categoryIdString = queryItems.first(where: { $0.name == "categoryId" })?.value,
+                let categoryId = Int(categoryIdString)
+            else { return .none }
 
             return .send(.async(.공유받은_카테고리_조회(categoryId: categoryId)))
         case .경고_확인버튼_클릭:
@@ -222,7 +223,14 @@ private extension MainTabFeature {
         case let .링크팝업_활성화(type):
             state.linkPopup = type
             return .none
-
+        case let .카테고리상세_이동(category):
+            if category.categoryName == "미분류" {
+                state.selectedTab = .pokit
+                state.path.removeAll()
+                return .send(.pokit(.delegate(.미분류_카테고리_활성화)))
+            }
+            state.path.append(.카테고리상세(.init(category: category)))
+            return .none
         default: return .none
         }
     }
@@ -259,9 +267,9 @@ private extension MainTabFeature {
             return .send(.delegate(.링크추가하기))
         case .success:
             state.linkPopup = nil
-            state.contentDetail = .init(contentId: state.savedContentId)
-            state.savedContentId = nil
-            return .none
+            guard let category = state.categoryOfSavedContent else { return .none }
+            state.categoryOfSavedContent = nil
+            return .send(.inner(.카테고리상세_이동(category: category)))
         case .error, .text, .warning, .none:
             return .none
         }

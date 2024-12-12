@@ -135,15 +135,15 @@ public struct PokitLinkCard<Item: PokitLinkCardItem>: View {
         let isUnCategorized = link.categoryName == "미분류"
         
         HStack(spacing: 6) {
-            if let isRead = link.isRead, !isRead {
-                PokitBadge(state: .unRead)
-            }
-            
             PokitBadge(
                 state: isUnCategorized
                 ? .unCategorized
                 : .default(link.categoryName)
             )
+            
+            if let isRead = link.isRead, !isRead {
+                PokitBadge(state: .unRead)
+            }
             
             if let memo = link.memo, !memo.isEmpty {
                 PokitBadge(state: .memo)
