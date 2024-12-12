@@ -106,10 +106,10 @@ struct ShareRootFeature {
     func handleAsyncAction(_ action: Action.AsyncAction, state: inout State) -> Effect<Action> {
         switch action {
         case .URL_파싱_수행:
-            guard let item = state.context?.inputItems.first as? NSExtensionItem,
-                  let itemProvider = item.attachments?.first else {
-                return .none
-            }
+            guard
+                let item = state.context?.inputItems.first as? NSExtensionItem,
+                let itemProvider = item.attachments?.first
+            else { return .none }
             
             return .run { send in
                 var urlItem: (any NSSecureCoding)? = nil

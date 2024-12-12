@@ -168,10 +168,10 @@ private extension ContentDetailFeature {
         case .binding:
             return .none
         case .즐겨찾기_버튼_눌렀을때:
-            guard let content = state.domain.content,
-                  let favorites = state.domain.content?.favorites else {
-                return .none
-            }
+            guard
+                let content = state.domain.content,
+                let favorites = state.domain.content?.favorites
+            else { return .none }
             return favorites
             ? .send(.async(.즐겨찾기_취소_API(id: content.id)))
             : .send(.async(.즐겨찾기_API(id: content.id)))

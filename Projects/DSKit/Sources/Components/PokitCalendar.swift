@@ -208,13 +208,13 @@ public struct PokitCalendar: View {
             let year = calendar.component(.year, from: date)
             let month = calendar.component(.month, from: date)
             
-            guard let range = calendar.range(
-                of: .day,
-                in: .month,
-                for: date
-            ) else {
-                return dates
-            }
+            guard
+                let range = calendar.range(
+                    of: .day,
+                    in: .month,
+                    for: date
+                )
+            else { return dates }
             
             dates = range.map { day in
                 var components = DateComponents()
@@ -255,13 +255,13 @@ public struct PokitCalendar: View {
                 return dates
             }
             
-            guard let monthRange = calendar.range(
-                of: .day,
-                in: .month,
-                for: monthDate
-            ) else {
-                return dates
-            }
+            guard
+                let monthRange = calendar.range(
+                    of: .day,
+                    in: .month,
+                    for: monthDate
+                )
+            else { return dates }
             
             let monthDays = Array(monthRange).suffix(firstWeekday - 1)
             
@@ -369,25 +369,24 @@ public struct PokitCalendar: View {
     }
     
     private func beforeButtonTapped() {
-        guard let date = calendar.date(
-            byAdding: .month,
-            value: -1,
-            to: currentDate
-        ) else {
-            return
-        }
+        guard
+            let date = calendar.date(
+                byAdding: .month,
+                value: -1,
+                to: currentDate
+            ) else { return }
         
         self.page = formatter.string(from: date)
     }
     
     private func nextButtonTapped() {
-        guard let date = calendar.date(
-            byAdding: .month,
-            value: 1,
-            to: currentDate
-        ) else {
-            return
-        }
+        guard
+            let date = calendar.date(
+                byAdding: .month,
+                value: 1,
+                to: currentDate
+            )
+        else { return }
         
         self.page = formatter.string(from: date)
     }

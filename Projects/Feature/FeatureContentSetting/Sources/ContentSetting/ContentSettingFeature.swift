@@ -263,8 +263,10 @@ private extension ContentSettingFeature {
             state.domain.thumbNail = imageURL
             return .send(.inner(.linkPreview), animation: .pokitDissolve)
         case .URL_유효성_확인:
-            guard let url = URL(string: state.domain.data),
-                  !state.domain.data.isEmpty else {
+            guard
+                let url = URL(string: state.domain.data),
+                !state.domain.data.isEmpty
+            else {
                 /// 🚨 Error Case [1]: 올바른 링크가 아닐 때
                 state.linkPopup = nil
                 state.linkTitle = nil
@@ -309,8 +311,16 @@ private extension ContentSettingFeature {
             /// - `카테고리_목록_조회`의 filter 옵션을 `false`로 해두었기 때문에 `미분류` 카테고리 또한 항목에서 조회가 가능함
 
             /// [1]. `미분류`에 해당하는 인덱스 번호와 항목을 체크, 없다면 목록갱신이 불가함
-            guard let unclassifiedItemIdx = categoryList.data?.firstIndex(where: { $0.categoryName == "미분류" }) else { return .none }
-            guard let unclassifiedItem = categoryList.data?.first(where: { $0.categoryName == "미분류" }) else { return .none }
+            guard
+                let unclassifiedItemIdx = categoryList.data?.firstIndex(where: {
+                    $0.categoryName == "미분류"
+                })
+            else { return .none }
+            guard
+                let unclassifiedItem = categoryList.data?.first(where: {
+                    $0.categoryName == "미분류"
+                })
+            else { return .none }
             
             /// [2]. 새로운 list변수를 만들어주고 카테고리 항목 순서를 재배치 (최신순 정렬 시  미분류는 항상 맨 마지막)
             var list = categoryList

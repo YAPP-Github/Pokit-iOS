@@ -44,16 +44,20 @@ public final class TokenInterceptor: RequestInterceptor {
         dueTo error: Error,
         completion: @escaping (RetryResult) -> Void
     ) {
-        guard let response = request.task?.response as? HTTPURLResponse,
-              response.statusCode == 401 else {
+        guard
+            let response = request.task?.response as? HTTPURLResponse,
+            response.statusCode == 401
+        else {
             completion(.doNotRetryWithError(error))
             return
         }
 
         print("🚀 Retry: statusCode: \(response.statusCode)")
 
-        guard keychain.read(.accessToken) != nil,
-              let refreshToken = keychain.read(.refreshToken) else {
+        guard
+            keychain.read(.accessToken) != nil,
+            let refreshToken = keychain.read(.refreshToken)
+        else {
             deleteAllToken()
             completion(.doNotRetryWithError(error))
             return

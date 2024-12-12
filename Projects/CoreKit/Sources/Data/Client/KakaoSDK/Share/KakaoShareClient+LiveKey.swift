@@ -45,14 +45,16 @@ extension KakaoShareClient: DependencyKey {
                     buttons: [button]
                 )
                 
-                guard ShareApi.isKakaoTalkSharingAvailable(),
-                      let templateJsonData = try? SdkJSONEncoder.custom.encode(template),
-                      let templateJsonObject = SdkUtils.toJsonObject(templateJsonData) else {
+                guard
+                    ShareApi.isKakaoTalkSharingAvailable(),
+                    let templateJsonData = try? SdkJSONEncoder.custom.encode(template),
+                    let templateJsonObject = SdkUtils.toJsonObject(templateJsonData)
+                else {
                     /// 🚨 Error Case [1]: 카카오톡 미설치
-                    guard let url = URL(string: "itms-apps://itunes.apple.com/app/id362057947"),
-                          UIApplication.shared.canOpenURL(url) else {
-                        return
-                    }
+                    guard
+                        let url = URL(string: "itms-apps://itunes.apple.com/app/id362057947"),
+                        UIApplication.shared.canOpenURL(url)
+                    else { return }
                     
                     UIApplication.shared.open(url, options: [:], completionHandler: nil)
                     return

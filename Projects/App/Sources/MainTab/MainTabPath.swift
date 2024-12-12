@@ -141,8 +141,10 @@ public extension MainTabFeature {
             case .contentDetail(.presented(.delegate(.즐겨찾기_갱신_완료))),
                  .contentDetail(.presented(.delegate(.컨텐츠_조회_완료))),
                  .contentDetail(.presented(.delegate(.컨텐츠_삭제_완료))):
-                guard let stackElementId = state.path.ids.last,
-                      let lastPath = state.path.last else {
+                guard
+                    let stackElementId = state.path.ids.last,
+                    let lastPath = state.path.last
+                else {
                     switch state.selectedTab {
                     case .pokit:
                         return .send(.pokit(.delegate(.미분류_카테고리_컨텐츠_조회)))

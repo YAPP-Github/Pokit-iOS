@@ -184,15 +184,15 @@ private extension MainTabFeature {
                 }
             )
         case .onOpenURL(url: let url):
-            guard let components = URLComponents(url: url, resolvingAgainstBaseURL: false) else {
-                return .none
-            }
+            guard
+                let components = URLComponents(url: url, resolvingAgainstBaseURL: false)
+            else { return .none }
 
             let queryItems = components.queryItems ?? []
-            guard let categoryIdString = queryItems.first(where: { $0.name == "categoryId" })?.value,
-                  let categoryId = Int(categoryIdString) else {
-                return .none
-            }
+            guard
+                let categoryIdString = queryItems.first(where: { $0.name == "categoryId" })?.value,
+                let categoryId = Int(categoryIdString)
+            else { return .none }
 
             return .send(.async(.공유받은_카테고리_조회(categoryId: categoryId)))
         case .경고_확인버튼_클릭:

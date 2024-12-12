@@ -60,7 +60,8 @@ public struct AppDelegateFeature {
                             let setting = await self.userNotifications.getNotificationSettings()
                             switch setting.authorizationStatus {
                             case .authorized, .notDetermined:
-                                guard try await self.userNotifications.requestAuthorization([.alert, .sound])
+                                guard
+                                    try await self.userNotifications.requestAuthorization([.alert, .sound])
                                 else { return }
                             default: return
                             }

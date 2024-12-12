@@ -315,9 +315,11 @@ private extension PokitRootFeature {
             return .none
             
         case let .미분류_카테고리_컨텐츠_삭제_API_반영(contentId: contentId):
-            guard let index = state.domain.unclassifiedContentList.data?.firstIndex(where: { $0.id == contentId }) else {
-                return .none
-            }
+            guard
+                let index = state.domain.unclassifiedContentList.data?.firstIndex(where: {
+                    $0.id == contentId
+                })
+            else { return .none }
             state.domain.unclassifiedContentList.data?.remove(at: index)
             state.contents.removeAll { $0.content.id == contentId }
             state.isPokitDeleteSheetPresented = false
