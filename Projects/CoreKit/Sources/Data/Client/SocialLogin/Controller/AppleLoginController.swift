@@ -33,22 +33,28 @@ public final class AppleLoginController: NSObject, ASAuthorizationControllerDele
         controller: ASAuthorizationController,
         didCompleteWithAuthorization authorization: ASAuthorization
     ) {
-        guard let credential = authorization.credential as? ASAuthorizationAppleIDCredential else {
+        guard
+            let credential = authorization.credential as? ASAuthorizationAppleIDCredential
+        else {
             continuation?.resume(throwing: SocialLoginError.invalidCredential)
             continuation = nil
             return
         }
         
         
-        guard let tokenData = credential.identityToken,
-              let token = String(data: tokenData, encoding: .utf8) else {
+        guard
+            let tokenData = credential.identityToken,
+            let token = String(data: tokenData, encoding: .utf8)
+        else {
             continuation?.resume(throwing: SocialLoginError.appleLoginError(.invalidIdentityToken))
             continuation = nil
             return
         }
         
-        guard let authorizationCode = credential.authorizationCode,
-              let codeString = String(data: authorizationCode, encoding: .utf8) else {
+        guard
+            let authorizationCode = credential.authorizationCode,
+            let codeString = String(data: authorizationCode, encoding: .utf8)
+        else {
             continuation?.resume(throwing: SocialLoginError.appleLoginError(.invalidAuthorizationCode))
             continuation = nil
             return

@@ -15,6 +15,8 @@ public struct PokitTextInput<Value: Hashable>: View {
     
     private var focusState: FocusState<Value>.Binding
     
+    private let type: PokitInputStyle.InputType
+    private let shape: PokitInputStyle.Shape
     private let equals: Value
     private let label: String?
     private let placeholder: String
@@ -25,6 +27,8 @@ public struct PokitTextInput<Value: Hashable>: View {
     public init(
         text: Binding<String>,
         label: String? = nil,
+        type: PokitInputStyle.InputType = .text,
+        shape: PokitInputStyle.Shape,
         state: Binding<PokitInputStyle.State>,
         placeholder: String = "내용을 입력해주세요.",
         info: String? = nil,
@@ -35,6 +39,8 @@ public struct PokitTextInput<Value: Hashable>: View {
     ) {
         self._text = text
         self.label = label
+        self.type = type
+        self.shape = shape
         self._state = state
         self.focusState = focusState
         self.equals = equals
@@ -51,7 +57,26 @@ public struct PokitTextInput<Value: Hashable>: View {
                     .padding(.bottom, 8)
             }
             
-            textField
+            HStack(spacing: 8) {
+                if case let .iconL(icon, action) = type {
+                    iconButton(icon: icon, action: action)
+                        .pokitBlurReplaceTransition(.pokitDissolve)
+                }
+                
+                textField
+                
+                if case let .iconR(icon, action) = type {
+                    iconButton(icon: icon, action: action)
+                        .pokitBlurReplaceTransition(.pokitDissolve)
+                }
+            }
+            .padding(.vertical, vPadding)
+            .padding(.leading, lPadding)
+            .padding(.trailing, tPadding)
+            .background(
+                state: self.state,
+                shape: self.shape
+            )
             
             infoLabel
         }
@@ -69,12 +94,6 @@ public struct PokitTextInput<Value: Hashable>: View {
         .focused(focusState, equals: equals)
         .pokitFont(.b3(.m))
         .foregroundStyle(.pokit(.text(.secondary)))
-        .padding(.vertical, 16)
-        .padding(.horizontal, 12)
-        .background(
-            state: self.state,
-            shape: .rectangle
-        )
         .disabled(state == .disable || state == .readOnly)
         .onSubmit {
             onSubmit?()
@@ -129,6 +148,61 @@ public struct PokitTextInput<Value: Hashable>: View {
             }
         }
         .padding(.top, 4)
+    }
+    
+    @ViewBuilder
+    private func iconButton(
+        icon: PokitImage,
+        action: (() -> Void)?
+    ) -> some View {
+        Button {
+            if let action {
+                action()
+            } else {
+                onSubmit?()
+            }
+        } label: {
+            Image(icon)
+                .resizable()
+                .frame(width: 24, height: 24)
+                .foregroundStyle(state.iconColor)
+                .animation(.pokitDissolve, value: self.state)
+        }
+    }
+    
+    private var vPadding: CGFloat {
+        switch type {
+        case .text: return 16
+        case .iconR, .iconL:
+            switch shape {
+            case .rectangle: return 13
+            case .round: return 8
+            }
+        }
+    }
+    
+    private var tPadding: CGFloat {
+        switch type {
+        case .text: return 12
+        case .iconR:
+            switch shape {
+            case .rectangle: return 12
+            case .round: return 20
+            }
+        case .iconL: return 13
+        }
+    }
+    
+    private var lPadding: CGFloat {
+        switch type {
+        case .text: return 12
+        case .iconL:
+            switch shape {
+            case .rectangle: return 12
+            case .round: return 20
+            }
+        case .iconR: return 13
+        }
     }
     
     private func onChangedText(_ newValue: String) {

@@ -51,28 +51,6 @@ public extension PokitSearchView {
             ) { store in
                 FilterBottomSheet(store: store)
             }
-            .sheet(item: $store.bottomSheetItem) { content in
-                PokitBottomSheet(
-                    items: [.share, .edit, .delete],
-                    height: 224
-                ) { send(.bottomSheet(delegate: $0, content: content)) }
-            }
-            .sheet(item: $store.shareSheetItem) { content in
-                if let shareURL = URL(string: content.data) {
-                    PokitShareSheet(
-                        items: [shareURL],
-                        completion: { send(.링크_공유_완료되었을때) }
-                    )
-                    .presentationDetents([.medium, .large])
-                }
-            }
-            .sheet(item: $store.alertItem) { content in
-                PokitAlert(
-                    "링크를 정말 삭제하시겠습니까?",
-                    message: "함께 저장한 모든 정보가 삭제되며, \n복구하실 수 없습니다.",
-                    confirmText: "삭제"
-                ) { send(.링크_삭제_눌렀을때) }
-            }
             .task { await send(.뷰가_나타났을때).finish() }
         }
     }
@@ -86,15 +64,18 @@ private extension PokitSearchView {
                 action: { send(.dismiss) }
             )
             
-            PokitIconRInput(
+            PokitTextInput(
                 text: $store.searchText,
-                icon: store.isSearching ? .icon(.x) : .icon(.search),
-                placeholder: "제목, 메모를 검색해보세요.",
+                type: .iconR(
+                    icon: store.isSearching ? .icon(.x) : .icon(.search),
+                    action: store.isSearching ? { send(.검색_버튼_눌렀을때) } : nil
+                ),
                 shape: .round,
+                state: .constant(.default),
+                placeholder: "제목, 메모를 검색해보세요.",
                 focusState: $focused,
                 equals: true,
-                onSubmit: { send(.검색_키보드_엔터_눌렀을때) },
-                iconTappedAction: store.isSearching ? { send(.검색_버튼_눌렀을때) } : nil
+                onSubmit: { send(.검색_키보드_엔터_눌렀을때) }
             )
         }
         .padding(.vertical, 8)
@@ -296,13 +277,14 @@ private extension PokitSearchView {
                 ScrollView {
                     LazyVStack(spacing: 0) {
                         ForEach(
-                            store.scope(state: \.contents, action: \.contents)
+                            Array(store.scope(state: \.contents, action: \.contents))
                         ) { store in
                             let isFirst = store.state.id == self.store.contents.first?.id
                             let isLast = store.state.id == self.store.contents.last?.id
                             
                             ContentCardView(
                                 store: store,
+                                type: .linkList,
                                 isFirst: isFirst,
                                 isLast: isLast
                             )

@@ -9,11 +9,11 @@ import SwiftUI
 import Combine
 
 public struct PokitLinkPopup: View {
-    @Binding private var isPresented: Bool
+    @Binding
+    private var type: PokitLinkPopup.PopupType?
     
-    @State private var second: Int = 0
-    private let titleKey: String
-    private let type: PokitLinkPopup.PopupType
+    @State
+    private var second: Int = 0
     private let action: (() -> Void)?
     private let timer = Timer.publish(
         every: 1,
@@ -22,14 +22,10 @@ public struct PokitLinkPopup: View {
     ).autoconnect()
     
     public init(
-        _ titleKey: String,
-        isPresented: Binding<Bool>,
-        type: PokitLinkPopup.PopupType,
+        type: Binding<PokitLinkPopup.PopupType?>,
         action: (() -> Void)? = nil
     ) {
-        self.titleKey = titleKey
-        self._isPresented = isPresented
-        self.type = type
+        self._type = type
         self.action = action
     }
     
@@ -37,45 +33,47 @@ public struct PokitLinkPopup: View {
         ZStack {
             background
             
-            Group {
-                switch self.type {
-                case let .link(url):
-                    linkPopup(url)
-                case .text:
-                    textPopup
-                }
-            }
+            popup
             .padding(.vertical, 12)
             .padding(.horizontal, 20)
         }
         .frame(width: 335, height: 60)
         .transition(.move(edge: .bottom).combined(with: .opacity))
         .onReceive(timer) { _ in
-            guard second < 2 && isPresented else {
+            guard second < 2 else {
                 closedPopup()
                 return
             }
             second += 1
         }
+        .onAppear(perform: feedback)
     }
     
-    @ViewBuilder
-    private func linkPopup(_ url: String) -> some View {
-        HStack {
+    private var popup: some View {
+        HStack(spacing: 0) {
             Button {
                 action?()
             } label: {
                 VStack(alignment: .leading, spacing: 0) {
-                    Text(titleKey)
-                        .lineLimit(1)
+                    Text(title)
+                        .lineLimit(2)
                         .pokitFont(.b2(.b))
                         .multilineTextAlignment(.leading)
-                        .foregroundStyle(.pokit(.text(.inverseWh)))
+                        .foregroundStyle(textColor)
                     
-                    Text(url)
-                        .lineLimit(1)
-                        .pokitFont(.detail2)
-                        .foregroundStyle(.pokit(.text(.inverseWh)))
+                    if case let .link(_, url) = type {
+                        Text(url)
+                            .lineLimit(1)
+                            .pokitFont(.detail2)
+                            .foregroundStyle(.pokit(.text(.inverseWh)))
+                    }
+                }
+                
+                if case .success = type {
+                    Image(.icon(.check))
+                        .resizable()
+                        .frame(width: 24, height: 24)
+                        .foregroundStyle(.pokit(.icon(.inverseWh)))
                 }
                 
                 Spacer(minLength: 72)
@@ -85,27 +83,9 @@ public struct PokitLinkPopup: View {
         }
     }
     
-    private var textPopup: some View {
-        HStack {
-            Button {
-                action?()
-            } label: {
-                Text(titleKey)
-                    .lineLimit(2)
-                    .pokitFont(.b3(.b))
-                    .multilineTextAlignment(.leading)
-                    .foregroundStyle(.pokit(.text(.inverseWh)))
-                
-                Spacer(minLength: 54)
-            }
-            
-            closeButton
-        }
-    }
-    
     private var background: some View {
         RoundedRectangle(cornerRadius: 9999, style: .continuous)
-            .fill(.pokit(.bg(.tertiary)))
+            .fill(backgroundColor)
     }
     
     private var closeButton: some View {
@@ -113,37 +93,110 @@ public struct PokitLinkPopup: View {
             Image(.icon(.x))
                 .resizable()
                 .frame(width: 24, height: 24)
-                .foregroundStyle(.pokit(.icon(.inverseWh)))
+                .foregroundStyle(iconColor)
         }
     }
     
     private func closedPopup() {
         withAnimation(.pokitSpring) {
+            type = nil
             second = 0
-            isPresented = false
+        }
+    }
+    
+    private func feedback() {
+        switch type {
+        case .link, .text, .warning:
+            UINotificationFeedbackGenerator()
+                .notificationOccurred(.warning)
+        case .success:
+            UINotificationFeedbackGenerator()
+                .notificationOccurred(.success)
+        case .error:
+            UINotificationFeedbackGenerator()
+                .notificationOccurred(.error)
+        case .none: break
+        }
+    }
+    
+    private var backgroundColor: Color {
+        switch type {
+        case .link, .text:
+            return .pokit(.bg(.tertiary))
+        case .success:
+            return .pokit(.bg(.success))
+        case .error:
+            return .pokit(.bg(.error))
+        case .warning:
+            return .pokit(.bg(.warning))
+        case .none: return .clear
+        }
+    }
+    
+    private var iconColor: Color {
+        switch type {
+        case .warning:
+            return .pokit(.icon(.primary))
+        default:
+            return .pokit(.icon(.inverseWh))
+        }
+    }
+    
+    private var textColor: Color {
+        switch type {
+        case .warning:
+            return .pokit(.text(.primary))
+        default:
+            return .pokit(.text(.inverseWh))
+        }
+    }
+    
+    private var title: String {
+        switch type {
+        case let .link(title, _),
+             let .text(title),
+             let .success(title),
+             let .error(title),
+             let .warning(title):
+            return title
+        default: return ""
         }
     }
 }
 
 public extension PokitLinkPopup {
-    enum PopupType {
-        case link(url: String)
-        case text
+    enum PopupType: Equatable {
+        case link(title: String, url: String)
+        case text(title: String)
+        case success(title: String)
+        case error(title: String)
+        case warning(title: String)
     }
 }
 
 #Preview {
     VStack {
         PokitLinkPopup(
-            "복사한 링크 저장하기",
-            isPresented: .constant(true),
-            type: .link(url: "https://www.youtube.com/watch?v=xSTwqKUyM8k")
+            type: .constant(.link(
+                title: "복사한 링크 저장하기",
+                url: "https://www.youtube.com/watch?v=xSTwqKUyM8k"
+            ))
         )
         
         PokitLinkPopup(
-            "최대 30개의 포킷을 생성할 수 있습니다.\n포킷을 삭제한 뒤에 추가해주세요.",
-            isPresented: .constant(true),
-            type: .text
+            type: .constant(.text(title: "최대 30개의 포킷을 생성할 수 있습니다.\n포킷을 삭제한 뒤에 추가해주세요."))
+        )
+        
+        PokitLinkPopup(
+            type: .constant(.success(title: "링크저장 완료"))
+        )
+        
+        PokitLinkPopup(
+            type: .constant(.error(title: "링크저장 실패"))
+        )
+        
+        PokitLinkPopup(
+            type: .constant(.warning(title: "저장공간 부족"))
         )
     }
 }

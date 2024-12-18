@@ -50,8 +50,8 @@ public struct PokitIconRButton: View {
                 .frame(width: self.size.iconSize.width, height: self.size.iconSize.height)
                 .foregroundStyle(self.state.iconColor)
         }
-        .padding(.leading, self.lPadding)
-        .padding(.trailing, self.tPadding)
+        .padding(.leading, self.size.hPadding + 4)
+        .padding(.trailing, self.size.hPadding)
         .padding(.vertical, self.size.vPadding)
         .background {
             RoundedRectangle(cornerRadius: shape.radius(size: self.size), style: .continuous)
@@ -61,27 +61,6 @@ public struct PokitIconRButton: View {
                         .stroke(self.state.backgroundStrokeColor, lineWidth: 1)
                 }
         }
-    }
-    
-    private var tPadding: CGFloat {
-        switch self.size {
-        case .small:
-            return 8
-        case .medium:
-            return 16
-        case .large:
-            return 20
-        }
-    }
-    
-    private var lPadding: CGFloat {
-        switch self.size {
-        case .small:
-            return 12
-        case .medium:
-            return 20
-        case .large:
-            return 24
-        }
+        .frame(minWidth: self.size.minWidth)
     }
 }

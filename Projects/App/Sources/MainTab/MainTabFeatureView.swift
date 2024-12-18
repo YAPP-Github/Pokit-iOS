@@ -73,12 +73,10 @@ public extension MainTabView {
                             }
                         }
                         
-                        if self.store.isLinkSheetPresented {
+                        if self.store.linkPopup != nil {
                             PokitLinkPopup(
-                                "복사한 링크 저장하기",
-                                isPresented: $store.isLinkSheetPresented,
-                                type: .link(url: self.store.link ?? ""),
-                                action: { send(.linkCopyButtonTapped) }
+                                type: $store.linkPopup,
+                                action: { send(.링크팝업_버튼_눌렀을때, animation: .pokitSpring) }
                             )
                         }
                     }
@@ -94,12 +92,10 @@ private extension MainTabView {
         tabView
             .overlay(alignment: .bottom) {
                 VStack(spacing: 0) {
-                    if store.isLinkSheetPresented {
+                    if store.linkPopup != nil {
                         PokitLinkPopup(
-                            "복사한 링크 저장하기",
-                            isPresented: $store.isLinkSheetPresented,
-                            type: .link(url: store.link ?? ""),
-                            action: { send(.linkCopyButtonTapped) }
+                            type: $store.linkPopup,
+                            action: { send(.링크팝업_버튼_눌렀을때, animation: .pokitSpring) }
                         )
                         .padding(.bottom, 20)
                     }
@@ -265,7 +261,8 @@ private extension MainTabView {
         }
         .padding(.horizontal, 28)
         .onTapGesture {
-            UIImpactFeedbackGenerator(style: .rigid).impactOccurred()
+            UIImpactFeedbackGenerator(style: .light)
+                .impactOccurred()
             store.send(.binding(.set(\.selectedTab, tab)))
         }
     }

@@ -144,7 +144,7 @@ public extension Color {
         case .bg(let bg):
             switch bg {
             case .base:      return .pokitColor(.grayScale(.white))
-            case .baseIcon:  return Color(hue: 0, saturation: 0, brightness: 85, opacity: 0.6)
+            case .baseIcon:  return Color(red: 0.85, green: 0.85, blue: 0.85).opacity(0.6)
             case .brand:     return .pokitColor(.orange(._700))
             case .disable:   return .pokitColor(.grayScale(._200))
             case .error:     return .pokitColor(.red(._500))

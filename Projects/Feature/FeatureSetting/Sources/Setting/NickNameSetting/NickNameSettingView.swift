@@ -8,6 +8,7 @@ import SwiftUI
 
 import ComposableArchitecture
 import DSKit
+import Util
 
 @ViewAction(for: NickNameSettingFeature.self)
 public struct NickNameSettingView: View {
@@ -31,8 +32,13 @@ public extension NickNameSettingView {
                 } else {
                     PokitTextInput(
                         text: $store.text,
+                        type: store.text.isEmpty ? .text : .iconR(
+                            icon: .icon(.x),
+                            action: { send(.닉네임지우기_버튼_눌렀을때) }
+                        ),
+                        shape: .rectangle,
                         state: $store.textfieldState,
-                        info: "한글, 영어, 숫자로만 입력이 가능합니다.",
+                        info: Constants.한글_영어_숫자_입력_문구,
                         maxLetter: 10,
                         focusState: $isFocused,
                         equals: true

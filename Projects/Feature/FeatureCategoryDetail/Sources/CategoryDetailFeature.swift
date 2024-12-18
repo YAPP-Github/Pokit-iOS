@@ -53,9 +53,6 @@ public struct CategoryDetailFeature {
             return identifiedArray
         }
         var contents: IdentifiedArrayOf<ContentCardFeature.State> = []
-        var kebobSelectedType: PokitDeleteBottomSheet.SheetType?
-        var selectedContentItem: BaseContentItem?
-        var shareSheetItem: BaseContentItem? = nil
         /// sheet Presented
         var isCategorySheetPresented: Bool = false
         var isCategorySelectSheetPresented: Bool = false
@@ -86,13 +83,11 @@ public struct CategoryDetailFeature {
             case binding(BindingAction<State>)
             case dismiss
             case pagenation
-            case 카테고리_케밥_버튼_눌렀을때(PokitDeleteBottomSheet.SheetType, selectedItem: BaseContentItem?)
+            case 카테고리_케밥_버튼_눌렀을때
             case 카테고리_선택_버튼_눌렀을때
             case 카테고리_선택했을때(BaseCategoryItem)
             case 필터_버튼_눌렀을때
-            case 컨텐츠_항목_눌렀을때(BaseContentItem)
             case 뷰가_나타났을때
-            case 링크_공유_완료되었을때
         }
         
         public enum InnerAction: Equatable {
@@ -102,7 +97,6 @@ public struct CategoryDetailFeature {
             
             case 카테고리_목록_조회_API_반영(BaseCategoryListInquiry)
             case 카테고리_내_컨텐츠_목록_조회_API_반영(BaseContentListInquiry)
-            case 컨텐츠_삭제_API_반영(id: Int)
             case pagenation_API_반영(BaseContentListInquiry)
             case pagenation_초기화
         }
@@ -110,7 +104,6 @@ public struct CategoryDetailFeature {
         public enum AsyncAction: Equatable {
             case 카테고리_내_컨텐츠_목록_조회_API
             case 카테고리_목록_조회_API
-            case 컨텐츠_삭제_API(id: Int)
             case 페이징_재조회
             case 클립보드_감지
         }
@@ -181,9 +174,7 @@ private extension CategoryDetailFeature {
         case .binding:
             return .none
             
-        case let .카테고리_케밥_버튼_눌렀을때(selectedType, selectedItem):
-            state.kebobSelectedType = selectedType
-            state.selectedContentItem = selectedItem
+        case .카테고리_케밥_버튼_눌렀을때:
             return .run { send in await send(.inner(.카테고리_시트_활성화(true))) }
         
         case .카테고리_선택_버튼_눌렀을때:
@@ -201,9 +192,6 @@ private extension CategoryDetailFeature {
             state.isFilterSheetPresented.toggle()
             return .none
             
-        case .컨텐츠_항목_눌렀을때(let selectedItem):
-            return .run { send in await send(.delegate(.contentItemTapped(selectedItem))) }
-            
         case .dismiss:
             return .run { _ in await dismiss() }
             
@@ -217,10 +205,6 @@ private extension CategoryDetailFeature {
         case .pagenation:
             state.domain.pageable.page += 1
             return .send(.async(.카테고리_내_컨텐츠_목록_조회_API))
-
-        case .링크_공유_완료되었을때:
-            state.shareSheetItem = nil
-            return .none
         }
     }
     
@@ -241,9 +225,11 @@ private extension CategoryDetailFeature {
             
         case let .카테고리_목록_조회_API_반영(response):
             state.domain.categoryListInQuiry = response
-            guard let first = response.data?.first(where: { item in
-                item.id == state.domain.category.id
-            }) else { return .none }
+            guard
+                let first = response.data?.first(where: { item in
+                    item.id == state.domain.category.id
+                })
+            else { return .none }
             state.domain.category = first
             return .none
             
@@ -257,14 +243,6 @@ private extension CategoryDetailFeature {
             state.isLoading = false
             return .none
             
-        case let .컨텐츠_삭제_API_반영(id):
-            state.domain.contentList.data?.removeAll { $0.id == id }
-            state.contents.removeAll { $0.content.id == id }
-            state.domain.category.contentCount -= 1
-            state.selectedContentItem = nil
-            state.isPokitDeleteSheetPresented = false
-            state.kebobSelectedType = nil
-            return .none
         case .pagenation_API_반영(let contentList):
             let list = state.domain.contentList.data ?? []
             guard let newList = contentList.data else { return .none }
@@ -311,12 +289,6 @@ private extension CategoryDetailFeature {
                 pageable.page == 0
                 ? await send(.inner(.카테고리_내_컨텐츠_목록_조회_API_반영(contentList)), animation: .pokitDissolve)
                 : await send(.inner(.pagenation_API_반영(contentList)))
-            }
-            
-        case let .컨텐츠_삭제_API(contentId):
-            return .run { send in
-                let _ = try await contentClient.컨텐츠_삭제("\(contentId)")
-                await send(.inner(.컨텐츠_삭제_API_반영(id: contentId)), animation: .pokitSpring)
             }
             
         case .페이징_재조회:
@@ -376,41 +348,20 @@ private extension CategoryDetailFeature {
         case .categoryBottomSheet(let delegateAction):
             switch delegateAction {
             case .shareCellButtonTapped:
-                switch state.kebobSelectedType {
-                case .링크삭제:
-                    state.shareSheetItem = state.selectedContentItem
-                case .포킷삭제:
-                    kakaoShareClient.카테고리_카카오톡_공유(
-                        CategoryKaKaoShareModel(
-                            categoryName: state.domain.category.categoryName,
-                            categoryId: state.domain.category.id,
-                            imageURL: state.domain.category.categoryImage.imageURL
-                        )
+                kakaoShareClient.카테고리_카카오톡_공유(
+                    CategoryKaKaoShareModel(
+                        categoryName: state.domain.category.categoryName,
+                        categoryId: state.domain.category.id,
+                        imageURL: state.domain.category.categoryImage.imageURL
                     )
-                default: return .none
-                }
-                
+                )
                 state.isCategorySheetPresented = false
                 return .none
-                
             case .editCellButtonTapped:
-                return .run { [
-                    content = state.selectedContentItem,
-                    type = state.kebobSelectedType,
-                    category = state.category
-                ] send in
-                    guard let type else { return }
-                    switch type {
-                    case .링크삭제:
-                        guard let content else { return }
-                        await send(.inner(.카테고리_시트_활성화(false)))
-                        await send(.delegate(.링크수정(contentId: content.id)))
-                    case .포킷삭제:
-                        await send(.inner(.카테고리_시트_활성화(false)))
-                        await send(.delegate(.포킷수정(category)))
-                    }
+                return .run { [category = state.category] send in
+                    await send(.inner(.카테고리_시트_활성화(false)))
+                    await send(.delegate(.포킷수정(category)))
                 }
-                
             case .deleteCellButtonTapped:
                 return .run { send in
                     await send(.inner(.카테고리_시트_활성화(false)))
@@ -426,27 +377,11 @@ private extension CategoryDetailFeature {
                 return .run { send in await send(.inner(.카테고리_삭제_시트_활성화(false))) }
                 
             case .deleteButtonTapped:
-                guard let selectedType = state.kebobSelectedType else {
-                    /// 🚨 Error Case [1]: 해당 타입의 항목을 삭제하려는데 선택한 `타입`이 없을 때
-                    state.isPokitDeleteSheetPresented = false
-                    return .none
-                }
-                switch selectedType {
-                case .링크삭제:
-                    guard let selectedItem = state.selectedContentItem else {
-                    /// 🚨 Error Case [1]: 링크 타입의 항목을 삭제하려는데 선택한 `링크항목`이 없을 때
-                        state.isPokitDeleteSheetPresented = false
-                        return .none
-                    }
-                    return .send(.async(.컨텐츠_삭제_API(id: selectedItem.id)))
-                case .포킷삭제:
-                    state.isPokitDeleteSheetPresented = false
-                    state.kebobSelectedType = nil
-                    return .run { [categoryId = state.domain.category.id] send in
-                        await send(.inner(.카테고리_삭제_시트_활성화(false)))
-                        await send(.delegate(.포킷삭제))
-                        try await categoryClient.카테고리_삭제(categoryId)
-                    }
+                state.isPokitDeleteSheetPresented = false
+                return .run { [categoryId = state.domain.category.id] send in
+                    await send(.inner(.카테고리_삭제_시트_활성화(false)))
+                    await send(.delegate(.포킷삭제))
+                    try await categoryClient.카테고리_삭제(categoryId)
                 }
             }
         /// - 필터 버튼을 눌렀을 때
@@ -469,12 +404,8 @@ private extension CategoryDetailFeature {
                 )
             }
             
-        case let .contents(.element(id: _, action: .delegate(.컨텐츠_항목_눌렀을때(content)))):
-            return .send(.delegate(.contentItemTapped(content)))
         case let .contents(.element(id: _, action: .delegate(.컨텐츠_항목_케밥_버튼_눌렀을때(content)))):
-            state.kebobSelectedType = .링크삭제
-            state.selectedContentItem = content
-            return .send(.inner(.카테고리_시트_활성화(true)))
+            return .send(.delegate(.contentItemTapped(content)))
         case .contents:
             return .none
         }

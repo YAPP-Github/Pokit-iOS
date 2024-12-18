@@ -4,11 +4,12 @@
 //
 //  Created by 김도형 on 11/17/24.
 
-import Foundation
+import SwiftUI
 
 import ComposableArchitecture
 import Domain
 import CoreKit
+import DSKit
 import Util
 
 @Reducer
@@ -16,6 +17,10 @@ public struct ContentCardFeature {
     /// - Dependency
     @Dependency(SwiftSoupClient.self)
     private var swiftSoupClient
+    @Dependency(\.openURL)
+    private var openURL
+    @Dependency(ContentClient.self)
+    private var contentClient
     /// - State
     @ObservableState
     public struct State: Equatable, Identifiable {
@@ -39,21 +44,25 @@ public struct ContentCardFeature {
         public enum View: Equatable {
             case 컨텐츠_항목_눌렀을때
             case 컨텐츠_항목_케밥_버튼_눌렀을때
+            case 즐겨찾기_버튼_눌렀을때
             case 메타데이터_조회
         }
         
         public enum InnerAction: Equatable {
             case 메타데이터_조회_수행_반영(String)
+            case 즐겨찾기_API_반영(Bool)
         }
         
         public enum AsyncAction: Equatable {
             case 메타데이터_조회_수행
+            case 즐겨찾기_API
+            case 즐겨찾기_취소_API
+            case 썸네일_수정_API
         }
         
         public enum ScopeAction: Equatable { case doNothing }
         
         public enum DelegateAction: Equatable {
-            case 컨텐츠_항목_눌렀을때(content: BaseContentItem)
             case 컨텐츠_항목_케밥_버튼_눌렀을때(content: BaseContentItem)
         }
     }
@@ -97,11 +106,23 @@ private extension ContentCardFeature {
     func handleViewAction(_ action: Action.View, state: inout State) -> Effect<Action> {
         switch action {
         case .컨텐츠_항목_눌렀을때:
-            return .send(.delegate(.컨텐츠_항목_눌렀을때(content: state.content)))
+            guard let url = URL(string: state.content.data) else {
+                return .none
+            }
+            return .run {  _ in await openURL(url) }
         case .컨텐츠_항목_케밥_버튼_눌렀을때:
             return .send(.delegate(.컨텐츠_항목_케밥_버튼_눌렀을때(content: state.content)))
         case .메타데이터_조회:
             return .send(.async(.메타데이터_조회_수행))
+        case .즐겨찾기_버튼_눌렀을때:
+            guard let isFavorite = state.content.isFavorite else {
+                return .none
+            }
+            UIImpactFeedbackGenerator(style: .light)
+                .impactOccurred()
+            return isFavorite
+            ? .send(.async(.즐겨찾기_취소_API))
+            : .send(.async(.즐겨찾기_API))
         }
     }
     
@@ -110,6 +131,9 @@ private extension ContentCardFeature {
         switch action {
         case let .메타데이터_조회_수행_반영(imageURL):
             state.content.thumbNail = imageURL
+            return .send(.async(.썸네일_수정_API))
+        case .즐겨찾기_API_반영(let favorite):
+            state.content.isFavorite = favorite
             return .none
         }
     }
@@ -125,6 +149,25 @@ private extension ContentCardFeature {
                 let imageURL = try await swiftSoupClient.parseOGImageURL(url)
                 guard let imageURL else { return }
                 await send(.inner(.메타데이터_조회_수행_반영(imageURL)))
+            }
+        case .즐겨찾기_API:
+            return .run { [id = state.content.id] send in
+                let _ = try await contentClient.즐겨찾기("\(id)")
+                await send(.inner(.즐겨찾기_API_반영(true)), animation: .pokitDissolve)
+            }
+        case .즐겨찾기_취소_API:
+            return .run { [id = state.content.id] send in
+                try await contentClient.즐겨찾기_취소("\(id)")
+                await send(.inner(.즐겨찾기_API_반영(false)), animation: .pokitDissolve)
+            }
+        case .썸네일_수정_API:
+            return .run { [content = state.content] _ in
+                let request = ThumbnailRequest(thumbnail: content.thumbNail)
+                
+                try await contentClient.썸네일_수정(
+                    contentId: "\(content.id)",
+                    model: request
+                )
             }
         }
     }

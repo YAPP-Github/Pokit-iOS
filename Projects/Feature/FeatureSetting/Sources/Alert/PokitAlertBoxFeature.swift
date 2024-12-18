@@ -146,7 +146,11 @@ private extension PokitAlertBoxFeature {
             return .none
             
         case let .알람_삭제_API_반영(item):
-            guard let idx = state.domain.alertList.data?.firstIndex(where: { $0 == item }) else { return .none }
+            guard
+                let idx = state.domain.alertList.data?.firstIndex(where: {
+                    $0 == item
+                })
+            else { return .none }
             state.domain.alertList.data?.remove(at: idx)
             return .none
         }

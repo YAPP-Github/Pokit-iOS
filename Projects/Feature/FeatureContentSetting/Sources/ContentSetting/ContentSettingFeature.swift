@@ -50,10 +50,6 @@ public struct ContentSettingFeature {
             get { domain.memo }
             set { domain.memo = newValue }
         }
-        var isRemind: BaseContentDetail.RemindState {
-            get { domain.alertYn }
-            set { domain.alertYn = newValue }
-        }
         var content: BaseContentDetail? {
             get { domain.content }
         }
@@ -68,8 +64,7 @@ public struct ContentSettingFeature {
         var selectedPokit: BaseCategoryItem?
         var linkTitle: String? = nil
         var linkImageURL: String? = nil
-        var showMaxCategoryPopup: Bool = false
-        var showDetectedURLPopup: Bool = false
+        var linkPopup: PokitLinkPopup.PopupType?
         var contentLoading: Bool = false
         var saveIsLoading: Bool = false
         var link: String?
@@ -95,12 +90,13 @@ public struct ContentSettingFeature {
             case 뷰가_나타났을때
             case 저장_버튼_눌렀을때
             case 포킷추가_버튼_눌렀을때
-            case 링크복사_버튼_눌렀을때
-
+            case 링크팝업_버튼_눌렀을때
+            case 링크지우기_버튼_눌렀을때
+            case 제목지우기_버튼_눌렀을때
             case 뒤로가기_버튼_눌렀을때
         }
 
-        public enum InnerAction: Equatable {
+        public enum InnerAction {
             case linkPopup(URL?)
             case linkPreview
             case 메타데이터_조회_수행(url: URL)
@@ -111,6 +107,8 @@ public struct ContentSettingFeature {
             case 카테고리_상세_조회_API_반영(category: BaseCategory)
             case 카테고리_목록_조회_API_반영(categoryList: BaseCategoryListInquiry)
             case 선택한_포킷_인메모리_삭제
+            case 링크팝업_활성화(PokitLinkPopup.PopupType)
+            case error(Error)
         }
 
         public enum AsyncAction: Equatable {
@@ -125,7 +123,7 @@ public struct ContentSettingFeature {
         public enum ScopeAction: Equatable { case 없음 }
 
         public enum DelegateAction: Equatable {
-            case 저장하기_완료
+            case 저장하기_완료(category: BaseCategoryItem)
             case 포킷추가하기
             case dismiss
         }
@@ -197,6 +195,10 @@ private extension ContentSettingFeature {
             return .merge(mergeEffect)
         case .저장_버튼_눌렀을때:
             let isEdit = state.domain.categoryId != nil
+            if state.domain.title == Constants.제목을_입력해주세요_문구 {
+                state.domain.title = state.title
+            }
+            state.saveIsLoading = true
             
             return isEdit
             ? .send(.async(.컨텐츠_수정_API))
@@ -204,7 +206,7 @@ private extension ContentSettingFeature {
         case .포킷추가_버튼_눌렀을때:
             guard state.domain.categoryTotalCount < 30 else {
                 /// 🚨 Error Case [1]: 포킷 갯수가 30개 이상일 경우
-                state.showMaxCategoryPopup = true
+                state.linkPopup = .text(title: Constants.포킷_최대_갯수_문구)
                 return .none
             }
             
@@ -213,8 +215,16 @@ private extension ContentSettingFeature {
             return state.isShareExtension
             ? .send(.delegate(.dismiss))
             : .run { _ in await dismiss() }
-        case .링크복사_버튼_눌렀을때:
+        case .링크팝업_버튼_눌렀을때:
+            guard case .link = state.linkPopup else { return .none }
             return .send(.inner(.링크복사_반영(state.link)))
+        case .링크지우기_버튼_눌렀을때:
+            state.domain.data = ""
+            state.domain.title = ""
+            return .none
+        case .제목지우기_버튼_눌렀을때:
+            state.domain.title = ""
+            return .none
         }
     }
 
@@ -224,7 +234,10 @@ private extension ContentSettingFeature {
         case let .linkPopup(url):
             guard let url else { return .none }
             state.link = url.absoluteString
-            state.showDetectedURLPopup = true
+            state.linkPopup = .link(
+                title: Constants.복사한_링크_저장하기_문구,
+                url: url.absoluteString
+            )
             return .none
         case .linkPreview:
             state.showLinkPreview = true
@@ -239,18 +252,23 @@ private extension ContentSettingFeature {
                 )
             }
         case let .메타데이텨_조회_반영(title: title, imageURL: imageURL):
-            state.linkTitle = title
-            state.linkImageURL = imageURL
+            let contentTitle = state.title.isEmpty
+            ? Constants.제목을_입력해주세요_문구
+            : state.title
+            state.linkImageURL = imageURL ?? Constants.기본_썸네일_주소.absoluteString
+            state.linkTitle = title ?? contentTitle
             if let title, state.domain.title.isEmpty {
                 state.domain.title = title
             }
             state.domain.thumbNail = imageURL
             return .send(.inner(.linkPreview), animation: .pokitDissolve)
         case .URL_유효성_확인:
-            guard let url = URL(string: state.domain.data),
-                  !state.domain.data.isEmpty else {
+            guard
+                let url = URL(string: state.domain.data),
+                !state.domain.data.isEmpty
+            else {
                 /// 🚨 Error Case [1]: 올바른 링크가 아닐 때
-                state.showDetectedURLPopup = false
+                state.linkPopup = nil
                 state.linkTitle = nil
                 state.domain.title = ""
                 state.linkImageURL = nil
@@ -259,7 +277,7 @@ private extension ContentSettingFeature {
             }
             return .send(.inner(.메타데이터_조회_수행(url: url)), animation: .pokitDissolve)
         case .링크복사_반영(let urlText):
-            state.showDetectedURLPopup = false
+            state.linkPopup = nil
             state.link = nil
             guard let urlText else { return .none }
             state.domain.data = urlText
@@ -293,8 +311,16 @@ private extension ContentSettingFeature {
             /// - `카테고리_목록_조회`의 filter 옵션을 `false`로 해두었기 때문에 `미분류` 카테고리 또한 항목에서 조회가 가능함
 
             /// [1]. `미분류`에 해당하는 인덱스 번호와 항목을 체크, 없다면 목록갱신이 불가함
-            guard let unclassifiedItemIdx = categoryList.data?.firstIndex(where: { $0.categoryName == "미분류" }) else { return .none }
-            guard let unclassifiedItem = categoryList.data?.first(where: { $0.categoryName == "미분류" }) else { return .none }
+            guard
+                let unclassifiedItemIdx = categoryList.data?.firstIndex(where: {
+                    $0.categoryName == "미분류"
+                })
+            else { return .none }
+            guard
+                let unclassifiedItem = categoryList.data?.first(where: {
+                    $0.categoryName == "미분류"
+                })
+            else { return .none }
             
             /// [2]. 새로운 list변수를 만들어주고 카테고리 항목 순서를 재배치 (최신순 정렬 시  미분류는 항상 맨 마지막)
             var list = categoryList
@@ -312,6 +338,16 @@ private extension ContentSettingFeature {
         case .선택한_포킷_인메모리_삭제:
             state.selectedPokit = nil
             return .none
+        case let .링크팝업_활성화(type):
+            state.linkPopup = type
+            state.saveIsLoading = false
+            return .none
+        case let .error(error):
+            guard let errorResponse = error as? ErrorResponse else { return .none }
+            return .send(
+                .inner(.링크팝업_활성화(.error(title: errorResponse.message))),
+                animation: .pokitSpring
+            )
         }
     }
 
@@ -322,7 +358,7 @@ private extension ContentSettingFeature {
             state.contentLoading = true
             return .run { send in
                 let content = try await contentClient.컨텐츠_상세_조회("\(id)").toDomain()
-                await send(.inner(.컨텐츠_상세_조회_API_반영(content: content)))
+                await send(.inner(.컨텐츠_상세_조회_API_반영(content: content)), animation: .pokitDissolve)
             }
         case let .카테고리_상세_조회_API(id, sharedId):
             return .run { send in
@@ -347,10 +383,13 @@ private extension ContentSettingFeature {
                 categoryListFetch(request: request)
             )
         case .컨텐츠_수정_API:
-            guard let contentId = state.domain.contentId,
-                  let categoryId = state.selectedPokit?.id else {
-                return .none
-            }
+            guard
+                let contentId = state.domain.contentId,
+                let categoryId = state.selectedPokit?.id,
+                let category = state.domain.categoryListInQuiry.data?.first(where: {
+                    $0.id == categoryId
+                })
+            else { return .none }
             let request = ContentBaseRequest(
                 data: state.domain.data,
                 title: state.domain.title,
@@ -359,15 +398,23 @@ private extension ContentSettingFeature {
                 alertYn: state.domain.alertYn.rawValue,
                 thumbNail: state.domain.thumbNail
             )
-            return .concatenate(
-                contentEdit(request: request, contentId: contentId),
-                .send(.inner(.선택한_포킷_인메모리_삭제)),
-                .send(.delegate(.저장하기_완료))
-            )
+            return .run { send in
+                let _ = try await contentClient.컨텐츠_수정(
+                    "\(contentId)",
+                    request
+                )
+                await send(.inner(.선택한_포킷_인메모리_삭제))
+                await send(.delegate(.저장하기_완료(category: category)))
+            } catch: { error, send in
+                await send(.inner(.error(error)))
+            }
         case .컨텐츠_추가_API:
-            guard let categoryId = state.selectedPokit?.id else {
-                return .none
-            }
+            guard
+                let categoryId = state.selectedPokit?.id,
+                let category = state.domain.categoryListInQuiry.data?.first(where: {
+                    $0.id == categoryId
+                })
+            else { return .none }
             let request = ContentBaseRequest(
                 data: state.domain.data,
                 title: state.domain.title,
@@ -376,11 +423,13 @@ private extension ContentSettingFeature {
                 alertYn: state.domain.alertYn.rawValue,
                 thumbNail: state.domain.thumbNail
             )
-            return .concatenate(
-                .run { _ in let _ = try await contentClient.컨텐츠_추가(request) },
-                .send(.inner(.선택한_포킷_인메모리_삭제)),
-                .send(.delegate(.저장하기_완료))
-            )
+            return .run { send in
+                let content = try await contentClient.컨텐츠_추가(request)
+                await send(.inner(.선택한_포킷_인메모리_삭제))
+                await send(.delegate(.저장하기_완료(category: category)))
+            } catch: { error, send in
+                await send(.inner(.error(error)))
+            }
         case .클립보드_감지:
             return .run { send in
                 for await _ in self.pasteboard.changes() {
@@ -390,7 +439,7 @@ private extension ContentSettingFeature {
             }
         }
     }
-
+    
     /// - Scope Effect
     func handleScopeAction(_ action: Action.ScopeAction, state: inout State) -> Effect<Action> {
         return .none
@@ -399,15 +448,6 @@ private extension ContentSettingFeature {
     /// - Delegate Effect
     func handleDelegateAction(_ action: Action.DelegateAction, state: inout State) -> Effect<Action> {
         return .none
-    }
-    
-    func contentEdit(request: ContentBaseRequest, contentId: Int) -> Effect<Action> {
-        return .run { _ in
-            let _ = try await contentClient.컨텐츠_수정(
-                "\(contentId)",
-                request
-            )
-        }
     }
     
     func categoryListFetch(request: BasePageableRequest) -> Effect<Action> {

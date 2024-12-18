@@ -128,6 +128,22 @@ extension PokitButtonStyle.Size {
         case .large: return 13
         }
     }
+    
+    var hPadding: CGFloat {
+        switch self {
+        case .small: return 8
+        case .medium: return 16
+        case .large: return 20
+        }
+    }
+    
+    var minWidth: CGFloat {
+        switch self {
+        case .small: return 50
+        case .medium: return 80
+        case .large: return 100
+        }
+    }
 }
 
 extension PokitButtonStyle.Shape {

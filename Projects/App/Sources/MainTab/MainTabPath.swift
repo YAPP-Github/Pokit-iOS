@@ -16,6 +16,7 @@ import FeatureContentSetting
 import FeatureContentList
 import FeatureCategorySharing
 import Domain
+import Util
 
 @Reducer
 public struct MainTabPath {
@@ -140,8 +141,10 @@ public extension MainTabFeature {
             case .contentDetail(.presented(.delegate(.즐겨찾기_갱신_완료))),
                  .contentDetail(.presented(.delegate(.컨텐츠_조회_완료))),
                  .contentDetail(.presented(.delegate(.컨텐츠_삭제_완료))):
-                guard let stackElementId = state.path.ids.last,
-                      let lastPath = state.path.last else {
+                guard
+                    let stackElementId = state.path.ids.last,
+                    let lastPath = state.path.last
+                else {
                     switch state.selectedTab {
                     case .pokit:
                         return .send(.pokit(.delegate(.미분류_카테고리_컨텐츠_조회)))
@@ -173,13 +176,17 @@ public extension MainTabFeature {
                 return .none
 
             /// - 링크추가 및 수정에서 저장하기 눌렀을 때
-            case let .path(.element(stackElementId, action: .링크추가및수정(.delegate(.저장하기_완료)))):
+            case let .path(.element(stackElementId, action: .링크추가및수정(.delegate(.저장하기_완료(contentId))))):
+                state.categoryOfSavedContent = contentId
                 state.path.removeLast()
                 switch state.path.last {
                 case .검색:
-                    return .send(.path(.element(id: stackElementId, action: .검색(.delegate(.컨텐츠_검색)))))
+                    return .merge(
+                        .send(.path(.element(id: stackElementId, action: .검색(.delegate(.컨텐츠_검색))))),
+                        .send(.inner(.링크팝업_활성화(.success(title: Constants.링크_저장_완료_문구))), animation: .pokitSpring)
+                    )
                 default:
-                    return .none
+                    return .send(.inner(.링크팝업_활성화(.success(title: Constants.링크_저장_완료_문구))), animation: .pokitSpring)
                 }
             /// - 각 화면에서 링크 복사 감지했을 때 (링크 추가 및 수정 화면 제외)
             case let .path(.element(_, action: .알림함(.delegate(.linkCopyDetected(url))))),
@@ -216,7 +223,7 @@ public extension MainTabFeature {
                     ),
                     title: content.title,
                     data: content.data,
-                    memo: content.memo,
+                    memo: content.memo ?? "",
                     createdAt: content.createdAt,
                     favorites: nil,
                     alertYn: .no

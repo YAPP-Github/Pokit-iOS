@@ -31,28 +31,6 @@ public extension RemindView {
                 .background(.pokit(.bg(.base)))
                 .ignoresSafeArea(edges: .bottom)
                 .navigationBarBackButtonHidden(true)
-                .sheet(item: $store.bottomSheetItem) { content in
-                    PokitBottomSheet(
-                        items: [.share, .edit, .delete],
-                        height: 224
-                    ) { send(.bottomSheet(delegate: $0, content: content)) }
-                }
-                .sheet(item: $store.shareSheetItem) { content in
-                    if let shareURL = URL(string: content.data) {
-                        PokitShareSheet(
-                            items: [shareURL],
-                            completion: { send(.링크_공유_완료) }
-                        )
-                        .presentationDetents([.medium, .large])
-                    }
-                }
-                .sheet(item: $store.alertItem) { content in
-                    PokitAlert(
-                        "링크를 정말 삭제하시겠습니까?",
-                        message: "함께 저장한 모든 정보가 삭제되며, \n복구하실 수 없습니다.",
-                        confirmText: "삭제"
-                    ) { send(.링크_삭제_눌렀을때(content: content)) }
-                }
                 .task { await send(.뷰가_나타났을때, animation: .pokitDissolve).finish() }
         }
     }
@@ -115,7 +93,6 @@ extension RemindView {
                     HStack(spacing: 12) {
                         ForEach(recommendedContents, id: \.id) { content in
                             recommendedContentCell(content: content)
-                            
                         }
                     }
                     .padding(.horizontal, 20)
@@ -134,12 +111,6 @@ extension RemindView {
     @ViewBuilder
     private func recommendedContentCellLabel(content: BaseContentItem) -> some View {
         ZStack(alignment: .bottom) {
-            if let url = URL(string: content.thumbNail) {
-                recommendedContentCellImage(url: url, contentId: content.id)
-            } else {
-                imagePlaceholder
-            }
-            
             LinearGradient(
                 stops: [
                     Gradient.Stop(
@@ -156,7 +127,7 @@ extension RemindView {
             )
             
             VStack(alignment: .leading, spacing: 0) {
-                PokitBadge(content.categoryName, state: .small)
+                PokitBadge(state: .small(content.categoryName))
                 
                 HStack(spacing: 4) {
                     Text(content.title)
@@ -184,6 +155,13 @@ extension RemindView {
             .padding(12)
         }
         .frame(width: 216, height: 194)
+        .background {
+            if let url = URL(string: content.thumbNail) {
+                recommendedContentCellImage(url: url, contentId: content.id)
+            } else {
+                imagePlaceholder
+            }
+        }
         .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
         .clipped()
     }
@@ -258,16 +236,18 @@ extension RemindView {
                     }
                     
                     ForEach(unreadContents, id: \.id) { content in
-                        let isFirst = content == unreadContents.elements.first
-                        let isLast = content == unreadContents.elements.last
+                        let isFirst = content.id == unreadContents.first?.id
+                        let isLast = content.id == unreadContents.last?.id
                         
                         PokitLinkCard(
                             link: content,
+                            state: isFirst
+                            ? .top
+                            : isLast ? .bottom : .middle,
                             action: { send(.컨텐츠_항목_눌렀을때(content: content)) },
                             kebabAction: { send(.컨텐츠_항목_케밥_버튼_눌렀을때(content: content)) },
                             fetchMetaData: { send(.읽지않음_항목_이미지_조회(contentId: content.id)) }
                         )
-                        .divider(isFirst: isFirst, isLast: isLast)
                     }
                 }
             }
@@ -289,16 +269,18 @@ extension RemindView {
                 .padding(.top, 16)
             } else {
                 ForEach(favoriteContents, id: \.id) { content in
-                    let isFirst = content == favoriteContents.elements.first
-                    let isLast = content == favoriteContents.elements.last
+                    let isFirst = content.id == favoriteContents.first?.id
+                    let isLast = content.id == favoriteContents.last?.id
                     
                     PokitLinkCard(
                         link: content,
+                        state: isFirst
+                        ? .top
+                        : isLast ? .bottom : .middle,
                         action: { send(.컨텐츠_항목_눌렀을때(content: content)) },
                         kebabAction: { send(.컨텐츠_항목_케밥_버튼_눌렀을때(content: content)) },
                         fetchMetaData: { send(.즐겨찾기_항목_이미지_조회(contentId: content.id)) }
                     )
-                    .divider(isFirst: isFirst, isLast: isLast)
                 }
             }
         }
