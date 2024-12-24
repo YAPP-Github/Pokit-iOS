@@ -85,6 +85,7 @@ public struct PokitRootFeature {
             case 카테고리_삭제_시트_활성화(Bool)
             
             case 미분류_카테고리_조회_API_반영(contentList: BaseContentListInquiry)
+            case 미분류_전쳬_링크_조회_API_반영(contentList: BaseContentListInquiry)
             case 미분류_카테고리_페이징_조회_API_반영(contentList: BaseContentListInquiry)
             case 미분류_카테고리_컨텐츠_삭제_API_반영(contentId: Int)
             
@@ -101,6 +102,7 @@ public struct PokitRootFeature {
             case 카테고리_삭제_API(categoryId: Int)
             
             case 미분류_카테고리_조회_API
+            case 미분류_전쳬_링크_조회_API
             case 미분류_카테고리_페이징_조회_API
             case 미분류_카테고리_페이징_재조회_API
         }
@@ -217,8 +219,7 @@ private extension PokitRootFeature {
             return .run { send in await send(.delegate(.링크추가_버튼_눌렀을때)) }
             
         case .편집하기_버튼_눌렀을때:
-            state.linkEdit = PokitLinkEditFeature.State()
-            return .none
+            return .run { send in await send(.async(.미분류_전쳬_링크_조회_API)) }
 
         case .카테고리_눌렀을때(let category):
             return .run { send in await send(.delegate(.categoryTapped(category))) }
@@ -293,6 +294,10 @@ private extension PokitRootFeature {
             state.contents = contents
             
             state.isLoading = false
+            return .none
+            
+        case let .미분류_전쳬_링크_조회_API_반영(contentList):
+            state.linkEdit = PokitLinkEditFeature.State(linkList: contentList)
             return .none
             
         case let .카테고리_조회_API_반영(categoryList):
@@ -378,6 +383,13 @@ private extension PokitRootFeature {
                 let request = BasePageableRequest(page: pageable.page, size: pageable.size, sort: pageable.sort)
                 let contentList = try await contentClient.미분류_카테고리_컨텐츠_조회(request).toDomain()
                 await send(.inner(.미분류_카테고리_조회_API_반영(contentList: contentList)), animation: .pokitSpring)
+            }
+            
+        case .미분류_전쳬_링크_조회_API:
+            return .run { [pageable = state.domain.pageable] send in
+                let request = BasePageableRequest(page: 0, size: 100, sort: pageable.sort)
+                let contentList = try await contentClient.미분류_카테고리_컨텐츠_조회(request).toDomain()
+                await send(.inner(.미분류_전쳬_링크_조회_API_반영(contentList: contentList)))
             }
             
         case .카테고리_조회_API:
