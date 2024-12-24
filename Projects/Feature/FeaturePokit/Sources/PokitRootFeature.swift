@@ -23,6 +23,7 @@ public struct PokitRootFeature {
     /// - State
     @ObservableState
     public struct State: Equatable {
+        @Presents var linkEdit: PokitLinkEditFeature.State?
         var folderType: PokitRootFilterType = .folder(.포킷)
         var sortType: PokitRootFilterType = .sort(.최신순)
 
@@ -71,6 +72,7 @@ public struct PokitRootFeature {
             case 케밥_버튼_눌렀을때(BaseCategoryItem)
             case 포킷추가_버튼_눌렀을때
             case 링크추가_버튼_눌렀을때
+            case 편집하기_버튼_눌렀을때
             case 카테고리_눌렀을때(BaseCategoryItem)
             case 컨텐츠_항목_눌렀을때(BaseContentItem)
             case 뷰가_나타났을때
@@ -103,10 +105,12 @@ public struct PokitRootFeature {
             case 미분류_카테고리_페이징_재조회_API
         }
 
+        @CasePathable
         public enum ScopeAction {
             case bottomSheet(PokitBottomSheet.Delegate)
             case deleteBottomSheet(PokitDeleteBottomSheet.Delegate)
             case contents(IdentifiedActionOf<ContentCardFeature>)
+            case linkEdit(PresentationAction<PokitLinkEditFeature.Action>)
         }
 
         public enum DelegateAction: Equatable {
@@ -162,9 +166,8 @@ public struct PokitRootFeature {
     public var body: some ReducerOf<Self> {
         BindingReducer(action: \.view)
         Reduce(self.core)
-            .forEach(\.contents, action: \.contents) {
-                ContentCardFeature()
-            }
+            .forEach(\.contents, action: \.contents) { ContentCardFeature() }
+            .ifLet(\.$linkEdit, action: \.scope.linkEdit) { PokitLinkEditFeature() }
             
     }
 }
@@ -212,6 +215,10 @@ private extension PokitRootFeature {
             
         case .링크추가_버튼_눌렀을때:
             return .run { send in await send(.delegate(.링크추가_버튼_눌렀을때)) }
+            
+        case .편집하기_버튼_눌렀을때:
+            state.linkEdit = PokitLinkEditFeature.State()
+            return .none
 
         case .카테고리_눌렀을때(let category):
             return .run { send in await send(.delegate(.categoryTapped(category))) }
@@ -497,6 +504,9 @@ private extension PokitRootFeature {
         case let .contents(.element(id: _, action: .delegate(.컨텐츠_항목_케밥_버튼_눌렀을때(content)))):
             return .send(.delegate(.contentDetailTapped(content)))
         case .contents:
+            return .none
+            
+        case .linkEdit:
             return .none
             
         default: return .none
