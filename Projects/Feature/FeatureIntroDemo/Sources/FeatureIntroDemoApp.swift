@@ -8,7 +8,7 @@
 import SwiftUI
 
 @main
-struct FeatureSplashDemoApp: App {
+struct FeatureIntroDemoApp: App {
     var body: some Scene {
         WindowGroup {
             // TODO: 루트 뷰 추가
