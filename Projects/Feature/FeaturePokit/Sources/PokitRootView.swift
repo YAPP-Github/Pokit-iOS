@@ -97,7 +97,6 @@ private extension PokitRootView {
                 .contentTransition(.numericText())
             }
         }
-        .animation(.snappy(duration: 0.7), value: store.folderType)
     }
 
     var cardScrollView: some View {
