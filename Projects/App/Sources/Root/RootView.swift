@@ -8,7 +8,7 @@
 import SwiftUI
 
 import ComposableArchitecture
-import FeatureLogin
+import FeatureIntro
 import DSKit
 
 public struct RootView: View {

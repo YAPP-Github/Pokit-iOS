@@ -7,6 +7,7 @@
 import SwiftUI
 
 import ComposableArchitecture
+import FeatureLogin
 
 public struct IntroView: View {
     /// - Properties

@@ -26,7 +26,7 @@ let shareExtensionTarget: Target = .target(
     resources: ["ShareExtension/Resources/**"],
     entitlements: .file(path: .relativeToRoot("Projects/App/ShareExtension/ShareExtension.entitlements")),
     dependencies: [
-        .project(target: "FeatureLogin", path: .relativeToRoot("Projects/Feature")),
+        .project(target: "FeatureIntro", path: .relativeToRoot("Projects/Feature")),
         .project(target: "FeatureContentSetting", path: .relativeToRoot("Projects/Feature")),
         .project(target: "FeatureCategorySetting", path: .relativeToRoot("Projects/Feature"))
     ],

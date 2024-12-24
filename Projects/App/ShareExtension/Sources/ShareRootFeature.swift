@@ -9,7 +9,7 @@ import UIKit
 import UniformTypeIdentifiers
 
 import ComposableArchitecture
-import FeatureLogin
+import FeatureIntro
 import FeatureContentSetting
 import FeatureCategorySetting
 import CoreKit
