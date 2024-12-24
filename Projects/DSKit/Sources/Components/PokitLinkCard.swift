@@ -14,7 +14,7 @@ public struct PokitLinkCard<Item: PokitLinkCardItem>: View {
     private let link: Item
     private let state: PokitLinkCard.State
     private let type: PokitLinkCard.CardType
-    private let action: () -> Void
+    private let action: (() -> Void)?
     private let kebabAction: (() -> Void)?
     private let fetchMetaData: (() -> Void)?
     private let favoriteAction: (() -> Void)?
@@ -24,7 +24,7 @@ public struct PokitLinkCard<Item: PokitLinkCardItem>: View {
         link: Item,
         state: PokitLinkCard.State,
         type: PokitLinkCard.CardType = .accept,
-        action: @escaping () -> Void,
+        action: (() -> Void)? = nil,
         kebabAction: (() -> Void)? = nil,
         fetchMetaData: (() -> Void)? = nil,
         favoriteAction: (() -> Void)? = nil,
@@ -42,8 +42,14 @@ public struct PokitLinkCard<Item: PokitLinkCardItem>: View {
     
     public var body: some View {
         VStack(spacing: 20) {
-            Button(action: action) {
-                buttonLabel
+            Group {
+                if let action {
+                    Button(action: { action() }) {
+                        buttonLabel
+                    }
+                } else {
+                    buttonLabel
+                }
             }
             .padding(.top, state == .top ? 0 : 20)
             
