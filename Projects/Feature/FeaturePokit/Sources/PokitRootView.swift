@@ -94,7 +94,7 @@ private extension PokitRootView {
 
             Spacer()
             
-            /// 카테고리가 있을 때 정렬 추가
+            /// 카테고리가 있을 때 `정렬` 추가
             if store.folderType == .folder(.포킷) && store.categories != nil {
                 PokitIconLTextLink(
                     store.sortType == .sort(.최신순) ?
@@ -104,8 +104,8 @@ private extension PokitRootView {
                 )
                 .contentTransition(.numericText())
             }
-            
-            if store.folderType == .folder(.미분류) {
+            /// 미분류 링크가 있을 때 `편집하기` 추가
+            if store.folderType == .folder(.미분류) && !store.contents.isEmpty {
                 PokitTextLink(
                     "편집하기",
                     color: .bg(.brand),
