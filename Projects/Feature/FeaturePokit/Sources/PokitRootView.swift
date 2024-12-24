@@ -54,6 +54,14 @@ public extension PokitRootView {
                     delegateSend: { store.send(.scope(.deleteBottomSheet($0)), animation: .pokitSpring) }
                 )
             }
+            .fullScreenCover(
+                item: $store.scope(
+                    state: \.linkEdit,
+                    action: \.scope.linkEdit
+                )
+            ) {
+                PokitLinkEditView(store: $0)
+            }
             .task { await send(.뷰가_나타났을때).finish() }
         }
     }
@@ -95,6 +103,14 @@ private extension PokitRootView {
                     action: { send(.분류_버튼_눌렀을때) }
                 )
                 .contentTransition(.numericText())
+            }
+            
+            if store.folderType == .folder(.미분류) {
+                PokitTextLink(
+                    "편집하기",
+                    color: .bg(.brand),
+                    action: { send(.편집하기_버튼_눌렀을때) }
+                )
             }
         }
     }
