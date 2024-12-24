@@ -31,4 +31,8 @@ public extension View {
     func pokitNavigationBar<Header: View>(@ViewBuilder header: () -> Header) -> some View {
         modifier(PokitNavigationBarModifier(header: header))
     }
+    
+    func pokitNavigationBar<Header: View>(_ header: @autoclosure () -> Header) -> some View {
+        modifier(PokitNavigationBarModifier(header: header))
+    }
 }
