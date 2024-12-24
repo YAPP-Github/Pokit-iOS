@@ -4,8 +4,12 @@
 //
 //  Created by 김민호 on 12/24/24.
 
-import ComposableArchitecture
 import SwiftUI
+
+import ComposableArchitecture
+import DSKit
+import Domain
+import CoreKit
 
 @ViewAction(for: PokitLinkEditFeature.self)
 public struct PokitLinkEditView: View {
@@ -21,21 +25,57 @@ public struct PokitLinkEditView: View {
 public extension PokitLinkEditView {
     var body: some View {
         WithPerceptionTracking {
-            VStack {
-                Text("Hello World!")
+            VStack(spacing: 0) {
+                ScrollView {
+                    ForEach(store.list, id: \.id) { item in
+                        let isFirst = item.id == self.store.list.first?.id
+                        let isLast = item.id == self.store.list.last?.id
+                        PokitLinkCard(
+                            link: item,
+                            state: isFirst
+                            ? .top
+                            : isLast ? .bottom : .middle,
+                            type: .unCatgorized(isSelected: store.selectedItems.contains(item)),
+                            action: nil,
+                            kebabAction: nil,
+                            fetchMetaData: {},
+                            favoriteAction: nil,
+                            selectAction: { send(.체크박스_선택했을때(item)) }
+                        )
+                    }
+                }
+            }
+            .padding(.horizontal, 20)
+            .padding(.top, 16)
+            .pokitNavigationBar(navigationBar)
+            .overlay(alignment: .bottom) {
+                actionFloatButtonView
             }
         }
     }
 }
 //MARK: - Configure View
 private extension PokitLinkEditView {
+    var navigationBar: some View {
+        PokitHeader(title: "링크 분류하기") {
+            PokitHeaderItems(placement: .leading) {
+                PokitToolbarButton(.icon(.x)) {
+//                    send(.뒤로가기_버튼_눌렀을때)
+                }
+            }
+        }
+        .padding(.top, 8)
+    }
     
+    var actionFloatButtonView: some View {
+        EmptyView()
+    }
 }
 //MARK: - Preview
 #Preview {
     PokitLinkEditView(
         store: Store(
-            initialState: .init(),
+            initialState: .init(linkList: BaseContentListInquiry(data: nil, page: 0, size: 0, sort: [], hasNext: false)),
             reducer: { PokitLinkEditFeature() }
         )
     )
