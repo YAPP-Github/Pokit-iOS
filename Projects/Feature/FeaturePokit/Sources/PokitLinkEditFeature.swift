@@ -18,6 +18,7 @@ public struct PokitLinkEditFeature {
         var item: BaseContentListInquiry
         var list = IdentifiedArrayOf<BaseContentItem>()
         var selectedItems = IdentifiedArrayOf<BaseContentItem>()
+        var isPresented: Bool = false
         
         public init(linkList: BaseContentListInquiry) {
             self.item = linkList
@@ -36,10 +37,12 @@ public struct PokitLinkEditFeature {
         case delegate(DelegateAction)
         
         @CasePathable
-        public enum View: Equatable {
+        public enum View: BindableAction, Equatable {
+            case binding(BindingAction<State>)
             case dismiss
             
             case 체크박스_선택했을때(BaseContentItem)
+            case 카테고리_선택했을때(BaseCategoryItem)
         }
         
         public enum InnerAction: Equatable { case 없음 }
@@ -83,6 +86,7 @@ public struct PokitLinkEditFeature {
     
     /// - Reducer body
     public var body: some ReducerOf<Self> {
+        BindingReducer(action: \.view)
         Reduce(self.core)
     }
 }
@@ -91,6 +95,9 @@ private extension PokitLinkEditFeature {
     /// - View Effect
     func handleViewAction(_ action: Action.View, state: inout State) -> Effect<Action> {
         switch action {
+        case .binding:
+            return .none
+            
         case .dismiss:
             return .run { _ in await dismiss() }
             
@@ -101,6 +108,11 @@ private extension PokitLinkEditFeature {
             } else {
                 state.selectedItems.append(item)
             }
+            return .none
+            
+        case let .카테고리_선택했을때(pokit):
+            //TODO: 포킷이동 네트워크 구현
+            state.isPresented = false
             return .none
         }
     }
@@ -124,12 +136,15 @@ private extension PokitLinkEditFeature {
                 return .none
                 
             case .전체선택_버튼_눌렀을때:
+                state.selectedItems = state.list
                 return .none
                 
             case .전체해제_버튼_눌렀을때:
+                state.selectedItems.removeAll()
                 return .none
                 
             case .포킷이동_버튼_눌렀을때:
+                state.isPresented = true
                 return .none
             }
         }
