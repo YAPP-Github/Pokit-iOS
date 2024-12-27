@@ -70,7 +70,9 @@ private extension PokitLinkEditView {
     }
     
     var actionFloatButtonView: some View {
-        EmptyView()
+        PokitLinkEditFloatView(
+            delegateSend: { store.send(.scope(.floatButtonAction($0))) }
+        )
     }
 }
 //MARK: - Preview

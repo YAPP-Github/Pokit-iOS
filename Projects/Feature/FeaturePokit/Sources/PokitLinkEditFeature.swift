@@ -42,13 +42,15 @@ public struct PokitLinkEditFeature {
             case 체크박스_선택했을때(BaseContentItem)
         }
         
-        public enum InnerAction: Equatable { case doNothing }
+        public enum InnerAction: Equatable { case 없음 }
         
-        public enum AsyncAction: Equatable { case doNothing }
+        public enum AsyncAction: Equatable { case 없음 }
         
-        public enum ScopeAction: Equatable { case doNothing }
+        public enum ScopeAction: Equatable {
+            case floatButtonAction(PokitLinkEditFloatView.Delegate)
+        }
         
-        public enum DelegateAction: Equatable { case doNothing }
+        public enum DelegateAction: Equatable { case 없음 }
     }
     
     /// - Initiallizer
@@ -101,7 +103,6 @@ private extension PokitLinkEditFeature {
             }
             return .none
         }
-        return .none
     }
     
     /// - Inner Effect
@@ -116,7 +117,22 @@ private extension PokitLinkEditFeature {
     
     /// - Scope Effect
     func handleScopeAction(_ action: Action.ScopeAction, state: inout State) -> Effect<Action> {
-        return .none
+        switch action {
+        case let .floatButtonAction(delegate):
+            switch delegate {
+            case .링크삭제_버튼_눌렀을때:
+                return .none
+                
+            case .전체선택_버튼_눌렀을때:
+                return .none
+                
+            case .전체해제_버튼_눌렀을때:
+                return .none
+                
+            case .포킷이동_버튼_눌렀을때:
+                return .none
+            }
+        }
     }
     
     /// - Delegate Effect
