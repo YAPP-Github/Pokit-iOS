@@ -45,12 +45,14 @@ public extension PokitLinkEditView {
                     }
                 }
             }
-            .padding(.horizontal, 20)
             .padding(.top, 16)
             .pokitNavigationBar(navigationBar)
             .overlay(alignment: .bottom) {
                 actionFloatButtonView
             }
+            .padding(.horizontal, 20)
+            .ignoresSafeArea(edges: .bottom)
+            .padding(.bottom, 24)
         }
     }
 }
