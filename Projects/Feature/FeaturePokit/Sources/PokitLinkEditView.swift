@@ -60,7 +60,7 @@ private extension PokitLinkEditView {
         PokitHeader(title: "링크 분류하기") {
             PokitHeaderItems(placement: .leading) {
                 PokitToolbarButton(.icon(.x)) {
-//                    send(.뒤로가기_버튼_눌렀을때)
+                    send(.dismiss)
                 }
             }
         }
