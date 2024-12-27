@@ -228,7 +228,7 @@ private extension PokitRootView {
         PokitRootView(
             store: Store(
                 initialState: .init(),
-                reducer: { PokitRootFeature()._printChanges() }
+                reducer: { PokitRootFeature() }
             )
         )
     }
