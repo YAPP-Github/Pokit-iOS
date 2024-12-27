@@ -14,7 +14,7 @@ import CoreKit
 @ViewAction(for: PokitLinkEditFeature.self)
 public struct PokitLinkEditView: View {
     /// - Properties
-    public var store: StoreOf<PokitLinkEditFeature>
+    @Perception.Bindable public var store: StoreOf<PokitLinkEditFeature>
     
     /// - Initializer
     public init(store: StoreOf<PokitLinkEditFeature>) {
@@ -53,6 +53,17 @@ public extension PokitLinkEditView {
             .padding(.horizontal, 20)
             .ignoresSafeArea(edges: .bottom)
             .padding(.bottom, 24)
+            .sheet(isPresented: $store.isPresented) {
+                PokitSelectSheet(
+                    list: nil,
+                    itemSelected: { send(.카테고리_선택했을때($0)) },
+                    pokitAddAction: {}
+                )
+                .presentationDragIndicator(.visible)
+                .pokitPresentationCornerRadius()
+                .presentationDetents([.height(564)])
+                .pokitPresentationBackground()
+            }
         }
     }
 }
@@ -79,7 +90,15 @@ private extension PokitLinkEditView {
 #Preview {
     PokitLinkEditView(
         store: Store(
-            initialState: .init(linkList: BaseContentListInquiry(data: nil, page: 0, size: 0, sort: [], hasNext: false)),
+            initialState: .init(
+                linkList: BaseContentListInquiry(
+                    data: nil,
+                    page: 0,
+                    size: 0,
+                    sort: [],
+                    hasNext: false
+                )
+            ),
             reducer: { PokitLinkEditFeature() }
         )
     )
