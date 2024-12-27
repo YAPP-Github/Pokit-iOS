@@ -11,7 +11,7 @@ import Util
 @Reducer
 public struct PokitLinkEditFeature {
     /// - Dependency
-
+    @Dependency(\.dismiss) var dismiss
     /// - State
     @ObservableState
     public struct State: Equatable {
@@ -36,7 +36,11 @@ public struct PokitLinkEditFeature {
         case delegate(DelegateAction)
         
         @CasePathable
-        public enum View: Equatable { case 체크박스_선택했을때(BaseContentItem) }
+        public enum View: Equatable {
+            case dismiss
+            
+            case 체크박스_선택했을때(BaseContentItem)
+        }
         
         public enum InnerAction: Equatable { case doNothing }
         
@@ -85,6 +89,9 @@ private extension PokitLinkEditFeature {
     /// - View Effect
     func handleViewAction(_ action: Action.View, state: inout State) -> Effect<Action> {
         switch action {
+        case .dismiss:
+            return .run { _ in await dismiss() }
+            
         case let .체크박스_선택했을때(item):
             /// 이미 체크되어 있다면 해제
             if state.selectedItems.contains(item) {
