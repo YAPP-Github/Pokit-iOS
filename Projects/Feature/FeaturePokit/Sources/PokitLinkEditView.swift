@@ -10,6 +10,7 @@ import ComposableArchitecture
 import DSKit
 import Domain
 import CoreKit
+import Util
 
 @ViewAction(for: PokitLinkEditFeature.self)
 public struct PokitLinkEditView: View {
@@ -30,32 +31,35 @@ public extension PokitLinkEditView {
                     ForEach(store.list, id: \.id) { item in
                         let isFirst = item.id == self.store.list.first?.id
                         let isLast = item.id == self.store.list.last?.id
-                        PokitLinkCard(
-                            link: item,
-                            state: isFirst
-                            ? .top
-                            : isLast ? .bottom : .middle,
-                            type: .unCatgorized(isSelected: store.selectedItems.contains(item)),
-                            action: nil,
-                            kebabAction: nil,
-                            fetchMetaData: {},
-                            favoriteAction: nil,
-                            selectAction: { send(.체크박스_선택했을때(item)) }
-                        )
+                        WithPerceptionTracking {
+                            PokitLinkCard(
+                                link: item,
+                                state: isFirst
+                                ? .top
+                                : isLast ? .bottom : .middle,
+                                type: .unCatgorized(isSelected: store.selectedItems.contains(item)),
+                                action: nil,
+                                kebabAction: nil,
+                                fetchMetaData: {},
+                                favoriteAction: nil,
+                                selectAction: { send(.체크박스_선택했을때(item)) }
+                            )
+                        }
                     }
                 }
+                .padding(.bottom, 38)
             }
             .padding(.top, 16)
-            .pokitNavigationBar(navigationBar)
             .overlay(alignment: .bottom) {
                 actionFloatButtonView
             }
             .padding(.horizontal, 20)
-            .ignoresSafeArea(edges: .bottom)
             .padding(.bottom, 24)
+            .pokitNavigationBar(navigationBar)
+            .ignoresSafeArea(edges: .bottom)
             .sheet(isPresented: $store.isPresented) {
                 PokitSelectSheet(
-                    list: nil,
+                    list: store.category?.data ?? nil,
                     itemSelected: { send(.카테고리_선택했을때($0)) },
                     pokitAddAction: {}
                 )
@@ -64,6 +68,7 @@ public extension PokitLinkEditView {
                 .presentationDetents([.height(564)])
                 .pokitPresentationBackground()
             }
+            .task { await send(.onAppear).finish() }
         }
     }
 }
@@ -92,7 +97,7 @@ private extension PokitLinkEditView {
         store: Store(
             initialState: .init(
                 linkList: BaseContentListInquiry(
-                    data: nil,
+                    data: [BaseContentItem(id: 3, categoryName: "23", categoryId: 255, title: "2323", memo: nil, thumbNail: Constants.mockImageUrl, data: "", domain: "", createdAt: "", isRead: false, isFavorite: false)],
                     page: 0,
                     size: 0,
                     sort: [],

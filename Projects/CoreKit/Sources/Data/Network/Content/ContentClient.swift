@@ -44,5 +44,8 @@ public struct ContentClient {
         _ contentId: String,
         _ model: ThumbnailRequest
     ) async throws -> Void
+    public var 미분류_링크_포킷_이동: @Sendable (
+        _ model: ContentMoveRequest
+    ) async throws -> Void
 }
 
