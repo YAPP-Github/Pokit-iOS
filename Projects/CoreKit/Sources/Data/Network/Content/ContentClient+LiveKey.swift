@@ -55,6 +55,9 @@ extension ContentClient: DependencyKey {
                 try await provider.requestNoBody(
                     .썸네일_수정(contentId: id, model: model)
                 )
+            },
+            미분류_링크_포킷_이동: { model in
+                try await provider.requestNoBody(.미분류_링크_포킷_이동(model: model))
             }
         )
     }()
