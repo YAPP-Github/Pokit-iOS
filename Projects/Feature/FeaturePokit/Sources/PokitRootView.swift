@@ -59,8 +59,10 @@ public extension PokitRootView {
                     state: \.linkEdit,
                     action: \.scope.linkEdit
                 )
-            ) {
-                PokitLinkEditView(store: $0)
+            ) { store in
+                WithPerceptionTracking {
+                    PokitLinkEditView(store: store)
+                }
             }
             .task { await send(.뷰가_나타났을때).finish() }
         }
