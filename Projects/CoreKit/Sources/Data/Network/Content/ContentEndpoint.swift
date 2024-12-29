@@ -28,6 +28,7 @@ public enum ContentEndpoint {
         condition: BaseConditionRequest
     )
     case 썸네일_수정(contentId: String, model: ThumbnailRequest)
+    case 미분류_링크_포킷_이동(model: ContentMoveRequest)
 }
 
 extension ContentEndpoint: TargetType {
@@ -57,6 +58,8 @@ extension ContentEndpoint: TargetType {
             return ""
         case let .썸네일_수정(contentId, _):
             return "/thumbnail/\(contentId)"
+        case .미분류_링크_포킷_이동:
+            return ""
         }
     }
     
@@ -72,7 +75,8 @@ extension ContentEndpoint: TargetType {
             return .post
             
         case .컨텐츠_수정,
-             .썸네일_수정:
+             .썸네일_수정,
+             .미분류_링크_포킷_이동:
             return .patch
             
         case .카태고리_내_컨텐츠_목록_조회,
@@ -134,6 +138,9 @@ extension ContentEndpoint: TargetType {
                 encoding: URLEncoding.default
             )
         case let .썸네일_수정(_, model):
+            return .requestJSONEncodable(model)
+            
+        case let .미분류_링크_포킷_이동(model):
             return .requestJSONEncodable(model)
         }
     }

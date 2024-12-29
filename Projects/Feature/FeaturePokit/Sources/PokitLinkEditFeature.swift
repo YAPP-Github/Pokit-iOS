@@ -5,6 +5,7 @@
 //  Created by 김민호 on 12/24/24.
 
 import ComposableArchitecture
+import CoreKit
 import Domain
 import Util
 
@@ -12,12 +13,20 @@ import Util
 public struct PokitLinkEditFeature {
     /// - Dependency
     @Dependency(\.dismiss) var dismiss
+    @Dependency(CategoryClient.self) var categoryClient
+    @Dependency(ContentClient.self) var contentClient
     /// - State
     @ObservableState
     public struct State: Equatable {
+        /// 링크 아이템 Doamin
         var item: BaseContentListInquiry
+        /// 카테고리 아이템 Domain
+        var category: BaseCategoryListInquiry?
+        /// 링크 목록
         var list = IdentifiedArrayOf<BaseContentItem>()
+        /// 선택한 링크 목록
         var selectedItems = IdentifiedArrayOf<BaseContentItem>()
+        /// 포킷 이동 눌렀을 때 sheet
         var isPresented: Bool = false
         
         public init(linkList: BaseContentListInquiry) {
@@ -40,12 +49,17 @@ public struct PokitLinkEditFeature {
         public enum View: BindableAction, Equatable {
             case binding(BindingAction<State>)
             case dismiss
+            case onAppear
             
+            case 카테고리_추가_버튼_눌렀을때
             case 체크박스_선택했을때(BaseContentItem)
             case 카테고리_선택했을때(BaseCategoryItem)
         }
         
-        public enum InnerAction: Equatable { case 없음 }
+        public enum InnerAction: Equatable {
+            case 카테고리_목록_조회_API_반영(BaseCategoryListInquiry)
+            case 미분류_카테고리_이동_API_반영
+        }
         
         public enum AsyncAction: Equatable { case 없음 }
         
@@ -101,6 +115,12 @@ private extension PokitLinkEditFeature {
         case .dismiss:
             return .run { _ in await dismiss() }
             
+        case .onAppear:
+            return fetchCateogryList()
+            
+        case .카테고리_추가_버튼_눌렀을때:
+            return .none
+            
         case let .체크박스_선택했을때(item):
             /// 이미 체크되어 있다면 해제
             if state.selectedItems.contains(item) {
@@ -111,15 +131,27 @@ private extension PokitLinkEditFeature {
             return .none
             
         case let .카테고리_선택했을때(pokit):
-            //TODO: 포킷이동 네트워크 구현
-            state.isPresented = false
-            return .none
+            return moveContentList(categoryId: pokit.id, state: &state)
         }
     }
     
     /// - Inner Effect
     func handleInnerAction(_ action: Action.InnerAction, state: inout State) -> Effect<Action> {
-        return .none
+        switch action {
+        case let .카테고리_목록_조회_API_반영(response):
+            state.category = response
+            return .none
+            
+        case .미분류_카테고리_이동_API_반영:
+            /// 1. 시트 내리기
+            state.isPresented = false
+            /// 2. 선택했던 체크리스트 삭제
+            state.selectedItems
+                .map { $0.id }
+                .forEach { state.list.remove(id: $0) }
+            state.selectedItems.removeAll()
+            return .none
+        }
     }
     
     /// - Async Effect
@@ -153,5 +185,24 @@ private extension PokitLinkEditFeature {
     /// - Delegate Effect
     func handleDelegateAction(_ action: Action.DelegateAction, state: inout State) -> Effect<Action> {
         return .none
+    }
+    
+    /// 카테고리 목록 조회 API
+    func fetchCateogryList() -> Effect<Action> {
+        return .run { send in
+            let request: BasePageableRequest = BasePageableRequest(page: 0, size: 100, sort: ["createdAt", "desc"])
+            let response = try await categoryClient.카테고리_목록_조회(model: request, filterUncategorized: false).toDomain()
+            await send(.inner(.카테고리_목록_조회_API_반영(response)))
+        }
+    }
+    
+    /// 미분류 링크 카테고리 이동 API
+    func moveContentList(categoryId: Int, state: inout State) -> Effect<Action> {
+        return .run { [contentIds = state.selectedItems] send in
+            let contentIds = contentIds.map { $0.id }
+            let request = ContentMoveRequest(contentIds: contentIds, categoryId: categoryId)
+            try await contentClient.미분류_링크_포킷_이동(request)
+            await send(.inner(.미분류_카테고리_이동_API_반영))
+        }
     }
 }
