@@ -8,7 +8,9 @@ import Foundation
 
 import ComposableArchitecture
 import CoreKit
+import Domain
 import Util
+import UIKit
 
 @Reducer
 public struct SplashFeature {
@@ -21,10 +23,13 @@ public struct SplashFeature {
     var authClient
     @Dependency(KeychainClient.self)
     var keychain
+    @Dependency(VersionClient.self)
+    var versionClient
     /// - State
     @ObservableState
-    public struct State: Equatable {
+    public struct State {
         @Shared(.appStorage("isNeedSessionDeleted")) var isNeedSessionDeleted: Bool = true
+        @Presents var alert: AlertState<Action.Alert>?
         public init() {}
     }
     /// - Action
@@ -36,17 +41,25 @@ public struct SplashFeature {
         case delegate(DelegateAction)
         
         @CasePathable
-        public enum View: Equatable {
+        public enum View: BindableAction, Equatable {
+            case binding(BindingAction<State>)
             case onAppear
         }
         public enum InnerAction: Equatable {
             case 키_제거
+            case 앱스토어_알림_활성화(trackId: Int)
         }
-        public enum AsyncAction: Equatable { case doNothing }
-        public enum ScopeAction: Equatable { case doNothing }
+        public enum AsyncAction: Equatable { case 없음 }
+        @CasePathable
+        public enum ScopeAction {
+            case alert(PresentationAction<Alert>)
+        }
         public enum DelegateAction: Equatable {
             case loginNeeded
             case autoLoginSuccess
+        }
+        public enum Alert {
+            case 앱스토어_이동(trackId: Int)
         }
     }
     /// initiallizer
@@ -73,7 +86,9 @@ public struct SplashFeature {
     }
     /// - Reducer body
     public var body: some ReducerOf<Self> {
+        BindingReducer(action: \.view)
         Reduce(self.core)
+            .ifLet(\.$alert, action: \.scope.alert)
     }
 }
 //MARK: - FeatureAction Effect
@@ -81,9 +96,24 @@ private extension SplashFeature {
     /// - View Effect
     func handleViewAction(_ action: Action.View, state: inout State) -> Effect<Action> {
         switch action {
+        case .binding:
+            return .none
+            
         case .onAppear:
             return .run { [isNeedSessionDeleted  = state.isNeedSessionDeleted] send in
                 try await self.clock.sleep(for: .milliseconds(2000))
+                /// Version Check
+                let response = try await versionClient.버전체크().toDomain()
+                guard
+                    let info = Bundle.main.infoDictionary,
+                    let currentVersion = info["CFBundleShortVersionString"] as? String else { return }
+                let appStoreVersion = response
+                let nowVersion = Version(currentVersion, trackId: response.trackId)
+                
+                if nowVersion < appStoreVersion {
+                    await send(.inner(.앱스토어_알림_활성화(trackId: response.trackId)))
+                    return
+                }
                 if isNeedSessionDeleted {
                     guard let platform = userDefaults.stringKey(.authPlatform) else {
                         print("platform이 없어서 벗어남")
@@ -161,6 +191,18 @@ private extension SplashFeature {
                 await userDefaults.removeString(.authPlatform)
                 await isNeedSessionDeleted.withLock { $0 = false }
             }
+            
+        case let .앱스토어_알림_활성화(trackId):
+            state.alert = .init(title: {
+                TextState("업데이트")
+            }, actions: {
+                ButtonState(role: .none, action: .앱스토어_이동(trackId: trackId)) {
+                    TextState("앱스토어 이동")
+                }
+            }, message: {
+                TextState("최신버전의 포킷으로 업데이트가 필요합니다.")
+            })
+            return .none
         }
     }
     /// - Async Effect
@@ -169,10 +211,25 @@ private extension SplashFeature {
     }
     /// - Scope Effect
     func handleScopeAction(_ action: Action.ScopeAction, state: inout State) -> Effect<Action> {
+        switch action {
+        case let .alert(.presented(.앱스토어_이동(trackId))):
+            if let url = URL(string: "https://apps.apple.com/app/id\(trackId)"),
+               UIApplication.shared.canOpenURL(url) {
+                UIApplication.shared.open(url, options: [:], completionHandler: nil)
+            }
+            return .none
+            
+        case .alert:
+            return .none
+        }
         return .none
     }
     /// - Delegate Effect
     func handleDelegateAction(_ action: Action.DelegateAction, state: inout State) -> Effect<Action> {
+        return .none
+    }
+    
+    func versionCheck() -> Effect<Action> {
         return .none
     }
 }
