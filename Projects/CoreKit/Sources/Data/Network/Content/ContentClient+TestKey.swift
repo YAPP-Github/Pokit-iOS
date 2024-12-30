@@ -19,7 +19,8 @@ extension ContentClient: TestDependencyKey {
             미분류_카테고리_컨텐츠_조회: { _ in .mock },
             컨텐츠_검색: { _, _ in .mock },
             썸네일_수정: { _, _ in },
-            미분류_링크_포킷_이동: { _ in }
+            미분류_링크_포킷_이동: { _ in },
+            미분류_링크_삭제: { _ in }
         )
     }()
 }
