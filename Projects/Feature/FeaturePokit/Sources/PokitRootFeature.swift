@@ -4,6 +4,8 @@
 //
 //  Created by 김민호 on 7/16/24.
 
+import Foundation
+
 import ComposableArchitecture
 import FeatureContentCard
 import Domain
@@ -518,13 +520,25 @@ private extension PokitRootFeature {
         case .contents:
             return .none
             
-        case .linkEdit(.presented(.delegate(.링크_편집_종료))):
-            state.contents.removeAll()
+        case let .linkEdit(.presented(.delegate(.링크_편집_종료(list)))):
+            /// 링크가 비어있을때는 전부 삭제
+            if list.isEmpty {
+                state.contents.removeAll()
+            } else {
+                /// 링크가 일부 있을 때 -> 그 일부를 붙여넣기
+                var linkIds = IdentifiedArrayOf<ContentCardFeature.State>()
+                list.forEach { item in
+                    state.contents.forEach { content in
+                        if item.id == content.content.id {
+                            linkIds.append(content)
+                        }
+                    }
+                }
+                state.contents.removeAll()
+                state.contents = linkIds
+            }
             state.linkEdit = nil
             return .none
-            
-        case .linkEdit(.dismiss):
-            return .send(.view(.뷰가_나타났을때))
             
         case .linkEdit:
             return .none
