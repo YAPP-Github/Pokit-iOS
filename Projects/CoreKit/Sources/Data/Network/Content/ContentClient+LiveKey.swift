@@ -58,6 +58,9 @@ extension ContentClient: DependencyKey {
             },
             미분류_링크_포킷_이동: { model in
                 try await provider.requestNoBody(.미분류_링크_포킷_이동(model: model))
+            },
+            미분류_링크_삭제: { model in
+                try await provider.requestNoBody(.미분류_링크_삭제(model: model))
             }
         )
     }()

@@ -29,6 +29,7 @@ public enum ContentEndpoint {
     )
     case 썸네일_수정(contentId: String, model: ThumbnailRequest)
     case 미분류_링크_포킷_이동(model: ContentMoveRequest)
+    case 미분류_링크_삭제(model: ContentDeleteRequest)
 }
 
 extension ContentEndpoint: TargetType {
@@ -60,13 +61,16 @@ extension ContentEndpoint: TargetType {
             return "/thumbnail/\(contentId)"
         case .미분류_링크_포킷_이동:
             return ""
+        case .미분류_링크_삭제:
+            return "/uncategorized"
         }
     }
     
     public var method: Moya.Method {
         switch self {
         case .컨텐츠_삭제,
-             .즐겨찾기_취소:
+             .즐겨찾기_취소,
+             .미분류_링크_삭제:
             return .put
             
         case .컨텐츠_상세_조회,
@@ -141,6 +145,9 @@ extension ContentEndpoint: TargetType {
             return .requestJSONEncodable(model)
             
         case let .미분류_링크_포킷_이동(model):
+            return .requestJSONEncodable(model)
+            
+        case let .미분류_링크_삭제(model):
             return .requestJSONEncodable(model)
         }
     }
