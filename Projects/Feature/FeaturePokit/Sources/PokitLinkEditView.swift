@@ -28,12 +28,7 @@ public extension PokitLinkEditView {
     var body: some View {
         WithPerceptionTracking {
             VStack(spacing: 0) {
-                if store.list.isEmpty {
-                    PokitCaution(type: .미분류_링크없음)
-                    Spacer()
-                } else {
-                    contentList
-                }
+                contentList
             }
             .padding(.top, 16)
             .overlay(alignment: .bottom) {
