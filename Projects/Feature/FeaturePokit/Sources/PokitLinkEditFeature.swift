@@ -84,7 +84,9 @@ public struct PokitLinkEditFeature {
             case addPokit(PresentationAction<PokitCategorySettingFeature.Action>)
         }
         
-        public enum DelegateAction: Equatable { case 없음 }
+        public enum DelegateAction: Equatable {
+            case 링크_편집_종료
+        }
     }
     
     /// - Initiallizer
@@ -219,6 +221,10 @@ private extension PokitLinkEditFeature {
                 .map { $0.id }
                 .forEach { state.list.remove(id: $0) }
             state.selectedItems.removeAll()
+            
+            if state.list.isEmpty {
+                return .send(.delegate(.링크_편집_종료))
+            }
             return .none
         }
     }
@@ -273,7 +279,7 @@ private extension PokitLinkEditFeature {
     func fetchCateogryList() -> Effect<Action> {
         return .run { send in
             let request: BasePageableRequest = BasePageableRequest(page: 0, size: 100, sort: ["createdAt", "desc"])
-            let response = try await categoryClient.카테고리_목록_조회(model: request, filterUncategorized: false).toDomain()
+            let response = try await categoryClient.카테고리_목록_조회(request, false).toDomain()
             await send(.inner(.카테고리_목록_조회_API_반영(response)))
         }
     }
