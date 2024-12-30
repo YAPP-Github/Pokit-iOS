@@ -202,7 +202,7 @@ private extension PokitRootFeature {
                 return .send(.inner(.sort), animation: .pokitDissolve)
                 
             case .folder(.미분류):
-                state.sortType = .sort(state.sortType == .sort(.오래된순) ? .최신순 : .오래된순)
+                state.sortType = .sort(.최신순)
                 return .send(.inner(.sort), animation: .pokitDissolve)
                 
             default: return .none
@@ -517,6 +517,9 @@ private extension PokitRootFeature {
             return .send(.delegate(.contentDetailTapped(content)))
         case .contents:
             return .none
+            
+        case .linkEdit(.dismiss):
+            return .send(.view(.뷰가_나타났을때))
             
         case .linkEdit:
             return .none
