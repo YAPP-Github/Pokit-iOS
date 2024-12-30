@@ -32,28 +32,7 @@ public extension PokitLinkEditView {
                     PokitCaution(type: .미분류_링크없음)
                     Spacer()
                 } else {
-                    WithPerceptionTracking {
-                        ScrollView {
-                            ForEach(store.list, id: \.id) { item in
-                                let isFirst = item.id == self.store.list.first?.id
-                                let isLast = item.id == self.store.list.last?.id
-                                    PokitLinkCard(
-                                        link: item,
-                                        state: isFirst
-                                        ? .top
-                                        : isLast ? .bottom : .middle,
-                                        type: .unCatgorized(isSelected: store.selectedItems.contains(item)),
-                                        action: nil,
-                                        kebabAction: nil,
-                                        fetchMetaData: {},
-                                        favoriteAction: nil,
-                                        selectAction: { send(.체크박스_선택했을때(item)) }
-                                    )
-                            }
-                        }
-                        .scrollIndicators(.hidden)
-                        .padding(.bottom, 38)
-                    }
+                    contentList
                 }
             }
             .padding(.top, 16)
@@ -122,6 +101,29 @@ private extension PokitLinkEditView {
             }
         }
         .padding(.top, 8)
+    }
+    
+    var contentList: some View {
+        ScrollView {
+            ForEach(store.list, id: \.id) { item in
+                let isFirst = item.id == self.store.list.first?.id
+                let isLast = item.id == self.store.list.last?.id
+                    PokitLinkCard(
+                        link: item,
+                        state: isFirst
+                        ? .top
+                        : isLast ? .bottom : .middle,
+                        type: .unCatgorized(isSelected: store.selectedItems.contains(item)),
+                        action: nil,
+                        kebabAction: nil,
+                        fetchMetaData: {},
+                        favoriteAction: nil,
+                        selectAction: { send(.체크박스_선택했을때(item)) }
+                    )
+            }
+        }
+        .scrollIndicators(.hidden)
+        .padding(.bottom, 38)
     }
     
     var actionFloatButtonView: some View {
