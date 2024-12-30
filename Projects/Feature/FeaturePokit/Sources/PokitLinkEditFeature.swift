@@ -7,6 +7,8 @@
 import ComposableArchitecture
 import CoreKit
 import Domain
+import DSKit
+import FeatureCategorySetting
 import Util
 
 @Reducer
@@ -18,6 +20,7 @@ public struct PokitLinkEditFeature {
     /// - State
     @ObservableState
     public struct State: Equatable {
+        @Presents var addPokit: PokitCategorySettingFeature.State?
         /// 링크 아이템 Doamin
         var item: BaseContentListInquiry
         /// 카테고리 아이템 Domain
@@ -27,7 +30,9 @@ public struct PokitLinkEditFeature {
         /// 선택한 링크 목록
         var selectedItems = IdentifiedArrayOf<BaseContentItem>()
         /// 포킷 이동 눌렀을 때 sheet
-        var isPresented: Bool = false
+        var categorySelectSheetPresetend: Bool = false
+        var linkDeleteSheetPresented: Bool = false
+        var linkPopup: PokitLinkPopup.PopupType?
         
         public init(linkList: BaseContentListInquiry) {
             self.item = linkList
@@ -49,22 +54,31 @@ public struct PokitLinkEditFeature {
         public enum View: BindableAction, Equatable {
             case binding(BindingAction<State>)
             case dismiss
-            case onAppear
             
-            case 카테고리_추가_버튼_눌렀을때
+            case 뷰가_나타났을때
+            case 포킷_추가하기_버튼_눌렀을때
+            case 링크팝업_버튼_눌렀을때
+            case 경고시트_해제
+            case 삭제확인_버튼_눌렀을때
             case 체크박스_선택했을때(BaseContentItem)
             case 카테고리_선택했을때(BaseCategoryItem)
         }
         
-        public enum InnerAction: Equatable {
+        public enum InnerAction {
+            case error(Error)
+            case 카테고리_이동_시트_활성화(Bool)
+            case 카테고리_삭제_시트_활성화(Bool)
+            case 경고팝업_활성화(PokitLinkPopup.PopupType)
             case 카테고리_목록_조회_API_반영(BaseCategoryListInquiry)
-            case 미분류_카테고리_이동_API_반영
+            case 미분류_API_반영(LinkEditType)
         }
         
         public enum AsyncAction: Equatable { case 없음 }
         
-        public enum ScopeAction: Equatable {
+        @CasePathable
+        public enum ScopeAction {
             case floatButtonAction(PokitLinkEditFloatView.Delegate)
+            case addPokit(PresentationAction<PokitCategorySettingFeature.Action>)
         }
         
         public enum DelegateAction: Equatable { case 없음 }
@@ -102,6 +116,9 @@ public struct PokitLinkEditFeature {
     public var body: some ReducerOf<Self> {
         BindingReducer(action: \.view)
         Reduce(self.core)
+            .ifLet(\.$addPokit, action: \.scope.addPokit) {
+                PokitCategorySettingFeature()
+            }
     }
 }
 //MARK: - FeatureAction Effect
@@ -115,11 +132,20 @@ private extension PokitLinkEditFeature {
         case .dismiss:
             return .run { _ in await dismiss() }
             
-        case .onAppear:
+        case .뷰가_나타났을때:
             return fetchCateogryList()
             
-        case .카테고리_추가_버튼_눌렀을때:
+        case .포킷_추가하기_버튼_눌렀을때:
+            state.categorySelectSheetPresetend = false
+            state.linkDeleteSheetPresented = false
+            state.addPokit = PokitCategorySettingFeature.State(type: .추가)
             return .none
+            
+        case .경고시트_해제:
+            return .send(.inner(.카테고리_삭제_시트_활성화(false)))
+            
+        case .삭제확인_버튼_눌렀을때:
+            return linkDelete(state: &state)
             
         case let .체크박스_선택했을때(item):
             /// 이미 체크되어 있다면 해제
@@ -131,20 +157,60 @@ private extension PokitLinkEditFeature {
             return .none
             
         case let .카테고리_선택했을때(pokit):
-            return moveContentList(categoryId: pokit.id, state: &state)
+            /// 🚨 Error Case [1]: 체크한 것이 없는데 카테고리를 선택했을 때
+            if state.selectedItems.isEmpty {
+                return .merge(
+                    .send(.inner(.카테고리_이동_시트_활성화(false))),
+                    .send(.inner(.경고팝업_활성화(.error(title: "링크를 선택해주세요."))))
+                )
+            } else {
+                return moveContentList(categoryId: pokit.id, state: &state)
+            }
+            
+        case .링크팝업_버튼_눌렀을때:
+            state.linkPopup = nil
+            return .none
         }
     }
     
     /// - Inner Effect
     func handleInnerAction(_ action: Action.InnerAction, state: inout State) -> Effect<Action> {
         switch action {
+        case let .error(error):
+            guard let errorResponse = error as? ErrorResponse else { return .none }
+            state.categorySelectSheetPresetend = false
+            state.linkDeleteSheetPresented = false
+            return .merge(
+                .send(.inner(.카테고리_이동_시트_활성화(false))),
+                .send(.inner(.카테고리_삭제_시트_활성화(false))),
+                .send(.inner(.경고팝업_활성화(.error(title: errorResponse.message))),
+                      animation: .pokitSpring
+                )
+            )
+            
+        case let .경고팝업_활성화(type):
+            state.linkPopup = type
+            return .none
+            
+        case let .카테고리_이동_시트_활성화(isPresented):
+            state.categorySelectSheetPresetend = isPresented
+            return .none
+            
+        case let .카테고리_삭제_시트_활성화(isPresented):
+            state.linkDeleteSheetPresented = isPresented
+            return .none
+            
         case let .카테고리_목록_조회_API_반영(response):
             state.category = response
             return .none
             
-        case .미분류_카테고리_이동_API_반영:
+        case let .미분류_API_반영(type):
             /// 1. 시트 내리기
-            state.isPresented = false
+            if type == .링크이동 {
+                state.categorySelectSheetPresetend = false
+            } else {
+                state.linkDeleteSheetPresented = false
+            }
             /// 2. 선택했던 체크리스트 삭제
             state.selectedItems
                 .map { $0.id }
@@ -165,7 +231,11 @@ private extension PokitLinkEditFeature {
         case let .floatButtonAction(delegate):
             switch delegate {
             case .링크삭제_버튼_눌렀을때:
-                return .none
+                if state.selectedItems.isEmpty {
+                    return .send(.inner(.경고팝업_활성화(.error(title: "링크를 선택해주세요."))))
+                } else {
+                    return .send(.inner(.카테고리_삭제_시트_활성화(true)))
+                }
                 
             case .전체선택_버튼_눌렀을때:
                 state.selectedItems = state.list
@@ -176,9 +246,18 @@ private extension PokitLinkEditFeature {
                 return .none
                 
             case .포킷이동_버튼_눌렀을때:
-                state.isPresented = true
-                return .none
+                return .send(.inner(.카테고리_이동_시트_활성화(true)))
             }
+            
+        case .addPokit(.presented(.delegate(.settingSuccess))):
+            state.addPokit = nil
+            return .merge(
+                fetchCateogryList(),
+                .send(.inner(.카테고리_이동_시트_활성화(true)))
+            )
+            
+        case .addPokit:
+            return .none
         }
     }
     
@@ -202,7 +281,25 @@ private extension PokitLinkEditFeature {
             let contentIds = contentIds.map { $0.id }
             let request = ContentMoveRequest(contentIds: contentIds, categoryId: categoryId)
             try await contentClient.미분류_링크_포킷_이동(request)
-            await send(.inner(.미분류_카테고리_이동_API_반영))
+            await send(.inner(.미분류_API_반영(.링크이동)))
+        } catch: { error, send in
+            await send(.inner(.error(error)))
         }
+    }
+    
+    func linkDelete(state: inout State) -> Effect<Action> {
+        return .run { [contentIds = state.selectedItems.ids] send in
+            let request = ContentDeleteRequest(contentId: Array(contentIds))
+            try await contentClient.미분류_링크_삭제(request)
+            await send(.inner(.미분류_API_반영(.링크삭제)))
+        } catch: { error, send in
+            await send(.inner(.error(error)))
+        }
+    }
+}
+public extension PokitLinkEditFeature {
+    enum LinkEditType: Equatable {
+        case 링크이동
+        case 링크삭제
     }
 }
