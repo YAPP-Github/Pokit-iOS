@@ -50,11 +50,18 @@ public struct PokitSelect<Item: PokitSelectItem>: View {
         }
         .onChange(of: selectedItem) { onChangedSeletedItem($0) }
         .sheet(isPresented: $showSheet) {
-            listSheet
-                .presentationDragIndicator(.visible)
-                .pokitPresentationCornerRadius()
-                .presentationDetents([.height(564)])
-                .pokitPresentationBackground()
+            PokitSelectSheet(
+                list: list,
+                itemSelected: { item in
+                    listDismiss()
+                    action(item)
+                },
+                pokitAddAction: addAction
+            )
+            .presentationDragIndicator(.visible)
+            .pokitPresentationCornerRadius()
+            .presentationDetents([.height(564)])
+            .pokitPresentationBackground()
         }
     }
     
@@ -94,63 +101,6 @@ public struct PokitSelect<Item: PokitSelectItem>: View {
                     .stroke(self.state.backgroundStrokeColor, lineWidth: 1)
             }
             .animation(.pokitDissolve, value: self.state)
-    }
-    
-    private var listSheet: some View {
-        Group {
-            if let list {
-                VStack(spacing: 0) {
-                    if let addAction {
-                        addButton {
-                            listDismiss()
-                            addAction()
-                        }
-                    }
-                    
-                    PokitList(
-                        selectedItem: selectedItem,
-                        list: list
-                    ) { item in
-                        action(item)
-                        listCellTapped(item)
-                    }
-                }
-                .padding(.top, 12)
-                .padding(.bottom, 20)
-            } else {
-                PokitLoading()
-            }
-        }
-    }
-    
-    @ViewBuilder
-    private func addButton(
-        action: @escaping () -> Void
-    ) -> some View {
-        Button(action: action) {
-            HStack(spacing: 20) {
-                PokitIconButton(
-                    .icon(.plusR),
-                    state: .default(.secondary),
-                    size: .medium,
-                    shape: .round,
-                    action: action
-                )
-                
-                Text("포킷 추가하기")
-                    .pokitFont(.b1(.b))
-                    .foregroundStyle(.pokit(.text(.primary)))
-                
-                Spacer()
-            }
-            .padding(.vertical, 22)
-            .padding(.horizontal, 30)
-            .background(alignment: .bottom) {
-                Rectangle()
-                    .fill(.pokit(.border(.tertiary)))
-                    .frame(height: 1)
-            }
-        }
     }
     
     private func partSelectButtonTapped() {
