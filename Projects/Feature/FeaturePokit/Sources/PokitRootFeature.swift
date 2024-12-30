@@ -518,6 +518,11 @@ private extension PokitRootFeature {
         case .contents:
             return .none
             
+        case .linkEdit(.presented(.delegate(.링크_편집_종료))):
+            state.contents.removeAll()
+            state.linkEdit = nil
+            return .none
+            
         case .linkEdit(.dismiss):
             return .send(.view(.뷰가_나타났을때))
             
