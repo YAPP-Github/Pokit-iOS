@@ -14,9 +14,12 @@ import Util
 @Reducer
 public struct PokitLinkEditFeature {
     /// - Dependency
-    @Dependency(\.dismiss) var dismiss
-    @Dependency(CategoryClient.self) var categoryClient
-    @Dependency(ContentClient.self) var contentClient
+    @Dependency(\.dismiss) 
+    var dismiss
+    @Dependency(CategoryClient.self) 
+    var categoryClient
+    @Dependency(ContentClient.self) 
+    var contentClient
     /// - State
     @ObservableState
     public struct State: Equatable {
