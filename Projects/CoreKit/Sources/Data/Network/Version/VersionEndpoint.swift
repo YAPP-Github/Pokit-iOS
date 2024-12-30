@@ -16,7 +16,9 @@ public enum VersionEndpoint {
 
 extension VersionEndpoint: TargetType {
     public var baseURL: URL {
-        return Constants.serverURL.appendingPathComponent(Constants.versionPath, conformingTo: .url)
+        let bundleID = Bundle.main.bundleIdentifier ?? ""
+        let countryCode = Locale.current.language.region?.identifier ?? ""
+        return URL(string: "https://itunes.apple.com/lookup?bundleId=\(bundleID)&country=\(countryCode)")!
     }
     
     public var path: String {

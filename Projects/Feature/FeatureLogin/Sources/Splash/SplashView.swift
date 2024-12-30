@@ -13,7 +13,8 @@ import ComposableArchitecture
 @ViewAction(for: SplashFeature.self)
 public struct SplashView: View {
     /// - Properties
-    public let store: StoreOf<SplashFeature>
+    @Perception.Bindable
+    public var store: StoreOf<SplashFeature>
     /// - Initializer
     public init(store: StoreOf<SplashFeature>) {
         self.store = store
@@ -44,6 +45,7 @@ public extension SplashView {
                     .pokit(.bg(.brand))
                     .ignoresSafeArea()
             }
+            .alert($store.scope(state: \.alert, action: \.scope.alert))
             .onAppear { send(.onAppear) }
         }
     }
