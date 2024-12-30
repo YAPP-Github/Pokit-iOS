@@ -10,16 +10,21 @@ import Util
 
 
 public struct PokitSelectSheet<Item: PokitSelectItem>: View {
+    @Binding
+    private var selectedItem: Item?
+    
     private let list: [Item]?
     private let itemSelected: (Item) -> Void
     private let pokitAddAction: (() -> Void)?
     
     public init(
         list: [Item]?,
+        selectedItem: Binding<Item?> = .constant(nil),
         itemSelected: @escaping (Item) -> Void,
         pokitAddAction: (() -> Void)?
     ) {
         self.list = list
+        self._selectedItem = selectedItem
         self.itemSelected = itemSelected
         self.pokitAddAction = pokitAddAction
     }
@@ -35,10 +40,10 @@ public struct PokitSelectSheet<Item: PokitSelectItem>: View {
                         }
                     }
                     PokitList(
-                        selectedItem: nil,
+                        selectedItem: selectedItem,
                         list: list
                     ) { item in
-                            itemSelected(item)
+                        itemSelected(item)
                     }
                 }
                 .padding(.top, 12)
