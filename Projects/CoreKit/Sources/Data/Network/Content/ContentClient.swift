@@ -47,5 +47,8 @@ public struct ContentClient {
     public var 미분류_링크_포킷_이동: @Sendable (
         _ model: ContentMoveRequest
     ) async throws -> Void
+    public var 미분류_링크_삭제: @Sendable (
+        _ model: ContentDeleteRequest
+    ) async throws -> Void
 }
 
