@@ -85,7 +85,7 @@ public struct PokitLinkEditFeature {
         }
         
         public enum DelegateAction: Equatable {
-            case 링크_편집_종료
+            case 링크_편집_종료(items: [BaseContentItem])
         }
     }
     
@@ -135,7 +135,8 @@ private extension PokitLinkEditFeature {
             return .none
             
         case .dismiss:
-            return .run { _ in await dismiss() }
+            return .send(.delegate(.링크_편집_종료(items: state.list.elements)))
+//            return .run { _ in await dismiss() }
             
         case .뷰가_나타났을때:
             return fetchCateogryList()
@@ -223,7 +224,7 @@ private extension PokitLinkEditFeature {
             state.selectedItems.removeAll()
             
             if state.list.isEmpty {
-                return .send(.delegate(.링크_편집_종료))
+                return .send(.delegate(.링크_편집_종료(items: [])))
             }
             return .none
         }
