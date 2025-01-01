@@ -222,14 +222,9 @@ private extension SplashFeature {
         case .alert:
             return .none
         }
-        return .none
     }
     /// - Delegate Effect
     func handleDelegateAction(_ action: Action.DelegateAction, state: inout State) -> Effect<Action> {
-        return .none
-    }
-    
-    func versionCheck() -> Effect<Action> {
         return .none
     }
 }
