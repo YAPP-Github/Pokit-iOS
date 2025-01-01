@@ -17,7 +17,9 @@ public struct SplashFeature {
     /// - Dependency
     @Dependency(\.continuousClock) 
     var clock
-    @Dependency(UserDefaultsClient.self) 
+    @Dependency(\.openURL)
+    var openURL
+    @Dependency(UserDefaultsClient.self)
     var userDefaults
     @Dependency(AuthClient.self) 
     var authClient
@@ -213,11 +215,11 @@ private extension SplashFeature {
     func handleScopeAction(_ action: Action.ScopeAction, state: inout State) -> Effect<Action> {
         switch action {
         case let .alert(.presented(.앱스토어_이동(trackId))):
-            if let url = URL(string: "https://apps.apple.com/app/id\(trackId)"),
-               UIApplication.shared.canOpenURL(url) {
-                UIApplication.shared.open(url, options: [:], completionHandler: nil)
+            return .run { _ in
+                if let url = URL(string: "https://apps.apple.com/app/id\(trackId)") {
+                    await openURL.callAsFunction(url)
+                }
             }
-            return .none
             
         case .alert:
             return .none
