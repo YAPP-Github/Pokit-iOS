@@ -12,6 +12,7 @@ public enum Constants {
     public static let userPath: String = "/api/v1/user"
     public static let authPath: String = "/api/v1/auth"
     public static let categoryPath: String = "/api/v1/category"
+    public static let categoryPathV2: String = "/api/v2/category"
     public static let contentPath: String = "/api/v1/content"
     public static let remindPath: String = "api/v1/remind"
     public static let alertPath: String = "/api/v1/alert"

@@ -29,7 +29,10 @@ public extension CategoryItemInquiryResponse {
             categoryName: self.categoryName,
             categoryImage: self.categoryImage.toDomain(),
             contentCount: self.contentCount,
-            createdAt: self.createdAt
+            createdAt: self.createdAt,
+            openType: BaseOpenType(rawValue: self.openType) ?? .비공개,
+            keywordType: BaseInterestType(rawValue: self.keywordType) ?? .default,
+            userCount: self.userCount
         )
     }
 }

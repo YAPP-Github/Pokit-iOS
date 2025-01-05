@@ -25,7 +25,13 @@ public enum CategoryEndpoint {
 
 extension CategoryEndpoint: TargetType {
     public var baseURL: URL {
-        return Constants.serverURL.appendingPathComponent(Constants.categoryPath, conformingTo: .url)
+        switch self {
+        case .카테고리_목록_조회, .카테고리생성, .카테고리_수정:
+            return Constants.serverURL.appendingPathComponent(Constants.categoryPathV2, conformingTo: .url)
+            
+        default:
+            return Constants.serverURL.appendingPathComponent(Constants.categoryPath, conformingTo: .url)
+        }
     }
     
     public var path: String {
