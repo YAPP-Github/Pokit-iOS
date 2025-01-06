@@ -180,7 +180,11 @@ private extension PokitCategorySettingFeature {
                             imageURL: response.categoryImage.imageUrl
                         ),
                         contentCount: 0,
-                        createdAt: ""
+                        createdAt: "",
+                        //TODO: v2 property 수정
+                        openType: .비공개,
+                        keywordType: .default,
+                        userCount: 0
                     )
                     await send(.inner(.카테고리_인메모리_저장(responseToCategoryDomain)))
                     await send(.delegate(.settingSuccess))
