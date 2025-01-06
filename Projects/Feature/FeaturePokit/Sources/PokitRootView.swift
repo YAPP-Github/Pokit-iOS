@@ -157,6 +157,9 @@ private extension PokitRootView {
         ScrollView {
             LazyVStack(spacing: 0) {
                 LazyVGrid(columns: column, spacing: 12) {
+                    if let linkCount = store.favoriteContentCount {
+                        PokitFavoriteCard(linkCount: linkCount, action: {})
+                    }
                     ForEach(categories, id: \.id) { item in
                         PokitCard(
                             category: item,

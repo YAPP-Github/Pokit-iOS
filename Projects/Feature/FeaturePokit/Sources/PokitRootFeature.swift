@@ -20,12 +20,15 @@ public struct PokitRootFeature {
     private var categoryClient
     @Dependency(ContentClient.self)
     private var contentClient
+    @Dependency(RemindClient.self)
+    private var remindClient
     @Dependency(KakaoShareClient.self)
     private var kakaoShareClient
     /// - State
     @ObservableState
     public struct State: Equatable {
         @Presents var linkEdit: PokitLinkEditFeature.State?
+        var favoriteContentCount: Int?
         var folderType: PokitRootFilterType = .folder(.포킷)
         var sortType: PokitRootFilterType = .sort(.최신순)
 
@@ -94,6 +97,8 @@ public struct PokitRootFeature {
             case 카테고리_조회_API_반영(categoryList: BaseCategoryListInquiry)
             case 카테고리_페이징_조회_API_반영(contentList: BaseCategoryListInquiry)
             
+            case 즐겨찾기_컨텐츠_개수_조회_API_반영(count: Int)
+            
             case 페이지네이션_초기화
         }
 
@@ -107,6 +112,8 @@ public struct PokitRootFeature {
             case 미분류_전쳬_링크_조회_API
             case 미분류_카테고리_페이징_조회_API
             case 미분류_카테고리_페이징_재조회_API
+            
+            case 즐겨찾기_컨텐츠_개수_조회_API
         }
 
         @CasePathable
@@ -234,9 +241,15 @@ private extension PokitRootFeature {
             switch state.folderType {
             case .folder(.포킷):
                 guard let _ = state.domain.categoryList.data?.count else {
-                    return .send(.inner(.페이지네이션_초기화))
+                    return .merge(
+                        .send(.async(.즐겨찾기_컨텐츠_개수_조회_API)),
+                        .send(.inner(.페이지네이션_초기화))
+                    )
                 }
-                return .send(.async(.카테고리_페이징_재조회_API), animation: .pokitSpring)
+                return .merge(
+                    .send(.async(.즐겨찾기_컨텐츠_개수_조회_API)),
+                    .send(.async(.카테고리_페이징_재조회_API), animation: .pokitSpring)
+                )
                 
             case .folder(.미분류):
                 guard let _ = state.domain.unclassifiedContentList.data?.count else {
@@ -354,6 +367,11 @@ private extension PokitRootFeature {
                 
             default: return .none
             }
+            
+        case let .즐겨찾기_컨텐츠_개수_조회_API_반영(count):
+            /// count가 0보다 작다면 화면에 띄울 필요가 없기에 nil 할당
+            state.favoriteContentCount =  count > 0 ? count : nil
+            return .none
         }
     }
 
@@ -459,6 +477,12 @@ private extension PokitRootFeature {
                 }
                 guard let categoryItems else { return }
                 await send(.inner(.카테고리_조회_API_반영(categoryList: categoryItems)), animation: .pokitSpring)
+            }
+            
+        case .즐겨찾기_컨텐츠_개수_조회_API:
+            return .run { send in
+                let favoriteContentCount = try await remindClient.즐겨찾기_컨텐츠_개수_조회().count
+                await send(.inner(.즐겨찾기_컨텐츠_개수_조회_API_반영(count: favoriteContentCount)))
             }
         }
     }
