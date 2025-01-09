@@ -69,7 +69,8 @@ public enum Feature: String, CaseIterable {
         case .login: return []
         case .pokit:
             return [
-                .project(target: "FeatureContentCard", path: .relativeToRoot("Projects/Feature"))
+                .project(target: "FeatureContentCard", path: .relativeToRoot("Projects/Feature")),
+                .project(target: "FeatureCategorySetting", path: .relativeToRoot("Projects/Feature"))
             ]
         case .categoryDetail:
             return [
