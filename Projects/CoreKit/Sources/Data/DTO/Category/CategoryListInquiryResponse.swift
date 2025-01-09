@@ -82,9 +82,9 @@ extension CategoryListInquiryResponse {
                 ),
                 contentCount: 90,
                 createdAt: "",
-                openType: "PRIVATE",
+                openType: "PUBLIC",
                 keywordType: "스포츠/레저",
-                userCount: 0
+                userCount: 1
             ),
             CategoryItemInquiryResponse(
                 categoryId: 3,
@@ -98,7 +98,7 @@ extension CategoryListInquiryResponse {
                 createdAt: "",
                 openType: "PUBLIC",
                 keywordType: "스포츠/레저",
-                userCount: 0
+                userCount: 5
             )
         ],
         page: 1,
