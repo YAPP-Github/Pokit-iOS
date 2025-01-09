@@ -66,10 +66,22 @@ public struct PokitCard<Item: PokitCardItem & Shareable>: View {
         .frame(height: 152)
     }
     
+    @ViewBuilder
     private var title: some View {
-        Text(category.categoryName)
-            .pokitFont(.b1(.b))
-            .foregroundStyle(.pokit(.text(.primary)))
+        let isPublic = category.openType == .공개
+        
+        HStack(spacing: isPublic ? 2 : 0) {
+            if isPublic {
+                Image(.icon(.lock))
+                    .resizable()
+                    .frame(width: 18, height: 18)
+                    .padding(.vertical, 3)
+                    .foregroundStyle(.pokit(.icon(.tertiary)))
+            }
+            Text(category.categoryName)
+                .pokitFont(.b1(.b))
+                .foregroundStyle(.pokit(.text(.primary)))
+        }
     }
     
     private var kebabButton: some View {
@@ -81,11 +93,25 @@ public struct PokitCard<Item: PokitCardItem & Shareable>: View {
         }
     }
     
+    @ViewBuilder
     private var subTitle: some View {
-        Text("링크 \(category.contentCount)개")
-            .pokitFont(.detail2)
-            .foregroundStyle(.pokit(.text(.tertiary)))
-            .contentTransition(.numericText())
+        let isShared = category.userCount > 1
+        
+        HStack(spacing: 2) {
+            Text("링크 \(category.contentCount)개")
+                .contentTransition(.numericText())
+            
+            if isShared {
+                Text("•")
+                    .pokitFont(.detail2)
+                Image(.iconMember)
+                    .resizable()
+                    .frame(width: 16, height: 16)
+                Text("\(category.userCount)명")
+            }
+        }
+        .pokitFont(.detail2)
+        .foregroundStyle(.pokit(.text(.tertiary)))
     }
 
     @MainActor
