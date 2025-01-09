@@ -8,6 +8,7 @@
 import Foundation
 
 import CoreKit
+import Util
 
 public extension CategoryListInquiryResponse {
     func toDomain() -> BaseCategoryListInquiry {

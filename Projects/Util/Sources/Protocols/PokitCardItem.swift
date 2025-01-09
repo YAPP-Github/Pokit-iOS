@@ -19,3 +19,9 @@ public protocol CategoryImage {
     var id: Int { get }
     var imageURL: String { get }
 }
+
+public protocol Shareable {
+    var openType: BaseOpenType { get }
+    var keywordType: BaseInterestType { get }
+    var userCount: Int { get }
+}

@@ -10,7 +10,7 @@ import SwiftUI
 import Util
 import NukeUI
 
-public struct PokitCard<Item: PokitCardItem>: View {
+public struct PokitCard<Item: PokitCardItem & Shareable>: View {
     private let category: Item
     private let action: () -> Void
     private let kebabAction: () -> Void
