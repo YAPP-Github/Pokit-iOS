@@ -1,6 +1,6 @@
 //
 //  BaseInterestType.swift
-//  Domain
+//  Util
 //
 //  Created by 김민호 on 1/6/25.
 //
