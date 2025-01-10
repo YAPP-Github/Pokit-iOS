@@ -111,9 +111,12 @@ private extension ContentCardFeature {
             }
             return .run {  _ in await openURL(url) }
         case .컨텐츠_항목_케밥_버튼_눌렀을때:
-            return .send(.delegate(.컨텐츠_항목_케밥_버튼_눌렀을때(content: state.content)))
+            return shared(
+                .delegate(.컨텐츠_항목_케밥_버튼_눌렀을때(content: state.content)),
+                state: &state
+            )
         case .메타데이터_조회:
-            return .send(.async(.메타데이터_조회_수행))
+            return shared(.async(.메타데이터_조회_수행), state: &state)
         case .즐겨찾기_버튼_눌렀을때:
             guard let isFavorite = state.content.isFavorite else {
                 return .none
@@ -121,8 +124,8 @@ private extension ContentCardFeature {
             UIImpactFeedbackGenerator(style: .light)
                 .impactOccurred()
             return isFavorite
-            ? .send(.async(.즐겨찾기_취소_API))
-            : .send(.async(.즐겨찾기_API))
+            ? shared(.async(.즐겨찾기_취소_API), state: &state)
+            : shared(.async(.즐겨찾기_API), state: &state)
         }
     }
     
@@ -131,7 +134,7 @@ private extension ContentCardFeature {
         switch action {
         case let .메타데이터_조회_수행_반영(imageURL):
             state.content.thumbNail = imageURL
-            return .send(.async(.썸네일_수정_API))
+            return shared(.async(.썸네일_수정_API), state: &state)
         case .즐겨찾기_API_반영(let favorite):
             state.content.isFavorite = favorite
             return .none
@@ -180,5 +183,20 @@ private extension ContentCardFeature {
     /// - Delegate Effect
     func handleDelegateAction(_ action: Action.DelegateAction, state: inout State) -> Effect<Action> {
         return .none
+    }
+    
+    func shared(_ action: Action, state: inout State) -> Effect<Action> {
+        switch action {
+        case .view(let viewAction):
+            return handleViewAction(viewAction, state: &state)
+        case .inner(let innerAction):
+            return handleInnerAction(innerAction, state: &state)
+        case .async(let asyncAction):
+            return handleAsyncAction(asyncAction, state: &state)
+        case .scope(let scopeAction):
+            return handleScopeAction(scopeAction, state: &state)
+        case .delegate(let delegateAction):
+            return handleDelegateAction(delegateAction, state: &state)
+        }
     }
 }
