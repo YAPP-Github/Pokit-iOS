@@ -95,4 +95,20 @@ private extension ___VARIABLE_sceneName___Feature {
     func handleDelegateAction(_ action: Action.DelegateAction, state: inout State) -> Effect<Action> {
         return .none
     }
+    
+    /// - Shared Effect
+    func shared(_ action: Action, state: inout State) -> Effect<Action> {
+        switch action {
+        case .view(let viewAction):
+            return handleViewAction(viewAction, state: &state)
+        case .inner(let innerAction):
+            return handleInnerAction(innerAction, state: &state)
+        case .async(let asyncAction):
+            return handleAsyncAction(asyncAction, state: &state)
+        case .scope(let scopeAction):
+            return handleScopeAction(scopeAction, state: &state)
+        case .delegate(let delegateAction):
+            return handleDelegateAction(delegateAction, state: &state)
+        }
+    }
 }
