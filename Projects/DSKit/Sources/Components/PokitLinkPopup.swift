@@ -57,7 +57,7 @@ public struct PokitLinkPopup: View {
                 VStack(alignment: .leading, spacing: 0) {
                     Text(title)
                         .lineLimit(2)
-                        .pokitFont(.b2(.b))
+                        .pokitFont(titleFont)
                         .multilineTextAlignment(.leading)
                         .foregroundStyle(textColor)
                     
@@ -76,7 +76,7 @@ public struct PokitLinkPopup: View {
                         .foregroundStyle(.pokit(.icon(.inverseWh)))
                 }
                 
-                Spacer(minLength: 72)
+                Spacer()
             }
             
             closeButton
@@ -148,6 +148,13 @@ public struct PokitLinkPopup: View {
             return .pokit(.text(.primary))
         default:
             return .pokit(.text(.inverseWh))
+        }
+    }
+    
+    private var titleFont: PokitFont {
+        switch type {
+        case .link: return .b2(.b)
+        default:    return .b3(.b)
         }
     }
     
