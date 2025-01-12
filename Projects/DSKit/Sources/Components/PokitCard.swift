@@ -68,10 +68,10 @@ public struct PokitCard<Item: PokitCardItem & Shareable>: View {
     
     @ViewBuilder
     private var title: some View {
-        let isPublic = category.openType == .공개
+        let isPrivate = category.openType == .비공개
         
-        HStack(spacing: isPublic ? 2 : 0) {
-            if isPublic {
+        HStack(spacing: isPrivate ? 2 : 0) {
+            if isPrivate {
                 Image(.icon(.lock))
                     .resizable()
                     .frame(width: 18, height: 18)
