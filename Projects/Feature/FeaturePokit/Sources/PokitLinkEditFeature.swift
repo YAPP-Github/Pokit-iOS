@@ -280,7 +280,7 @@ private extension PokitLinkEditFeature {
     func fetchCateogryList() -> Effect<Action> {
         return .run { send in
             let request: BasePageableRequest = BasePageableRequest(page: 0, size: 100, sort: ["createdAt", "desc"])
-            let response = try await categoryClient.카테고리_목록_조회(request, false).toDomain()
+            let response = try await categoryClient.카테고리_목록_조회(request, true).toDomain()
             await send(.inner(.카테고리_목록_조회_API_반영(response)))
         }
     }
