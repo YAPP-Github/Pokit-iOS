@@ -14,7 +14,10 @@ public struct CategoryClient {
         _ categoryId: Int,
         _ model: CategoryEditRequest
     ) async throws -> CategoryEditResponse
-    public var 카테고리_목록_조회: @Sendable (_ model: BasePageableRequest, _ filterUncategorized: Bool) async throws -> CategoryListInquiryResponse
+    public var 카테고리_목록_조회: @Sendable (
+        _ model: BasePageableRequest,
+        _ filterUncategorized: Bool
+    ) async throws -> CategoryListInquiryResponse
     public var 카테고리_생성: @Sendable (
         _ model: CategoryEditRequest
     ) async throws -> CategoryEditResponse
