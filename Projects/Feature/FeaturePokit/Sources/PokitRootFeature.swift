@@ -130,6 +130,7 @@ public struct PokitRootFeature {
             case settingButtonTapped
 
             case categoryTapped(BaseCategoryItem)
+            case linkPopup(text: String)
             case 수정하기(BaseCategoryItem)
             case 링크수정하기(id: Int)
             /// 링크상세로 이동
@@ -544,7 +545,7 @@ private extension PokitRootFeature {
         case .contents:
             return .none
             
-        case let .linkEdit(.presented(.delegate(.링크_편집_종료(list)))):
+        case let .linkEdit(.presented(.delegate(.링크_편집_종료(list, type)))):
             /// 링크가 비어있을때는 전부 삭제
             if list.isEmpty {
                 state.contents.removeAll()
@@ -562,6 +563,11 @@ private extension PokitRootFeature {
                 state.contents = linkIds
             }
             state.linkEdit = nil
+            
+            if case let .링크이동(categoryName) = type {
+                let text = "\(categoryName)\n카테고리로 이동되었습니다."
+                return .send(.delegate(.linkPopup(text: text)))
+            }
             return .none
             
         case .linkEdit:

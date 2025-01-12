@@ -85,7 +85,7 @@ public struct PokitLinkEditFeature {
         }
         
         public enum DelegateAction: Equatable {
-            case 링크_편집_종료(items: [BaseContentItem])
+            case 링크_편집_종료(items: [BaseContentItem], type: LinkEditType)
         }
     }
     
@@ -135,8 +135,7 @@ private extension PokitLinkEditFeature {
             return .none
             
         case .dismiss:
-            return .send(.delegate(.링크_편집_종료(items: state.list.elements)))
-//            return .run { _ in await dismiss() }
+            return .send(.delegate(.링크_편집_종료(items: state.list.elements, type: .dismiss)))
             
         case .뷰가_나타났을때:
             return fetchCateogryList()
@@ -170,7 +169,7 @@ private extension PokitLinkEditFeature {
                     .send(.inner(.경고팝업_활성화(.error(title: "링크를 선택해주세요."))))
                 )
             } else {
-                return moveContentList(categoryId: pokit.id, state: &state)
+                return moveContentList(category: pokit, state: &state)
             }
             
         case .링크팝업_버튼_눌렀을때:
@@ -212,7 +211,7 @@ private extension PokitLinkEditFeature {
             
         case let .미분류_API_반영(type):
             /// 1. 시트 내리기
-            if type == .링크이동 {
+            if case .링크이동 = type {
                 state.categorySelectSheetPresetend = false
             } else {
                 state.linkDeleteSheetPresented = false
@@ -222,10 +221,16 @@ private extension PokitLinkEditFeature {
                 .map { $0.id }
                 .forEach { state.list.remove(id: $0) }
             state.selectedItems.removeAll()
-            
+            /// 3. 분류가 남은 링크가 없을 때  편집하기 종료
             if state.list.isEmpty {
-                return .send(.delegate(.링크_편집_종료(items: [])))
+                return .send(.delegate(.링크_편집_종료(items: [], type: type)))
             }
+            /// 4. 링크이동을 했을 때 바텀 메세지 출력
+            if case let .링크이동(categoryName) = type {
+                state.linkPopup = .text(title: "\(categoryName)\n카테고리로 이동되었습니다.")
+                return .none
+            }
+            
             return .none
         }
     }
@@ -286,12 +291,12 @@ private extension PokitLinkEditFeature {
     }
     
     /// 미분류 링크 카테고리 이동 API
-    func moveContentList(categoryId: Int, state: inout State) -> Effect<Action> {
+    func moveContentList(category: BaseCategoryItem, state: inout State) -> Effect<Action> {
         return .run { [contentIds = state.selectedItems] send in
             let contentIds = contentIds.map { $0.id }
-            let request = ContentMoveRequest(contentIds: contentIds, categoryId: categoryId)
+            let request = ContentMoveRequest(contentIds: contentIds, categoryId: category.id)
             try await contentClient.미분류_링크_포킷_이동(request)
-            await send(.inner(.미분류_API_반영(.링크이동)))
+            await send(.inner(.미분류_API_반영(.링크이동(categoryName: category.categoryName))))
         } catch: { error, send in
             await send(.inner(.error(error)))
         }
@@ -309,7 +314,8 @@ private extension PokitLinkEditFeature {
 }
 public extension PokitLinkEditFeature {
     enum LinkEditType: Equatable {
-        case 링크이동
+        case dismiss
+        case 링크이동(categoryName: String)
         case 링크삭제
     }
 }
