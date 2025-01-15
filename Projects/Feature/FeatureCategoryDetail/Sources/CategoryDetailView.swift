@@ -11,6 +11,7 @@ import FeatureContentCard
 import Domain
 import DSKit
 import Util
+import NukeUI
 
 @ViewAction(for: CategoryDetailFeature.self)
 public struct CategoryDetailView: View {
@@ -27,13 +28,16 @@ public struct CategoryDetailView: View {
 public extension CategoryDetailView {
     var body: some View {
         WithPerceptionTracking {
-            VStack(spacing: 16) {
+            VStack(spacing: 24) {
                 header
+                PokitDivider().padding(.horizontal, -20)
+                filterHeader
                 contentScrollView
             }
             .padding(.horizontal, 20)
             .padding(.top, 12)
             .pokitNavigationBar { navigationBar }
+            .pokitFloatButton(action: {})
             .ignoresSafeArea(edges: .bottom)
             .sheet(isPresented: $store.isCategorySheetPresented) {
                 PokitBottomSheet(
@@ -93,8 +97,23 @@ private extension CategoryDetailView {
         .padding(.top, 8)
     }
     
+    @MainActor
     var header: some View {
-        VStack(spacing: 4) {
+        VStack(spacing: 0) {
+            LazyImage(url: URL(string: store.category.categoryImage.imageURL)) { state in
+                Group {
+                    if let image = state.image {
+                        image
+                            .resizable()
+                    } else {
+                        PokitSpinner()
+                            .foregroundStyle(.pokit(.icon(.brand)))
+                    }
+                }
+                .frame(width: 100, height: 100)
+                .animation(.pokitDissolve, value: state.image)
+            }
+            .padding(.bottom, 2)
             HStack(spacing: 8) {
                 /// cateogry title
                 Button(action: { send(.카테고리_선택_버튼_눌렀을때) }) {
@@ -105,24 +124,75 @@ private extension CategoryDetailView {
                         .resizable()
                         .frame(width: 24, height: 24)
                         .foregroundStyle(.pokit(.icon(.primary)))
-                    Spacer()
                 }
                 .buttonStyle(.plain)
             }
-            HStack {
-                Text("링크 \(store.category.contentCount)개")
-                    .foregroundStyle(.pokit(.text(.secondary)))
-                    .pokitFont(.detail1)
-                Spacer()
-                PokitIconLButton(
-                    "필터",
-                    .icon(.filter),
-                    state: .filled(.primary),
-                    size: .small,
-                    shape: .round,
-                    action: { send(.필터_버튼_눌렀을때) }
-                )
+            .padding(.bottom, 8)
+            HStack(spacing: 3.5) {
+                let iconColor: Color = .pokit(.icon(.secondary))
+                let textColor: Color = .pokit(.text(.tertiary))
+                
+                if store.category.openType == .비공개 {
+                    HStack(spacing: 2) {
+                        Image(.icon(.lock))
+                            .resizable()
+                            .frame(width: 16, height: 16)
+                            .foregroundStyle(iconColor)
+                        Text("비밀")
+                            .foregroundStyle(textColor)
+                            .pokitFont(.b2(.m))
+                    }
+                }
+                HStack(spacing: 2) {
+                    Image(.icon(.link))
+                        .resizable()
+                        .frame(width: 16, height: 16)
+                        .foregroundStyle(iconColor)
+                    Text("\(store.category.contentCount)개")
+                        .foregroundStyle(textColor)
+                        .pokitFont(.b2(.m))
+                }
+                Text("#\(store.category.keywordType.title)")
+                    .foregroundStyle(textColor)
+                    .pokitFont(.b2(.m))
+                    .padding(.leading, 4.5)
             }
+            .padding(.bottom, 16)
+            PokitIconLButton(
+                "공유",
+                .icon(.share),
+                state: .filled(.primary),
+                size: .medium,
+                shape: .round,
+                action: {}
+            )
+        }
+    }
+    
+    var filterHeader: some View {
+        HStack(spacing: 8) {
+            PokitTextButton(
+                "즐겨찾기",
+                state: .filled(.primary),
+                size: .small,
+                shape: .round,
+                action: {}
+            )
+            PokitTextButton(
+                "안읽음",
+                state: .filled(.primary),
+                size: .small,
+                shape: .round,
+                action: {}
+            )
+            
+            Spacer()
+            PokitIconLTextLink(
+                "최신순",
+                icon: .icon(.align),
+                action: {}
+            )
+            .contentTransition(.numericText())
         }
     }
     
@@ -132,7 +202,7 @@ private extension CategoryDetailView {
                 if store.contents.isEmpty {
                     VStack {
                         PokitCaution(type: .링크없음)
-                        .padding(.top, 20)
+                            .padding(.top, 20)
                         
                         Spacer()
                     }
@@ -204,8 +274,8 @@ private extension CategoryDetailView {
                         id: 0,
                         userId: 0,
                         categoryName: "포킷",
-                        categoryImage: .init(imageId: 0, imageURL: ""),
-                        contentCount: 16, 
+                        categoryImage: .init(imageId: 0, imageURL: Constants.mockImageUrl),
+                        contentCount: 16,
                         createdAt: "",
                         //TODO: v2 property 수정
                         openType: .비공개,
