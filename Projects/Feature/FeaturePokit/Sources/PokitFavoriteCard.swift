@@ -25,7 +25,6 @@ public struct PokitFavoriteCard: View {
         }
     }
     
-    @MainActor
     private var buttonLabel: some View {
         VStack(spacing: 0) {
             HStack {
@@ -76,7 +75,6 @@ public struct PokitFavoriteCard: View {
             .contentTransition(.numericText())
     }
 
-    @MainActor
     private var thumbNail: some View {
         Image(.character(.pooki))
             .resizable()
