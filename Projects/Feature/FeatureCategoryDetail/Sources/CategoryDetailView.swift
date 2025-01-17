@@ -64,14 +64,6 @@ public extension CategoryDetailView {
                     delegateSend: { store.send(.scope(.categoryDeleteBottomSheet($0))) }
                 )
             }
-            .sheet(isPresented: $store.isFilterSheetPresented) {
-                CategoryFilterSheet(
-                    sortType: $store.sortType,
-                    isBookMarkSelected: store.isFavoriteFiltered,
-                    isUnreadSeleected: store.isUnreadFiltered,
-                    delegateSend: { store.send(.scope(.filterBottomSheet($0))) }
-                )
-            }
             .task { await send(.뷰가_나타났을때).finish() }
         }
     }
@@ -172,24 +164,28 @@ private extension CategoryDetailView {
         HStack(spacing: 8) {
             PokitTextButton(
                 "즐겨찾기",
-                state: .filled(.primary),
+                state: store.isFavoriteFiltered
+                ? .filled(.primary)
+                : .default(.secondary),
                 size: .small,
                 shape: .round,
-                action: {}
+                action: { send(.분류_버튼_눌렀을때(.즐겨찾기)) }
             )
             PokitTextButton(
                 "안읽음",
-                state: .filled(.primary),
+                state: store.isUnreadFiltered
+                ? .filled(.primary)
+                : .default(.secondary),
                 size: .small,
                 shape: .round,
-                action: {}
+                action: { send(.분류_버튼_눌렀을때(.안읽음)) }
             )
             
             Spacer()
             PokitIconLTextLink(
-                "최신순",
+                store.sortType.title,
                 icon: .icon(.align),
-                action: {}
+                action: { send(.정렬_버튼_눌렀을때) }
             )
             .contentTransition(.numericText())
         }
