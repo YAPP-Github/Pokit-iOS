@@ -37,7 +37,7 @@ public extension CategoryDetailView {
             .padding(.horizontal, 20)
             .padding(.top, 12)
             .pokitNavigationBar { navigationBar }
-            .pokitFloatButton(action: {})
+            .pokitFloatButton(action: { send(.링크_추가_버튼_눌렀을때) })
             .ignoresSafeArea(edges: .bottom)
             .sheet(isPresented: $store.isCategorySheetPresented) {
                 PokitBottomSheet(
@@ -147,7 +147,7 @@ private extension CategoryDetailView {
                         .resizable()
                         .frame(width: 16, height: 16)
                         .foregroundStyle(iconColor)
-                    Text("\(store.category.contentCount)개")
+                    Text("\(store.contents.count)개")
                         .foregroundStyle(textColor)
                         .pokitFont(.b2(.m))
                 }

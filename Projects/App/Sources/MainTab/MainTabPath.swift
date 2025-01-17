@@ -171,6 +171,11 @@ public extension MainTabFeature {
                 state.path.append(.링크추가및수정(ContentSettingFeature.State(urlText: state.link)))
                 state.link = nil
                 return .none
+                
+            case let .path(.element(_, action: .카테고리상세(.delegate(.링크추가(categoryId))))):
+                state.categoryId = categoryId
+                state.path.append(.링크추가및수정(ContentSettingFeature.State()))
+                return .none
 
             /// - 링크추가 및 수정에서 저장하기 눌렀을 때
             case let .path(.element(stackElementId, action: .링크추가및수정(.delegate(.저장하기_완료(contentId))))):

@@ -90,6 +90,7 @@ public struct CategoryDetailFeature {
             case 카테고리_선택했을때(BaseCategoryItem)
             case 필터_버튼_눌렀을때
             case 뷰가_나타났을때
+            case 링크_추가_버튼_눌렀을때
         }
         
         public enum InnerAction: Equatable {
@@ -121,6 +122,7 @@ public struct CategoryDetailFeature {
             case contentItemTapped(BaseContentItem)
             case linkCopyDetected(URL?)
             case 링크수정(contentId: Int)
+            case 링크추가(categoryId: Int)
             case 포킷삭제
             case 포킷수정(BaseCategoryItem)
             case 포킷공유
@@ -185,6 +187,10 @@ private extension CategoryDetailFeature {
                 )
             )
             return .none
+            
+        case .링크_추가_버튼_눌렀을때:
+            let id = state.category.id
+            return .send(.delegate(.링크추가(categoryId: id)))
             
         case .카테고리_케밥_버튼_눌렀을때:
             return .run { send in await send(.inner(.카테고리_시트_활성화(true))) }
