@@ -41,8 +41,7 @@ public extension CategoryDetailView {
             .ignoresSafeArea(edges: .bottom)
             .sheet(isPresented: $store.isCategorySheetPresented) {
                 PokitBottomSheet(
-                    items: [.share, .edit, .delete],
-                    height: 224,
+                    items: [.edit, .delete],
                     delegateSend: { store.send(.scope(.categoryBottomSheet($0))) }
                 )
             }
@@ -164,7 +163,7 @@ private extension CategoryDetailView {
                 state: .filled(.primary),
                 size: .medium,
                 shape: .round,
-                action: {}
+                action: { send(.공유_버튼_눌렀을때) }
             )
         }
     }

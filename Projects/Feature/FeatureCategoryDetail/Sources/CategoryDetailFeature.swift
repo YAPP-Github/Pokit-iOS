@@ -83,6 +83,8 @@ public struct CategoryDetailFeature {
             case binding(BindingAction<State>)
             case dismiss
             case pagenation
+            
+            case 공유_버튼_눌렀을때
             case 카테고리_케밥_버튼_눌렀을때
             case 카테고리_선택_버튼_눌렀을때
             case 카테고리_선택했을때(BaseCategoryItem)
@@ -172,6 +174,16 @@ private extension CategoryDetailFeature {
     func handleViewAction(_ action: Action.View, state: inout State) -> Effect<Action> {
         switch action {
         case .binding:
+            return .none
+            
+        case .공유_버튼_눌렀을때:
+            kakaoShareClient.카테고리_카카오톡_공유(
+                CategoryKaKaoShareModel(
+                    categoryName: state.domain.category.categoryName,
+                    categoryId: state.domain.category.id,
+                    imageURL: state.domain.category.categoryImage.imageURL
+                )
+            )
             return .none
             
         case .카테고리_케밥_버튼_눌렀을때:
@@ -348,14 +360,6 @@ private extension CategoryDetailFeature {
         case .categoryBottomSheet(let delegateAction):
             switch delegateAction {
             case .shareCellButtonTapped:
-                kakaoShareClient.카테고리_카카오톡_공유(
-                    CategoryKaKaoShareModel(
-                        categoryName: state.domain.category.categoryName,
-                        categoryId: state.domain.category.id,
-                        imageURL: state.domain.category.categoryImage.imageURL
-                    )
-                )
-                state.isCategorySheetPresented = false
                 return .none
             case .editCellButtonTapped:
                 return .run { [category = state.category] send in
