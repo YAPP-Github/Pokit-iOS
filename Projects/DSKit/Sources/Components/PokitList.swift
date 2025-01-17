@@ -83,15 +83,13 @@ public struct PokitList<Item: PokitSelectItem>: View {
             }
             .padding(.vertical, 12)
             .padding(.horizontal, 20)
-            .background {
-                if isSelected {
-                    Color.pokit(.bg(.primary))
-                        .matchedGeometryEffect(id: "SELECT", in: heroEffect)
-                } else {
-                    isDisabled
-                    ? Color.pokit(.bg(.disable))
-                    : Color.pokit(.bg(.base))
-                }
+            .background(if: isSelected) {
+                Color.pokit(.bg(.primary))
+                    .matchedGeometryEffect(id: "SELECT", in: heroEffect)
+            } else: {
+                isDisabled
+                ? Color.pokit(.bg(.disable))
+                : Color.pokit(.bg(.base))
             }
         }
         .animation(.pokitDissolve, value: isSelected)

@@ -2,8 +2,6 @@ import ComposableArchitecture
 import XCTest
 import Domain
 import CoreKit
-import DSKit
-import Util
 
 @testable import FeatureContentCard
 
@@ -36,7 +34,7 @@ final class SendTests: XCTestCase {
         let store = TestStore(initialState: ContentCardFeature.State(
             content: ContentBaseResponse.mock(id: 0).toDomain()
         )) {
-            ContentCardFeature()
+            ContentCardFeature()._printChanges(.actionLabels)
         } withDependencies: {
             $0[ContentClient.self] = .testValue
             let parseOGImageURL: @Sendable (
@@ -62,7 +60,7 @@ final class SendTests: XCTestCase {
         let store = TestStore(initialState: LegacyContentCardFeature.State(
             content: ContentBaseResponse.mock(id: 0).toDomain()
         )) {
-            LegacyContentCardFeature()
+            LegacyContentCardFeature()._printChanges(.actionLabels)
         } withDependencies: {
             $0[ContentClient.self] = .testValue
             let parseOGImageURL: @Sendable (

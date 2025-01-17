@@ -41,12 +41,12 @@ public extension View {
     }
     
     @ViewBuilder
-    func overlay<V>(
+    func overlay(
         `if` condition: Bool,
         alignment: Alignment = .center,
-        @ViewBuilder content: () -> V,
-        @ViewBuilder `else`: () -> V? = { nil }
-    ) -> some View where V : View {
+        @ViewBuilder content: () -> some View,
+        @ViewBuilder `else`: () -> some View = { EmptyView() }
+    ) -> some View {
         self
             .overlay(alignment: alignment) {
                 if condition {
@@ -58,12 +58,12 @@ public extension View {
     }
     
     @ViewBuilder
-    func overlay<V, T>(
+    func overlay<T>(
         ifLet optional: T?,
         alignment: Alignment = .center,
-        @ViewBuilder content: (T) -> V,
-        @ViewBuilder `else`: () -> V? = { nil }
-    ) -> some View where V : View {
+        @ViewBuilder content: (T) -> some View,
+        @ViewBuilder `else`: () -> some View = { EmptyView() }
+    ) -> some View {
         self
             .overlay(alignment: alignment) {
                 if let optional {
@@ -75,12 +75,12 @@ public extension View {
     }
     
     @ViewBuilder
-    func background<V>(
+    func background(
         `if` condition: Bool,
         alignment: Alignment = .center,
-        @ViewBuilder content: () -> V,
-        @ViewBuilder `else`: () -> V? = { nil }
-    ) -> some View where V : View {
+        @ViewBuilder content: () -> some View,
+        @ViewBuilder `else`: () -> some View = { EmptyView() }
+    ) -> some View {
         self
             .background(alignment: alignment) {
                 if condition {
@@ -92,12 +92,12 @@ public extension View {
     }
     
     @ViewBuilder
-    func background<V, T>(
+    func background<T>(
         ifLet optional: T?,
         alignment: Alignment = .center,
-        @ViewBuilder content: (T) -> V,
-        @ViewBuilder `else`: () -> V? = { nil }
-    ) -> some View where V : View {
+        @ViewBuilder content: (T) -> some View,
+        @ViewBuilder `else`: () -> some View = { EmptyView() }
+    ) -> some View {
         self
             .background(alignment: alignment) {
                 if let optional {
