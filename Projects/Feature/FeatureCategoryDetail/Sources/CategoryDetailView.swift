@@ -37,7 +37,25 @@ public extension CategoryDetailView {
             .padding(.horizontal, 20)
             .padding(.top, 12)
             .pokitNavigationBar { navigationBar }
-            .pokitFloatButton(action: { send(.링크_추가_버튼_눌렀을때) })
+            //TODO: overlay(condition) merge 시 수정
+            .overlay(alignment: .bottomTrailing) {
+                if !store.contents.isEmpty {
+                    Button(action: { send(.링크_추가_버튼_눌렀을때) }) {
+                        Image(.icon(.plus))
+                            .resizable()
+                            .frame(width: 36, height: 36)
+                            .padding(12)
+                            .foregroundStyle(.pokit(.icon(.inverseWh)))
+                            .background {
+                                RoundedRectangle(cornerRadius: 9999, style: .continuous)
+                                    .fill(.pokit(.bg(.brand)))
+                            }
+                            .frame(width: 60, height: 60)
+                    }
+                    .padding(.trailing, 20)
+                    .padding(.bottom, 39)
+                }
+            }
             .ignoresSafeArea(edges: .bottom)
             .sheet(isPresented: $store.isCategorySheetPresented) {
                 PokitBottomSheet(
@@ -160,34 +178,37 @@ private extension CategoryDetailView {
         }
     }
     
+    @ViewBuilder
     var filterHeader: some View {
-        HStack(spacing: 8) {
-            PokitTextButton(
-                "즐겨찾기",
-                state: store.isFavoriteFiltered
-                ? .filled(.primary)
-                : .default(.secondary),
-                size: .small,
-                shape: .round,
-                action: { send(.분류_버튼_눌렀을때(.즐겨찾기)) }
-            )
-            PokitTextButton(
-                "안읽음",
-                state: store.isUnreadFiltered
-                ? .filled(.primary)
-                : .default(.secondary),
-                size: .small,
-                shape: .round,
-                action: { send(.분류_버튼_눌렀을때(.안읽음)) }
-            )
-            
-            Spacer()
-            PokitIconLTextLink(
-                store.sortType.title,
-                icon: .icon(.align),
-                action: { send(.정렬_버튼_눌렀을때) }
-            )
-            .contentTransition(.numericText())
+        if !store.contents.isEmpty {
+            HStack(spacing: 8) {
+                PokitTextButton(
+                    "즐겨찾기",
+                    state: store.isFavoriteFiltered
+                    ? .filled(.primary)
+                    : .default(.secondary),
+                    size: .small,
+                    shape: .round,
+                    action: { send(.분류_버튼_눌렀을때(.즐겨찾기)) }
+                )
+                PokitTextButton(
+                    "안읽음",
+                    state: store.isUnreadFiltered
+                    ? .filled(.primary)
+                    : .default(.secondary),
+                    size: .small,
+                    shape: .round,
+                    action: { send(.분류_버튼_눌렀을때(.안읽음)) }
+                )
+                
+                Spacer()
+                PokitIconLTextLink(
+                    store.sortType.title,
+                    icon: .icon(.align),
+                    action: { send(.정렬_버튼_눌렀을때) }
+                )
+                .contentTransition(.numericText())
+            }
         }
     }
     
@@ -196,8 +217,10 @@ private extension CategoryDetailView {
             if !store.isLoading {
                 if store.contents.isEmpty {
                     VStack {
-                        PokitCaution(type: .링크없음)
-                            .padding(.top, 20)
+                        PokitCaution(
+                            type: .포킷상세_링크없음,
+                            action: { send(.링크_추가_버튼_눌렀을때) }
+                        )
                         
                         Spacer()
                     }

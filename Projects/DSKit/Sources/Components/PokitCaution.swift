@@ -10,6 +10,7 @@ import SwiftUI
 public enum CautionType {
     case 카테고리없음
     case 미분류_링크없음
+    case 포킷상세_링크없음
     case 링크없음
     case 즐겨찾기_링크없음
     case 링크부족
@@ -17,12 +18,13 @@ public enum CautionType {
     
     var image: PokitImage.Character {
         switch self {
-        case .카테고리없음, .링크없음, .즐겨찾기_링크없음, .미분류_링크없음:
-            return .empty
         case .링크부족:
             return .sad
+            
         case .알림없음:
             return .pooki
+            
+        default: return .empty
         }
     }
     
@@ -32,7 +34,7 @@ public enum CautionType {
             return "저장된 포킷이 없어요!"
         case .미분류_링크없음:
             return "미분류 링크가 없어요!"
-        case .링크없음:
+        case .링크없음, .포킷상세_링크없음:
             return "저장된 링크가 없어요!"
         case .즐겨찾기_링크없음:
             return "즐겨찾기 링크가 없어요!"
@@ -49,6 +51,8 @@ public enum CautionType {
             return "포킷을 생성해 링크를 저장해보세요"
         case .미분류_링크없음:
             return "링크를 포킷에 깔끔하게 분류하셨어요"
+        case .포킷상세_링크없음:
+            return "포킷에 링크를 저장해보세요"
         case .링크없음:
             return "다양한 링크를 한 곳에 저장해보세요"
         case .즐겨찾기_링크없음:
@@ -64,7 +68,7 @@ public enum CautionType {
         switch self {
         case .카테고리없음:
             return "포킷 추가하기"
-        case .미분류_링크없음:
+        case .미분류_링크없음, .포킷상세_링크없음:
             return "링크 추가하기"
         default: return nil
         }
