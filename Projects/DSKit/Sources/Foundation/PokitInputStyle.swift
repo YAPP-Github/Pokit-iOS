@@ -28,7 +28,9 @@ public enum PokitInputStyle: Equatable {
         
         var backgroundColor: Color {
             switch self {
-            case .default, .input, .active, .error:
+            case .default, .input:
+                return .pokit(.bg(.primary))
+            case .active, .error:
                 return .pokit(.bg(.base))
             case .disable:
                 return .pokit(.bg(.disable))
@@ -43,13 +45,16 @@ public enum PokitInputStyle: Equatable {
         
         var backgroundStrokeColor: Color {
             switch self {
-            case .input, .memo:
+            case .default, .input:
                 return .clear
             case .active:
                 return .pokit(.border(.brand))
             case .disable:
                 return .pokit(.border(.disable))
-            case .readOnly, .default:
+            //TODO: 메모적용 값 확인 필요
+            case .memo:
+                return .clear
+            case .readOnly:
                 return .pokit(.border(.secondary))
             case .error:
                 return .pokit(.border(.error))
