@@ -37,16 +37,6 @@ public struct PokitCategorySettingFeature {
         var profileImages: [BaseCategoryImage] {
             get { domain.imageList }
         }
-        var itemList: IdentifiedArrayOf<BaseCategoryItem>? {
-            guard let categoryList = domain.categoryListInQuiry.data else {
-                return nil
-            }
-            var identifiedArray = IdentifiedArrayOf<BaseCategoryItem>()
-            categoryList.forEach { category in
-                identifiedArray.append(category)
-            }
-            return identifiedArray
-        }
         
         let type: SettingType
         var isProfileSheetPresented: Bool = false
@@ -91,14 +81,12 @@ public struct PokitCategorySettingFeature {
         }
         
         public enum InnerAction: Equatable {
-            case 카테고리_목록_조회_API_반영(BaseCategoryListInquiry)
             case 프로필_목록_조회_API_반영(images: [BaseCategoryImage])
             case 포킷_오류_핸들링(BaseError)
             case 카테고리_인메모리_저장(BaseCategoryItem)
         }
         
         public enum AsyncAction: Equatable {
-            case 카테고리_목록_조회_API
             case 프로필_목록_조회_API
             case 클립보드_감지
         }
@@ -216,7 +204,6 @@ private extension PokitCategorySettingFeature {
         case .뷰가_나타났을때:
             /// 단순 조회API들의 나열이라 merge사용
             return .merge(
-                .send(.async(.카테고리_목록_조회_API)),
                 .send(.async(.프로필_목록_조회_API)),
                 .send(.async(.클립보드_감지))
             )
@@ -238,10 +225,6 @@ private extension PokitCategorySettingFeature {
             }
             return .none
             
-        case let .카테고리_목록_조회_API_반영(response):
-            state.domain.categoryListInQuiry = response
-            return .none
-            
         case let .포킷_오류_핸들링(baseError):
             state.pokitNameTextInpuState = .error(message: baseError.message)
             return .none
@@ -255,13 +238,6 @@ private extension PokitCategorySettingFeature {
     /// - Async Effect
     func handleAsyncAction(_ action: Action.AsyncAction, state: inout State) -> Effect<Action> {
         switch action {
-        case .카테고리_목록_조회_API:
-            return .run { send in
-                let pageRequest = BasePageableRequest(page: 0, size: 100, sort: ["desc"])
-                let response = try await categoryClient.카테고리_목록_조회(pageRequest, true).toDomain()
-                await send(.inner(.카테고리_목록_조회_API_반영(response)))
-            }
-            
         case .프로필_목록_조회_API:
             return .run { send in
                 let response = try await categoryClient.카테고리_프로필_목록_조회()
