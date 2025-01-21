@@ -17,6 +17,7 @@ public struct PokitCategorySettingView: View {
     @Perception.Bindable
     public var store: StoreOf<PokitCategorySettingFeature>
     @FocusState private var isFocused: Bool
+    @State private var isOn = false
     
     /// - Initializer
     public init(store: StoreOf<PokitCategorySettingFeature>) {
@@ -30,7 +31,12 @@ public extension PokitCategorySettingView {
             VStack(spacing: 0) {
                 thumbnailSection
                 pokitNameSection
-                myPokitSection
+                PokitDivider()
+                    .padding(.horizontal, -20)
+                    .padding(.top, 28)
+                openTypeSettingSection
+                keywordSection
+                Spacer()
                 saveButton
             }
             .padding(.horizontal, 20)
@@ -69,9 +75,13 @@ private extension PokitCategorySettingView {
             transaction: .init(animation: .spring)
         ) { phase in
             if let image = phase.image {
-                image
-                    .resizable()
-                    .roundedCorner(12, corners: .allCorners)
+                Circle().foregroundStyle(.pokit(.color(.grayScale(._100))))
+                    .overlay {
+                        image
+                            .resizable()
+                            .padding(10)
+                            .clipShape(.circle)
+                    }
             } else {
                 WithPerceptionTracking {
                     ZStack {
@@ -112,7 +122,7 @@ private extension PokitCategorySettingView {
                     
                 }
                 .offset(x: 10)
-                .padding(.bottom, 7)
+                .padding(.bottom, 3)
         }
     }
     /// 타이틀 + 텍스트필드를 포함한 포킷명 입력 섹션
@@ -137,33 +147,42 @@ private extension PokitCategorySettingView {
             )
         }
     }
-    /// 내포킷 리스트( ScrollView)
-    var myPokitSection: some View {
-        VStack(spacing: 8) {
-            if let itemList = store.itemList {
-                if itemList.isEmpty {
-                    Spacer()
-                } else {
-                    HStack {
-                        Text("내 포킷")
-                            .pokitFont(.b2(.m))
-                            .foregroundStyle(.pokit(.text(.secondary)))
-                        Spacer()
-                    }
-                    
-                    
-                    ScrollView {
-                        ForEach(itemList, id: \.id) { item in
-                            PokitItem(item: item)
-                        }
-                    }
-                    .scrollIndicators(.hidden)
-                }
-            } else {
-                PokitLoading()
+    /// 공개 여부 설정
+    var openTypeSettingSection: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Toggle(isOn: $isOn) {
+                Text("전체 공개로 설정하기")
+                    .pokitFont(.b1(.b))
+                    .foregroundStyle(.pokit(.text(.primary)))
             }
+            .tint(.pokit(.icon(.brand)))
+            Text("포킷에 저장된 링크가 다른 사용자에게 추천됩니다.")
+                .pokitFont(.detail1)
+                .foregroundStyle(.pokit(.text(.tertiary)))
         }
-        .padding(.top, 28)
+        .padding(.vertical, 12)
+        .padding(.leading, 8)
+        .padding(.top, 16)
+    }
+    
+    /// 포킷 키워드
+    var keywordSection: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Button(action: {}) {
+                Text("포킷 키워드")
+                    .pokitFont(.b1(.b))
+                    .foregroundStyle(.pokit(.text(.primary)))
+                Spacer()
+                Image(.icon(.arrowRight))
+            }
+            .buttonStyle(.plain)
+            Text("추천을 위해 포킷 키워드를 선택해 주세요.")
+                .pokitFont(.detail1)
+                .foregroundStyle(.pokit(.text(.tertiary)))
+        }
+        .padding(.vertical, 12)
+        .padding(.leading, 8)
+        .padding(.top, 8)
     }
     /// 저장하기 버튼
     var saveButton: some View {
