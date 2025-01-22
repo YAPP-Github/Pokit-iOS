@@ -7,6 +7,8 @@
 
 import Foundation
 
+import Util
+
 public struct PokitCategorySetting: Equatable {
     // - MARK: Response
     /// 카테고리(포킷)에 설정할 수 있는 이미지
@@ -20,11 +22,17 @@ public struct PokitCategorySetting: Equatable {
     public var categoryName: String
     /// 등록할 카테고리(포킷) 이미지
     public var categoryImage: BaseCategoryImage?
+    /// 카테고리 공개 여부(기본값: 공개)
+    public var openType: BaseOpenType
+    /// 카테고리 키워드(기본값: default - 미선택)
+    public var keywordType: BaseInterestType
     
     public init(
         categoryId: Int?,
         categoryName: String?,
-        categoryImage: BaseCategoryImage?
+        categoryImage: BaseCategoryImage?,
+        openType: BaseOpenType?,
+        keywordType: BaseInterestType?
     ) {
         self.imageList = []
         self.pageable = .init(
@@ -35,5 +43,7 @@ public struct PokitCategorySetting: Equatable {
         self.categoryId = categoryId
         self.categoryName = categoryName ?? ""
         self.categoryImage = categoryImage
+        self.openType = openType ?? .공개
+        self.keywordType = keywordType ?? .default
     }
 }
