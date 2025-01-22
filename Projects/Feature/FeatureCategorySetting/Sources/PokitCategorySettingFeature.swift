@@ -38,7 +38,13 @@ public struct PokitCategorySettingFeature {
             get { domain.imageList }
         }
         
+        var isPublicType: Bool {
+            get { domain.openType == .공개 ? true : false }
+            set { domain.openType = newValue ? .공개 : .비공개 }
+        }
+        
         let type: SettingType
+        let shareType: ShareType
         var isProfileSheetPresented: Bool = false
         var pokitNameTextInpuState: PokitInputStyle.State = .default
         @Shared(.inMemory("SelectCategory")) var categoryId: Int?
@@ -49,16 +55,21 @@ public struct PokitCategorySettingFeature {
     
         public init(
             type: SettingType,
-            categoryId: Int? = nil,
-            categoryImage: BaseCategoryImage? = nil,
-            categoryName: String? = ""
+            category: BaseCategoryItem? = nil
         ) {
             self.type = type
             self.domain = .init(
-                categoryId: categoryId,
-                categoryName: categoryName,
-                categoryImage: categoryImage
+                categoryId: category?.id,
+                categoryName: category?.categoryName,
+                categoryImage: category?.categoryImage,
+                openType: category?.openType,
+                keywordType: category?.keywordType
             )
+            self.shareType = category == nil
+            ? .미공유
+            : category?.userCount ?? 0 > 0
+                ? .공유
+                : .미공유
         }
     }
     
@@ -157,7 +168,12 @@ private extension PokitCategorySettingFeature {
                 switch type {
                 case .추가:
                     guard let image = domain.categoryImage else { return }
-                    let request = CategoryEditRequest(categoryName: domain.categoryName, categoryImageId: image.id)
+                    let request = CategoryEditRequest(
+                        categoryName: domain.categoryName,
+                        categoryImageId: image.id,
+                        openType: domain.openType.title,
+                        keywordType: domain.keywordType.title
+                    )
                     let response = try await categoryClient.카테고리_생성(request)
                     let responseToCategoryDomain = BaseCategoryItem(
                         id: response.categoryId,
@@ -170,8 +186,8 @@ private extension PokitCategorySettingFeature {
                         contentCount: 0,
                         createdAt: "",
                         //TODO: v2 property 수정
-                        openType: .비공개,
-                        keywordType: .default,
+                        openType: domain.openType,
+                        keywordType: domain.keywordType,
                         userCount: 0
                     )
                     await send(.inner(.카테고리_인메모리_저장(responseToCategoryDomain)))
@@ -180,7 +196,12 @@ private extension PokitCategorySettingFeature {
                 case .수정:
                     guard let categoryId = domain.categoryId else { return }
                     guard let image = domain.categoryImage else { return }
-                    let request = CategoryEditRequest(categoryName: domain.categoryName, categoryImageId: image.id)
+                    let request = CategoryEditRequest(
+                        categoryName: domain.categoryName,
+                        categoryImageId: image.id,
+                        openType: domain.openType.title,
+                        keywordType: domain.keywordType.title
+                    )
                     let _ = try await categoryClient.카테고리_수정(categoryId, request)
                     await send(.delegate(.settingSuccess))
                     

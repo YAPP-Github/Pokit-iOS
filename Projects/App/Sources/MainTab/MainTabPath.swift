@@ -83,9 +83,7 @@ public extension MainTabFeature {
                  let .path(.element(_, action: .카테고리상세(.delegate(.포킷수정(category))))):
                 state.path.append(.포킷추가및수정(PokitCategorySettingFeature.State(
                     type: .수정,
-                    categoryId: category.id,
-                    categoryImage: category.categoryImage,
-                    categoryName: category.categoryName
+                    category: category
                 )))
                 return .none
 
@@ -235,14 +233,23 @@ public extension MainTabFeature {
                 return .none
             
             case let .path(.element(_, action: .링크공유(.delegate(.공유받은_카테고리_추가(sharedCategory))))):
-                state.path.append(.포킷추가및수정(PokitCategorySettingFeature.State(
-                    type: .공유추가,
-                    categoryId: sharedCategory.categoryId,
+                let category = BaseCategoryItem(
+                    id: sharedCategory.categoryId,
+                    userId: 0,
+                    categoryName: sharedCategory.categoryName,
                     categoryImage: BaseCategoryImage(
                         imageId: sharedCategory.categoryImageId,
                         imageURL: sharedCategory.categoryImageUrl
                     ),
-                    categoryName: sharedCategory.categoryName
+                    contentCount: sharedCategory.contentCount,
+                    createdAt: "",
+                    openType: .공개,
+                    keywordType: .default,
+                    userCount: 0
+                )
+                state.path.append(.포킷추가및수정(PokitCategorySettingFeature.State(
+                    type: .공유추가,
+                    category: category
                 )))
                 return .none
             case .path(.element(_, action: .알림함(.delegate(.alertBoxDismiss)))):
