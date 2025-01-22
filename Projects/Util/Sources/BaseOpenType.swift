@@ -9,5 +9,5 @@ public enum BaseOpenType: String {
     case 공개 = "PUBLIC"
     case 비공개 = "PRIVATE"
     
-    var title: String { self.rawValue }
+    public var title: String { self.rawValue }
 }

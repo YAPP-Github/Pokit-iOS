@@ -22,7 +22,7 @@ public enum BaseInterestType: String {
     case 음악
     case 취업정보
     
-    var title: String {
+    public var title: String {
         if self.rawValue.contains("_") {
             return self.rawValue.replacingOccurrences(of: "_", with: "/")
         }
