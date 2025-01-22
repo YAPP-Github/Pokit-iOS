@@ -150,7 +150,7 @@ private extension PokitCategorySettingView {
     /// 공개 여부 설정
     var openTypeSettingSection: some View {
         VStack(alignment: .leading, spacing: 4) {
-            Toggle(isOn: $isOn) {
+            Toggle(isOn: $store.isPublicType) {
                 Text("전체 공개로 설정하기")
                     .pokitFont(.b1(.b))
                     .foregroundStyle(.pokit(.text(.primary)))
@@ -167,22 +167,27 @@ private extension PokitCategorySettingView {
     
     /// 포킷 키워드
     var keywordSection: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Button(action: {}) {
-                Text("포킷 키워드")
-                    .pokitFont(.b1(.b))
-                    .foregroundStyle(.pokit(.text(.primary)))
-                Spacer()
-                Image(.icon(.arrowRight))
+        Group {
+            if store.isPublicType {
+                VStack(alignment: .leading, spacing: 4) {
+                    Button(action: {}) {
+                        Text("포킷 키워드")
+                            .pokitFont(.b1(.b))
+                            .foregroundStyle(.pokit(.text(.primary)))
+                        Spacer()
+                        Image(.icon(.arrowRight))
+                    }
+                    .buttonStyle(.plain)
+                    Text("추천을 위해 포킷 키워드를 선택해 주세요.")
+                        .pokitFont(.detail1)
+                        .foregroundStyle(.pokit(.text(.tertiary)))
+                }
+                .padding(.vertical, 12)
+                .padding(.leading, 8)
+                .padding(.top, 8)
             }
-            .buttonStyle(.plain)
-            Text("추천을 위해 포킷 키워드를 선택해 주세요.")
-                .pokitFont(.detail1)
-                .foregroundStyle(.pokit(.text(.tertiary)))
         }
-        .padding(.vertical, 12)
-        .padding(.leading, 8)
-        .padding(.top, 8)
+        .animation(.smooth, value: store.isPublicType)
     }
     /// 저장하기 버튼
     var saveButton: some View {
