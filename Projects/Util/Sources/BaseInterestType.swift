@@ -5,7 +5,7 @@
 //  Created by 김민호 on 1/6/25.
 //
 
-public enum BaseInterestType: String {
+public enum BaseInterestType: String, CaseIterable {
     case `default`
     case 스포츠_레저
     case 문구_오피스
@@ -23,9 +23,19 @@ public enum BaseInterestType: String {
     case 취업정보
     
     public var title: String {
-        if self.rawValue.contains("_") {
-            return self.rawValue.replacingOccurrences(of: "_", with: "/")
+        switch self {
+        case .경제_시사:  return "경제/시사"
+        case .스포츠_레저: return "스포츠/레저"
+        case .영화_드라마: return "영화/드라마"
+        case .문구_오피스: return "문구/오피스"
+            
+        default: return self.rawValue
         }
-        return self.rawValue
+    }
+}
+
+public extension String {
+    var slashConvertUnderBar: String {
+        return self.replacingOccurrences(of: "/", with: "_")
     }
 }
