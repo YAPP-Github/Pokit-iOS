@@ -24,7 +24,7 @@ public struct PokitCategorySetting: Equatable {
     public var categoryImage: BaseCategoryImage?
     /// 카테고리 공개 여부(기본값: 공개)
     public var openType: BaseOpenType
-    /// 카테고리 키워드(기본값: default - 미선택)
+    /// 유저가 선택한 카테고리 키워드(기본값: default - 미선택)
     public var keywordType: BaseInterestType
     
     public init(

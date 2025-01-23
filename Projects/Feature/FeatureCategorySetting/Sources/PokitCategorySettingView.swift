@@ -9,6 +9,7 @@ import SwiftUI
 import ComposableArchitecture
 import Domain
 import DSKit
+import Util
 import NukeUI
 
 @ViewAction(for: PokitCategorySettingFeature.self)
@@ -17,7 +18,6 @@ public struct PokitCategorySettingView: View {
     @Perception.Bindable
     public var store: StoreOf<PokitCategorySettingFeature>
     @FocusState private var isFocused: Bool
-    @State private var isOn = false
     
     /// - Initializer
     public init(store: StoreOf<PokitCategorySettingFeature>) {
@@ -49,6 +49,12 @@ public extension PokitCategorySettingView {
                     selectedImage: store.selectedProfile,
                     images: store.profileImages,
                     delegateSend: { store.send(.scope(.profile($0))) }
+                )
+            }
+            .sheet(isPresented: $store.isKeywordSheetPresented) {
+                PokitKeywordBottomSheet(
+                    selectedKeywordType: store.selectedKeywordType,
+                    action: { send(.키워드_선택_버튼_눌렀을때($0)) }
                 )
             }
             .task { await send(.뷰가_나타났을때).finish() }
@@ -170,7 +176,7 @@ private extension PokitCategorySettingView {
         Group {
             if store.isPublicType {
                 VStack(alignment: .leading, spacing: 4) {
-                    Button(action: {}) {
+                    Button(action: { send(.키워드_바텀시트_활성화(true)) }) {
                         Text("포킷 키워드")
                             .pokitFont(.b1(.b))
                             .foregroundStyle(.pokit(.text(.primary)))
@@ -178,9 +184,9 @@ private extension PokitCategorySettingView {
                         Image(.icon(.arrowRight))
                     }
                     .buttonStyle(.plain)
-                    Text("추천을 위해 포킷 키워드를 선택해 주세요.")
+                    Text(store.keywordSelectType.label)
                         .pokitFont(.detail1)
-                        .foregroundStyle(.pokit(.text(.tertiary)))
+                        .foregroundStyle(store.keywordSelectType.fontColor)
                 }
                 .padding(.vertical, 12)
                 .padding(.leading, 8)
