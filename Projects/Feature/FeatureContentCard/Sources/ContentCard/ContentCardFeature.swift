@@ -113,10 +113,7 @@ private extension ContentCardFeature {
             }
             return .run {  _ in await openURL(url) }
         case .컨텐츠_항목_케밥_버튼_눌렀을때:
-            return shared(
-                .delegate(.컨텐츠_항목_케밥_버튼_눌렀을때(content: state.content)),
-                state: &state
-            )
+            return .send(.delegate(.컨텐츠_항목_케밥_버튼_눌렀을때(content: state.content)))
         case .메타데이터_조회:
             return shared(.async(.메타데이터_조회_수행), state: &state)
         case .즐겨찾기_버튼_눌렀을때:
