@@ -14,6 +14,7 @@ public extension Target {
         bundleName: String,
         infoPlist: InfoPlist? = nil,
         resources: ResourceFileElements? = nil,
+        entitlements: Entitlements? = nil,
         dependencies: [TargetDependency]
     ) -> Target {
         return .target(
@@ -25,6 +26,7 @@ public extension Target {
             infoPlist: infoPlist,
             sources: ["\(name)/Sources/**"],
             resources: resources,
+            entitlements: entitlements,
             dependencies: dependencies,
             settings: .settings()
         )

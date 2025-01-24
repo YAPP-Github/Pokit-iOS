@@ -7,6 +7,8 @@
 
 import SwiftUI
 
+import Util
+
 public struct PokitHeader<Content: View>: View {
     private let title: String?
     
@@ -28,12 +30,10 @@ public struct PokitHeader<Content: View>: View {
         .padding(.horizontal, 20)
         .padding(.vertical, 12)
         .background(.pokit(.bg(.base)))
-        .overlay {
-            if let title {
-                Text(title)
-                    .pokitFont(.title3)
-                    .foregroundStyle(.pokit(.text(.primary)))
-            }
+        .overlay(ifLet: title) { title in
+            Text(title)
+                .pokitFont(.title3)
+                .foregroundStyle(.pokit(.text(.primary)))
         }
     }
 }

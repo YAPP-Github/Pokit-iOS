@@ -9,19 +9,26 @@ import SwiftUI
 import ComposableArchitecture
 
 import FeatureRemind
+import FeatureIntro
 
 @main
 struct FeatureRemindDemoApp: App {
     var body: some Scene {
         WindowGroup {
             // TODO: 루트 뷰 추가
-            NavigationStack {
-                RemindView(
-                    store: .init(
-                        initialState: .init(),
-                        reducer: { RemindFeature() }
+            
+            DemoView(store: .init(
+                initialState: .init(),
+                reducer: { DemoFeature() }
+            )) {
+                NavigationStack {
+                    RemindView(
+                        store: .init(
+                            initialState: .init(),
+                            reducer: { RemindFeature() }
+                        )
                     )
-                )
+                }
             }
         }
     }

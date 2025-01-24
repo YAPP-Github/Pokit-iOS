@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23086.1" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="01J-lp-oVM">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23094" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="01J-lp-oVM">
     <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23076"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23084"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -17,18 +17,20 @@
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" ambiguous="YES" image="logo_pokit" translatesAutoresizingMaskIntoConstraints="NO" id="N4N-la-jgc">
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" image="logo_pokit" translatesAutoresizingMaskIntoConstraints="NO" id="N4N-la-jgc">
                                 <rect key="frame" x="79" y="313" width="235" height="72"/>
                                 <color key="tintColor" name="text/inverseWh"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="72" id="9zI-nL-qB4"/>
+                                    <constraint firstAttribute="height" constant="72" id="ZJY-IM-p0S"/>
+                                    <constraint firstAttribute="width" constant="235" id="zXd-Y5-GFp"/>
                                 </constraints>
                             </imageView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="Bcu-3y-fUS"/>
                         <color key="backgroundColor" name="orange/700"/>
                         <constraints>
-                            <constraint firstItem="N4N-la-jgc" firstAttribute="top" secondItem="Bcu-3y-fUS" secondAttribute="top" constant="254" id="kHx-5E-p7o"/>
+                            <constraint firstItem="N4N-la-jgc" firstAttribute="top" secondItem="Bcu-3y-fUS" secondAttribute="top" constant="254" id="5x5-8D-gix"/>
+                            <constraint firstItem="N4N-la-jgc" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="zAv-Q1-gIH"/>
                         </constraints>
                     </view>
                 </viewController>
@@ -40,7 +42,7 @@
     <resources>
         <image name="logo_pokit" width="235" height="72"/>
         <namedColor name="orange/700">
-            <color red="0.99607843137254903" green="0.51764705882352946" blue="0.13333333333333333" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+            <color red="0.99607843137254903" green="0.51764705882352946" blue="0.13333333333333333" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
         <namedColor name="text/inverseWh">
             <color red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>

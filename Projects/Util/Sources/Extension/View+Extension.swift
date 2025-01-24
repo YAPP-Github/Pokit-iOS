@@ -7,8 +7,9 @@
 
 import SwiftUI
 
-extension View {
-    public func dismissKeyboard(
+public extension View {
+    @ViewBuilder
+    func dismissKeyboard(
         focused: FocusState<Bool>.Binding
     ) -> some View {
         self
@@ -23,7 +24,8 @@ extension View {
             }
     }
     
-    public func dismissKeyboard<Value: Hashable>(
+    @ViewBuilder
+    func dismissKeyboard<Value: Hashable>(
         focused: FocusState<Value?>.Binding
     ) -> some View {
         self
@@ -34,6 +36,74 @@ extension View {
                         .onTapGesture {
                             focused.wrappedValue = nil
                         }
+                }
+            }
+    }
+    
+    @ViewBuilder
+    func overlay(
+        `if` condition: Bool,
+        alignment: Alignment = .center,
+        @ViewBuilder content: () -> some View,
+        @ViewBuilder `else`: () -> some View = { EmptyView() }
+    ) -> some View {
+        self
+            .overlay(alignment: alignment) {
+                if condition {
+                    content()
+                } else {
+                    `else`()
+                }
+            }
+    }
+    
+    @ViewBuilder
+    func overlay<T>(
+        ifLet optional: T?,
+        alignment: Alignment = .center,
+        @ViewBuilder content: (T) -> some View,
+        @ViewBuilder `else`: () -> some View = { EmptyView() }
+    ) -> some View {
+        self
+            .overlay(alignment: alignment) {
+                if let optional {
+                    content(optional)
+                } else {
+                    `else`()
+                }
+            }
+    }
+    
+    @ViewBuilder
+    func background(
+        `if` condition: Bool,
+        alignment: Alignment = .center,
+        @ViewBuilder content: () -> some View,
+        @ViewBuilder `else`: () -> some View = { EmptyView() }
+    ) -> some View {
+        self
+            .background(alignment: alignment) {
+                if condition {
+                    content()
+                } else {
+                    `else`()
+                }
+            }
+    }
+    
+    @ViewBuilder
+    func background<T>(
+        ifLet optional: T?,
+        alignment: Alignment = .center,
+        @ViewBuilder content: (T) -> some View,
+        @ViewBuilder `else`: () -> some View = { EmptyView() }
+    ) -> some View {
+        self
+            .background(alignment: alignment) {
+                if let optional {
+                    content(optional)
+                } else {
+                    `else`()
                 }
             }
     }
