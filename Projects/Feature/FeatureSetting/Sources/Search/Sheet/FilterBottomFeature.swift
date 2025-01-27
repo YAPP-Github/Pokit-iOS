@@ -229,6 +229,7 @@ private extension FilterBottomFeature {
                         size: pageable.size,
                         sort: pageable.sort
                     ),
+                    true,
                     true
                 ).toDomain()
                 await send(.inner(.카테고리_목록_조회_API_반영(categoryList: categoryList)), animation: .pokitDissolve)

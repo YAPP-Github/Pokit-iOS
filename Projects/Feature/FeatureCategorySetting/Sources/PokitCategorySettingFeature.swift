@@ -211,7 +211,8 @@ private extension PokitCategorySettingFeature {
                             //TODO: v2 property 수정
                             openType: domain.openType,
                             keywordType: domain.keywordType,
-                            userCount: 0
+                            userCount: 0,
+                            isFavorite: false
                         )
                         await send(.inner(.카테고리_인메모리_저장(responseToCategoryDomain)))
                         await send(.delegate(.settingSuccess))

@@ -394,7 +394,7 @@ private extension PokitRootFeature {
             state.domain.pageable.page += 1
             return .run { [pageable = state.domain.pageable] send in
                 let request = BasePageableRequest(page: pageable.page, size: pageable.size, sort: pageable.sort)
-                let classified = try await categoryClient.카테고리_목록_조회(request, true).toDomain()
+                let classified = try await categoryClient.카테고리_목록_조회(request, true, false).toDomain()
                 await send(.inner(.카테고리_페이징_조회_API_반영(contentList: classified)))
             }
             
@@ -417,7 +417,7 @@ private extension PokitRootFeature {
             state.domain.pageable.page = 0
             return .run { [pageable = state.domain.pageable] send in
                 let request = BasePageableRequest(page: pageable.page, size: pageable.size, sort: pageable.sort)
-                let classified = try await categoryClient.카테고리_목록_조회(request, true).toDomain()
+                let classified = try await categoryClient.카테고리_목록_조회(request, true, false).toDomain()
                 await send(.inner(.카테고리_조회_API_반영(categoryList: classified)), animation: .pokitSpring)
             }
             
@@ -462,7 +462,8 @@ private extension PokitRootFeature {
                                     size: pageable.size,
                                     sort: pageable.sort
                                 ),
-                                true
+                                true,
+                                false
                             ).toDomain()
                             continuation.yield(categoryList)
                         }

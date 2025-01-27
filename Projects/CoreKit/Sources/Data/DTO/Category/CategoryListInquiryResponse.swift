@@ -28,6 +28,7 @@ public struct CategoryItemInquiryResponse: Decodable {
     public let openType: String
     public let keywordType: String
     public let userCount: Int
+    public let isFavorite: Bool
 }
 /// Sort
 public struct ItemInquirySortResponse: Decodable {
@@ -51,7 +52,8 @@ public extension CategoryItemInquiryResponse {
         createdAt: "",
         openType: "PRIVATE",
         keywordType: "스포츠/레저",
-        userCount: 0
+        userCount: 0,
+        isFavorite: false
     )
 }
 
@@ -70,7 +72,8 @@ extension CategoryListInquiryResponse {
                 createdAt: "",
                 openType: "PRIVATE",
                 keywordType: "스포츠/레저",
-                userCount: 0
+                userCount: 0,
+                isFavorite: false
             ),
             CategoryItemInquiryResponse(
                 categoryId: 2,
@@ -84,7 +87,8 @@ extension CategoryListInquiryResponse {
                 createdAt: "",
                 openType: "PUBLIC",
                 keywordType: "스포츠/레저",
-                userCount: 1
+                userCount: 1,
+                isFavorite: false
             ),
             CategoryItemInquiryResponse(
                 categoryId: 3,
@@ -98,7 +102,8 @@ extension CategoryListInquiryResponse {
                 createdAt: "",
                 openType: "PUBLIC",
                 keywordType: "스포츠/레저",
-                userCount: 5
+                userCount: 5,
+                isFavorite: false
             )
         ],
         page: 1,
