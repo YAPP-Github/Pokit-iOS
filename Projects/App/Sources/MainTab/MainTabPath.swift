@@ -245,7 +245,8 @@ public extension MainTabFeature {
                     createdAt: "",
                     openType: .공개,
                     keywordType: .default,
-                    userCount: 0
+                    userCount: 0,
+                    isFavorite: false
                 )
                 state.path.append(.포킷추가및수정(PokitCategorySettingFeature.State(
                     type: .공유추가,

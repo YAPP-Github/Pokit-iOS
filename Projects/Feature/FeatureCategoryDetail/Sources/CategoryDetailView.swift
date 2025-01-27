@@ -210,7 +210,8 @@ private extension CategoryDetailView {
                         //TODO: v2 property 수정
                         openType: .비공개,
                         keywordType: .IT,
-                        userCount: 0
+                        userCount: 0,
+                        isFavorite: false
                     )
                 ),
                 reducer: { CategoryDetailFeature() }

@@ -157,15 +157,21 @@ private extension PokitRootView {
         ScrollView {
             LazyVStack(spacing: 0) {
                 LazyVGrid(columns: column, spacing: 12) {
-                    if let linkCount = store.favoriteContentCount {
-                        PokitFavoriteCard(linkCount: linkCount, action: {})
-                    }
                     ForEach(categories, id: \.id) { item in
-                        PokitCard(
-                            category: item,
-                            action: { send(.카테고리_눌렀을때(item)) },
-                            kebabAction: { send(.케밥_버튼_눌렀을때(item)) }
-                        )
+                        if let linkCount = store.favoriteContentCount,
+                           item.isFavorite {
+                            PokitFavoriteCard(
+                                linkCount: linkCount,
+                                action: { send(.카테고리_눌렀을때(item)) }
+                            )
+                        }
+                        else {
+                            PokitCard(
+                                category: item,
+                                action: { send(.카테고리_눌렀을때(item)) },
+                                kebabAction: { send(.케밥_버튼_눌렀을때(item)) }
+                            )
+                        }
                     }
                 }
 

@@ -12,7 +12,7 @@ extension CategoryClient: TestDependencyKey {
         Self(
             카테고리_삭제: { _ in },
             카테고리_수정: { _, _ in .mock },
-            카테고리_목록_조회: { _, _ in .mock },
+            카테고리_목록_조회: { _, _, _ in .mock },
             카테고리_생성: { _ in .mock },
             카테고리_프로필_목록_조회: { CategoryImageResponse.mock },
             유저_카테고리_개수_조회: { .mock },
