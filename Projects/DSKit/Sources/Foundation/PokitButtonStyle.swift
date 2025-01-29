@@ -13,6 +13,7 @@ public enum PokitButtonStyle {
         case stroke(PokitButtonStyle.ButtonType)
         case filled(PokitButtonStyle.ButtonType)
         case disable
+        case opacity
     }
     
     public enum ButtonType: Equatable {
@@ -43,6 +44,12 @@ extension PokitButtonStyle.State {
             }
         case .disable:
             return .pokit(.bg(.disable))
+        case .opacity:
+            return Color(
+                red: 67 / 255,
+                green: 67 / 255,
+                blue: 67 / 255
+            ).opacity(0.4)
         }
     }
     
@@ -56,6 +63,7 @@ extension PokitButtonStyle.State {
             }
         case .disable:
             return .pokit(.border(.disable))
+        case .opacity: return .clear
         }
     }
     
@@ -63,7 +71,7 @@ extension PokitButtonStyle.State {
         switch self {
         case .default: return .pokit(.icon(.disable))
         case .stroke(_): return .pokit(.icon(.primary))
-        case .filled(_): return .pokit(.icon(.inverseWh))
+        case .filled(_), .opacity: return .pokit(.icon(.inverseWh))
         case .disable: return .pokit(.icon(.disable))
         }
     }
@@ -72,7 +80,7 @@ extension PokitButtonStyle.State {
         switch self {
         case .default: return .pokit(.text(.tertiary))
         case .stroke(_): return .pokit(.text(.primary))
-        case .filled(_): return .pokit(.text(.inverseWh))
+        case .filled(_), .opacity: return .pokit(.text(.inverseWh))
         case .disable: return .pokit(.text(.disable))
         }
     }
