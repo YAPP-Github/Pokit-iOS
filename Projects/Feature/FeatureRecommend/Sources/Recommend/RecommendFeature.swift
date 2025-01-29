@@ -46,6 +46,10 @@ public struct RecommendFeature {
         
         @CasePathable
         public enum View: Equatable {
+            case 추가하기_버튼_눌렀을때(BaseContentItem)
+            case 공유하기_버튼_눌렀을때(BaseContentItem)
+            case 신고하기_버튼_눌렀을때(BaseContentItem)
+            
             case onAppear
             case pagination
         }
@@ -107,6 +111,12 @@ private extension RecommendFeature {
             return shared(.async(.추천_조회_API), state: &state)
         case .pagination:
             return shared(.async(.추천_조회_페이징_API), state: &state)
+        case let .추가하기_버튼_눌렀을때(content):
+            return .none
+        case let .공유하기_버튼_눌렀을때(content):
+            return .none
+        case let .신고하기_버튼_눌렀을때(content):
+            return .none
         }
     }
     

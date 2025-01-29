@@ -86,7 +86,7 @@ private extension RecommendView {
             }
             
             recommededTitle(content)
-                .padding(.horizontal, 12)
+                .padding(.horizontal, 20)
                 .padding(.vertical, 16)
                 .background(.pokit(.bg(.base)))
         }
@@ -97,6 +97,39 @@ private extension RecommendView {
                 .stroke(.pokit(.border(.tertiary)), lineWidth: 1)
         )
         .clipped()
+        .overlay(alignment: .topTrailing) {
+            recommendedCardButton(content)
+                .padding(12)
+        }
+    }
+    
+    @ViewBuilder
+    func recommendedCardButton(_ content: BaseContentItem) -> some View {
+        HStack(spacing: 6) {
+            PokitIconButton(
+                .icon(.plusR),
+                state: .opacity,
+                size: .small,
+                shape: .round,
+                action: { send(.추가하기_버튼_눌렀을때(content)) }
+            )
+            
+            PokitIconButton(
+                .icon(.share),
+                state: .opacity,
+                size: .small,
+                shape: .round,
+                action: { send(.공유하기_버튼_눌렀을때(content)) }
+            )
+            
+            PokitIconButton(
+                .icon(.report),
+                state: .opacity,
+                size: .small,
+                shape: .round,
+                action: { send(.신고하기_버튼_눌렀을때(content)) }
+            )
+        }
     }
     
     @ViewBuilder
@@ -113,6 +146,7 @@ private extension RecommendView {
             Text(content.title)
                 .foregroundStyle(.pokit(.text(.primary)))
                 .pokitFont(.b3(.b))
+                .lineLimit(2)
         }
     }
     
@@ -133,7 +167,7 @@ private extension RecommendView {
         .frame(height: 141)
     }
     
-    private var imagePlaceholder: some View {
+    var imagePlaceholder: some View {
         ZStack {
             Color.pokit(.bg(.disable))
             
