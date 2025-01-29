@@ -30,6 +30,7 @@ public enum ContentEndpoint {
     case 썸네일_수정(contentId: String, model: ThumbnailRequest)
     case 미분류_링크_포킷_이동(model: ContentMoveRequest)
     case 미분류_링크_삭제(model: ContentDeleteRequest)
+    case 추천_컨텐츠_조회(model: BasePageableRequest)
 }
 
 extension ContentEndpoint: TargetType {
@@ -63,6 +64,8 @@ extension ContentEndpoint: TargetType {
             return ""
         case .미분류_링크_삭제:
             return "/uncategorized"
+        case .추천_컨텐츠_조회:
+            return "/recommended"
         }
     }
     
@@ -85,7 +88,8 @@ extension ContentEndpoint: TargetType {
             
         case .카태고리_내_컨텐츠_목록_조회,
              .미분류_카테고리_컨텐츠_조회,
-             .컨텐츠_검색:
+             .컨텐츠_검색,
+             .추천_컨텐츠_조회:
             return .get
         }
     }
@@ -117,7 +121,8 @@ extension ContentEndpoint: TargetType {
                 ],
                 encoding: URLEncoding.default
             )
-        case let .미분류_카테고리_컨텐츠_조회(model):
+        case let .미분류_카테고리_컨텐츠_조회(model),
+             let .추천_컨텐츠_조회(model):
             return .requestParameters(
                 parameters: [
                     "page": model.page,
