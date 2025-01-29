@@ -18,6 +18,7 @@ public struct ContentBaseResponse: Decodable {
     public let createdAt: String
     public let isRead: Bool?
     public let isFavorite: Bool?
+    public let keyword: String?
 }
 
 extension ContentBaseResponse {
@@ -35,7 +36,8 @@ extension ContentBaseResponse {
             thumbNail: "https://i.ytimg.com/vi/NnOC4_kH0ok/hqdefault.jpg?sqp=-oaymwEjCNACELwBSFryq4qpAxUIARUAAAAAGAElAADIQj0AgKJDeAE=&rs=AOn4CLDN6u6mTjbaVmRZ4biJS_aDq4uvAQ",
             createdAt: "2024.08.08",
             isRead: false,
-            isFavorite: true
+            isFavorite: true,
+            keyword: "예능"
         )
     }
 }
