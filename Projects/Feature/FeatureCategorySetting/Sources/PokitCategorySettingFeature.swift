@@ -236,7 +236,9 @@ private extension PokitCategorySettingFeature {
                             CopiedCategoryRequest(
                                 originCategoryId: categoryId,
                                 categoryName: domain.categoryName,
-                                categoryImageId: image.id
+                                categoryImageId: image.id,
+                                keyword: domain.keywordType.title,
+                                openType: domain.openType.title
                             )
                         )
                         await send(.delegate(.settingSuccess))
