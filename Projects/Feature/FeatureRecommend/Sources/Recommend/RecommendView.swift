@@ -158,7 +158,7 @@ private extension RecommendView {
         ScrollView {
             LazyVStack(spacing: 8) {
                 ForEach(recommendedList) { content in
-                    recomendedCard(content)
+                    recommendedCard(content)
                 }
                 
                 if store.hasNext {
@@ -170,9 +170,16 @@ private extension RecommendView {
             .padding(.bottom, 150)
         }
     }
+    
+    @ViewBuilder
+    func recommendedCard(_ content: BaseContentItem) -> some View {
+        Button(action: { send(.추천_컨텐츠_눌렀을때(content.data)) }) {
+            recomendedCardLabel(content)
+        }
+    }
 
     @ViewBuilder
-    func recomendedCard(_ content: BaseContentItem) -> some View {
+    func recomendedCardLabel(_ content: BaseContentItem) -> some View {
         VStack(alignment: .leading, spacing: 0) {
             if let url = URL(string: content.thumbNail) {
                 recommendedImage(url: url)

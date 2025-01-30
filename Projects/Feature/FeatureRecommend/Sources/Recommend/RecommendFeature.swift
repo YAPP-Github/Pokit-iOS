@@ -18,8 +18,8 @@ public struct RecommendFeature {
     private var contentClient
     @Dependency(UserClient.self)
     private var userClient
-    @Dependency(PasteboardClient.self)
-    private var pasteBoard
+    @Dependency(\.openURL)
+    private var openURL
     /// - State
     @ObservableState
     public struct State: Equatable {
@@ -71,6 +71,7 @@ public struct RecommendFeature {
             case 링크_공유_완료되었을때
             case 검색_버튼_눌렀을때
             case 알림_버튼_눌렀을때
+            case 추천_컨텐츠_눌렀을때(String)
         }
         
         public enum InnerAction: Equatable {
@@ -168,6 +169,9 @@ private extension RecommendFeature {
             return .send(.delegate(.검색_버튼_눌렀을때))
         case .알림_버튼_눌렀을때:
             return .send(.delegate(.알림_버튼_눌렀을때))
+        case let .추천_컨텐츠_눌렀을때(urlString):
+            guard let url = URL(string: urlString) else { return .none }
+            return .run { _ in await openURL(url) }
         }
     }
     
