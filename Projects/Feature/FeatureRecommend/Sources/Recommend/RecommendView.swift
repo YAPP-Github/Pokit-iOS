@@ -31,7 +31,6 @@ public extension RecommendView {
                 
                 list
             }
-            .padding(.top, 12)
             .ignoresSafeArea(edges: .bottom)
             .sheet(item: $store.shareContent) { content in
                 if let shareURL = URL(string: content.data) {

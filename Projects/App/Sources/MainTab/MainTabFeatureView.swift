@@ -173,9 +173,9 @@ private extension MainTabView {
     var remindNavigationBar: some View {
         PokitHeader {
             PokitHeaderItems(placement: .leading) {
-                Text("Remind")
-                    .font(.system(size: 32, weight: .heavy))
-                    .foregroundStyle(.pokit(.text(.brand)))
+                Text("링크추천")
+                    .pokitFont(.title2)
+                    .foregroundStyle(.pokit(.text(.primary)))
             }
             
             PokitHeaderItems(placement: .trailing) {
