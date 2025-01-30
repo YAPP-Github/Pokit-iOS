@@ -51,7 +51,6 @@ public struct PokitCategorySettingFeature {
         }
         
         let type: SettingType
-        let shareType: ShareType
         var keywordSelectType: KeywordSelectType = .normal
         var isProfileSheetPresented: Bool = false
         var isKeywordSheetPresented: Bool = false
@@ -74,11 +73,6 @@ public struct PokitCategorySettingFeature {
                 openType: category?.openType,
                 keywordType: category?.keywordType
             )
-            self.shareType = category == nil
-            ? .미공유
-            : category?.userCount ?? 0 > 0
-                ? .공유
-                : .미공유
         }
     }
     
