@@ -26,15 +26,15 @@ extension ContentBaseResponse {
         Self(
             contentId: id,
             category: .init(
-                categoryId: 992,
-                categoryName: "미분류"
+                categoryId: 567,
+                categoryName: "신서유기"
             ),
-            data: "https://www.youtube.com/watch?v=wtSwdGJzQCQ",
+            data: "https://youtu.be/CIzKDrN7IpU?si=B0-7X7I_54VHAfkk",
             domain: "youtube",
-            title: "신서유기",
+            title: "[#샷추가] 거리 두기 철저하게 지키게 만드는 인물 퀴즈ㅋㅋㅋ어떤 음식을 뺄지 고민하지 마요..어차피 다 못 먹으니까요🤣 | #신서유기5 #Diggle",
             memo: nil,
-            thumbNail: "https://i.ytimg.com/vi/NnOC4_kH0ok/hqdefault.jpg?sqp=-oaymwEjCNACELwBSFryq4qpAxUIARUAAAAAGAElAADIQj0AgKJDeAE=&rs=AOn4CLDN6u6mTjbaVmRZ4biJS_aDq4uvAQ",
-            createdAt: "2024.08.08",
+            thumbNail: "https://i.ytimg.com/vi/CIzKDrN7IpU/maxresdefault.jpg",
+            createdAt: "2024.12.03",
             isRead: false,
             isFavorite: true,
             keyword: "예능"

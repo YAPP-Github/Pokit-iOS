@@ -35,7 +35,7 @@ public struct BaseContentItem: Identifiable, Equatable, PokitLinkCardItem, Sorta
         createdAt: String,
         isRead: Bool?,
         isFavorite: Bool?,
-        keyword: String?
+        keyword: String? = nil
     ) {
         self.id = id
         self.categoryName = categoryName
