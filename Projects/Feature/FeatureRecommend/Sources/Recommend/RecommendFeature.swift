@@ -80,7 +80,9 @@ public struct RecommendFeature {
         
         public enum ScopeAction: Equatable { case doNothing }
         
-        public enum DelegateAction: Equatable { case doNothing }
+        public enum DelegateAction: Equatable {
+            case 추가하기_버튼_눌렀을때(BaseContentItem)
+        }
     }
     
     /// - Initiallizer
@@ -129,7 +131,7 @@ private extension RecommendFeature {
         case .pagination:
             return shared(.async(.추천_조회_페이징_API), state: &state)
         case let .추가하기_버튼_눌렀을때(content):
-            return .none
+            return .send(.delegate(.추가하기_버튼_눌렀을때(content)))
         case let .공유하기_버튼_눌렀을때(content):
             return .none
         case let .신고하기_버튼_눌렀을때(content):
