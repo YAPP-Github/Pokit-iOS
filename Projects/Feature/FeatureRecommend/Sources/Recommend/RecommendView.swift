@@ -53,6 +53,7 @@ private extension RecommendView {
                 interestListContent(proxy)
                     .padding(.horizontal, 20)
                     .padding(.vertical, 8)
+                    .padding(.trailing, 40)
             }
             .overlay(alignment: .trailing) {
                 interestEditButton
@@ -69,8 +70,8 @@ private extension RecommendView {
             shape: .round,
             action: { }
         )
-        .padding([.trailing, .vertical], 8)
-        .padding(.leading, 20)
+        .padding([.leading, .vertical], 8)
+        .padding(.trailing, 20)
         .background(
             LinearGradient(
                 stops: [
@@ -246,6 +247,7 @@ private extension RecommendView {
             Text(content.title)
                 .foregroundStyle(.pokit(.text(.primary)))
                 .pokitFont(.b3(.b))
+                .multilineTextAlignment(.leading)
                 .lineLimit(2)
         }
     }

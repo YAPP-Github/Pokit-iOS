@@ -154,13 +154,23 @@ private extension RecommendFeature {
             guard state.selectedInterest != nil else { return .none }
             
             state.selectedInterest = nil
-            proxy.scrollTo("전체보기", anchor: .leading)
+            let leading = 20 / UIScreen.main.bounds.width
+            let anchor = UnitPoint(
+                x: leading,
+                y: UnitPoint.leading.y
+            )
+            proxy.scrollTo("전체보기", anchor: anchor)
             return shared(.async(.추천_조회_API), state: &state)
         case let .관심사_버튼_눌렀을때(interest, proxy):
             guard state.selectedInterest != interest else { return .none }
             
             state.selectedInterest = interest
-            proxy.scrollTo(interest.description, anchor: .leading)
+            let leading = 20 / UIScreen.main.bounds.width
+            let anchor = UnitPoint(
+                x: leading,
+                y: UnitPoint.leading.y
+            )
+            proxy.scrollTo(interest.description, anchor: anchor)
             return shared(.async(.추천_조회_API), state: &state)
         case .링크_공유_완료되었을때:
             state.shareContent = nil
