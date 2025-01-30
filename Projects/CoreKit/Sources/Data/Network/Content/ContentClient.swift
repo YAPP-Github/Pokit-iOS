@@ -51,7 +51,8 @@ public struct ContentClient {
         _ model: ContentDeleteRequest
     ) async throws -> Void
     public var 추천_컨텐츠_조회: @Sendable (
-        _ model: BasePageableRequest
+        _ pageable: BasePageableRequest,
+        _ keyword: String?
     ) async throws -> ContentListInquiryResponse
 }
 
