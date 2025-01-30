@@ -12,7 +12,6 @@ public enum Feature: String, CaseIterable {
     case contentDetail = "ContentDetail"
     case contentSetting = "ContentSetting"
     case categorySetting = "CategorySetting"
-    case remind = "Remind"
     case login = "Login"
     case pokit = "Pokit"
     case categoryDetail = "CategoryDetail"
@@ -73,7 +72,6 @@ public enum Feature: String, CaseIterable {
         case .contentDetail: return []
         case .contentSetting: return []
         case .categorySetting: return []
-        case .remind: return []
         case .login: return []
         case .pokit:
             return [
