@@ -56,7 +56,38 @@ private extension RecommendView {
                     .padding(.top, 8)
                     .padding(.bottom, 12)
             }
+            .overlay(alignment: .trailing) {
+                interestEditButton
+            }
         }
+    }
+    
+    var interestEditButton: some View {
+        PokitIconButton(
+            .icon(.edit),
+            state: .default(.secondary),
+            size: .small,
+            shape: .round,
+            action: { }
+        )
+        .padding([.trailing, .vertical], 8)
+        .padding(.leading, 20)
+        .background(
+            LinearGradient(
+                stops: [
+                    Gradient.Stop(
+                        color: .pokit(.bg(.base)),
+                        location: 0.00
+                    ),
+                    Gradient.Stop(
+                        color: .pokit(.bg(.base)).opacity(0),
+                        location: 1.00
+                    ),
+                ],
+                startPoint: UnitPoint(x: 0.1, y: 0.52),
+                endPoint: UnitPoint(x: 0, y: 0.52)
+            )
+        )
     }
     
     @ViewBuilder
