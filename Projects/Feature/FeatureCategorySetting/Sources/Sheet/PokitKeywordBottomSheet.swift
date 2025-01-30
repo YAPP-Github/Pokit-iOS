@@ -11,12 +11,13 @@ import DSKit
 import Util
 
 public struct PokitKeywordBottomSheet: View {
-    @State private var height: CGFloat = 0
     @State
-    var selectedKeywordType: BaseInterestType
+    private var height: CGFloat = 0
+    @State
+    private var selectedKeywordType: BaseInterestType
     @State
     private var keywordSheetBottomButtonState: PokitButtonStyle.State = .disable
-    let action: (BaseInterestType) -> Void
+    private let action: (BaseInterestType) -> Void
     
     public init(
         selectedKeywordType: BaseInterestType,
