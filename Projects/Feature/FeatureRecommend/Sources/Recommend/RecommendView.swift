@@ -39,33 +39,54 @@ public extension RecommendView {
 //MARK: - Configure View
 private extension RecommendView {
     var interestList: some View {
-        ScrollView(.horizontal) {
-            HStack(spacing: 8) {
-                PokitTextButton(
-                    "전체보기",
-                    state: .filled(.primary),
-                    size: .small,
-                    shape: .round,
-                    action: { }
+        ScrollViewReader { proxy in
+            ScrollView(.horizontal, showsIndicators: false) {
+                interestListContent(proxy)
+                    .padding(.horizontal, 20)
+                    .padding(.top, 8)
+                    .padding(.bottom, 12)
+            }
+        }
+    }
+    
+    @ViewBuilder
+    func interestListContent(_ proxy: ScrollViewProxy) -> some View {
+        HStack(spacing: 8) {
+            let isAllSelected = store.selectedInterest == nil
+            
+            PokitTextButton(
+                "전체보기",
+                state: isAllSelected
+                ? .filled(.primary)
+                : .default(.secondary),
+                size: .small,
+                shape: .round
+            ) {
+                send(
+                    .전체보기_버튼_눌렀을때(proxy),
+                    animation: .pokitDissolve
                 )
+            }
+            .id("전체보기")
+            
+            ForEach(store.interestList) { interest in
+                let isSelected = store.selectedInterest == interest
                 
-                ForEach(store.interestList) { interest in
-                    let isSelected = store.selectedInterest == interest
-                    
-                    PokitTextButton(
-                        interest.description,
-                        state: isSelected
-                        ? .filled(.primary)
-                        : .default(.secondary),
-                        size: .small,
-                        shape: .round,
-                        action: { }
+                PokitTextButton(
+                    interest.description,
+                    state: isSelected
+                    ? .filled(.primary)
+                    : .default(.secondary),
+                    size: .small,
+                    shape: .round
+                ) {
+                    send(
+                        .관심사_버튼_눌렀을때(interest, proxy),
+                        animation: .pokitDissolve
                     )
                 }
+                .id(interest.description)
             }
-            .padding(.horizontal, 20)
-            .padding(.top, 8)
-            .padding(.bottom, 12)
         }
     }
     

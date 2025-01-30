@@ -4,6 +4,8 @@
 //
 //  Created by 김도형 on 1/29/25.
 
+import SwiftUI
+
 import ComposableArchitecture
 import Domain
 import CoreKit
@@ -14,6 +16,8 @@ public struct RecommendFeature {
     /// - Dependency
     @Dependency(ContentClient.self)
     private var contentClient
+    @Dependency(UserClient.self)
+    private var userClient
     @Dependency(PasteboardClient.self)
     private var pasteBoard
     /// - State
@@ -33,7 +37,13 @@ public struct RecommendFeature {
             array.append(contentsOf: list)
             return array
         }
+        var interestList: IdentifiedArrayOf<BaseInterest> {
+            var array = IdentifiedArrayOf<BaseInterest>()
+            array.append(contentsOf: domain.interests)
+            return array
+        }
         var isLoading: Bool = true
+        var selectedInterest: BaseInterest?
     }
     
     /// - Action
@@ -45,10 +55,12 @@ public struct RecommendFeature {
         case delegate(DelegateAction)
         
         @CasePathable
-        public enum View: Equatable {
+        public enum View {
             case 추가하기_버튼_눌렀을때(BaseContentItem)
             case 공유하기_버튼_눌렀을때(BaseContentItem)
             case 신고하기_버튼_눌렀을때(BaseContentItem)
+            case 전체보기_버튼_눌렀을때(ScrollViewProxy)
+            case 관심사_버튼_눌렀을때(BaseInterest, ScrollViewProxy)
             
             case onAppear
             case pagination
@@ -57,11 +69,13 @@ public struct RecommendFeature {
         public enum InnerAction: Equatable {
             case 추천_조회_API_반영(BaseContentListInquiry)
             case 추천_조회_페이징_API_반영(BaseContentListInquiry)
+            case 유저_관심사_조회_API_반영([BaseInterest])
         }
         
         public enum AsyncAction: Equatable {
             case 추천_조회_API
             case 추천_조회_페이징_API
+            case 유저_관심사_조회_API
         }
         
         public enum ScopeAction: Equatable { case doNothing }
@@ -108,7 +122,10 @@ private extension RecommendFeature {
     func handleViewAction(_ action: Action.View, state: inout State) -> Effect<Action> {
         switch action {
         case .onAppear:
-            return shared(.async(.추천_조회_API), state: &state)
+            return .merge(
+                shared(.async(.추천_조회_API), state: &state),
+                shared(.async(.유저_관심사_조회_API), state: &state)
+            )
         case .pagination:
             return shared(.async(.추천_조회_페이징_API), state: &state)
         case let .추가하기_버튼_눌렀을때(content):
@@ -117,6 +134,18 @@ private extension RecommendFeature {
             return .none
         case let .신고하기_버튼_눌렀을때(content):
             return .none
+        case let .전체보기_버튼_눌렀을때(proxy):
+            guard state.selectedInterest != nil else { return .none }
+            
+            state.selectedInterest = nil
+            proxy.scrollTo("전체보기", anchor: .leading)
+            return shared(.async(.추천_조회_API), state: &state)
+        case let .관심사_버튼_눌렀을때(interest, proxy):
+            guard state.selectedInterest != interest else { return .none }
+            
+            state.selectedInterest = interest
+            proxy.scrollTo(interest.description, anchor: .leading)
+            return shared(.async(.추천_조회_API), state: &state)
         }
     }
     
@@ -135,6 +164,9 @@ private extension RecommendFeature {
             
             state.isLoading = false
             return .none
+        case let .유저_관심사_조회_API_반영(interests):
+            state.domain.interests = interests
+            return .none
         }
     }
     
@@ -148,16 +180,23 @@ private extension RecommendFeature {
                     page: state.domain.pageable.page,
                     size: state.domain.pageable.size,
                     sort: state.domain.pageable.sort
-                )
+                ),
+                keyword = state.selectedInterest?.description
             ] send in
                 let contentList = try await contentClient.추천_컨텐츠_조회(
-                    model: pageableRequest
+                    pageable: pageableRequest,
+                    keyword: keyword
                 ).toDomain()
                 
                 await send(.inner(.추천_조회_페이징_API_반영(contentList)))
             }
         case .추천_조회_API:
             return contentListFetch(state: &state)
+        case .유저_관심사_조회_API:
+            return .run { send in
+                let interests = try await userClient.유저_관심사_목록_조회().map { $0.toDomian() }
+                await send(.inner(.유저_관심사_조회_API_반영(interests)))
+            }
         }
     }
     
@@ -189,7 +228,8 @@ private extension RecommendFeature {
     
     func contentListFetch(state: inout State) -> Effect<Action> {
         return .run { [
-            pageable = state.domain.pageable
+            pageable = state.domain.pageable,
+            keyword = state.selectedInterest?.description
         ] send in
             let stream = AsyncThrowingStream<BaseContentListInquiry, Error> { continuation in
                 Task {
@@ -200,7 +240,8 @@ private extension RecommendFeature {
                             sort: pageable.sort
                         )
                         let contentList = try await contentClient.추천_컨텐츠_조회(
-                            model: pageableRequest
+                            pageable: pageableRequest,
+                            keyword: keyword
                         ).toDomain()
                         continuation.yield(contentList)
                     }
