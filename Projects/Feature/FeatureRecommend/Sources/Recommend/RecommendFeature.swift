@@ -69,6 +69,8 @@ public struct RecommendFeature {
             case 전체보기_버튼_눌렀을때(ScrollViewProxy)
             case 관심사_버튼_눌렀을때(BaseInterest, ScrollViewProxy)
             case 링크_공유_완료되었을때
+            case 검색_버튼_눌렀을때
+            case 알림_버튼_눌렀을때
         }
         
         public enum InnerAction: Equatable {
@@ -86,7 +88,9 @@ public struct RecommendFeature {
         public enum ScopeAction: Equatable { case doNothing }
         
         public enum DelegateAction: Equatable {
-            case 추가하기_버튼_눌렀을때(BaseContentItem)
+            case 추가하기_버튼_눌렀을때(Int)
+            case 검색_버튼_눌렀을때
+            case 알림_버튼_눌렀을때
         }
     }
     
@@ -139,7 +143,7 @@ private extension RecommendFeature {
         case .pagination:
             return shared(.async(.추천_조회_페이징_API), state: &state)
         case let .추가하기_버튼_눌렀을때(content):
-            return .send(.delegate(.추가하기_버튼_눌렀을때(content)))
+            return .send(.delegate(.추가하기_버튼_눌렀을때(content.id)))
         case let .공유하기_버튼_눌렀을때(content):
             state.shareContent = content
             return .none
@@ -160,6 +164,10 @@ private extension RecommendFeature {
         case .링크_공유_완료되었을때:
             state.shareContent = nil
             return .none
+        case .검색_버튼_눌렀을때:
+            return .send(.delegate(.검색_버튼_눌렀을때))
+        case .알림_버튼_눌렀을때:
+            return .send(.delegate(.알림_버튼_눌렀을때))
         }
     }
     
@@ -198,8 +206,8 @@ private extension RecommendFeature {
                 keyword = state.selectedInterest?.description
             ] send in
                 let contentList = try await contentClient.추천_컨텐츠_조회(
-                    pageable: pageableRequest,
-                    keyword: keyword
+                    pageableRequest,
+                    keyword
                 ).toDomain()
                 
                 await send(.inner(.추천_조회_페이징_API_반영(contentList)))
@@ -254,8 +262,8 @@ private extension RecommendFeature {
                             sort: pageable.sort
                         )
                         let contentList = try await contentClient.추천_컨텐츠_조회(
-                            pageable: pageableRequest,
-                            keyword: keyword
+                            pageableRequest,
+                            keyword
                         ).toDomain()
                         continuation.yield(contentList)
                     }

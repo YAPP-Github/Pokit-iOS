@@ -168,7 +168,7 @@ private extension RecommendView {
                 }
             }
             .padding(.horizontal, 20)
-            .padding(.bottom, 36)
+            .padding(.bottom, 150)
         }
     }
 
