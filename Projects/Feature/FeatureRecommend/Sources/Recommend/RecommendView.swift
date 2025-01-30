@@ -14,7 +14,8 @@ import NukeUI
 @ViewAction(for: RecommendFeature.self)
 public struct RecommendView: View {
     /// - Properties
-    public let store: StoreOf<RecommendFeature>
+    @Perception.Bindable
+    public var store: StoreOf<RecommendFeature>
     
     /// - Initializer
     public init(store: StoreOf<RecommendFeature>) {
@@ -32,6 +33,15 @@ public extension RecommendView {
             }
             .padding(.top, 12)
             .ignoresSafeArea(edges: .bottom)
+            .sheet(item: $store.shareContent) { content in
+                if let shareURL = URL(string: content.data) {
+                    PokitShareSheet(
+                        items: [shareURL],
+                        completion: { send(.링크_공유_완료되었을때) }
+                    )
+                    .presentationDetents([.medium, .large])
+                }
+            }
             .task { await send(.onAppear).finish() }
         }
     }

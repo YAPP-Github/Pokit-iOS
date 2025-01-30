@@ -44,6 +44,7 @@ public struct RecommendFeature {
         }
         var isLoading: Bool = true
         var selectedInterest: BaseInterest?
+        var shareContent: BaseContentItem?
     }
     
     /// - Action
@@ -55,15 +56,19 @@ public struct RecommendFeature {
         case delegate(DelegateAction)
         
         @CasePathable
-        public enum View {
+        public enum View: BindableAction {
+            /// - Binding
+            case binding(BindingAction<State>)
+            
+            case onAppear
+            case pagination
+            
             case 추가하기_버튼_눌렀을때(BaseContentItem)
             case 공유하기_버튼_눌렀을때(BaseContentItem)
             case 신고하기_버튼_눌렀을때(BaseContentItem)
             case 전체보기_버튼_눌렀을때(ScrollViewProxy)
             case 관심사_버튼_눌렀을때(BaseInterest, ScrollViewProxy)
-            
-            case onAppear
-            case pagination
+            case 링크_공유_완료되었을때
         }
         
         public enum InnerAction: Equatable {
@@ -115,6 +120,8 @@ public struct RecommendFeature {
     
     /// - Reducer body
     public var body: some ReducerOf<Self> {
+        BindingReducer(action: \.view)
+        
         Reduce(self.core)
     }
 }
@@ -123,6 +130,7 @@ private extension RecommendFeature {
     /// - View Effect
     func handleViewAction(_ action: Action.View, state: inout State) -> Effect<Action> {
         switch action {
+        case .binding: return .none
         case .onAppear:
             return .merge(
                 shared(.async(.추천_조회_API), state: &state),
@@ -133,6 +141,7 @@ private extension RecommendFeature {
         case let .추가하기_버튼_눌렀을때(content):
             return .send(.delegate(.추가하기_버튼_눌렀을때(content)))
         case let .공유하기_버튼_눌렀을때(content):
+            state.shareContent = content
             return .none
         case let .신고하기_버튼_눌렀을때(content):
             return .none
@@ -148,6 +157,9 @@ private extension RecommendFeature {
             state.selectedInterest = interest
             proxy.scrollTo(interest.description, anchor: .leading)
             return shared(.async(.추천_조회_API), state: &state)
+        case .링크_공유_완료되었을때:
+            state.shareContent = nil
+            return .none
         }
     }
     
