@@ -26,7 +26,7 @@ public enum CategoryEndpoint {
 extension CategoryEndpoint: TargetType {
     public var baseURL: URL {
         switch self {
-        case .카테고리_목록_조회, .카테고리생성, .카테고리_수정:
+        case .카테고리_목록_조회, .카테고리생성, .카테고리_수정, .공유받은_카테고리_저장:
             return Constants.serverURL.appendingPathComponent(Constants.categoryPathV2, conformingTo: .url)
             
         default:
