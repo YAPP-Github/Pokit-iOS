@@ -32,6 +32,9 @@ extension UserClient: DependencyKey {
             },
             fcm_토큰_저장: { model in
                 try await provider.request(.fcm_토큰_저장(model: model))
+            },
+            유저_관심사_목록_조회: {
+                try await provider.request(.유저_관심사_목록_조회)
             }
         )
     }()

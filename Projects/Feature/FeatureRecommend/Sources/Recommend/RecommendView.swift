@@ -25,7 +25,9 @@ public struct RecommendView: View {
 public extension RecommendView {
     var body: some View {
         WithPerceptionTracking {
-            VStack(spacing: 16) {
+            VStack(spacing: 10) {
+                interestList
+                
                 list
             }
             .padding(.top, 12)
@@ -36,6 +38,37 @@ public extension RecommendView {
 }
 //MARK: - Configure View
 private extension RecommendView {
+    var interestList: some View {
+        ScrollView(.horizontal) {
+            HStack(spacing: 8) {
+                PokitTextButton(
+                    "전체보기",
+                    state: .filled(.primary),
+                    size: .small,
+                    shape: .round,
+                    action: { }
+                )
+                
+                ForEach(store.interestList) { interest in
+                    let isSelected = store.selectedInterest == interest
+                    
+                    PokitTextButton(
+                        interest.description,
+                        state: isSelected
+                        ? .filled(.primary)
+                        : .default(.secondary),
+                        size: .small,
+                        shape: .round,
+                        action: { }
+                    )
+                }
+            }
+            .padding(.horizontal, 20)
+            .padding(.top, 8)
+            .padding(.bottom, 12)
+        }
+    }
+    
     @ViewBuilder
     var list: some View {
         if let recommendedList = store.recommendedList {
@@ -76,7 +109,6 @@ private extension RecommendView {
             .padding(.bottom, 36)
         }
     }
-    
 
     @ViewBuilder
     func recomendedCard(_ content: BaseContentItem) -> some View {
