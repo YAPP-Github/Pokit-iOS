@@ -53,12 +53,12 @@ private extension RecommendView {
             ScrollView(.horizontal, showsIndicators: false) {
                 interestListContent(proxy)
                     .padding(.horizontal, 20)
-                    .padding(.top, 8)
-                    .padding(.bottom, 12)
+                    .padding(.vertical, 8)
             }
             .overlay(alignment: .trailing) {
                 interestEditButton
             }
+            .padding(.bottom, 4)
         }
     }
     
@@ -175,7 +175,7 @@ private extension RecommendView {
     @ViewBuilder
     func recomendedCard(_ content: BaseContentItem) -> some View {
         VStack(alignment: .leading, spacing: 0) {
-            if let url = URL(string: content.data) {
+            if let url = URL(string: content.thumbNail) {
                 recommendedImage(url: url)
             }
             
