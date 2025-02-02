@@ -212,13 +212,14 @@ private extension RecommendFeature {
         case .추천_조회_페이징_API:
             state.domain.pageable.page += 1
             return .run { [
-                pageableRequest = BasePageableRequest(
-                    page: state.domain.pageable.page,
-                    size: state.domain.pageable.size,
-                    sort: state.domain.pageable.sort
-                ),
+                pageable = state.domain.pageable,
                 keyword = state.selectedInterest?.description
             ] send in
+                let pageableRequest = BasePageableRequest(
+                    page: pageable.page,
+                    size: pageable.size,
+                    sort: pageable.sort
+                )
                 let contentList = try await contentClient.추천_컨텐츠_조회(
                     pageableRequest,
                     keyword
