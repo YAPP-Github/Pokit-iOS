@@ -40,6 +40,9 @@ public struct CategoryDetailFeature {
         var isFavoriteFiltered: Bool {
             get { domain.condition.isFavoriteFlitered }
         }
+        var isFavoriteCategory: Bool {
+            get { domain.category.isFavorite }
+        }
         
         var sortType: SortType = .최신순
         var categories: IdentifiedArrayOf<BaseCategoryItem>? {

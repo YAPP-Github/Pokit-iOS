@@ -96,11 +96,13 @@ private extension CategoryDetailView {
                     action: { send(.dismiss) }
                 )
             }
-            PokitHeaderItems(placement: .trailing) {
-                PokitToolbarButton(
-                    .icon(.kebab),
-                    action: { send(.카테고리_케밥_버튼_눌렀을때) }
-                )
+            if !store.isFavoriteCategory {
+                PokitHeaderItems(placement: .trailing) {
+                    PokitToolbarButton(
+                        .icon(.kebab),
+                        action: { send(.카테고리_케밥_버튼_눌렀을때) }
+                    )
+                }
             }
         }
         .padding(.top, 8)
@@ -137,69 +139,82 @@ private extension CategoryDetailView {
                 .buttonStyle(.plain)
             }
             .padding(.bottom, 8)
-            HStack(spacing: 3.5) {
-                let iconColor: Color = .pokit(.icon(.secondary))
-                let textColor: Color = .pokit(.text(.tertiary))
-                
-                if store.category.openType == .비공개 {
+            if !store.isFavoriteCategory {
+                HStack(spacing: 3.5) {
+                    let iconColor: Color = .pokit(.icon(.secondary))
+                    let textColor: Color = .pokit(.text(.tertiary))
+                    
+                    if store.category.openType == .비공개 {
+                        HStack(spacing: 2) {
+                            Image(.icon(.lock))
+                                .resizable()
+                                .frame(width: 16, height: 16)
+                                .foregroundStyle(iconColor)
+                            Text("비밀")
+                                .foregroundStyle(textColor)
+                                .pokitFont(.b2(.m))
+                        }
+                    }
                     HStack(spacing: 2) {
-                        Image(.icon(.lock))
+                        Image(.icon(.link))
                             .resizable()
                             .frame(width: 16, height: 16)
                             .foregroundStyle(iconColor)
-                        Text("비밀")
+                        Text("\(store.contents.count)개")
                             .foregroundStyle(textColor)
                             .pokitFont(.b2(.m))
                     }
-                }
-                HStack(spacing: 2) {
-                    Image(.icon(.link))
-                        .resizable()
-                        .frame(width: 16, height: 16)
-                        .foregroundStyle(iconColor)
-                    Text("\(store.contents.count)개")
+                    Text("#\(store.category.keywordType.title)")
                         .foregroundStyle(textColor)
                         .pokitFont(.b2(.m))
+                        .padding(.leading, 4.5)
                 }
-                Text("#\(store.category.keywordType.title)")
-                    .foregroundStyle(textColor)
-                    .pokitFont(.b2(.m))
-                    .padding(.leading, 4.5)
+                .padding(.bottom, 16)
+                PokitIconLButton(
+                    "공유",
+                    .icon(.share),
+                    state: .filled(.primary),
+                    size: .medium,
+                    shape: .round,
+                    action: { send(.공유_버튼_눌렀을때) }
+                )
             }
-            .padding(.bottom, 16)
-            PokitIconLButton(
-                "공유",
-                .icon(.share),
-                state: .filled(.primary),
-                size: .medium,
-                shape: .round,
-                action: { send(.공유_버튼_눌렀을때) }
-            )
         }
     }
     
     @ViewBuilder
     var filterHeader: some View {
+        let isFavoriteCategory = store.isFavoriteCategory
         if !store.contents.isEmpty {
-            HStack(spacing: 8) {
-                PokitTextButton(
-                    "즐겨찾기",
-                    state: store.isFavoriteFiltered
-                    ? .filled(.primary)
-                    : .default(.secondary),
-                    size: .small,
-                    shape: .round,
-                    action: { send(.분류_버튼_눌렀을때(.즐겨찾기)) }
-                )
-                PokitTextButton(
-                    "안읽음",
-                    state: store.isUnreadFiltered
-                    ? .filled(.primary)
-                    : .default(.secondary),
-                    size: .small,
-                    shape: .round,
-                    action: { send(.분류_버튼_눌렀을때(.안읽음)) }
-                )
+            HStack(spacing: isFavoriteCategory ? 2 : 8) {
+                if isFavoriteCategory {
+                    Image(.icon(.link))
+                        .resizable()
+                        .frame(width: 16, height: 16)
+                        .foregroundStyle(.pokit(.icon(.secondary)))
+                    Text("\(store.contents.count)개")
+                        .foregroundStyle(.pokit(.text(.tertiary)))
+                        .pokitFont(.b2(.m))
+                } else {
+                    PokitTextButton(
+                        "즐겨찾기",
+                        state: store.isFavoriteFiltered
+                        ? .filled(.primary)
+                        : .default(.secondary),
+                        size: .small,
+                        shape: .round,
+                        action: { send(.분류_버튼_눌렀을때(.즐겨찾기)) }
+                    )
+                    PokitTextButton(
+                        "안읽음",
+                        state: store.isUnreadFiltered
+                        ? .filled(.primary)
+                        : .default(.secondary),
+                        size: .small,
+                        shape: .round,
+                        action: { send(.분류_버튼_눌렀을때(.안읽음)) }
+                    )
+                }
                 
                 Spacer()
                 PokitIconLTextLink(
