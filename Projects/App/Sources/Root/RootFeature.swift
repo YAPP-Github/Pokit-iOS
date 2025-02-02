@@ -8,7 +8,7 @@
 import Foundation
 
 import ComposableArchitecture
-import FeatureLogin
+import FeatureIntro
 import CoreKit
 
 @Reducer

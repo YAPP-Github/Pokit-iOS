@@ -17,8 +17,7 @@ test:
 	make clean
 	make download
 	tuist install
-	tuist cache
-	TUIST_DEVELOPMENT_TEAM=$(DEVELOPMENT_TEAM) tuist generate App
+	TUIST_DEVELOPMENT_TEAM=$(DEVELOPMENT_TEAM) tuist generate App --verbose
 	
 clean:
 	tuist clean

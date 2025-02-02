@@ -155,12 +155,10 @@ extension RemindView {
             .padding(12)
         }
         .frame(width: 216, height: 194)
-        .background {
-            if let url = URL(string: content.thumbNail) {
-                recommendedContentCellImage(url: url, contentId: content.id)
-            } else {
-                imagePlaceholder
-            }
+        .background(ifLet: URL(string: content.thumbNail)) { url in
+            recommendedContentCellImage(url: url, contentId: content.id)
+        } else: {
+            imagePlaceholder
         }
         .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
         .clipped()

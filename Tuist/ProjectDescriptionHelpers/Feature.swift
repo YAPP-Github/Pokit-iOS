@@ -20,6 +20,7 @@ public enum Feature: String, CaseIterable {
     case contentList = "ContentList"
     case categorySharing = "CategorySharing"
     case contentCard = "ContentCard"
+    case intro = "Intro"
     
     public var target: Target {
         return .makeTarget(
@@ -35,15 +36,21 @@ public enum Feature: String, CaseIterable {
     }
     
     public var demoTarget: Target {
+        var dependencies: [TargetDependency] = [.target(self.target)]
+        if self != .login && self != .intro {
+            dependencies.append(
+                .project(target: "FeatureIntro", path: .relativeToRoot("Projects/Feature"))
+            )
+        }
+        
         return .makeTarget(
             name: "Feature\(self.rawValue)Demo",
             product: .app,
             bundleName: "Feature.\(self.rawValue)Demo",
             infoPlist: .file(path: .relativeToRoot("Projects/App/Resources/Pokit-info.plist")),
             resources: ["Feature\(self.rawValue)Demo/Resources/**"],
-            dependencies: [
-                .target(self.target)
-            ]
+            entitlements: .file(path: .relativeToRoot("Projects/App/ShareExtension/ShareExtension.entitlements")),
+            dependencies: dependencies
         )
     }
     
@@ -69,7 +76,8 @@ public enum Feature: String, CaseIterable {
         case .login: return []
         case .pokit:
             return [
-                .project(target: "FeatureContentCard", path: .relativeToRoot("Projects/Feature"))
+                .project(target: "FeatureContentCard", path: .relativeToRoot("Projects/Feature")),
+                .project(target: "FeatureCategorySetting", path: .relativeToRoot("Projects/Feature"))
             ]
         case .categoryDetail:
             return [
@@ -88,6 +96,10 @@ public enum Feature: String, CaseIterable {
                 .project(target: "FeatureContentCard", path: .relativeToRoot("Projects/Feature"))
             ]
         case .contentCard: return []
+        case .intro:
+            return [
+                .project(target: "FeatureLogin", path: .relativeToRoot("Projects/Feature"))
+            ]
         }
     }
 }

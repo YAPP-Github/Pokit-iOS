@@ -13,7 +13,7 @@ import Moya
 public enum CategoryEndpoint {
     case 카테고리_삭제(categoryId: Int)
     case 카테고리_수정(categoryId: Int, model: CategoryEditRequest)
-    case 카테고리_목록_조회(model: BasePageableRequest, filterUncategorized: Bool)
+    case 카테고리_목록_조회(model: BasePageableRequest, filterUncategorized: Bool, filterFavoriteCategorized: Bool)
     case 카테고리생성(model: CategoryEditRequest)
     case 카테고리_프로필_목록_조회
     case 유저_카테고리_개수_조회
@@ -25,7 +25,13 @@ public enum CategoryEndpoint {
 
 extension CategoryEndpoint: TargetType {
     public var baseURL: URL {
-        return Constants.serverURL.appendingPathComponent(Constants.categoryPath, conformingTo: .url)
+        switch self {
+        case .카테고리_목록_조회, .카테고리생성, .카테고리_수정, .공유받은_카테고리_저장:
+            return Constants.serverURL.appendingPathComponent(Constants.categoryPathV2, conformingTo: .url)
+            
+        default:
+            return Constants.serverURL.appendingPathComponent(Constants.categoryPath, conformingTo: .url)
+        }
     }
     
     public var path: String {
@@ -77,13 +83,14 @@ extension CategoryEndpoint: TargetType {
             return .requestPlain
         case let .카테고리_수정(_, model):
             return .requestJSONEncodable(model)
-        case let .카테고리_목록_조회(model, categorized):
+        case let .카테고리_목록_조회(model, categorized, favoriteCategorized):
             return .requestParameters(
                 parameters: [
                     "page": model.page,
                     "size": model.size,
                     "sort": model.sort.map { String($0) }.joined(separator: ","),
-                    "filterUncategorized": categorized
+                    "filterUncategorized": categorized,
+                    "filterFavorite": favoriteCategorized
                 ],
                 encoding: URLEncoding.default
             )

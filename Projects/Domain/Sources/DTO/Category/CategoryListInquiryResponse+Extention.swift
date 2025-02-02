@@ -8,6 +8,7 @@
 import Foundation
 
 import CoreKit
+import Util
 
 public extension CategoryListInquiryResponse {
     func toDomain() -> BaseCategoryListInquiry {
@@ -29,7 +30,11 @@ public extension CategoryItemInquiryResponse {
             categoryName: self.categoryName,
             categoryImage: self.categoryImage.toDomain(),
             contentCount: self.contentCount,
-            createdAt: self.createdAt
+            createdAt: self.createdAt,
+            openType: BaseOpenType(rawValue: self.openType) ?? .비공개,
+            keywordType: BaseInterestType(rawValue: self.keywordType.slashConvertUnderBar) ?? .default,
+            userCount: self.userCount,
+            isFavorite: self.isFavorite
         )
     }
 }

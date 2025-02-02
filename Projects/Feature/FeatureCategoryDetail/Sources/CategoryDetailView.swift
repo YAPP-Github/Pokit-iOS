@@ -206,7 +206,12 @@ private extension CategoryDetailView {
                         categoryName: "포킷",
                         categoryImage: .init(imageId: 0, imageURL: ""),
                         contentCount: 16, 
-                        createdAt: ""
+                        createdAt: "",
+                        //TODO: v2 property 수정
+                        openType: .비공개,
+                        keywordType: .IT,
+                        userCount: 0,
+                        isFavorite: false
                     )
                 ),
                 reducer: { CategoryDetailFeature() }

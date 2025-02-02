@@ -304,7 +304,12 @@ private extension ContentSettingFeature {
                 categoryName: category.categoryName,
                 categoryImage: category.categoryImage,
                 contentCount: 0,
-                createdAt: ""
+                createdAt: "",
+                //TODO: v2 property 수정
+                openType: .비공개,
+                keywordType: .default,
+                userCount: 0,
+                isFavorite: false
             )
             return .none
         case .카테고리_목록_조회_API_반영(categoryList: let categoryList):
@@ -452,7 +457,7 @@ private extension ContentSettingFeature {
     
     func categoryListFetch(request: BasePageableRequest) -> Effect<Action> {
         return .run { send in
-            let categoryList = try await categoryClient.카테고리_목록_조회(request, false).toDomain()
+            let categoryList = try await categoryClient.카테고리_목록_조회(request, false, true).toDomain()
             await send(.inner(.카테고리_목록_조회_API_반영(categoryList: categoryList)), animation: .pokitDissolve)
         }
     }

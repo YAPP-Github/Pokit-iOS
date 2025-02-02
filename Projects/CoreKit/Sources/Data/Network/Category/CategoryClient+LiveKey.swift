@@ -21,8 +21,14 @@ extension CategoryClient: DependencyKey {
             카테고리_수정: { id, model in
                 try await provider.request(.카테고리_수정(categoryId: id, model: model))
             },
-            카테고리_목록_조회: { model, categoryFilter in
-                try await provider.request(.카테고리_목록_조회(model: model, filterUncategorized: categoryFilter))
+            카테고리_목록_조회: { model, categoryFilter, favoriteFilter in
+                try await provider.request(
+                    .카테고리_목록_조회(
+                        model: model,
+                        filterUncategorized: categoryFilter,
+                        filterFavoriteCategorized: favoriteFilter
+                    )
+                )
             },
             카테고리_생성: { model in
                 try await provider.request(.카테고리생성(model: model))

@@ -25,6 +25,10 @@ public struct CategoryItemInquiryResponse: Decodable {
     public let categoryImage: CategoryImageResponse
     public let contentCount: Int
     public let createdAt: String
+    public let openType: String
+    public let keywordType: String
+    public let userCount: Int
+    public let isFavorite: Bool
 }
 /// Sort
 public struct ItemInquirySortResponse: Decodable {
@@ -45,7 +49,11 @@ public extension CategoryItemInquiryResponse {
             imageUrl: Constants.mockImageUrl
         ),
         contentCount: 90,
-        createdAt: ""
+        createdAt: "",
+        openType: "PRIVATE",
+        keywordType: "스포츠/레저",
+        userCount: 0,
+        isFavorite: false
     )
 }
 
@@ -61,7 +69,11 @@ extension CategoryListInquiryResponse {
                     imageUrl: Constants.mockImageUrl
                 ),
                 contentCount: 90,
-                createdAt: ""
+                createdAt: "",
+                openType: "PRIVATE",
+                keywordType: "스포츠/레저",
+                userCount: 0,
+                isFavorite: false
             ),
             CategoryItemInquiryResponse(
                 categoryId: 2,
@@ -72,7 +84,11 @@ extension CategoryListInquiryResponse {
                     imageUrl: Constants.mockImageUrl
                 ),
                 contentCount: 90,
-                createdAt: ""
+                createdAt: "",
+                openType: "PUBLIC",
+                keywordType: "스포츠/레저",
+                userCount: 1,
+                isFavorite: false
             ),
             CategoryItemInquiryResponse(
                 categoryId: 3,
@@ -83,7 +99,11 @@ extension CategoryListInquiryResponse {
                     imageUrl: Constants.mockImageUrl
                 ),
                 contentCount: 90,
-                createdAt: ""
+                createdAt: "",
+                openType: "PUBLIC",
+                keywordType: "스포츠/레저",
+                userCount: 5,
+                isFavorite: false
             )
         ],
         page: 1,

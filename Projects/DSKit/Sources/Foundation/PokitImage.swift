@@ -103,6 +103,8 @@ public enum PokitImage {
                 return DSKitAsset.iconAlluncheck.swiftUIImage
             case .report:
                 return DSKitAsset.iconReport.swiftUIImage
+            case .tack:
+                return DSKitAsset.iconTack.swiftUIImage
             }
         case .logo(let name):
             switch name {
@@ -174,6 +176,7 @@ public extension PokitImage {
         case allCheck
         case allUncheck
         case report
+        case tack
     }
     
     enum Logo {

@@ -83,9 +83,7 @@ public extension MainTabFeature {
                  let .path(.element(_, action: .카테고리상세(.delegate(.포킷수정(category))))):
                 state.path.append(.포킷추가및수정(PokitCategorySettingFeature.State(
                     type: .수정,
-                    categoryId: category.id,
-                    categoryImage: category.categoryImage,
-                    categoryName: category.categoryName
+                    category: category
                 )))
                 return .none
 
@@ -196,6 +194,10 @@ public extension MainTabFeature {
                  let .path(.element(_, action: .포킷추가및수정(.delegate(.linkCopyDetected(url))))),
                  let .path(.element(_, action: .링크목록(.delegate(.linkCopyDetected(url))))):
                 return .run { send in await send(.inner(.linkCopySuccess(url)), animation: .pokitSpring) }
+            /// 바텀메세지
+            case let .pokit(.delegate(.linkPopup(text))):
+                state.linkPopup = .text(title: text)
+                return .none
             /// 링크목록 `안읽음`
             case .remind(.delegate(.링크목록_안읽음)):
                 state.path.append(.링크목록(ContentListFeature.State(contentType: .unread)))
@@ -231,14 +233,24 @@ public extension MainTabFeature {
                 return .none
             
             case let .path(.element(_, action: .링크공유(.delegate(.공유받은_카테고리_추가(sharedCategory))))):
-                state.path.append(.포킷추가및수정(PokitCategorySettingFeature.State(
-                    type: .공유추가,
-                    categoryId: sharedCategory.categoryId,
+                let category = BaseCategoryItem(
+                    id: sharedCategory.categoryId,
+                    userId: 0,
+                    categoryName: sharedCategory.categoryName,
                     categoryImage: BaseCategoryImage(
                         imageId: sharedCategory.categoryImageId,
                         imageURL: sharedCategory.categoryImageUrl
                     ),
-                    categoryName: sharedCategory.categoryName
+                    contentCount: sharedCategory.contentCount,
+                    createdAt: "",
+                    openType: .공개,
+                    keywordType: .default,
+                    userCount: 0,
+                    isFavorite: false
+                )
+                state.path.append(.포킷추가및수정(PokitCategorySettingFeature.State(
+                    type: .공유추가,
+                    category: category
                 )))
                 return .none
             case .path(.element(_, action: .알림함(.delegate(.alertBoxDismiss)))):
