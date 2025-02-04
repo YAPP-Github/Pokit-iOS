@@ -40,6 +40,9 @@ public struct CategoryDetailFeature {
         var isFavoriteFiltered: Bool {
             get { domain.condition.isFavoriteFlitered }
         }
+        var isFavoriteCategory: Bool {
+            get { domain.category.isFavorite }
+        }
         
         var sortType: SortType = .최신순
         var categories: IdentifiedArrayOf<BaseCategoryItem>? {
@@ -57,7 +60,6 @@ public struct CategoryDetailFeature {
         var isCategorySheetPresented: Bool = false
         var isCategorySelectSheetPresented: Bool = false
         var isPokitDeleteSheetPresented: Bool = false
-        var isFilterSheetPresented: Bool = false
         /// pagenation
         var hasNext: Bool {
             domain.contentList.hasNext
@@ -83,11 +85,16 @@ public struct CategoryDetailFeature {
             case binding(BindingAction<State>)
             case dismiss
             case pagenation
+            
+            /// 즐겨찾기 or 안읽음 버튼 눌렀을 때
+            case 분류_버튼_눌렀을때(SortCollectType)
+            case 정렬_버튼_눌렀을때
+            case 공유_버튼_눌렀을때
             case 카테고리_케밥_버튼_눌렀을때
             case 카테고리_선택_버튼_눌렀을때
             case 카테고리_선택했을때(BaseCategoryItem)
-            case 필터_버튼_눌렀을때
             case 뷰가_나타났을때
+            case 링크_추가_버튼_눌렀을때
         }
         
         public enum InnerAction: Equatable {
@@ -111,7 +118,6 @@ public struct CategoryDetailFeature {
         public enum ScopeAction {
             case categoryBottomSheet(PokitBottomSheet.Delegate)
             case categoryDeleteBottomSheet(PokitDeleteBottomSheet.Delegate)
-            case filterBottomSheet(CategoryFilterSheet.Delegate)
             case contents(IdentifiedActionOf<ContentCardFeature>)
         }
         
@@ -119,6 +125,7 @@ public struct CategoryDetailFeature {
             case contentItemTapped(BaseContentItem)
             case linkCopyDetected(URL?)
             case 링크수정(contentId: Int)
+            case 링크추가(categoryId: Int)
             case 포킷삭제
             case 포킷수정(BaseCategoryItem)
             case 포킷공유
@@ -174,6 +181,45 @@ private extension CategoryDetailFeature {
         case .binding:
             return .none
             
+        case .정렬_버튼_눌렀을때:
+            state.sortType = state.sortType == .최신순
+            ? .오래된순
+            : .최신순
+            
+            state.domain.pageable.sort = [
+                state.sortType == .최신순 ? "createdAt,desc" : "createdAt,asc"
+            ]
+            
+            return .concatenate(
+                .send(.inner(.pagenation_초기화), animation: .pokitDissolve),
+                .send(.async(.카테고리_내_컨텐츠_목록_조회_API))
+            )
+            
+        case let .분류_버튼_눌렀을때(type):
+            if type == .즐겨찾기 {
+                state.domain.condition.isFavoriteFlitered.toggle()
+            } else {
+                state.domain.condition.isUnreadFlitered.toggle()
+            }
+            return .concatenate(
+                .send(.inner(.pagenation_초기화), animation: .pokitDissolve),
+                .send(.async(.카테고리_내_컨텐츠_목록_조회_API))
+            )
+            
+        case .공유_버튼_눌렀을때:
+            kakaoShareClient.카테고리_카카오톡_공유(
+                CategoryKaKaoShareModel(
+                    categoryName: state.domain.category.categoryName,
+                    categoryId: state.domain.category.id,
+                    imageURL: state.domain.category.categoryImage.imageURL
+                )
+            )
+            return .none
+            
+        case .링크_추가_버튼_눌렀을때:
+            let id = state.category.id
+            return .send(.delegate(.링크추가(categoryId: id)))
+            
         case .카테고리_케밥_버튼_눌렀을때:
             return .run { send in await send(.inner(.카테고리_시트_활성화(true))) }
         
@@ -187,10 +233,6 @@ private extension CategoryDetailFeature {
                 await send(.async(.카테고리_내_컨텐츠_목록_조회_API))
                 await send(.inner(.카테고리_선택_시트_활성화(false)))
             }
-            
-        case .필터_버튼_눌렀을때:
-            state.isFilterSheetPresented.toggle()
-            return .none
             
         case .dismiss:
             return .run { _ in await dismiss() }
@@ -347,16 +389,6 @@ private extension CategoryDetailFeature {
         /// - 카테고리에 대한 `공유` / `수정` / `삭제` Delegate
         case .categoryBottomSheet(let delegateAction):
             switch delegateAction {
-            case .shareCellButtonTapped:
-                kakaoShareClient.카테고리_카카오톡_공유(
-                    CategoryKaKaoShareModel(
-                        categoryName: state.domain.category.categoryName,
-                        categoryId: state.domain.category.id,
-                        imageURL: state.domain.category.categoryImage.imageURL
-                    )
-                )
-                state.isCategorySheetPresented = false
-                return .none
             case .editCellButtonTapped:
                 return .run { [category = state.category] send in
                     await send(.inner(.카테고리_시트_활성화(false)))
@@ -383,25 +415,6 @@ private extension CategoryDetailFeature {
                     await send(.delegate(.포킷삭제))
                     try await categoryClient.카테고리_삭제(categoryId)
                 }
-            }
-        /// - 필터 버튼을 눌렀을 때
-        case .filterBottomSheet(let delegateAction):
-            switch delegateAction {
-            case .dismiss:
-                state.isFilterSheetPresented.toggle()
-                return .none
-            case let .확인_버튼_눌렀을때(type, bookMarkSelected, unReadSelected):
-                state.isFilterSheetPresented.toggle()
-                state.domain.pageable.sort = [
-                    type == .최신순 ? "createdAt,desc" : "createdAt,asc"
-                ]
-                state.sortType = type
-                state.domain.condition.isFavoriteFlitered = bookMarkSelected
-                state.domain.condition.isUnreadFlitered = unReadSelected
-                return .concatenate(
-                    .send(.inner(.pagenation_초기화), animation: .pokitDissolve),
-                    .send(.async(.카테고리_내_컨텐츠_목록_조회_API))
-                )
             }
             
         case let .contents(.element(id: _, action: .delegate(.컨텐츠_항목_케밥_버튼_눌렀을때(content)))):

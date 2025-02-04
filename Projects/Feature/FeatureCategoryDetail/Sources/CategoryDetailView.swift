@@ -11,6 +11,7 @@ import FeatureContentCard
 import Domain
 import DSKit
 import Util
+import NukeUI
 
 @ViewAction(for: CategoryDetailFeature.self)
 public struct CategoryDetailView: View {
@@ -27,18 +28,38 @@ public struct CategoryDetailView: View {
 public extension CategoryDetailView {
     var body: some View {
         WithPerceptionTracking {
-            VStack(spacing: 16) {
+            VStack(spacing: 24) {
                 header
+                PokitDivider().padding(.horizontal, -20)
+                filterHeader
                 contentScrollView
             }
             .padding(.horizontal, 20)
             .padding(.top, 12)
             .pokitNavigationBar { navigationBar }
+            //TODO: overlay(condition) merge 시 수정
+            .overlay(alignment: .bottomTrailing) {
+                if !store.contents.isEmpty {
+                    Button(action: { send(.링크_추가_버튼_눌렀을때) }) {
+                        Image(.icon(.plus))
+                            .resizable()
+                            .frame(width: 36, height: 36)
+                            .padding(12)
+                            .foregroundStyle(.pokit(.icon(.inverseWh)))
+                            .background {
+                                RoundedRectangle(cornerRadius: 9999, style: .continuous)
+                                    .fill(.pokit(.bg(.brand)))
+                            }
+                            .frame(width: 60, height: 60)
+                    }
+                    .padding(.trailing, 20)
+                    .padding(.bottom, 39)
+                }
+            }
             .ignoresSafeArea(edges: .bottom)
             .sheet(isPresented: $store.isCategorySheetPresented) {
                 PokitBottomSheet(
-                    items: [.share, .edit, .delete],
-                    height: 224,
+                    items: [.edit, .delete],
                     delegateSend: { store.send(.scope(.categoryBottomSheet($0))) }
                 )
             }
@@ -61,14 +82,6 @@ public extension CategoryDetailView {
                     delegateSend: { store.send(.scope(.categoryDeleteBottomSheet($0))) }
                 )
             }
-            .sheet(isPresented: $store.isFilterSheetPresented) {
-                CategoryFilterSheet(
-                    sortType: $store.sortType,
-                    isBookMarkSelected: store.isFavoriteFiltered,
-                    isUnreadSeleected: store.isUnreadFiltered,
-                    delegateSend: { store.send(.scope(.filterBottomSheet($0))) }
-                )
-            }
             .task { await send(.뷰가_나타났을때).finish() }
         }
     }
@@ -83,18 +96,35 @@ private extension CategoryDetailView {
                     action: { send(.dismiss) }
                 )
             }
-            PokitHeaderItems(placement: .trailing) {
-                PokitToolbarButton(
-                    .icon(.kebab),
-                    action: { send(.카테고리_케밥_버튼_눌렀을때) }
-                )
+            if !store.isFavoriteCategory {
+                PokitHeaderItems(placement: .trailing) {
+                    PokitToolbarButton(
+                        .icon(.kebab),
+                        action: { send(.카테고리_케밥_버튼_눌렀을때) }
+                    )
+                }
             }
         }
         .padding(.top, 8)
     }
     
+    @MainActor
     var header: some View {
-        VStack(spacing: 4) {
+        VStack(spacing: 0) {
+            LazyImage(url: URL(string: store.category.categoryImage.imageURL)) { state in
+                Group {
+                    if let image = state.image {
+                        image
+                            .resizable()
+                    } else {
+                        PokitSpinner()
+                            .foregroundStyle(.pokit(.icon(.brand)))
+                    }
+                }
+                .frame(width: 100, height: 100)
+                .animation(.pokitDissolve, value: state.image)
+            }
+            .padding(.bottom, 2)
             HStack(spacing: 8) {
                 /// cateogry title
                 Button(action: { send(.카테고리_선택_버튼_눌렀을때) }) {
@@ -105,23 +135,94 @@ private extension CategoryDetailView {
                         .resizable()
                         .frame(width: 24, height: 24)
                         .foregroundStyle(.pokit(.icon(.primary)))
-                    Spacer()
                 }
                 .buttonStyle(.plain)
             }
-            HStack {
-                Text("링크 \(store.category.contentCount)개")
-                    .foregroundStyle(.pokit(.text(.secondary)))
-                    .pokitFont(.detail1)
-                Spacer()
+            .padding(.bottom, 8)
+            if !store.isFavoriteCategory {
+                HStack(spacing: 3.5) {
+                    let iconColor: Color = .pokit(.icon(.secondary))
+                    let textColor: Color = .pokit(.text(.tertiary))
+                    
+                    if store.category.openType == .비공개 {
+                        HStack(spacing: 2) {
+                            Image(.icon(.lock))
+                                .resizable()
+                                .frame(width: 16, height: 16)
+                                .foregroundStyle(iconColor)
+                            Text("비밀")
+                                .foregroundStyle(textColor)
+                                .pokitFont(.b2(.m))
+                        }
+                    }
+                    HStack(spacing: 2) {
+                        Image(.icon(.link))
+                            .resizable()
+                            .frame(width: 16, height: 16)
+                            .foregroundStyle(iconColor)
+                        Text("\(store.contents.count)개")
+                            .foregroundStyle(textColor)
+                            .pokitFont(.b2(.m))
+                    }
+                    Text("#\(store.category.keywordType.title)")
+                        .foregroundStyle(textColor)
+                        .pokitFont(.b2(.m))
+                        .padding(.leading, 4.5)
+                }
+                .padding(.bottom, 16)
                 PokitIconLButton(
-                    "필터",
-                    .icon(.filter),
+                    "공유",
+                    .icon(.share),
                     state: .filled(.primary),
-                    size: .small,
+                    size: .medium,
                     shape: .round,
-                    action: { send(.필터_버튼_눌렀을때) }
+                    action: { send(.공유_버튼_눌렀을때) }
                 )
+            }
+        }
+    }
+    
+    @ViewBuilder
+    var filterHeader: some View {
+        let isFavoriteCategory = store.isFavoriteCategory
+        if !store.contents.isEmpty {
+            HStack(spacing: isFavoriteCategory ? 2 : 8) {
+                if isFavoriteCategory {
+                    Image(.icon(.link))
+                        .resizable()
+                        .frame(width: 16, height: 16)
+                        .foregroundStyle(.pokit(.icon(.secondary)))
+                    Text("\(store.contents.count)개")
+                        .foregroundStyle(.pokit(.text(.tertiary)))
+                        .pokitFont(.b2(.m))
+                } else {
+                    PokitTextButton(
+                        "즐겨찾기",
+                        state: store.isFavoriteFiltered
+                        ? .filled(.primary)
+                        : .default(.secondary),
+                        size: .small,
+                        shape: .round,
+                        action: { send(.분류_버튼_눌렀을때(.즐겨찾기)) }
+                    )
+                    PokitTextButton(
+                        "안읽음",
+                        state: store.isUnreadFiltered
+                        ? .filled(.primary)
+                        : .default(.secondary),
+                        size: .small,
+                        shape: .round,
+                        action: { send(.분류_버튼_눌렀을때(.안읽음)) }
+                    )
+                }
+                
+                Spacer()
+                PokitIconLTextLink(
+                    store.sortType.title,
+                    icon: .icon(.align),
+                    action: { send(.정렬_버튼_눌렀을때) }
+                )
+                .contentTransition(.numericText())
             }
         }
     }
@@ -131,8 +232,10 @@ private extension CategoryDetailView {
             if !store.isLoading {
                 if store.contents.isEmpty {
                     VStack {
-                        PokitCaution(type: .링크없음)
-                        .padding(.top, 20)
+                        PokitCaution(
+                            type: .포킷상세_링크없음,
+                            action: { send(.링크_추가_버튼_눌렀을때) }
+                        )
                         
                         Spacer()
                     }
@@ -204,8 +307,8 @@ private extension CategoryDetailView {
                         id: 0,
                         userId: 0,
                         categoryName: "포킷",
-                        categoryImage: .init(imageId: 0, imageURL: ""),
-                        contentCount: 16, 
+                        categoryImage: .init(imageId: 0, imageURL: Constants.mockImageUrl),
+                        contentCount: 16,
                         createdAt: "",
                         //TODO: v2 property 수정
                         openType: .비공개,
