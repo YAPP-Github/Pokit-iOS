@@ -12,7 +12,6 @@ public enum Feature: String, CaseIterable {
     case contentDetail = "ContentDetail"
     case contentSetting = "ContentSetting"
     case categorySetting = "CategorySetting"
-    case remind = "Remind"
     case login = "Login"
     case pokit = "Pokit"
     case categoryDetail = "CategoryDetail"
@@ -21,6 +20,7 @@ public enum Feature: String, CaseIterable {
     case categorySharing = "CategorySharing"
     case contentCard = "ContentCard"
     case intro = "Intro"
+    case recommend = "Recommend"
     
     public var target: Target {
         return .makeTarget(
@@ -72,7 +72,6 @@ public enum Feature: String, CaseIterable {
         case .contentDetail: return []
         case .contentSetting: return []
         case .categorySetting: return []
-        case .remind: return []
         case .login: return []
         case .pokit:
             return [
@@ -100,6 +99,7 @@ public enum Feature: String, CaseIterable {
             return [
                 .project(target: "FeatureLogin", path: .relativeToRoot("Projects/Feature"))
             ]
+        case .recommend: return []
         }
     }
 }

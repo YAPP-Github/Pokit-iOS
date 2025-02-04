@@ -41,6 +41,7 @@ public struct PokitTextButton: View {
             .foregroundStyle(self.state.textColor)
             .padding(.horizontal, self.size.hPadding)
             .padding(.vertical, self.size.vPadding)
+            .frame(minWidth: self.size.minWidth)
             .background {
                 RoundedRectangle(cornerRadius: shape.radius(size: self.size), style: .continuous)
                     .fill(self.state.backgroundColor)
@@ -49,6 +50,5 @@ public struct PokitTextButton: View {
                             .stroke(self.state.backgroundStrokeColor, lineWidth: 1)
                     }
             }
-            .frame(minWidth: self.size.minWidth)
     }
 }

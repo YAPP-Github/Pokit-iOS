@@ -9,7 +9,7 @@ import SwiftUI
 import ComposableArchitecture
 import DSKit
 import FeaturePokit
-import FeatureRemind
+import FeatureRecommend
 import FeatureSetting
 import FeatureCategorySetting
 import FeatureContentDetail
@@ -135,8 +135,8 @@ private extension MainTabView {
                     .pokitNavigationBar { pokitNavigationBar }
                     .toolbarBackground(.hidden, for: .tabBar)
                 
-            case .remind:
-                RemindView(store: store.scope(state: \.remind, action: \.remind))
+            case .recommend:
+                RecommendView(store: store.scope(state: \.recommend, action: \.recommend))
                     .pokitNavigationBar { remindNavigationBar }
                     .toolbarBackground(.hidden, for: .tabBar)
             }
@@ -173,19 +173,19 @@ private extension MainTabView {
     var remindNavigationBar: some View {
         PokitHeader {
             PokitHeaderItems(placement: .leading) {
-                Text("Remind")
-                    .font(.system(size: 32, weight: .heavy))
-                    .foregroundStyle(.pokit(.text(.brand)))
+                Text("링크추천")
+                    .pokitFont(.title2)
+                    .foregroundStyle(.pokit(.text(.primary)))
             }
             
             PokitHeaderItems(placement: .trailing) {
                 PokitToolbarButton(
                     .icon(.search),
-                    action: { store.send(.remind(.view(.검색_버튼_눌렀을때))) }
+                    action: { send(.검색_버튼_눌렀을때) }
                 )
                 PokitToolbarButton(
                     .icon(.bell),
-                    action: { store.send(.remind(.view(.알림_버튼_눌렀을때))) }
+                    action: { send(.알림_버튼_눌렀을때) }
                 )
             }
         }
@@ -198,7 +198,7 @@ private extension MainTabView {
             
             Spacer()
             
-            bottomTabBarItem(.remind)
+            bottomTabBarItem(.recommend)
         }
         .padding(.horizontal, 48)
         .padding(.top, 12)

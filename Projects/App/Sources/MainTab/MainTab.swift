@@ -11,14 +11,14 @@ import DSKit
 
 public enum MainTab: String, CaseIterable {
     case pokit = "포킷"
-    case remind = "리마인드"
+    case recommend = "링크추천"
     
     var title: String { return self.rawValue }
     
     var icon: PokitImage {
         switch self {
         case .pokit:  return .icon(.folderFill)
-        case .remind: return .icon(.remind)
+        case .recommend: return .icon(.remind)
         }
     }
 }

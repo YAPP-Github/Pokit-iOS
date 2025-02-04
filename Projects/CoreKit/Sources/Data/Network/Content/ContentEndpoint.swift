@@ -30,6 +30,10 @@ public enum ContentEndpoint {
     case 썸네일_수정(contentId: String, model: ThumbnailRequest)
     case 미분류_링크_포킷_이동(model: ContentMoveRequest)
     case 미분류_링크_삭제(model: ContentDeleteRequest)
+    case 추천_컨텐츠_조회(
+        pageable: BasePageableRequest,
+        keyword: String?
+    )
 }
 
 extension ContentEndpoint: TargetType {
@@ -63,6 +67,8 @@ extension ContentEndpoint: TargetType {
             return ""
         case .미분류_링크_삭제:
             return "/uncategorized"
+        case .추천_컨텐츠_조회:
+            return "/recommended"
         }
     }
     
@@ -85,7 +91,8 @@ extension ContentEndpoint: TargetType {
             
         case .카태고리_내_컨텐츠_목록_조회,
              .미분류_카테고리_컨텐츠_조회,
-             .컨텐츠_검색:
+             .컨텐츠_검색,
+             .추천_컨텐츠_조회:
             return .get
         }
     }
@@ -124,6 +131,19 @@ extension ContentEndpoint: TargetType {
                     "size": model.size,
                     "sort": model.sort.map { String($0) }.joined(separator: ",")
                 ],
+                encoding: URLEncoding.default
+            )
+        case let .추천_컨텐츠_조회(pageable, keyword):
+            var parameters: [String: Any] = [
+                "page": pageable.page,
+                "size": pageable.size,
+                "sort": pageable.sort.map { String($0) }.joined(separator: ",")
+            ]
+            if let keyword {
+                parameters["keyword"] = keyword
+            }
+            return .requestParameters(
+                parameters: parameters,
                 encoding: URLEncoding.default
             )
         case let .컨텐츠_검색(pageable, condition):

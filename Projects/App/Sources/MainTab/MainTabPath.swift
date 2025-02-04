@@ -61,7 +61,7 @@ public extension MainTabFeature {
             switch action {
             /// - 네비게이션 바 `알림`버튼 눌렀을 때
             case .pokit(.delegate(.alertButtonTapped)),
-                 .remind(.delegate(.alertButtonTapped)),
+                 .recommend(.delegate(.알림_버튼_눌렀을때)),
                  .delegate(.알림함이동):
                 state.isPushTapped = false
                 state.path.append(.알림함(PokitAlertBoxFeature.State()))
@@ -69,7 +69,7 @@ public extension MainTabFeature {
 
             /// - 네비게이션 바 `검색`버튼 눌렀을 때
             case .pokit(.delegate(.searchButtonTapped)),
-                 .remind(.delegate(.searchButtonTapped)):
+                 .recommend(.delegate(.검색_버튼_눌렀을때)):
                 state.path.append(.검색(PokitSearchFeature.State()))
                 return .none
 
@@ -118,7 +118,6 @@ public extension MainTabFeature {
             /// - 링크 상세
             case let .path(.element(_, action: .카테고리상세(.delegate(.contentItemTapped(content))))),
                  let .pokit(.delegate(.contentDetailTapped(content))),
-                 let .remind(.delegate(.링크상세(content))),
                  let .path(.element(_, action: .링크목록(.delegate(.링크상세(content: content))))),
                  let .path(.element(_, action: .검색(.delegate(.linkCardTapped(content: content))))):
                 
@@ -128,7 +127,7 @@ public extension MainTabFeature {
             /// - 링크상세 바텀시트에서 링크수정으로 이동
             case let .contentDetail(.presented(.delegate(.editButtonTapped(id)))),
                  let .pokit(.delegate(.링크수정하기(id))),
-                 let .remind(.delegate(.링크수정(id))),
+                 let .recommend(.delegate(.추가하기_버튼_눌렀을때(id))),
                  let .path(.element(_, action: .카테고리상세(.delegate(.링크수정(id))))),
                  let .path(.element(_, action: .링크목록(.delegate(.링크수정(id))))),
                  let .path(.element(_, action: .검색(.delegate(.링크수정(id))))),
@@ -146,8 +145,8 @@ public extension MainTabFeature {
                     switch state.selectedTab {
                     case .pokit:
                         return .send(.pokit(.delegate(.미분류_카테고리_컨텐츠_조회)))
-                    case .remind:
-                        return .send(.remind(.delegate(.컨텐츠_상세보기_delegate_위임)))
+                    case .recommend:
+                        return .none
                     }
                 }
                 switch lastPath {
@@ -197,14 +196,6 @@ public extension MainTabFeature {
             /// 바텀메세지
             case let .pokit(.delegate(.linkPopup(text))):
                 state.linkPopup = .text(title: text)
-                return .none
-            /// 링크목록 `안읽음`
-            case .remind(.delegate(.링크목록_안읽음)):
-                state.path.append(.링크목록(ContentListFeature.State(contentType: .unread)))
-                return .none
-            /// 링크목록 `즐겨찾기`
-            case .remind(.delegate(.링크목록_즐겨찾기)):
-                state.path.append(.링크목록(ContentListFeature.State(contentType: .favorite)))
                 return .none
                 
             case .path(.element(_, action: .설정(.delegate(.로그아웃)))):

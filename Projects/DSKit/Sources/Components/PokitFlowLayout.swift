@@ -20,44 +20,64 @@ public struct PokitFlowLayout: Layout {
     }
     
     public func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
-        var width: CGFloat = 0
-        var height: CGFloat = 0
+        var totalWidth: CGFloat = 0
+        var totalHeight: CGFloat = 0
         var rowWidth: CGFloat = 0
         var rowHeight: CGFloat = 0
-        
-        for subview in subviews {
-            let size = subview.sizeThatFits(ProposedViewSize(width: proposal.width, height: nil))
-            if rowWidth + size.width > proposal.width ?? .infinity {
-                height += rowHeight + rowSpacing
-                width = max(width, rowWidth)
-                rowWidth = 0
-                rowHeight = 0
+        let maxWidth = proposal.width ?? CGFloat.infinity
+
+        for (_, subview) in subviews.enumerated() {
+            let subviewSize = subview.sizeThatFits(ProposedViewSize(width: maxWidth, height: nil))
+            let itemWidth = subviewSize.width
+            let itemHeight = subviewSize.height
+
+            if rowWidth > 0 && (rowWidth + colSpacing + itemWidth) > maxWidth {
+                // 현재 행 마무리
+                totalWidth = max(totalWidth, rowWidth)
+                totalHeight += rowHeight + rowSpacing
+                // 새로운 행 시작
+                rowWidth = itemWidth
+                rowHeight = itemHeight
+            } else {
+                if rowWidth > 0 {
+                    rowWidth += colSpacing
+                }
+                rowWidth += itemWidth
+                rowHeight = max(rowHeight, itemHeight)
             }
-            rowWidth += size.width + colSpacing
-            rowHeight = max(rowHeight, size.height)
         }
-        
-        height += rowHeight
-        width = max(width, rowWidth)
-        
-        return CGSize(width: width, height: height)
+
+        // 마지막 행 높이 추가
+        totalWidth = max(totalWidth, rowWidth)
+        totalHeight += rowHeight + rowSpacing
+
+        return CGSize(width: totalWidth, height: totalHeight)
     }
-    
+
     public func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
-        var x: CGFloat = bounds.minX
-        var y: CGFloat = bounds.minY
+        var x = bounds.minX
+        var y = bounds.minY
         var rowHeight: CGFloat = 0
-        
-        for subview in subviews {
-            let size = subview.sizeThatFits(ProposedViewSize(width: bounds.width, height: nil))
-            if x + size.width > bounds.width {
+        let maxX = bounds.maxX
+
+        for (_, subview) in subviews.enumerated() {
+            let subviewSize = subview.sizeThatFits(ProposedViewSize(width: bounds.width, height: nil))
+            let itemWidth = subviewSize.width
+            let itemHeight = subviewSize.height
+
+            if x > bounds.minX - 1  && (x + colSpacing + itemWidth) > maxX + 1 {
+                // 현재 행 마무리하고 다음 행 시작
                 x = bounds.minX
                 y += rowHeight + rowSpacing
                 rowHeight = 0
             }
-            subview.place(at: CGPoint(x: x, y: y), proposal: ProposedViewSize(size))
-            x += size.width + colSpacing
-            rowHeight = max(rowHeight, size.height)
+            if x > bounds.minX {
+                x += colSpacing
+            }
+            // 아이템 배치
+            subview.place(at: CGPoint(x: x, y: y), proposal: ProposedViewSize(subviewSize))
+            x += itemWidth
+            rowHeight = max(rowHeight, itemHeight)
         }
     }
 }
