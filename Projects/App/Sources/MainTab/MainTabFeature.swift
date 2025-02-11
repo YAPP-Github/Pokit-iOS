@@ -141,12 +141,7 @@ public struct MainTabFeature {
     public var body: some ReducerOf<Self> {
         Scope(state: \.pokit, action: \.pokit) { PokitRootFeature() }
         Scope(state: \.recommend, action: \.recommend) {
-            withDependencies {
-                $0[UserClient.self] = .testValue
-                $0[ContentClient.self] = .testValue
-            } operation: {
-                RecommendFeature()
-            }
+            RecommendFeature()
         }
 
         BindingReducer()
