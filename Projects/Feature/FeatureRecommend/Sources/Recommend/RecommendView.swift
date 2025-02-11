@@ -146,7 +146,7 @@ private extension RecommendView {
     
     @ViewBuilder
     var empty: some View {
-        PokitCaution(type: .링크없음)
+        PokitCaution(type: .추천_링크없음)
             .padding(.top, 100)
         
         Spacer()

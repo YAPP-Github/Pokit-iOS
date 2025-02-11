@@ -15,6 +15,7 @@ public enum CautionType {
     case 즐겨찾기_링크없음
     case 링크부족
     case 알림없음
+    case 추천_링크없음
     
     var image: PokitImage.Character {
         switch self {
@@ -42,6 +43,8 @@ public enum CautionType {
             return "링크가 부족해요!"
         case .알림없음:
             return "알림이 없어요"
+        case .추천_링크없음:
+            return "아직 추천된 링크가 없어요!"
         }
     }
     
@@ -61,6 +64,8 @@ public enum CautionType {
             return "링크를 5개 이상 저장하고 추천을 받아보세요"
         case .알림없음:
             return "리마인드 알림을 설정하세요"
+        case .추천_링크없음:
+            return ""
         }
     }
     
