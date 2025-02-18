@@ -30,19 +30,8 @@ public extension NickNameSettingView {
                 if store.user == nil {
                     PokitLoading()
                 } else {
-                    PokitTextInput(
-                        text: $store.text,
-                        type: store.text.isEmpty ? .text : .iconR(
-                            icon: .icon(.x),
-                            action: { send(.닉네임지우기_버튼_눌렀을때) }
-                        ),
-                        shape: .rectangle,
-                        state: $store.textfieldState,
-                        info: Constants.한글_영어_숫자_입력_문구,
-                        maxLetter: 10,
-                        focusState: $isFocused,
-                        equals: true
-                    )
+                    profileSection
+                    nickNameSection
                     Spacer()
                 }
             }
@@ -73,6 +62,48 @@ private extension NickNameSettingView {
             }
         }
         .padding(.top, 8)
+    }
+    var profileSection: some View {
+        Image(.image(.profile))
+            .resizable()
+            .frame(width: 70, height: 70)
+            .overlay(alignment: .bottomTrailing) {
+                Button(action: {}) {
+                    Circle()
+                        .strokeBorder(.pokit(.icon(.secondary)), lineWidth: 1)
+                        .background(Circle().foregroundColor(.white))
+                        .frame(width: 28, height: 28)
+                        .overlay {
+                            Image(.icon(.plus))
+                                .resizable()
+                                .frame(width: 18, height: 18)
+                                .foregroundStyle(.pokit(.icon(.secondary)))
+                        }
+                        .offset(x: 7, y: -7)
+                }
+            }
+            .padding(.vertical, 16)
+    }
+    var nickNameSection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("닉네임 설정")
+                .pokitFont(.b2(.m))
+                .foregroundStyle(.pokit(.text(.secondary)))
+            
+            PokitTextInput(
+                text: $store.text,
+                type: store.text.isEmpty ? .text : .iconR(
+                    icon: .icon(.x),
+                    action: { send(.닉네임지우기_버튼_눌렀을때) }
+                ),
+                shape: .rectangle,
+                state: $store.textfieldState,
+                info: Constants.한글_영어_숫자_입력_문구,
+                maxLetter: 10,
+                focusState: $isFocused,
+                equals: true
+            )
+        }
     }
     
 }
