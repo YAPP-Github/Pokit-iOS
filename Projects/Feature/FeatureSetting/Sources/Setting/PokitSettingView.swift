@@ -60,7 +60,7 @@ public extension PokitSettingView {
             ) { store in
                 NickNameSettingView(store: store)
             }
-            .onAppear { send(.뷰가_나타났을때) }
+            .task { await send(.onAppear).finish() }
         }
     }
 }

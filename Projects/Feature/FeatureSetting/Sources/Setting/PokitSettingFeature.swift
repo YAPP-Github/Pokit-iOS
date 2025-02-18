@@ -51,7 +51,9 @@ public struct PokitSettingFeature {
         public enum View: BindableAction, Equatable {
             case binding(BindingAction<State>)
             case dismiss
-            case 닉네임설정
+            case onAppear
+            
+            case 프로필설정
             case 알림설정
             case 공지사항
             case 서비스_이용약관
@@ -61,7 +63,6 @@ public struct PokitSettingFeature {
             case 로그아웃_팝업_확인_눌렀을때
             case 회원탈퇴_버튼_눌렀을때
             case 회원탈퇴_팝업_확인_눌렀을때
-            case 뷰가_나타났을때
         }
         
         public enum InnerAction: Equatable {
@@ -134,7 +135,7 @@ private extension PokitSettingFeature {
         case .dismiss:
             return .run { _ in await dismiss() }
             
-        case .닉네임설정:
+        case .프로필설정:
             state.nickNameSettingState = NickNameSettingFeature.State()
             return .none
             
@@ -181,7 +182,7 @@ private extension PokitSettingFeature {
                 await send(.delegate(.회원탈퇴))
             }
             
-        case .뷰가_나타났을때:
+        case .onAppear:
             return .run { send in
                 for await _ in self.pasteboard.changes() {
                     let url = try await pasteboard.probableWebURL()
