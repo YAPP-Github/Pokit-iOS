@@ -8,6 +8,7 @@ import SwiftUI
 
 import ComposableArchitecture
 import DSKit
+import NukeUI
 
 @ViewAction(for: PokitSettingFeature.self)
 public struct PokitSettingView: View {
@@ -25,9 +26,9 @@ public extension PokitSettingView {
     var body: some View {
         WithPerceptionTracking {
             VStack(spacing: 0) {
-                section1
-                section2
-                section3
+                profileSection
+                menuSection
+                accountSection
                 Spacer()
             }
             .padding(.top, 16)
@@ -66,26 +67,39 @@ public extension PokitSettingView {
 }
 //MARK: - Configure View
 private extension PokitSettingView {
+    //TODO: 프로필 조회API 나오면 반영
     @ViewBuilder
-    var section1: some View {
-        Section {
-            SettingItem(
-                title: "닉네임 설정",
-                action: { send(.닉네임설정) }
-            )
-            
-            SettingItem(
-                title: "알림 설정",
-                action: { send(.알림설정) }
+    var profileSection: some View {
+        HStack(spacing: 12) {
+            Image(.image(.profile))
+                .resizable()
+                .frame(width: 40, height: 40)
+            Text("NICKNAME")
+                .pokitFont(.b1(.m))
+            Spacer()
+            PokitTextButton(
+                "프로필 편집",
+                state: .stroke(.secondary),
+                size: .small,
+                shape: .rectangle,
+                action: { send(.프로필설정) }
             )
         }
+        .padding(.top, 16)
+        .padding(.vertical, 8)
+        .padding(.horizontal, 20)
         PokitDivider()
             .padding(.vertical, 16)
     }
     
     @ViewBuilder
-    var section2: some View {
+    var menuSection: some View {
         Section {
+            SettingItem(
+                title: "알림 설정",
+                action: { send(.알림설정) }
+            )
+            
             SettingItem(
                 title: "공지사항",
                 action: { send(.공지사항) }
@@ -110,7 +124,7 @@ private extension PokitSettingView {
             .padding(.vertical, 16)
     }
     
-    var section3: some View {
+    var accountSection: some View {
         Section {
             SettingItem(
                 title: "로그아웃",
