@@ -7,10 +7,18 @@
 
 import Foundation
 
-public struct BaseInterest: Equatable, Identifiable {
+public struct BaseInterest: Equatable, Identifiable, Hashable {
     public let id = UUID()
     public let code: String
     public let description: String
+    
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(code)
+    }
+    
+    public static func ==(lhs: BaseInterest, rhs: BaseInterest) -> Bool {
+        lhs.code == rhs.code
+    }
     
     public init(code: String, description: String) {
         self.code = code

@@ -37,14 +37,17 @@ public struct RecommendFeature {
             array.append(contentsOf: list)
             return array
         }
-        var interestList: IdentifiedArrayOf<BaseInterest> {
+        var myInterestList: IdentifiedArrayOf<BaseInterest> {
             var array = IdentifiedArrayOf<BaseInterest>()
-            array.append(contentsOf: domain.interests)
+            array.append(contentsOf: domain.myInterests)
             return array
         }
         var isLoading: Bool = true
         var selectedInterest: BaseInterest?
         var shareContent: BaseContentItem?
+        var interests: [BaseInterest] { domain.interests }
+        var showKeywordSheet: Bool = false
+        var selectedInterestList = Set<BaseInterest>()
     }
     
     /// - Action
@@ -68,6 +71,8 @@ public struct RecommendFeature {
             case 신고하기_버튼_눌렀을때(BaseContentItem)
             case 전체보기_버튼_눌렀을때(ScrollViewProxy)
             case 관심사_버튼_눌렀을때(BaseInterest, ScrollViewProxy)
+            case 관심사_편집_버튼_눌렀을때
+            case 키워드_선택_버튼_눌렀을때
             case 링크_공유_완료되었을때
             case 검색_버튼_눌렀을때
             case 알림_버튼_눌렀을때
@@ -78,12 +83,14 @@ public struct RecommendFeature {
             case 추천_조회_API_반영(BaseContentListInquiry)
             case 추천_조회_페이징_API_반영(BaseContentListInquiry)
             case 유저_관심사_조회_API_반영([BaseInterest])
+            case 관심사_조회_API_반영([BaseInterest])
         }
         
         public enum AsyncAction: Equatable {
             case 추천_조회_API
             case 추천_조회_페이징_API
             case 유저_관심사_조회_API
+            case 관심사_조회_API
         }
         
         public enum ScopeAction: Equatable { case doNothing }
@@ -182,6 +189,11 @@ private extension RecommendFeature {
         case let .추천_컨텐츠_눌렀을때(urlString):
             guard let url = URL(string: urlString) else { return .none }
             return .run { _ in await openURL(url) }
+        case .관심사_편집_버튼_눌렀을때:
+            return shared(.async(.관심사_조회_API), state: &state)
+        case .키워드_선택_버튼_눌렀을때:
+            state.showKeywordSheet = false
+            return .none
         }
     }
     
@@ -201,7 +213,12 @@ private extension RecommendFeature {
             state.isLoading = false
             return .none
         case let .유저_관심사_조회_API_반영(interests):
+            state.domain.myInterests = interests
+            interests.forEach { state.selectedInterestList.insert($0) }
+            return .none
+        case let .관심사_조회_API_반영(interests):
             state.domain.interests = interests
+            state.showKeywordSheet = true
             return .none
         }
     }
@@ -233,6 +250,11 @@ private extension RecommendFeature {
             return .run { send in
                 let interests = try await userClient.유저_관심사_목록_조회().map { $0.toDomian() }
                 await send(.inner(.유저_관심사_조회_API_반영(interests)))
+            }
+        case .관심사_조회_API:
+            return .run { send in
+                let interests = try await userClient.관심사_목록_조회().map { $0.toDomian() }
+                await send(.inner(.관심사_조회_API_반영(interests)))
             }
         }
     }

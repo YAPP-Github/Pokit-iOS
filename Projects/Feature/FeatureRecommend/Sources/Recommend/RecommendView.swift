@@ -42,6 +42,13 @@ public extension RecommendView {
                 }
             }
             .task { await send(.onAppear).finish() }
+            .sheet(isPresented: $store.showKeywordSheet) {
+                RecommendKeywordBottomSheet(
+                    selectedInterests: $store.selectedInterestList,
+                    interests: store.interests,
+                    action: { send(.키워드_선택_버튼_눌렀을때) }
+                )
+            }
         }
     }
 }
@@ -68,7 +75,7 @@ private extension RecommendView {
             state: .default(.secondary),
             size: .small,
             shape: .round,
-            action: { }
+            action: { send(.관심사_편집_버튼_눌렀을때) }
         )
         .padding([.leading, .vertical], 8)
         .padding(.trailing, 20)
@@ -110,7 +117,7 @@ private extension RecommendView {
             }
             .id("전체보기")
             
-            ForEach(store.interestList) { interest in
+            ForEach(store.myInterestList) { interest in
                 let isSelected = store.selectedInterest == interest
                 
                 PokitTextButton(
