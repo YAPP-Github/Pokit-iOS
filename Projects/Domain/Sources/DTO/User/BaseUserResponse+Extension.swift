@@ -14,7 +14,11 @@ public extension BaseUserResponse {
         return .init(
             id: self.id,
             email: self.email,
-            nickname: self.nickname
+            nickname: self.nickname,
+            profile: BaseProfile(
+                id: self.profileImage.id,
+                url: self.profileImage.url
+            )
         )
     }
 }
