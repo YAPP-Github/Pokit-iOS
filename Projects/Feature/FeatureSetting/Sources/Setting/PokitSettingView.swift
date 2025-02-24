@@ -75,14 +75,13 @@ private extension PokitSettingView {
                     if let image = state.image {
                         image
                             .resizable()
+                            .clipShape(.circle)
                     } else if state.isLoading {
                         PokitSpinner()
                             .foregroundStyle(.pokit(.icon(.brand)))
-                            .frame(width: 40, height: 40)
                     } else {
                         Image(.image(.profile))
                             .resizable()
-                            .frame(width: 40, height: 40)
                     }
 
                 }
