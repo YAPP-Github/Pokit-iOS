@@ -11,7 +11,7 @@ public struct BaseUserResponse: Decodable {
     public let id: Int
     public let email: String
     public let nickname: String
-    public let profileImage: BaseProfileImageResponse
+    public let profileImage: BaseProfileImageResponse?
 }
 
 public struct BaseProfileImageResponse: Decodable {
