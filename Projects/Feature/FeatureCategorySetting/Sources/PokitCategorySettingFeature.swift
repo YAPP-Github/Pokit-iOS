@@ -107,8 +107,8 @@ public struct PokitCategorySettingFeature {
             case 클립보드_감지
         }
         
-        public enum ScopeAction: Equatable {
-            case profile(ProfileBottomSheet.Delegate)
+        public enum ScopeAction {
+            case profile(PokitProfileBottomSheet<BaseCategoryImage>.Delegate)
         }
         
         public enum DelegateAction: Equatable {
