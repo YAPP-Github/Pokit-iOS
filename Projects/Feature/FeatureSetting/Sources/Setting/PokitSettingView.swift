@@ -67,14 +67,29 @@ public extension PokitSettingView {
 }
 //MARK: - Configure View
 private extension PokitSettingView {
-    //TODO: 프로필 조회API 나오면 반영
     @ViewBuilder
     var profileSection: some View {
         HStack(spacing: 12) {
-            Image(.image(.profile))
-                .resizable()
-                .frame(width: 40, height: 40)
-            Text("NICKNAME")
+            LazyImage(url: URL(string: store.user?.profile?.url ?? "")) { state in
+                Group {
+                    if let image = state.image {
+                        image
+                            .resizable()
+                    } else if state.isLoading {
+                        PokitSpinner()
+                            .foregroundStyle(.pokit(.icon(.brand)))
+                            .frame(width: 40, height: 40)
+                    } else {
+                        Image(.image(.profile))
+                            .resizable()
+                            .frame(width: 40, height: 40)
+                    }
+
+                }
+                .animation(.pokitDissolve, value: state.image)
+            }
+            .frame(width: 40, height: 40)
+            Text(store.user?.nickname ?? "")
                 .pokitFont(.b1(.m))
             Spacer()
             PokitTextButton(
