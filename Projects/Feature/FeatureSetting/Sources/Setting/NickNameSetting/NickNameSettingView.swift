@@ -70,7 +70,7 @@ private extension NickNameSettingView {
             .overlay(alignment: .bottomTrailing) {
                 Button(action: {}) {
                     Circle()
-                        .strokeBorder(.pokit(.icon(.secondary)), lineWidth: 1)
+                        .strokeBorder(.pokit(.border(.secondary)), lineWidth: 1)
                         .background(Circle().foregroundColor(.white))
                         .frame(width: 28, height: 28)
                         .overlay {
