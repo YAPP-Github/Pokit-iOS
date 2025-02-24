@@ -144,7 +144,7 @@ private extension PokitSettingFeature {
             return .run { _ in await dismiss() }
             
         case .프로필설정:
-            state.nickNameSettingState = NickNameSettingFeature.State()
+            state.nickNameSettingState = NickNameSettingFeature.State(user: state.user)
             return .none
             
         case .알림설정:

@@ -15,10 +15,9 @@ public extension BaseUserResponse {
             id: self.id,
             email: self.email,
             nickname: self.nickname,
-            profile: BaseProfile(
-                id: self.profileImage?.id ?? 0,
-                url: self.profileImage?.url ?? ""
-            )
+            profile: self.profileImage == nil
+            ? nil
+            : BaseProfile(id: self.profileImage?.id ?? 0, url: self.profileImage?.url ?? "")
         )
     }
 }

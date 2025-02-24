@@ -12,6 +12,7 @@ import Dependencies
 extension UserClient: TestDependencyKey {
     public static let previewValue: Self = {
         Self(
+            프로필_수정: { _ in .mock },
             닉네임_수정: { _ in .mock },
             회원등록: { _ in .mock },
             닉네임_중복_체크: { _ in .mock },

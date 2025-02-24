@@ -15,6 +15,9 @@ extension UserClient: DependencyKey {
         let provider = MoyaProvider<UserEndpoint>.build()
 
         return Self(
+            프로필_수정: { model in
+                try await provider.request(.프로필_수정(model: model))
+            },
             닉네임_수정: { model in
                 try await provider.request(.닉네임_수정(model: model))
             },
