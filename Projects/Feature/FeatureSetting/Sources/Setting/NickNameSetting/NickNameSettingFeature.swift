@@ -34,12 +34,12 @@ public struct NickNameSettingFeature {
             get { domain.user }
         }
         
-        var selectedProfile: BaseCategoryImage? {
+        var selectedProfile: BaseProfile? {
             get { domain.selectedProfile }
             set { domain.selectedProfile = newValue }
         }
         
-        var profileImages: [BaseCategoryImage] {
+        var profileImages: [BaseProfile] {
             get { domain.imageList }
         }
         
@@ -51,9 +51,9 @@ public struct NickNameSettingFeature {
             if let user,
                let profile = user.profile {
                 self.domain = .init(
-                    selectedProfile: BaseCategoryImage(
-                        imageId: profile.id,
-                        imageURL: profile.url
+                    selectedProfile: BaseProfile(
+                        id: profile.id,
+                        imageURL: profile.imageURL
                     )
                 )
             } else {
@@ -85,7 +85,7 @@ public struct NickNameSettingFeature {
             case 닉네임_텍스트_변경되었을때
             case 닉네임_중복_확인_API_반영(Bool)
             case 닉네임_조회_API_반영(BaseUser)
-            case 프로필_목록_조회_API_반영(images: [BaseCategoryImage])
+            case 프로필_목록_조회_API_반영(images: [BaseProfile])
         }
         
         public enum AsyncAction: Equatable {
@@ -95,7 +95,7 @@ public struct NickNameSettingFeature {
         }
         
         public enum ScopeAction {
-            case profile(PokitProfileBottomSheet<BaseCategoryImage>.Delegate)
+            case profile(PokitProfileBottomSheet<BaseProfile>.Delegate)
         }
         
         public enum DelegateAction: Equatable { case 없음 }
@@ -177,6 +177,7 @@ private extension NickNameSettingFeature {
             
         case .닉네임지우기_버튼_눌렀을때:
             state.domain.nickname = ""
+            state.buttonState = .disable
             return .none
             
         case .프로필_설정_버튼_눌렀을때:
@@ -224,7 +225,7 @@ private extension NickNameSettingFeature {
             state.domain.user = user
             state.domain.nickname = user.nickname
             if let profile = user.profile {
-                state.selectedProfile =  BaseCategoryImage(imageId: profile.id, imageURL: profile.url)
+                state.selectedProfile =  BaseProfile(id: profile.id, imageURL: profile.imageURL)
             } else {
                 state.selectedProfile = nil
             }
@@ -266,7 +267,8 @@ private extension NickNameSettingFeature {
         case .profile(.이미지_선택했을때(let imageInfo)):
             state.isProfileSheetPresented = false
             state.selectedProfile = imageInfo
-            return .none
+            
+            return .send(.inner(.닉네임_텍스트_변경되었을때))
         }
     }
     

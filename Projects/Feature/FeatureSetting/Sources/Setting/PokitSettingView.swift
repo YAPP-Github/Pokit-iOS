@@ -70,7 +70,7 @@ private extension PokitSettingView {
     @ViewBuilder
     var profileSection: some View {
         HStack(spacing: 12) {
-            LazyImage(url: URL(string: store.user?.profile?.url ?? "")) { state in
+            LazyImage(url: URL(string: store.user?.profile?.imageURL ?? "")) { state in
                 Group {
                     if let image = state.image {
                         image
