@@ -14,11 +14,6 @@ public struct BaseUserResponse: Decodable {
     public let profileImage: BaseProfileImageResponse?
 }
 
-public struct BaseProfileImageResponse: Decodable {
-    public let id: Int
-    public let url: String
-}
-
 extension BaseUserResponse {
     public static var mock: Self = Self(
         id: 961222,
