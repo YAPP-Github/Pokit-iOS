@@ -5,7 +5,17 @@
 //  Created by 김민호 on 2/24/25.
 //
 
-public struct BaseProfile: Equatable {
+import Util
+
+public struct BaseProfile: Equatable, Identifiable, CategoryImage {
     public let id: Int
-    public let url: String
+    public let imageURL: String
+    
+    public init(
+        id: Int,
+        imageURL: String
+    ) {
+        self.id = id
+        self.imageURL = imageURL
+    }
 }
