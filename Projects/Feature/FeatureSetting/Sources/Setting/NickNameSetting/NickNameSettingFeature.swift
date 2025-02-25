@@ -190,26 +190,43 @@ private extension NickNameSettingFeature {
     func handleInnerAction(_ action: Action.InnerAction, state: inout State) -> Effect<Action> {
         switch action {
         case .닉네임_텍스트_변경되었을때:
-            /// [1]. 닉네임 텍스트필드가 비어있을 때
+            /// [1]. 닉네임 변경 X, 현재 프로필이 nil이면서 프로필을 선택했을 때 -> 버튼 활성화
+            if let currentNickName = state.user?.nickname,
+               let _ = state.selectedProfile {
+                if currentNickName == state.text &&
+                    state.user?.profile == nil {
+                    state.buttonState = .filled(.primary)
+                    return .none
+                }
+            }
+            /// [2]. 닉네임 변경 X,, 프로필만 변경했을 때 -> 버튼 활성화
+            if let currentNickName = state.user?.nickname,
+               let currentProfile = state.user?.profile,
+               let selectedProfile = state.selectedProfile {
+                if currentNickName == state.text && currentProfile != selectedProfile {
+                    state.buttonState = .filled(.primary)
+                    return .none
+                }
+            }
+            /// [3]. 닉네임 텍스트필드가 비어있을 때
             if state.text.isEmpty {
                 state.buttonState = .disable
                 return .none
             }
-            /// [2]. 닉네임이 10자를 넘을 때
+            /// [4]. 닉네임이 10자를 넘을 때
             if state.text.count > 10 {
                 state.buttonState = .disable
                 state.textfieldState = .error(message: "최대 10자까지 입력 가능합니다.")
                 return .none
             }
-            /// [3]. 닉네임에 특수문자가 포함되어 있을 때
+            /// [5]. 닉네임에 특수문자가 포함되어 있을 때
             if !state.text.isNickNameValid {
                 state.buttonState = .disable
                 state.textfieldState = .error(message: "한글, 영어, 숫자만 입력이 가능합니다.")
                 return .none
-            } else {
-                /// [4]. 정상 케이스일 때
-                return .run { send in await send(.async(.닉네임_중복_확인_API)) }
             }
+            /// [6]. 정상 케이스일 때
+            return .run { send in await send(.async(.닉네임_중복_확인_API)) }
             
         case let .닉네임_중복_확인_API_반영(isDuplicate):
             state.textfieldState = isDuplicate
@@ -254,7 +271,7 @@ private extension NickNameSettingFeature {
             
         case .프로필_목록_조회_API:
             return .run { send in
-                let response = try await categoryClient.카테고리_프로필_목록_조회()
+                let response = try await userClient.프로필_이미지_목록_조회()
                 let images = response.map { $0.toDomain() }
                 await send(.inner(.프로필_목록_조회_API_반영(images: images)))
             }
