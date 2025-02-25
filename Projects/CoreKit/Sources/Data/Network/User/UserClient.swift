@@ -16,5 +16,6 @@ public struct UserClient {
     public var 관심사_목록_조회: @Sendable () async throws -> [InterestResponse]
     public var 닉네임_조회: @Sendable () async throws -> BaseUserResponse
     public var fcm_토큰_저장: @Sendable (_ model: FCMRequest) async throws -> FCMResponse
+    public var 프로필_이미지_목록_조회: @Sendable () async throws -> [BaseProfileImageResponse]
     public var 유저_관심사_목록_조회: @Sendable () async throws -> [InterestResponse]
 }

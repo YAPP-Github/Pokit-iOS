@@ -18,6 +18,7 @@ public enum UserEndpoint {
     case 관심사_목록_조회
     case 닉네임_조회
     case fcm_토큰_저장(model: FCMRequest)
+    case 프로필_이미지_목록_조회
     case 유저_관심사_목록_조회
 }
 
@@ -40,6 +41,8 @@ extension UserEndpoint: TargetType {
             return "/interests"
         case .fcm_토큰_저장:
             return "/fcm"
+        case .프로필_이미지_목록_조회:
+            return "/profileImage"
         case .유저_관심사_목록_조회:
             return "/myinterests"
         }
@@ -57,6 +60,7 @@ extension UserEndpoint: TargetType {
         case .닉네임_중복_체크,
              .관심사_목록_조회,
              .닉네임_조회,
+             .프로필_이미지_목록_조회,
              .유저_관심사_목록_조회:
             return .get
         }
@@ -75,6 +79,7 @@ extension UserEndpoint: TargetType {
         case .닉네임_중복_체크,
              .관심사_목록_조회,
              .닉네임_조회,
+             .프로필_이미지_목록_조회,
              .유저_관심사_목록_조회:
             return .requestPlain
         }
