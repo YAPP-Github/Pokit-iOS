@@ -35,6 +35,9 @@ extension UserClient: DependencyKey {
             },
             유저_관심사_목록_조회: {
                 try await provider.request(.유저_관심사_목록_조회)
+            },
+            관심사_수정: { model in
+                try await provider.requestNoBody(.관심사_수정(model: model))
             }
         )
     }()

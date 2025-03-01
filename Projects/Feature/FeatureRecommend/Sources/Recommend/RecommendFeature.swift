@@ -193,7 +193,13 @@ private extension RecommendFeature {
             return shared(.async(.관심사_조회_API), state: &state)
         case .키워드_선택_버튼_눌렀을때:
             state.showKeywordSheet = false
-            return .none
+            state.selectedInterest = nil
+            return .run { [ interests = state.selectedInterestList ] send in
+                let request = InterestRequest(interests: interests.map(\.description))
+                try await userClient.관심사_수정(model: request)
+                await send(.async(.유저_관심사_조회_API))
+                await send(.async(.추천_조회_API))
+            }
         }
     }
     
