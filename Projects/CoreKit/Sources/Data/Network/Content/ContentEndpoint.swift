@@ -34,6 +34,7 @@ public enum ContentEndpoint {
         pageable: BasePageableRequest,
         keyword: String?
     )
+    case 컨텐츠_신고(contentId: Int)
 }
 
 extension ContentEndpoint: TargetType {
@@ -69,6 +70,8 @@ extension ContentEndpoint: TargetType {
             return "/uncategorized"
         case .추천_컨텐츠_조회:
             return "/recommended"
+        case let .컨텐츠_신고(contentId):
+            return "report/\(contentId)"
         }
     }
     
@@ -81,7 +84,8 @@ extension ContentEndpoint: TargetType {
             
         case .컨텐츠_상세_조회,
              .즐겨찾기,
-             .컨텐츠_추가:
+             .컨텐츠_추가,
+             .컨텐츠_신고:
             return .post
             
         case .컨텐츠_수정,
@@ -169,6 +173,8 @@ extension ContentEndpoint: TargetType {
             
         case let .미분류_링크_삭제(model):
             return .requestJSONEncodable(model)
+        case .컨텐츠_신고:
+            return .requestPlain
         }
     }
     

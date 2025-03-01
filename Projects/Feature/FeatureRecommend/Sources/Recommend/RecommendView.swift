@@ -32,6 +32,9 @@ public extension RecommendView {
                 list
             }
             .ignoresSafeArea(edges: .bottom)
+            .overlay(if: store.linkPopup != nil, alignment: .bottom) {
+                PokitLinkPopup(type: $store.linkPopup)
+            }
             .sheet(item: $store.shareContent) { content in
                 if let shareURL = URL(string: content.data) {
                     PokitShareSheet(

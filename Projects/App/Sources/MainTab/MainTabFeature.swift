@@ -296,7 +296,7 @@ private extension MainTabFeature {
             guard let category = state.categoryOfSavedContent else { return .none }
             state.categoryOfSavedContent = nil
             return .send(.inner(.카테고리상세_이동(category: category)))
-        case .error, .text, .warning, .none:
+        case .error, .text, .warning, .report, .none:
             return .none
         }
     }

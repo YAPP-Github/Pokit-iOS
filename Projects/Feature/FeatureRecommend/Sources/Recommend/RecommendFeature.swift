@@ -10,6 +10,7 @@ import ComposableArchitecture
 import Domain
 import CoreKit
 import Util
+import DSKit
 
 @Reducer
 public struct RecommendFeature {
@@ -48,6 +49,7 @@ public struct RecommendFeature {
         var interests: [BaseInterest] { domain.interests }
         var showKeywordSheet: Bool = false
         var selectedInterestList = Set<BaseInterest>()
+        var linkPopup: PokitLinkPopup.PopupType?
     }
     
     /// - Action
@@ -84,6 +86,7 @@ public struct RecommendFeature {
             case 추천_조회_페이징_API_반영(BaseContentListInquiry)
             case 유저_관심사_조회_API_반영([BaseInterest])
             case 관심사_조회_API_반영([BaseInterest])
+            case 컨텐츠_신고_API_반영(Int)
         }
         
         public enum AsyncAction: Equatable {
@@ -91,6 +94,7 @@ public struct RecommendFeature {
             case 추천_조회_페이징_API
             case 유저_관심사_조회_API
             case 관심사_조회_API
+            case 컨텐츠_신고_API(Int)
         }
         
         public enum ScopeAction: Equatable { case doNothing }
@@ -156,7 +160,7 @@ private extension RecommendFeature {
             state.shareContent = content
             return .none
         case let .신고하기_버튼_눌렀을때(content):
-            return .none
+            return shared(.async(.컨텐츠_신고_API(content.id)), state: &state)
         case let .전체보기_버튼_눌렀을때(proxy):
             guard state.selectedInterest != nil else { return .none }
             
@@ -228,6 +232,10 @@ private extension RecommendFeature {
             })
             state.showKeywordSheet = true
             return .none
+        case let .컨텐츠_신고_API_반영(contentId):
+            state.linkPopup = .report(title: "신고가 완료되었습니다")
+            state.domain.contentList.data?.removeAll(where: { $0.id == contentId })
+            return .none
         }
     }
     
@@ -263,6 +271,14 @@ private extension RecommendFeature {
             return .run { send in
                 let interests = try await userClient.관심사_목록_조회().map { $0.toDomian() }
                 await send(.inner(.관심사_조회_API_반영(interests)))
+            }
+        case let .컨텐츠_신고_API(contentId):
+            return .run { send in
+                try await contentClient.컨텐츠_신고(contentId: contentId)
+                await send(
+                    .inner(.컨텐츠_신고_API_반영(contentId)),
+                    animation: .pokitSpring
+                )
             }
         }
     }

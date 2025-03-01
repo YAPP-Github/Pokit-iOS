@@ -54,5 +54,8 @@ public struct ContentClient {
         _ pageable: BasePageableRequest,
         _ keyword: String?
     ) async throws -> ContentListInquiryResponse
+    public var 컨텐츠_신고: @Sendable (
+        _ contentId: Int
+    ) async throws -> Void
 }
 
