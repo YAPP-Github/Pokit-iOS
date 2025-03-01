@@ -86,6 +86,9 @@ public extension MainTabFeature {
                     category: category
                 )))
                 return .none
+                
+            case .recommend(.delegate(.컨텐츠_신고_API_반영)):
+                return .send(.inner(.링크팝업_활성화(.report(title: "신고가 완료되었습니다"))))
 
             /// - 포킷 `추가` 버튼 눌렀을 때
             case .delegate(.포킷추가하기),

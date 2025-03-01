@@ -49,7 +49,7 @@ public struct RecommendFeature {
         var interests: [BaseInterest] { domain.interests }
         var showKeywordSheet: Bool = false
         var selectedInterestList = Set<BaseInterest>()
-        var linkPopup: PokitLinkPopup.PopupType?
+        var reportContent: BaseContentItem?
     }
     
     /// - Action
@@ -71,6 +71,7 @@ public struct RecommendFeature {
             case 추가하기_버튼_눌렀을때(BaseContentItem)
             case 공유하기_버튼_눌렀을때(BaseContentItem)
             case 신고하기_버튼_눌렀을때(BaseContentItem)
+            case 신고하기_확인_버튼_눌렀을때(BaseContentItem)
             case 전체보기_버튼_눌렀을때(ScrollViewProxy)
             case 관심사_버튼_눌렀을때(BaseInterest, ScrollViewProxy)
             case 관심사_편집_버튼_눌렀을때
@@ -79,6 +80,7 @@ public struct RecommendFeature {
             case 검색_버튼_눌렀을때
             case 알림_버튼_눌렀을때
             case 추천_컨텐츠_눌렀을때(String)
+            case 경고시트_dismiss
         }
         
         public enum InnerAction: Equatable {
@@ -103,6 +105,7 @@ public struct RecommendFeature {
             case 추가하기_버튼_눌렀을때(Int)
             case 검색_버튼_눌렀을때
             case 알림_버튼_눌렀을때
+            case 컨텐츠_신고_API_반영
         }
     }
     
@@ -159,8 +162,12 @@ private extension RecommendFeature {
         case let .공유하기_버튼_눌렀을때(content):
             state.shareContent = content
             return .none
-        case let .신고하기_버튼_눌렀을때(content):
+        case let .신고하기_확인_버튼_눌렀을때(content):
+            state.reportContent = nil
             return shared(.async(.컨텐츠_신고_API(content.id)), state: &state)
+        case let .신고하기_버튼_눌렀을때(content):
+            state.reportContent = content
+            return .none
         case let .전체보기_버튼_눌렀을때(proxy):
             guard state.selectedInterest != nil else { return .none }
             
@@ -204,6 +211,9 @@ private extension RecommendFeature {
                 await send(.async(.유저_관심사_조회_API))
                 await send(.async(.추천_조회_API))
             }
+        case .경고시트_dismiss:
+            state.reportContent = nil
+            return .none
         }
     }
     
@@ -233,9 +243,8 @@ private extension RecommendFeature {
             state.showKeywordSheet = true
             return .none
         case let .컨텐츠_신고_API_반영(contentId):
-            state.linkPopup = .report(title: "신고가 완료되었습니다")
             state.domain.contentList.data?.removeAll(where: { $0.id == contentId })
-            return .none
+            return .send(.delegate(.컨텐츠_신고_API_반영))
         }
     }
     
