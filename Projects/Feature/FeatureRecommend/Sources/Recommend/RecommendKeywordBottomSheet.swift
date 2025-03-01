@@ -115,8 +115,6 @@ extension RecommendKeywordBottomSheet {
     
     RecommendKeywordBottomSheet(
         selectedInterests: $selectedInterests,
-        interests: BaseInterestType.allCases.map {
-            BaseInterest(code: "", description: $0.title)
-        }
+        interests: []
     ) {  }
 }

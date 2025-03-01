@@ -223,7 +223,9 @@ private extension RecommendFeature {
             interests.forEach { state.selectedInterestList.insert($0) }
             return .none
         case let .관심사_조회_API_반영(interests):
-            state.domain.interests = interests
+            state.domain.interests = interests.filter({ interest in
+                interest.code != .default
+            })
             state.showKeywordSheet = true
             return .none
         }
