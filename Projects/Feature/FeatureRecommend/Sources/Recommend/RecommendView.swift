@@ -259,6 +259,8 @@ private extension RecommendView {
                 }
                 
                 PokitBadge(state: .default(content.domain))
+                
+                Spacer()
             }
             
             Text(content.title)
