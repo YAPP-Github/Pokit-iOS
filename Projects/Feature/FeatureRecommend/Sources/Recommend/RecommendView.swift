@@ -117,13 +117,10 @@ private extension RecommendView {
                 ? .filled(.primary)
                 : .default(.secondary),
                 size: .small,
-                shape: .round
-            ) {
-                send(
-                    .전체보기_버튼_눌렀을때(proxy),
-                    animation: .pokitDissolve
-                )
-            }
+                shape: .round,
+                action: { send(.전체보기_버튼_눌렀을때(proxy)) }
+            )
+            .animation(.pokitDissolve, value: isAllSelected)
             .id("전체보기")
             
             ForEach(store.myInterestList) { interest in
@@ -135,13 +132,10 @@ private extension RecommendView {
                     ? .filled(.primary)
                     : .default(.secondary),
                     size: .small,
-                    shape: .round
-                ) {
-                    send(
-                        .관심사_버튼_눌렀을때(interest, proxy),
-                        animation: .pokitDissolve
-                    )
-                }
+                    shape: .round,
+                    action: { send(.관심사_버튼_눌렀을때(interest, proxy)) }
+                )
+                .animation(.pokitDissolve, value: isSelected)
                 .id(interest.description)
             }
         }
