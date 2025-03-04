@@ -14,7 +14,10 @@ public extension BaseUserResponse {
         return .init(
             id: self.id,
             email: self.email,
-            nickname: self.nickname
+            nickname: self.nickname,
+            profile: self.profileImage == nil
+            ? nil
+            : BaseProfile(id: self.profileImage?.id ?? 0, imageURL: self.profileImage?.url ?? "")
         )
     }
 }

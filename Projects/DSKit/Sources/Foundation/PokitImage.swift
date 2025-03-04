@@ -126,6 +126,8 @@ public enum PokitImage {
                 return DSKitAsset.imageConfetti.swiftUIImage
             case .firecracker:
                 return DSKitAsset.imageFirecracker.swiftUIImage
+            case .profile:
+                return DSKitAsset.imageProfile.swiftUIImage
             }
         }
     }
@@ -192,5 +194,6 @@ public extension PokitImage {
     enum PokitImage {
         case confetti
         case firecracker
+        case profile
     }
 }
