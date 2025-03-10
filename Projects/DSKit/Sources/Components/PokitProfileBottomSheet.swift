@@ -1,31 +1,30 @@
 //
-//  ProfileBottomSheet.swift
-//  Feature
+//  PokitProfileBottomSheet.swift
+//  DSKit
 //
-//  Created by 김민호 on 7/25/24.
+//  Created by 김민호 on 2/24/25.
+//
 
 import SwiftUI
 
-import Domain
-import CoreKit
-import DSKit
+import Util
 import NukeUI
 
-public struct ProfileBottomSheet: View {
+public struct PokitProfileBottomSheet<ImageType: CategoryImage & Identifiable & Equatable>: View {
     @State private var height: CGFloat = 0
-    @State private var images: [BaseCategoryImage]
-    let selectedImage: BaseCategoryImage?
+    @State private var images: [ImageType]
+    let selectedImage: ImageType?
     private let colmumns = [
         GridItem(.fixed(72), spacing: 20),
         GridItem(.fixed(72), spacing: 20),
         GridItem(.fixed(72), spacing: 0)
     ]
-    private let delegateSend: ((ProfileBottomSheet.Delegate) -> Void)?
+    private let delegateSend: ((PokitProfileBottomSheet.Delegate) -> Void)?
     
     public init(
-        selectedImage: BaseCategoryImage?,
-        images: [BaseCategoryImage],
-        delegateSend: ((ProfileBottomSheet.Delegate) -> Void)?
+        selectedImage: ImageType?,
+        images: [ImageType],
+        delegateSend: ((PokitProfileBottomSheet.Delegate) -> Void)?
     ) {
         self.selectedImage = selectedImage
         self.images = images
@@ -34,7 +33,7 @@ public struct ProfileBottomSheet: View {
     
 }
 //MARK: - View
-public extension ProfileBottomSheet {
+public extension PokitProfileBottomSheet {
     @MainActor
     var body: some View {
         ScrollView {
@@ -89,18 +88,35 @@ public extension ProfileBottomSheet {
     }
 }
 //MARK: - Delegate
-public extension ProfileBottomSheet {
+public extension PokitProfileBottomSheet {
     enum Delegate: Equatable {
-        case 이미지_선택했을때(BaseCategoryImage)
+        case 이미지_선택했을때(ImageType)
     }
 }
 //MARK: - Preview
+#if DEBUG
+struct BaseCategoryImageMock: Equatable, Identifiable, CategoryImage {
+    public var id: Int
+    public var imageURL: String
+}
+extension BaseCategoryImageMock {
+    static var mock: [Self] {
+        return [
+            BaseCategoryImageMock(
+                id: 231,
+                imageURL: "https://pokit-storage.s3.ap-northeast-2.amazonaws.com/logo/pokit.png"
+            )
+        ]
+    }
+}
 #Preview {
-    ProfileBottomSheet(
-        selectedImage: BaseCategoryImage(imageId: 312, imageURL: "https://pokit-storage.s3.ap-northeast-2.amazonaws.com/logo/pokit.png"),
-        images: CategoryImageResponse.mock.map { $0.toDomain() },
+    PokitProfileBottomSheet(
+        selectedImage: BaseCategoryImageMock(
+            id: 312,
+            imageURL: "https://pokit-storage.s3.ap-northeast-2.amazonaws.com/logo/pokit.png"),
+        images: BaseCategoryImageMock.mock,
         delegateSend: nil
     )
 }
-
+#endif
 

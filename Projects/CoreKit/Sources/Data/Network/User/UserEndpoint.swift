@@ -11,12 +11,14 @@ import Util
 import Moya
 /// 컨텐츠 전용 Endpont
 public enum UserEndpoint {
+    case 프로필_수정(model: ProfileEditRequest)
     case 닉네임_수정(model: NicknameEditRequest)
     case 회원등록(model: SignupRequest)
     case 닉네임_중복_체크(nickname: String)
     case 관심사_목록_조회
     case 닉네임_조회
     case fcm_토큰_저장(model: FCMRequest)
+    case 프로필_이미지_목록_조회
     case 유저_관심사_목록_조회
     case 관심사_수정(model: InterestRequest)
 }
@@ -28,6 +30,8 @@ extension UserEndpoint: TargetType {
     
     public var path: String {
         switch self {
+        case .프로필_수정:
+            return ""
         case .닉네임_수정, .닉네임_조회:
             return "/nickname"
         case .회원등록:
@@ -38,6 +42,8 @@ extension UserEndpoint: TargetType {
             return "/interests"
         case .fcm_토큰_저장:
             return "/fcm"
+        case .프로필_이미지_목록_조회:
+            return "/profileImage"
         case .유저_관심사_목록_조회, .관심사_수정:
             return "/myinterests"
         }
@@ -46,7 +52,8 @@ extension UserEndpoint: TargetType {
     public var method: Moya.Method {
         switch self {
         case .닉네임_수정,
-             .관심사_수정:
+             .관심사_수정,
+             .프로필_수정:
             return .put
             
         case .회원등록,
@@ -56,6 +63,7 @@ extension UserEndpoint: TargetType {
         case .닉네임_중복_체크,
              .관심사_목록_조회,
              .닉네임_조회,
+             .프로필_이미지_목록_조회,
              .유저_관심사_목록_조회:
             return .get
         }
@@ -63,6 +71,8 @@ extension UserEndpoint: TargetType {
     
     public var task: Moya.Task {
         switch self {
+        case let .프로필_수정(model):
+            return .requestJSONEncodable(model)
         case let .닉네임_수정(model):
             return .requestJSONEncodable(model)
         case let .회원등록(model):
@@ -74,6 +84,7 @@ extension UserEndpoint: TargetType {
         case .닉네임_중복_체크,
              .관심사_목록_조회,
              .닉네임_조회,
+             .프로필_이미지_목록_조회,
              .유저_관심사_목록_조회:
             return .requestPlain
         }

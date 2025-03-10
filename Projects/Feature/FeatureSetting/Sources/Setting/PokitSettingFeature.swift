@@ -8,6 +8,7 @@ import Foundation
 
 import ComposableArchitecture
 import CoreKit
+import Domain
 import Util
 
 @Reducer
@@ -27,10 +28,14 @@ public struct PokitSettingFeature {
     var userDefaults
     @Dependency(AuthClient.self)
     var authClient
+    @Dependency(UserClient.self)
+    var userClient
     /// - State
     @ObservableState
     public struct State: Equatable {
         @Presents var nickNameSettingState: NickNameSettingFeature.State?
+        var user: BaseUser?
+        
         var isLogoutPresented: Bool = false
         var isWithdrawPresented: Bool = false
         var isWebViewPresented: Bool = false
@@ -51,7 +56,9 @@ public struct PokitSettingFeature {
         public enum View: BindableAction, Equatable {
             case binding(BindingAction<State>)
             case dismiss
-            case 닉네임설정
+            case onAppear
+            
+            case 프로필설정
             case 알림설정
             case 공지사항
             case 서비스_이용약관
@@ -61,17 +68,19 @@ public struct PokitSettingFeature {
             case 로그아웃_팝업_확인_눌렀을때
             case 회원탈퇴_버튼_눌렀을때
             case 회원탈퇴_팝업_확인_눌렀을때
-            case 뷰가_나타났을때
         }
         
         public enum InnerAction: Equatable {
+            case 닉네임_조회_API_반영(BaseUser)
             case 로그아웃_팝업(isPresented: Bool)
             case 회원탈퇴_팝업(isPresented: Bool)
         }
         
         public enum AsyncAction: Equatable {
             case 회원탈퇴_API
+            case 닉네임_조회_API
             case 키_제거_수행
+            case 클립보드_감지
         }
         
         public enum ScopeAction: Equatable { case 없음 }
@@ -134,8 +143,8 @@ private extension PokitSettingFeature {
         case .dismiss:
             return .run { _ in await dismiss() }
             
-        case .닉네임설정:
-            state.nickNameSettingState = NickNameSettingFeature.State()
+        case .프로필설정:
+            state.nickNameSettingState = NickNameSettingFeature.State(user: state.user)
             return .none
             
         case .알림설정:
@@ -181,19 +190,21 @@ private extension PokitSettingFeature {
                 await send(.delegate(.회원탈퇴))
             }
             
-        case .뷰가_나타났을때:
-            return .run { send in
-                for await _ in self.pasteboard.changes() {
-                    let url = try await pasteboard.probableWebURL()
-                    await send(.delegate(.linkCopyDetected(url)), animation: .pokitSpring)
-                }
-            }
+        case .onAppear:
+            return .merge(
+                .send(.async(.닉네임_조회_API)),
+                .send(.async(.클립보드_감지))
+            )
         }
     }
     
     /// - Inner Effect
     func handleInnerAction(_ action: Action.InnerAction, state: inout State) -> Effect<Action> {
         switch action {
+        case let .닉네임_조회_API_반영(user):
+            state.user = user
+            return .none
+            
         case let .로그아웃_팝업(isPresented):
             state.isLogoutPresented = isPresented
             return .none
@@ -247,6 +258,12 @@ private extension PokitSettingFeature {
                 try await authClient.회원탈퇴(request)
             }
             
+        case .닉네임_조회_API:
+            return .run { send in
+                let result = try await userClient.닉네임_조회().toDomain()
+                await send(.inner(.닉네임_조회_API_반영(result)))
+            }
+            
         case .키_제거_수행:
             keychain.delete(.accessToken)
             keychain.delete(.refreshToken)
@@ -255,6 +272,15 @@ private extension PokitSettingFeature {
                 await userDefaults.removeString(.authCode)
                 await userDefaults.removeString(.jwt)
                 await userDefaults.removeString(.authPlatform)
+            }
+        
+        case .클립보드_감지:
+            return .run { send in
+                let result = try await userClient.닉네임_조회().toDomain()
+                for await _ in self.pasteboard.changes() {
+                    let url = try await pasteboard.probableWebURL()
+                    await send(.delegate(.linkCopyDetected(url)), animation: .pokitSpring)
+                }
             }
         }
     }
