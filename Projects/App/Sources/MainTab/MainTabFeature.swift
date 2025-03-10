@@ -141,12 +141,7 @@ public struct MainTabFeature {
     public var body: some ReducerOf<Self> {
         Scope(state: \.pokit, action: \.pokit) { PokitRootFeature() }
         Scope(state: \.recommend, action: \.recommend) {
-            withDependencies {
-                $0[UserClient.self] = .testValue
-                $0[ContentClient.self] = .testValue
-            } operation: {
-                RecommendFeature()
-            }
+            RecommendFeature()
         }
 
         BindingReducer()
@@ -301,7 +296,7 @@ private extension MainTabFeature {
             guard let category = state.categoryOfSavedContent else { return .none }
             state.categoryOfSavedContent = nil
             return .send(.inner(.카테고리상세_이동(category: category)))
-        case .error, .text, .warning, .none:
+        case .error, .text, .warning, .report, .none:
             return .none
         }
     }

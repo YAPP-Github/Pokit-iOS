@@ -23,11 +23,7 @@ struct FeatureRecommendDemoApp: App {
             )) {
                 RecommendView(store: .init(
                     initialState: .init(),
-                    reducer: { RecommendFeature()._printChanges() },
-                    withDependencies: {
-                        $0[ContentClient.self] = .testValue
-                        $0[UserClient.self] = .testValue
-                    }
+                    reducer: { RecommendFeature()._printChanges() }
                 ))
             }
         }

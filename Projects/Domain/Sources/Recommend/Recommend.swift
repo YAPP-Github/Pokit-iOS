@@ -12,6 +12,7 @@ public struct Recommend: Equatable {
     /// 콘텐츠 목록
     public var contentList: BaseContentListInquiry
     public var pageable: BasePageable
+    public var myInterests: [BaseInterest]
     public var interests: [BaseInterest]
     
     public init() {
@@ -25,6 +26,7 @@ public struct Recommend: Equatable {
             page: 0, size: 10,
             sort: ["createdAt,desc"]
         )
+        self.myInterests = []
         self.interests = []
     }
 }

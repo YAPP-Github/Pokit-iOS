@@ -20,7 +20,8 @@ extension UserClient: TestDependencyKey {
             닉네임_조회: { .mock },
             fcm_토큰_저장: { _ in .mock },
             프로필_이미지_목록_조회: { [.mock] },
-            유저_관심사_목록_조회: { InterestResponse.mock }
+            유저_관심사_목록_조회: { InterestResponse.mock },
+            관심사_수정: { _ in }
         )
     }()
 }

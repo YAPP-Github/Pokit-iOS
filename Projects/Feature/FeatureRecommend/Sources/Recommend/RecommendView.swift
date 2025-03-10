@@ -42,6 +42,22 @@ public extension RecommendView {
                 }
             }
             .task { await send(.onAppear).finish() }
+            .sheet(isPresented: $store.showKeywordSheet) {
+                RecommendKeywordBottomSheet(
+                    selectedInterests: $store.selectedInterestList,
+                    interests: store.interests,
+                    action: { send(.키워드_선택_버튼_눌렀을때) }
+                )
+            }
+            .sheet(item: $store.reportContent) { content in
+                PokitAlert(
+                    "링크를 신고하시겠습니까?",
+                    message: "명확한 사유가 있는 경우 신고해주시기 바랍니다. \nex)음란성/선정성 이미지, 영상, 텍스트 등의 콘텐츠\n욕설, 비속어, 모욕, 저속한 단어 등",
+                    confirmText: "확인",
+                    action: { send(.신고하기_확인_버튼_눌렀을때(content)) },
+                    cancelAction: { send(.경고시트_dismiss) }
+                )
+            }
         }
     }
 }
@@ -68,7 +84,7 @@ private extension RecommendView {
             state: .default(.secondary),
             size: .small,
             shape: .round,
-            action: { }
+            action: { send(.관심사_편집_버튼_눌렀을때) }
         )
         .padding([.leading, .vertical], 8)
         .padding(.trailing, 20)
@@ -101,16 +117,13 @@ private extension RecommendView {
                 ? .filled(.primary)
                 : .default(.secondary),
                 size: .small,
-                shape: .round
-            ) {
-                send(
-                    .전체보기_버튼_눌렀을때(proxy),
-                    animation: .pokitDissolve
-                )
-            }
+                shape: .round,
+                action: { send(.전체보기_버튼_눌렀을때(proxy)) }
+            )
+            .animation(.pokitDissolve, value: isAllSelected)
             .id("전체보기")
             
-            ForEach(store.interestList) { interest in
+            ForEach(store.myInterestList) { interest in
                 let isSelected = store.selectedInterest == interest
                 
                 PokitTextButton(
@@ -119,16 +132,14 @@ private extension RecommendView {
                     ? .filled(.primary)
                     : .default(.secondary),
                     size: .small,
-                    shape: .round
-                ) {
-                    send(
-                        .관심사_버튼_눌렀을때(interest, proxy),
-                        animation: .pokitDissolve
-                    )
-                }
+                    shape: .round,
+                    action: { send(.관심사_버튼_눌렀을때(interest, proxy)) }
+                )
+                .animation(.pokitDissolve, value: isSelected)
                 .id(interest.description)
             }
         }
+        .animation(.pokitDissolve, value: store.myInterestList)
     }
     
     @ViewBuilder
@@ -146,7 +157,7 @@ private extension RecommendView {
     
     @ViewBuilder
     var empty: some View {
-        PokitCaution(type: .링크없음)
+        PokitCaution(type: .추천_링크없음)
             .padding(.top, 100)
         
         Spacer()
@@ -242,6 +253,8 @@ private extension RecommendView {
                 }
                 
                 PokitBadge(state: .default(content.domain))
+                
+                Spacer()
             }
             
             Text(content.title)
