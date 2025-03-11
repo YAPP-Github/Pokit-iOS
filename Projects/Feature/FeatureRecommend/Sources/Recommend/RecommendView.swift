@@ -139,7 +139,7 @@ private extension RecommendView {
                 .id(interest.description)
             }
         }
-        .animation(.pokitDissolve, value: store.myInterestList)
+        .animation(.pokitDissolve, value: store.myInterestList.elements)
     }
     
     @ViewBuilder
