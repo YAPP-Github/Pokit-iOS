@@ -70,6 +70,7 @@ public struct ContentSettingFeature {
         var link: String?
         var showLinkPreview = false
         var isShareExtension: Bool
+        var pokitAddSheetPresented: Bool = false
     }
 
     /// - Action
@@ -209,7 +210,8 @@ private extension ContentSettingFeature {
                 state.linkPopup = .text(title: Constants.포킷_최대_갯수_문구)
                 return .none
             }
-            
+            /// 바텀시트 내리고 `포킷추가하기` depth 추가
+            state.pokitAddSheetPresented = false
             return .send(.delegate(.포킷추가하기))
         case .뒤로가기_버튼_눌렀을때:
             state.categoryId = nil

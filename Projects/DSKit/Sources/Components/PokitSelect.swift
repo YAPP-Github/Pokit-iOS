@@ -14,8 +14,8 @@ public struct PokitSelect<Item: PokitSelectItem>: View {
     private var selectedItem: Item?
     @State
     private var state: PokitSelect.SelectState
-    @State
-    private var showSheet: Bool = false
+    @Binding
+    private var isPresented: Bool
     
     private let label: String
     private let list: [Item]?
@@ -24,6 +24,7 @@ public struct PokitSelect<Item: PokitSelectItem>: View {
     
     public init(
         selectedItem: Binding<Item?> = .constant(nil),
+        isPresented: Binding<Bool>,
         state: PokitSelect.SelectState = .default,
         label: String,
         list: [Item]?,
@@ -31,6 +32,7 @@ public struct PokitSelect<Item: PokitSelectItem>: View {
         addAction: (() -> Void)?
     ) {
         self._selectedItem = selectedItem
+        self._isPresented = isPresented
         if selectedItem.wrappedValue != nil {
             self.state = .input
         } else {
@@ -49,7 +51,7 @@ public struct PokitSelect<Item: PokitSelectItem>: View {
             partSelectButton
         }
         .onChange(of: selectedItem) { onChangedSeletedItem($0) }
-        .sheet(isPresented: $showSheet) {
+        .sheet(isPresented: $isPresented) {
             PokitSelectSheet(
                 list: list,
                 itemSelected: { item in
@@ -104,14 +106,14 @@ public struct PokitSelect<Item: PokitSelectItem>: View {
     }
     
     private func partSelectButtonTapped() {
-        showSheet = true
+        isPresented = true
     }
     
     private func listCellTapped(_ item: Item) {
         withAnimation(.pokitDissolve) {
             self.selectedItem = item
         }
-        showSheet = false
+        isPresented = false
     }
     
     private func onChangedSeletedItem(_ newValue: Item?) {
@@ -119,7 +121,7 @@ public struct PokitSelect<Item: PokitSelectItem>: View {
     }
     
     private func listDismiss() {
-        showSheet = false
+        isPresented = false
     }
 }
 

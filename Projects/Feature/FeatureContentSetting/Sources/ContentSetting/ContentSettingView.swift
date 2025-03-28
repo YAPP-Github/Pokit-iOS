@@ -141,6 +141,7 @@ private extension ContentSettingView {
     var pokitSelectButton: some View {
         PokitSelect(
             selectedItem: $store.selectedPokit,
+            isPresented: $store.pokitAddSheetPresented,
             label: "포킷",
             list: store.pokitList,
             action: { send(.포킷선택_항목_눌렀을때(pokit: $0), animation: .pokitDissolve) },
