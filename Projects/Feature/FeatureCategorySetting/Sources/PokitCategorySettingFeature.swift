@@ -23,6 +23,8 @@ public struct PokitCategorySettingFeature {
     var categoryClient
     @Dependency(UserClient.self)
     var userClient
+    @Dependency(KeyboardClient.self)
+    var keyboardClient
     /// - State
     @ObservableState
     public struct State: Equatable {
@@ -55,6 +57,7 @@ public struct PokitCategorySettingFeature {
         var isProfileSheetPresented: Bool = false
         var isKeywordSheetPresented: Bool = false
         var pokitNameTextInpuState: PokitInputStyle.State = .default
+        var isKeyboardVisible: Bool = false
         @Shared(.inMemory("SelectCategory")) var categoryId: Int?
         /// - 포킷 수정 API / 추가 API
         /// categoryName
@@ -100,11 +103,13 @@ public struct PokitCategorySettingFeature {
             case 프로필_목록_조회_API_반영(images: [BaseCategoryImage])
             case 포킷_오류_핸들링(BaseError)
             case 카테고리_인메모리_저장(BaseCategoryItem)
+            case 키보드_감지_반영(Bool)
         }
         
         public enum AsyncAction: Equatable {
             case 프로필_목록_조회_API
             case 클립보드_감지
+            case 키보드_감지
         }
         
         public enum ScopeAction {
@@ -251,7 +256,8 @@ private extension PokitCategorySettingFeature {
             /// 단순 조회API들의 나열이라 merge사용
             return .merge(
                 .send(.async(.프로필_목록_조회_API)),
-                .send(.async(.클립보드_감지))
+                .send(.async(.클립보드_감지)),
+                .send(.async(.키보드_감지))
             )
         case .포킷명지우기_버튼_눌렀을때:
             state.domain.categoryName = ""
@@ -290,6 +296,10 @@ private extension PokitCategorySettingFeature {
         case let .카테고리_인메모리_저장(response):
             state.categoryId = response.id
             return .none
+            
+        case let .키보드_감지_반영(isVisible):
+            state.isKeyboardVisible = isVisible
+            return .none
         }
     }
     
@@ -308,6 +318,13 @@ private extension PokitCategorySettingFeature {
                 for await _ in self.pasteboard.changes() {
                     let url = try await pasteboard.probableWebURL()
                     await send(.delegate(.linkCopyDetected(url)), animation: .pokitSpring)
+                }
+            }
+            
+        case .키보드_감지:
+            return .run { send in
+                for await detect in await keyboardClient.isVisible() {
+                    await send(.inner(.키보드_감지_반영(detect)), animation: .pokitSpring)
                 }
             }
         }
