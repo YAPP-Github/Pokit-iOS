@@ -84,7 +84,7 @@ private extension PokitCategorySettingView {
             transaction: .init(animation: .spring)
         ) { phase in
             if let image = phase.image {
-                Circle().foregroundStyle(.pokit(.color(.grayScale(._100))))
+                Circle().foregroundStyle(.pokit(.bg(.primary)))
                     .overlay {
                         image
                             .resizable()
@@ -94,15 +94,14 @@ private extension PokitCategorySettingView {
             } else {
                 WithPerceptionTracking {
                     ZStack {
-                        Color.pokit(.bg(.disable))
-                        
+                        Color.pokit(.bg(.primary))
                         if store.selectedProfile?.imageURL != nil {
                             PokitSpinner()
                                 .foregroundStyle(.pokit(.icon(.brand)))
                                 .frame(width: 48, height: 48)
                         }
                     }
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .clipShape(.circle)
                 }
             }
         }
