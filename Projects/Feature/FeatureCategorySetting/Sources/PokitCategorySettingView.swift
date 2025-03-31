@@ -37,13 +37,16 @@ public extension PokitCategorySettingView {
                 openTypeSettingSection
                 keywordSection
                 Spacer()
+            }
+            .padding(.top, 16)
+            .pokitNavigationBar { navigationBar }
+            .overlay(alignment: .bottom) {
                 saveButton
+                    .padding(.bottom, store.isKeyboardVisible ? -26 : 0)
             }
             .padding(.horizontal, 20)
-            .padding(.top, 16)
             .pokitMaxWidth()
-            .pokitNavigationBar { navigationBar }
-            .ignoresSafeArea(edges: isFocused ? [] : .bottom)
+            .ignoresSafeArea(.container, edges: .bottom)
             .sheet(isPresented: $store.isProfileSheetPresented) {
                 PokitProfileBottomSheet(
                     selectedImage: store.selectedProfile,
