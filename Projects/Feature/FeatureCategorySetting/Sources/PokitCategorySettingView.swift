@@ -45,8 +45,8 @@ public extension PokitCategorySettingView {
                     .padding(.bottom, 36)
             }
             .padding(.horizontal, 20)
-            .pokitMaxWidth()
-            .ignoresSafeArea(.container, edges: .bottom)
+            .padding(.top, 16)
+//            .pokitMaxWidth()
             .pokitNavigationBar { navigationBar }
             .sheet(isPresented: $store.isProfileSheetPresented) {
                 PokitProfileBottomSheet(
