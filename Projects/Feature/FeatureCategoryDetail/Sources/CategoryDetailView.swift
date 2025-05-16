@@ -164,10 +164,12 @@ private extension CategoryDetailView {
                             .foregroundStyle(textColor)
                             .pokitFont(.b2(.m))
                     }
-                    Text("#\(store.category.keywordType.title)")
-                        .foregroundStyle(textColor)
-                        .pokitFont(.b2(.m))
-                        .padding(.leading, 4.5)
+                    if store.category.keywordType != .default {
+                        Text("#\(store.category.keywordType.title)")
+                            .foregroundStyle(textColor)
+                            .pokitFont(.b2(.m))
+                            .padding(.leading, 4.5)
+                    }
                 }
                 .padding(.bottom, 16)
                 PokitIconLButton(
