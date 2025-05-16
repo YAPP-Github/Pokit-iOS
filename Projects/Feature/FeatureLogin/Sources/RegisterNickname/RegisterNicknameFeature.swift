@@ -16,6 +16,7 @@ public struct RegisterNicknameFeature {
     @Dependency(\.dismiss) var dismiss
     @Dependency(\.mainQueue) var mainQueue
     @Dependency(UserClient.self) var userClient
+    @Dependency(KeyboardClient.self) var keyboardClient
     /// - State
     @ObservableState
     public struct State: Equatable {
@@ -32,6 +33,7 @@ public struct RegisterNicknameFeature {
         }
         var buttonActive: Bool = false
         var textfieldState: PokitInputStyle.State = .default
+        var isKeyboardVisible: Bool = false
     }
     /// - Action
     public enum Action: FeatureAction, ViewAction {
@@ -47,15 +49,18 @@ public struct RegisterNicknameFeature {
             /// - Button Tapped
             case 다음_버튼_눌렀을때
             case dismiss
+            case onAppear
         }
         
         public enum InnerAction: Equatable {
             case 닉네임_텍스트_변경되었을때
             case 닉네임_중복_체크_API_반영(Bool)
+            case 키보드_감지_반영(Bool)
         }
         
         public enum AsyncAction: Equatable {
             case 닉네임_중복_체크_API
+            case 키보드_감지
         }
         public enum ScopeAction: Equatable { case 없음 }
         public enum DelegateAction: Equatable {
@@ -110,6 +115,8 @@ private extension RegisterNicknameFeature {
             )
         case .binding:
             return .none
+        case .onAppear:
+            return .send(.async(.키보드_감지))
         }
     }
     /// - Inner Effect
@@ -146,6 +153,10 @@ private extension RegisterNicknameFeature {
                 state.buttonActive = true
             }
             return .none
+            
+        case let .키보드_감지_반영(response):
+            state.isKeyboardVisible = response
+            return .none
         }
     }
     /// - Async Effect
@@ -155,6 +166,13 @@ private extension RegisterNicknameFeature {
             return .run { [nickName = state.nicknameText] send in
                 let result = try await userClient.닉네임_중복_체크(nickName)
                 await send(.inner(.닉네임_중복_체크_API_반영(result.isDuplicate)))
+            }
+            
+        case .키보드_감지:
+            return .run { send in
+                for await detect in await keyboardClient.isVisible() {
+                    await send(.inner(.키보드_감지_반영(detect)), animation: .pokitSpring)
+                }
             }
         }
     }

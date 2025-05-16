@@ -22,6 +22,8 @@ public struct NickNameSettingFeature {
     var userClient
     @Dependency(CategoryClient.self)
     var categoryClient
+    @Dependency(KeyboardClient.self)
+    var keyboardClient
     /// - State
     @ObservableState
     public struct State: Equatable {
@@ -46,6 +48,7 @@ public struct NickNameSettingFeature {
         var textfieldState: PokitInputStyle.State = .default
         var buttonState: PokitButtonStyle.State = .disable
         var isProfileSheetPresented: Bool = false
+        var isKeyboardVisible: Bool = false
         
         public init(user: BaseUser?) {
             if let user,
@@ -86,12 +89,14 @@ public struct NickNameSettingFeature {
             case 닉네임_중복_확인_API_반영(Bool)
             case 닉네임_조회_API_반영(BaseUser)
             case 프로필_목록_조회_API_반영(images: [BaseProfile])
+            case 키보드_감지_반영(Bool)
         }
         
         public enum AsyncAction: Equatable {
             case 닉네임_중복_확인_API
             case 닉네임_조회_API
             case 프로필_목록_조회_API
+            case 키보드_감지
         }
         
         public enum ScopeAction {
@@ -172,7 +177,8 @@ private extension NickNameSettingFeature {
         case .뷰가_나타났을때:
             return .merge(
                 .send(.async(.프로필_목록_조회_API)),
-                .send(.async(.닉네임_조회_API))
+                .send(.async(.닉네임_조회_API)),
+                .send(.async(.키보드_감지))
             )
             
         case .닉네임지우기_버튼_눌렀을때:
@@ -251,6 +257,10 @@ private extension NickNameSettingFeature {
         case let .프로필_목록_조회_API_반영(images):
             state.domain.imageList = images
             return .none
+            
+        case let .키보드_감지_반영(response):
+            state.isKeyboardVisible = response
+            return .none
         }
     }
     
@@ -274,6 +284,13 @@ private extension NickNameSettingFeature {
                 let response = try await userClient.프로필_이미지_목록_조회()
                 let images = response.map { $0.toDomain() }
                 await send(.inner(.프로필_목록_조회_API_반영(images: images)))
+            }
+            
+        case .키보드_감지:
+            return .run { send in
+                for await detect in await keyboardClient.isVisible() {
+                    await send(.inner(.키보드_감지_반영(detect)), animation: .pokitSpring)
+                }
             }
         }
     }

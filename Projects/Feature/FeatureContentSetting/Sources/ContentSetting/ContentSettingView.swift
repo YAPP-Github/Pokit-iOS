@@ -67,6 +67,8 @@ public extension ContentSettingView {
                 )
                 .padding(.horizontal, 20)
                 .pokitMaxWidth()
+                .padding(.bottom, store.isKeyboardVisible ? -26 : 0)
+                .padding(.bottom, 36)
             }
             .pokitNavigationBar { navigationBar }
             .ignoresSafeArea(edges: focusedType == nil ? .bottom : [])

@@ -39,6 +39,7 @@ public extension SelectFieldView {
                     action: { send(.nextButtonTapped) }
                 )
                 .pokitMaxWidth()
+                .padding(.bottom, 36)
             }
             .padding(.horizontal, 20)
             .pokitNavigationBar {

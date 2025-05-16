@@ -26,6 +26,8 @@ public struct ContentSettingFeature {
     private var contentClient
     @Dependency(CategoryClient.self)
     private var categoryClient
+    @Dependency(KeyboardClient.self)
+    private var keyboardClient
     /// - State
     @ObservableState
     public struct State: Equatable {
@@ -71,6 +73,7 @@ public struct ContentSettingFeature {
         var showLinkPreview = false
         var isShareExtension: Bool
         var pokitAddSheetPresented: Bool = false
+        var isKeyboardVisible: Bool = false
     }
 
     /// - Action
@@ -110,6 +113,7 @@ public struct ContentSettingFeature {
             case 선택한_포킷_인메모리_삭제
             case 링크팝업_활성화(PokitLinkPopup.PopupType)
             case error(Error)
+            case 키보드_감지_반영(Bool)
         }
 
         public enum AsyncAction: Equatable {
@@ -119,6 +123,7 @@ public struct ContentSettingFeature {
             case 컨텐츠_수정_API
             case 컨텐츠_추가_API
             case 클립보드_감지
+            case 키보드_감지
         }
 
         public enum ScopeAction: Equatable { case 없음 }
@@ -188,7 +193,8 @@ private extension ContentSettingFeature {
             var mergeEffect: [Effect<Action>] = [
                 .send(.async(.카테고리_목록_조회_API)),
                 .send(.inner(.URL_유효성_확인)),
-                .send(.async(.클립보드_감지))
+                .send(.async(.클립보드_감지)),
+                .send(.async(.키보드_감지))
             ]
             if let id = state.domain.contentId {
                 mergeEffect.append(.send(.async(.컨텐츠_상세_조회_API(id: id))))
@@ -356,6 +362,9 @@ private extension ContentSettingFeature {
                 .inner(.링크팝업_활성화(.error(title: errorResponse.message))),
                 animation: .pokitSpring
             )
+        case let .키보드_감지_반영(response):
+            state.isKeyboardVisible = response
+            return .none
         }
     }
 
@@ -443,6 +452,13 @@ private extension ContentSettingFeature {
                 for await _ in self.pasteboard.changes() {
                     let url = try await pasteboard.probableWebURL()
                     await send(.inner(.linkPopup(url)), animation: .pokitSpring)
+                }
+            }
+        
+        case .키보드_감지:
+            return .run { send in
+                for await detect in await keyboardClient.isVisible() {
+                    await send(.inner(.키보드_감지_반영(detect)), animation: .pokitSpring)
                 }
             }
         }
