@@ -32,6 +32,7 @@ public struct PokitLinkEditFeature {
         var list = IdentifiedArrayOf<BaseContentItem>()
         /// 선택한 링크 목록
         var selectedItems = IdentifiedArrayOf<BaseContentItem>()
+        var isActive: Bool = false
         /// 포킷 이동 눌렀을 때 sheet
         var categorySelectSheetPresetend: Bool = false
         var linkDeleteSheetPresented: Bool = false
@@ -159,6 +160,8 @@ private extension PokitLinkEditFeature {
             } else {
                 state.selectedItems.append(item)
             }
+            
+            state.isActive = !state.selectedItems.isEmpty
             return .none
             
         case let .카테고리_선택했을때(pokit):
@@ -296,7 +299,7 @@ private extension PokitLinkEditFeature {
             let contentIds = contentIds.map { $0.id }
             let request = ContentMoveRequest(contentIds: contentIds, categoryId: category.id)
             try await contentClient.미분류_링크_포킷_이동(request)
-            await send(.inner(.미분류_API_반영(.링크이동(categoryName: category.categoryName))))
+            await send(.inner(.미분류_API_반영(.링크이동)))
         } catch: { error, send in
             await send(.inner(.error(error)))
         }
@@ -315,7 +318,7 @@ private extension PokitLinkEditFeature {
 public extension PokitLinkEditFeature {
     enum LinkEditType: Equatable {
         case dismiss
-        case 링크이동(categoryName: String)
+        case 링크이동
         case 링크삭제
     }
 }
