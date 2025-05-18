@@ -18,7 +18,9 @@ public struct CategoryDetailView: View {
     /// - Properties
     @Perception.Bindable
     public var store: StoreOf<CategoryDetailFeature>
-    
+    @State private var currentOffset: CGFloat = 0
+    @State private var targetOffset: CGFloat = 0
+    @State private var isSticky: Bool = false
     /// - Initializer
     public init(store: StoreOf<CategoryDetailFeature>) {
         self.store = store
@@ -28,12 +30,36 @@ public struct CategoryDetailView: View {
 public extension CategoryDetailView {
     var body: some View {
         WithPerceptionTracking {
-            VStack(spacing: 24) {
-                header
-                PokitDivider().padding(.horizontal, -20)
-                filterHeader
-                contentScrollView
+            ScrollView {
+                VStack(spacing: 24) {
+                    header
+                    scrollObservableView
+                    LazyVStack(spacing: 0, pinnedViews: [.sectionHeaders]) {
+                        Section {
+                            contentScrollView
+                        } header: {
+                            VStack(spacing: 24) {
+                                PokitDivider().padding(.horizontal, -20)
+                                filterHeader
+                            }
+                            .padding(.bottom, 16)
+                            .background(.white)
+                        }
+                    }
+                }
             }
+            .onPreferenceChange(ScrollOffsetKey.self) {
+                if $0 != targetOffset {
+                    currentOffset = $0
+                }
+            }
+            .onChange(of: currentOffset, perform: { newOffSet in
+                if newOffSet != targetOffset && newOffSet + targetOffset < 10 {
+                    isSticky = true
+                } else {
+                    isSticky = false
+                }
+            })
             .padding(.horizontal, 20)
             .padding(.top, 12)
             .pokitNavigationBar { navigationBar }
@@ -89,7 +115,7 @@ public extension CategoryDetailView {
 //MARK: - Configure View
 private extension CategoryDetailView {
     var navigationBar: some View {
-        PokitHeader {
+        PokitHeader(title: isSticky ? store.category.categoryName : "") {
             PokitHeaderItems(placement: .leading) {
                 PokitToolbarButton(
                     .icon(.arrowLeft),
@@ -242,31 +268,29 @@ private extension CategoryDetailView {
                         Spacer()
                     }
                 } else {
-                    ScrollView(showsIndicators: false) {
-                        LazyVStack(spacing: 0) {
-                            ForEach(
-                                Array(store.scope(state: \.contents, action: \.contents))
-                            ) { store in
-                                let isFirst = store.state.id == self.store.contents.first?.id
-                                let isLast = store.state.id == self.store.contents.last?.id
-                                
-                                ContentCardView(
-                                    store: store,
-                                    type: .linkList,
-                                    isFirst: isFirst,
-                                    isLast: isLast
-                                )
-                            }
+                    LazyVStack(spacing: 0) {
+                        ForEach(
+                            Array(store.scope(state: \.contents, action: \.contents))
+                        ) { store in
+                            let isFirst = store.state.id == self.store.contents.first?.id
+                            let isLast = store.state.id == self.store.contents.last?.id
                             
-                            if store.hasNext {
-                                PokitLoading()
-                                    .task { await send(.pagenation).finish() }
-                            }
-                            
-                            Spacer()
+                            ContentCardView(
+                                store: store,
+                                type: .linkList,
+                                isFirst: isFirst,
+                                isLast: isLast
+                            )
                         }
-                        .padding(.bottom, 36)
+                        
+                        if store.hasNext {
+                            PokitLoading()
+                                .task { await send(.pagenation).finish() }
+                        }
+                        
+                        Spacer()
                     }
+                    .padding(.bottom, 36)
                 }
             } else {
                 PokitLoading()
@@ -298,6 +322,18 @@ private extension CategoryDetailView {
             )
         }
     }
+    private var scrollObservableView: some View {
+        GeometryReader { proxy in
+            let offsetY = proxy.frame(in: .global).origin.y
+            Color.clear
+                .preference(
+                    key: ScrollOffsetKey.self,
+                    value: offsetY
+                )
+                .onAppear { targetOffset = offsetY }
+        }
+        .frame(height: 0)
+    }
 }
 //MARK: - Preview
 #Preview {
@@ -324,5 +360,3 @@ private extension CategoryDetailView {
         )
     }
 }
-
-
