@@ -543,8 +543,8 @@ private extension PokitRootFeature {
             }
             state.linkEdit = nil
             
-            if case let .링크이동(categoryName) = type {
-                let text = "\(categoryName)\n카테고리로 이동되었습니다."
+            if case .링크이동 = type {
+                let text = "링크 이동이 완료되었습니다."
                 return .send(.delegate(.linkPopup(text: text)))
             }
             return .none

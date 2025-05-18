@@ -229,8 +229,8 @@ private extension PokitLinkEditFeature {
                 return .send(.delegate(.링크_편집_종료(items: [], type: type)))
             }
             /// 4. 링크이동을 했을 때 바텀 메세지 출력
-            if case let .링크이동(categoryName) = type {
-                state.linkPopup = .text(title: "\(categoryName)\n카테고리로 이동되었습니다.")
+            if case .링크이동 = type {
+                state.linkPopup = .text(title: "링크 이동이 완료되었습니다.")
                 return .none
             }
             
