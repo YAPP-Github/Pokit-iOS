@@ -11,17 +11,24 @@ import SwiftUI
 public struct PokitLinkEditFloatView: View {
     /// 전체 선택/해제 toggle
     @State private var isChecked: Bool = false
+    @Binding private var isActive: Bool
     private let delegateSend: ((PokitLinkEditFloatView.Delegate) -> Void)?
     
     public init(
+        isActive: Binding<Bool>,
         delegateSend: ((PokitLinkEditFloatView.Delegate) -> Void)?
     ) {
+        self._isActive = isActive
         self.delegateSend = delegateSend
     }
     
     public var body: some View {
         RoundedRectangle(cornerRadius: 16)
-            .foregroundStyle(.pokit(.bg(.brand)))
+            .foregroundStyle(
+                isActive
+                ? .pokit(.bg(.brand))
+                : .pokit(.bg(.disable))
+            )
             .frame(height: 84)
             .overlay {
                 HStack(spacing: 0) {
@@ -41,6 +48,7 @@ public struct PokitLinkEditFloatView: View {
                 color: Color.black,
                 colorPercent: 10
             )
+            .animation(.pokitSpring, value: isActive)
     }
 }
 private extension PokitLinkEditFloatView {
@@ -61,6 +69,7 @@ private extension PokitLinkEditFloatView {
         }
         .buttonStyle(.plain)
         .foregroundStyle(.white)
+        .disabled(!isActive)
     }
 }
 public extension PokitLinkEditFloatView {
@@ -107,5 +116,8 @@ public extension PokitLinkEditFloatView {
     }
 }
 #Preview {
-    PokitLinkEditFloatView(delegateSend: {_ in }).padding(20)
+    PokitLinkEditFloatView(
+        isActive: .constant(true),
+        delegateSend: {_ in }
+    ).padding(20)
 }

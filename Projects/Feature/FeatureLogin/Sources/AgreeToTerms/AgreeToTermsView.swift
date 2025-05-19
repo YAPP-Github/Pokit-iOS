@@ -42,6 +42,7 @@ public extension AgreeToTermsView {
                     state: store.isPersonalAndUsageArgee && store.isServiceAgree ? .filled(.primary) : .disable,
                     action: { send(.다음_버튼_눌렀을때) }
                 )
+                .padding(.bottom, 36)
             }
             .pokitMaxWidth()
             .padding(.horizontal, 20)

@@ -20,7 +20,7 @@ public struct PokitBottomSwitchRadio<Content: View>: View {
         }
         .padding(.horizontal, 20)
         .padding(.top, 16)
-        .padding(.bottom, 28)
+//        .padding(.bottom, 28)
         .background(.pokit(.bg(.base)))
     }
 }

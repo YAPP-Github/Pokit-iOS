@@ -69,7 +69,7 @@ extension PokitButtonStyle.State {
     
     var iconColor: Color {
         switch self {
-        case .default: return .pokit(.icon(.disable))
+        case .default: return .pokit(.icon(.tertiary))
         case .stroke(_): return .pokit(.icon(.primary))
         case .filled(_), .opacity: return .pokit(.icon(.inverseWh))
         case .disable: return .pokit(.icon(.disable))

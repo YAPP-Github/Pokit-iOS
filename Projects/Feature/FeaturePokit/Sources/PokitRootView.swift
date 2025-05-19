@@ -158,10 +158,9 @@ private extension PokitRootView {
             LazyVStack(spacing: 0) {
                 LazyVGrid(columns: column, spacing: 12) {
                     ForEach(categories, id: \.id) { item in
-                        if let linkCount = store.favoriteContentCount,
-                           item.isFavorite {
+                        if item.isFavorite {
                             PokitFavoriteCard(
-                                linkCount: linkCount,
+                                linkCount: item.contentCount,
                                 action: { send(.카테고리_눌렀을때(item)) }
                             )
                         }

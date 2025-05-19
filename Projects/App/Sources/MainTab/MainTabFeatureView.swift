@@ -272,50 +272,53 @@ private extension MainTabView {
         var action: (TabAddSheetType) -> Void
         
         var body: some View {
-            HStack(spacing: 20) {
-                Spacer()
-                
-                ForEach(TabAddSheetType.allCases, id: \.self) { type in
-                    Button(action: { action(type) }) {
-                        VStack(spacing: 4) {
-                            Spacer()
-                            
-                            type.icon
-                                .renderingMode(.template)
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .frame(width: 28, height: 28)
-                                .foregroundStyle(.pokit(.icon(.inverseWh)))
-                            
-                            Text(type.title)
-                                .pokitFont(.b3(.m))
-                                .foregroundStyle(.pokit(.text(.inverseWh)))
-                            
-                            Spacer()
+            GeometryReader { proxy in
+                let bottomSafeArea = proxy.safeAreaInsets.bottom
+                HStack(spacing: 20) {
+                    Spacer()
+                    
+                    ForEach(TabAddSheetType.allCases, id: \.self) { type in
+                        Button(action: { action(type) }) {
+                            VStack(spacing: 4) {
+                                Spacer()
+                                
+                                type.icon
+                                    .renderingMode(.template)
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fit)
+                                    .frame(width: 28, height: 28)
+                                    .foregroundStyle(.pokit(.icon(.inverseWh)))
+                                
+                                Text(type.title)
+                                    .pokitFont(.b3(.m))
+                                    .foregroundStyle(.pokit(.text(.inverseWh)))
+                                
+                                Spacer()
+                            }
+                            .padding(.horizontal, 24)
+                            .background {
+                                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                    .foregroundStyle(.pokit(.bg(.brand)))
+                            }
+                            .frame(height: 96)
                         }
-                        .padding(.horizontal, 24)
-                        .background {
-                            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                                .foregroundStyle(.pokit(.bg(.brand)))
-                        }
-                        .frame(height: 96)
+                    }
+                    
+                    Spacer()
+                }
+                .padding(.bottom, 48 - bottomSafeArea)
+                .padding(.top, 36)
+                .pokitPresentationCornerRadius()
+                .pokitPresentationBackground()
+                .presentationDragIndicator(.visible)
+                .readHeight()
+                .onPreferenceChange(HeightPreferenceKey.self) { height in
+                    if let height {
+                        self.height = height
                     }
                 }
-                
-                Spacer()
+                .presentationDetents([.height(self.height)])
             }
-            .padding(.top, 36)
-            .padding(.bottom, 48)
-            .pokitPresentationCornerRadius()
-            .pokitPresentationBackground()
-            .presentationDragIndicator(.visible)
-            .readHeight()
-            .onPreferenceChange(HeightPreferenceKey.self) { height in
-                if let height {
-                    self.height = height
-                }
-            }
-            .presentationDetents([.height(self.height)])
         }
     }
 }

@@ -45,7 +45,9 @@ public extension RegisterNicknameView {
                     : .disable,
                     action: { send(.다음_버튼_눌렀을때) }
                 )
-                .setKeyboardHeight()
+                .padding(.bottom, store.isKeyboardVisible ? -26 : 0)
+                .padding(.bottom, 36)
+//                .setKeyboardHeight()
             }
             .pokitMaxWidth()
             .padding(.horizontal, 20)
@@ -59,6 +61,7 @@ public extension RegisterNicknameView {
                 }
             }
             .ignoresSafeArea(edges: .bottom)
+            .onAppear { send(.onAppear) }
         }
     }
 }
