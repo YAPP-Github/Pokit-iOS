@@ -130,7 +130,6 @@ public extension MainTabFeature {
             /// - 링크상세 바텀시트에서 링크수정으로 이동
             case let .contentDetail(.presented(.delegate(.editButtonTapped(id)))),
                  let .pokit(.delegate(.링크수정하기(id))),
-                 let .recommend(.delegate(.추가하기_버튼_눌렀을때(id))),
                  let .path(.element(_, action: .카테고리상세(.delegate(.링크수정(id))))),
                  let .path(.element(_, action: .링크목록(.delegate(.링크수정(id))))),
                  let .path(.element(_, action: .검색(.delegate(.링크수정(id))))),
@@ -193,6 +192,8 @@ public extension MainTabFeature {
                 default:
                     return .send(.inner(.링크팝업_활성화(.success(title: Constants.링크_저장_완료_문구))), animation: .pokitSpring)
                 }
+            case .recommend(.delegate(.저장하기_완료)):
+                return .send(.inner(.링크팝업_활성화(.success(title: Constants.링크_저장_완료_문구))), animation: .pokitSpring)
             /// - 각 화면에서 링크 복사 감지했을 때 (링크 추가 및 수정 화면 제외)
             case let .path(.element(_, action: .알림함(.delegate(.linkCopyDetected(url))))),
                  let .path(.element(_, action: .검색(.delegate(.linkCopyDetected(url))))),

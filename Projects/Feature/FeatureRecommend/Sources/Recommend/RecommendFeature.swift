@@ -19,6 +19,8 @@ public struct RecommendFeature {
     private var contentClient
     @Dependency(UserClient.self)
     private var userClient
+    @Dependency(CategoryClient.self)
+    private var categoryClient
     @Dependency(\.openURL)
     private var openURL
     /// - State
@@ -43,6 +45,9 @@ public struct RecommendFeature {
             array.append(contentsOf: domain.myInterests)
             return array
         }
+        var pokitList: [BaseCategoryItem]? {
+            get { domain.categoryListInQuiry.data }
+        }
         var isLoading: Bool = true
         var selectedInterest: BaseInterest?
         var shareContent: BaseContentItem?
@@ -50,6 +55,9 @@ public struct RecommendFeature {
         var showKeywordSheet: Bool = false
         var selectedInterestList = Set<BaseInterest>()
         var reportContent: BaseContentItem?
+        var showSelectSheet: Bool = false
+        var selectedPokit: BaseCategoryItem?
+        var addContent: BaseContentItem?
     }
     
     /// - Action
@@ -81,14 +89,17 @@ public struct RecommendFeature {
             case 알림_버튼_눌렀을때
             case 추천_컨텐츠_눌렀을때(String)
             case 경고시트_dismiss
+            case 포킷선택_항목_눌렀을때(pokit: BaseCategoryItem)
+            case 포킷_추가하기_버튼_눌렀을때
         }
         
-        public enum InnerAction: Equatable {
+        public enum InnerAction {
             case 추천_조회_API_반영(BaseContentListInquiry)
             case 추천_조회_페이징_API_반영(BaseContentListInquiry)
             case 유저_관심사_조회_API_반영([BaseInterest])
             case 관심사_조회_API_반영([BaseInterest])
             case 컨텐츠_신고_API_반영(Int)
+            case 카테고리_목록_조회_API_반영(categoryList: BaseCategoryListInquiry)
         }
         
         public enum AsyncAction: Equatable {
@@ -97,12 +108,14 @@ public struct RecommendFeature {
             case 유저_관심사_조회_API
             case 관심사_조회_API
             case 컨텐츠_신고_API(Int)
+            case 카테고리_목록_조회_API
+            case 컨텐츠_추가_API
         }
         
         public enum ScopeAction: Equatable { case doNothing }
         
         public enum DelegateAction: Equatable {
-            case 추가하기_버튼_눌렀을때(Int)
+            case 저장하기_완료
             case 검색_버튼_눌렀을때
             case 알림_버튼_눌렀을때
             case 컨텐츠_신고_API_반영
@@ -158,7 +171,9 @@ private extension RecommendFeature {
         case .pagination:
             return shared(.async(.추천_조회_페이징_API), state: &state)
         case let .추가하기_버튼_눌렀을때(content):
-            return .send(.delegate(.추가하기_버튼_눌렀을때(content.id)))
+            state.addContent = content
+            state.showSelectSheet = true
+            return shared(.async(.카테고리_목록_조회_API), state: &state)
         case let .공유하기_버튼_눌렀을때(content):
             state.shareContent = content
             return .none
@@ -216,6 +231,12 @@ private extension RecommendFeature {
         case .경고시트_dismiss:
             state.reportContent = nil
             return .none
+        case .포킷선택_항목_눌렀을때(pokit: let pokit):
+            state.selectedPokit = pokit
+            return .none
+        case .포킷_추가하기_버튼_눌렀을때:
+            state.showSelectSheet = false
+            return shared(.async(.컨텐츠_추가_API), state: &state)
         }
     }
     
@@ -247,6 +268,30 @@ private extension RecommendFeature {
         case let .컨텐츠_신고_API_반영(contentId):
             state.domain.contentList.data?.removeAll(where: { $0.id == contentId })
             return .send(.delegate(.컨텐츠_신고_API_반영))
+        case .카테고리_목록_조회_API_반영(categoryList: let categoryList):
+            /// - `카테고리_목록_조회`의 filter 옵션을 `false`로 해두었기 때문에 `미분류` 카테고리 또한 항목에서 조회가 가능함
+
+            /// [1]. `미분류`에 해당하는 인덱스 번호와 항목을 체크, 없다면 목록갱신이 불가함
+            guard
+                let unclassifiedItemIdx = categoryList.data?.firstIndex(where: {
+                    $0.categoryName == "미분류"
+                })
+            else { return .none }
+            guard
+                let unclassifiedItem = categoryList.data?.first(where: {
+                    $0.categoryName == "미분류"
+                })
+            else { return .none }
+            
+            /// [2]. 새로운 list변수를 만들어주고 카테고리 항목 순서를 재배치 (최신순 정렬 시  미분류는 항상 맨 마지막)
+            var list = categoryList
+            list.data?.remove(at: unclassifiedItemIdx)
+            list.data?.insert(unclassifiedItem, at: 0)
+            
+            /// [3]. 도메인 항목 리스트에 list 할당
+            state.domain.categoryListInQuiry = list
+            state.selectedPokit = unclassifiedItem
+            return .none
         }
     }
     
@@ -290,6 +335,33 @@ private extension RecommendFeature {
                     .inner(.컨텐츠_신고_API_반영(contentId)),
                     animation: .pokitSpring
                 )
+            }
+        case .카테고리_목록_조회_API:
+            let request = BasePageableRequest(
+                page: state.domain.pageable.page,
+                size: 30,
+                sort: state.domain.pageable.sort
+            )
+            return categoryListFetch(request: request)
+        case .컨텐츠_추가_API:
+            guard
+                let categoryId = state.selectedPokit?.id,
+                let category = state.domain.categoryListInQuiry.data?.first(where: {
+                    $0.id == categoryId
+                }),
+                let content = state.addContent
+            else { return .none }
+            let request = ContentBaseRequest(
+                data: content.data,
+                title: content.title,
+                categoryId: categoryId,
+                memo: content.memo ?? "",
+                alertYn: "NO",
+                thumbNail: content.thumbNail
+            )
+            return .run { send in
+                let content = try await contentClient.컨텐츠_추가(request)
+                await send(.delegate(.저장하기_완료))
             }
         }
     }
@@ -351,6 +423,13 @@ private extension RecommendFeature {
             }
             guard let contentItems else { return }
             await send(.inner(.추천_조회_API_반영(contentItems)), animation: .pokitDissolve)
+        }
+    }
+    
+    func categoryListFetch(request: BasePageableRequest) -> Effect<Action> {
+        return .run { send in
+            let categoryList = try await categoryClient.카테고리_목록_조회(request, false, true).toDomain()
+            await send(.inner(.카테고리_목록_조회_API_반영(categoryList: categoryList)), animation: .pokitDissolve)
         }
     }
 }

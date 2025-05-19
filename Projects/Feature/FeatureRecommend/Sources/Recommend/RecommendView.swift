@@ -60,6 +60,20 @@ public extension RecommendView {
                     cancelAction: { send(.경고시트_dismiss) }
                 )
             }
+            .sheet(isPresented: $store.showSelectSheet) {
+                PokitSelectSheet(
+                    list: store.pokitList,
+                    selectedItem: $store.selectedPokit,
+                    itemSelected: { item in
+                        send(.포킷선택_항목_눌렀을때(pokit: item))
+                    },
+                    pokitAddAction: { send(.포킷_추가하기_버튼_눌렀을때) }
+                )
+                .presentationDragIndicator(.visible)
+                .pokitPresentationCornerRadius()
+                .presentationDetents([.height(564)])
+                .pokitPresentationBackground()
+            }
         }
     }
 }
