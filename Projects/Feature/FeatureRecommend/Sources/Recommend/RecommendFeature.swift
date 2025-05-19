@@ -185,6 +185,7 @@ private extension RecommendFeature {
             return .none
         case let .전체보기_버튼_눌렀을때(proxy):
             guard state.selectedInterest != nil else { return .none }
+            state.domain.contentList.data = nil
             
             state.selectedInterest = nil
             let leading = 20 / UIScreen.main.bounds.width
@@ -193,19 +194,13 @@ private extension RecommendFeature {
                 y: UnitPoint.leading.y
             )
             proxy.scrollTo("전체보기", anchor: anchor)
-            state.domain.contentList.data = nil
             return shared(.async(.추천_조회_API), state: &state)
         case let .관심사_버튼_눌렀을때(interest, proxy):
             guard state.selectedInterest != interest else { return .none }
+            state.domain.contentList.data = nil
             
             state.selectedInterest = interest
-            let leading = 20 / UIScreen.main.bounds.width
-            let anchor = UnitPoint(
-                x: leading,
-                y: UnitPoint.leading.y
-            )
-            proxy.scrollTo(interest.description, anchor: anchor)
-            state.domain.contentList.data = nil
+            proxy.scrollTo(interest.description, anchor: .leading)
             return shared(.async(.추천_조회_API), state: &state)
         case .링크_공유_완료되었을때:
             state.shareContent = nil

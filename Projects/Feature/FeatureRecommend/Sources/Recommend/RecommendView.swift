@@ -28,11 +28,11 @@ public extension RecommendView {
         WithPerceptionTracking {
             VStack(spacing: 0) {
                 interestList
+                    .background(.pokit(.bg(.base)))
                 
                 list
-                    .padding(.top, 12)
-                    .background(.pokit(.bg(.primary)))
             }
+            .background(.pokit(.bg(.primary)))
             .ignoresSafeArea(edges: .bottom)
             .sheet(item: $store.shareContent) { content in
                 if let shareURL = URL(string: content.data) {
@@ -196,6 +196,7 @@ private extension RecommendView {
             }
             .padding(.horizontal, 20)
             .padding(.bottom, 150)
+            .padding(.top, 12)
         }
     }
     
