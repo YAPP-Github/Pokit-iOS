@@ -44,7 +44,9 @@ public extension NickNameSettingView {
                     state: store.buttonState,
                     action: { send(.저장_버튼_눌렀을때) }
                 )
-                .setKeyboardHeight()
+                .padding(.bottom, store.isKeyboardVisible ? -26 : 0)
+                .padding(.bottom, 36)
+//                .setKeyboardHeight()
             }
             .padding(.horizontal, 20)
             .padding(.top, 16)
@@ -56,7 +58,7 @@ public extension NickNameSettingView {
                     delegateSend: { store.send(.scope(.profile($0))) }
                 )
             }
-            .ignoresSafeArea(edges: .bottom)
+            .ignoresSafeArea(.container, edges: .bottom)
             .task { await send(.뷰가_나타났을때).finish() }
         }
     }

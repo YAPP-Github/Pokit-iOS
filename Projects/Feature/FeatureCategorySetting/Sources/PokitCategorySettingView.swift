@@ -37,13 +37,17 @@ public extension PokitCategorySettingView {
                 openTypeSettingSection
                 keywordSection
                 Spacer()
+            }
+            .padding(.top, 16)
+            .overlay(alignment: .bottom) {
                 saveButton
+                    .padding(.bottom, store.isKeyboardVisible ? -26 : 0)
+                    .padding(.bottom, 36)
             }
             .padding(.horizontal, 20)
             .padding(.top, 16)
-            .pokitMaxWidth()
+//            .pokitMaxWidth()
             .pokitNavigationBar { navigationBar }
-            .ignoresSafeArea(edges: isFocused ? [] : .bottom)
             .sheet(isPresented: $store.isProfileSheetPresented) {
                 PokitProfileBottomSheet(
                     selectedImage: store.selectedProfile,
@@ -81,7 +85,7 @@ private extension PokitCategorySettingView {
             transaction: .init(animation: .spring)
         ) { phase in
             if let image = phase.image {
-                Circle().foregroundStyle(.pokit(.color(.grayScale(._100))))
+                Circle().foregroundStyle(.pokit(.bg(.primary)))
                     .overlay {
                         image
                             .resizable()
@@ -91,15 +95,14 @@ private extension PokitCategorySettingView {
             } else {
                 WithPerceptionTracking {
                     ZStack {
-                        Color.pokit(.bg(.disable))
-                        
+                        Color.pokit(.bg(.primary))
                         if store.selectedProfile?.imageURL != nil {
                             PokitSpinner()
                                 .foregroundStyle(.pokit(.icon(.brand)))
                                 .frame(width: 48, height: 48)
                         }
                     }
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .clipShape(.circle)
                 }
             }
         }

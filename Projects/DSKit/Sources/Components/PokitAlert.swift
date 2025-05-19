@@ -31,53 +31,57 @@ public struct PokitAlert: View {
     }
     
     public var body: some View {
-        VStack(spacing: 0) {
-            VStack(spacing: 8) {
-                title
+        GeometryReader { proxy in
+            let bottomSafeArea = proxy.safeAreaInsets.bottom
+            VStack(spacing: 0) {
+                VStack(spacing: 8) {
+                    title
+                    
+                    if message != nil {
+                        messageLabel
+                    }
+                }
+                .padding(.top, 36)
+                .padding(.bottom, 20)
                 
-                if message != nil {
-                    messageLabel
+                PokitBottomSwitchRadio {
+                    PokitPartSwitchRadio(
+                        labelText: "취소",
+                        selection: .constant(false),
+                        to: true,
+                        style: .stroke
+                    ) {
+                        cancelAction?()
+                        dismiss()
+                    }
+                    .background()
+                    
+                    PokitPartSwitchRadio(
+                        labelText: confirmText,
+                        selection: .constant(true),
+                        to: true,
+                        style: .filled,
+                        action: action
+                    )
+                    .background()
+                }
+                .pokitMaxWidth()
+            }
+            .pokitPresentationBackground()
+            .pokitPresentationCornerRadius()
+            .presentationDragIndicator(.visible)
+            .padding(.bottom, 36 - bottomSafeArea)
+            .readHeight()
+            .onPreferenceChange(HeightPreferenceKey.self) { height in
+                if let height {
+                    self.height = height
                 }
             }
-            .padding(.top, 36)
-            .padding(.bottom, 20)
-            
-            PokitBottomSwitchRadio {
-                PokitPartSwitchRadio(
-                    labelText: "취소",
-                    selection: .constant(false),
-                    to: true,
-                    style: .stroke
-                ) {
-                    cancelAction?()
-                    dismiss()
-                }
-                .background()
-                
-                PokitPartSwitchRadio(
-                    labelText: confirmText,
-                    selection: .constant(true),
-                    to: true,
-                    style: .filled,
-                    action: action
-                )
-                .background()
+            .presentationDetents([.height(self.height)])
+            .onAppear {
+                UINotificationFeedbackGenerator()
+                    .notificationOccurred(.warning)
             }
-            .pokitMaxWidth()
-        }
-        .pokitPresentationBackground()
-        .pokitPresentationCornerRadius()
-        .presentationDragIndicator(.visible)
-        .readHeight()
-        .onPreferenceChange(HeightPreferenceKey.self) { height in
-            if let height {
-                self.height = height
-            }
-        }
-        .presentationDetents([.height(self.height)])
-        .onAppear {
-            UINotificationFeedbackGenerator()
-                .notificationOccurred(.warning)
         }
     }
     

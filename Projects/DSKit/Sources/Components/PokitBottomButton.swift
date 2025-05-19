@@ -37,7 +37,7 @@ public struct PokitBottomButton: View {
         }
         .disabled(state == .disable)
         .padding(.top, 16)
-        .padding(.bottom, 36)
+//        .padding(.bottom, 36)
     }
     
     private var label: some View {

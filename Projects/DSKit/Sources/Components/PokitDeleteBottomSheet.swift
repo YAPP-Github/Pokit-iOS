@@ -22,50 +22,55 @@ public struct PokitDeleteBottomSheet: View {
     }
     
     public var body: some View {
-        VStack(spacing: 0) {
-            /// - 텍스트 영역
-            VStack(spacing: 8) {
-                Text(type.sheetTitle)
-                    .foregroundStyle(.pokit(.text(.primary)))
-                    .pokitFont(.title2)
-                Text(type.sheetContents)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .multilineTextAlignment(.center)
-                    .foregroundStyle(.pokit(.text(.secondary)))
-                    .pokitFont(.b2(.m))
+        GeometryReader { proxy in
+            let bottomSafeArea = proxy.safeAreaInsets.bottom
+            
+            VStack(spacing: 0) {
+                /// - 텍스트 영역
+                VStack(spacing: 8) {
+                    Text(type.sheetTitle)
+                        .foregroundStyle(.pokit(.text(.primary)))
+                        .pokitFont(.title2)
+                    Text(type.sheetContents)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .multilineTextAlignment(.center)
+                        .foregroundStyle(.pokit(.text(.secondary)))
+                        .pokitFont(.b2(.m))
+                }
+                .padding(.top, 36)
+                .padding(.bottom, 20)
+                /// - 취소 / 삭제 버튼 영역
+                HStack(spacing: 8) {
+                    PokitBottomButton(
+                        "취소",
+                        state: .default(.primary),
+                        action: { delegateSend?(.cancelButtonTapped) }
+                    )
+                    
+                    PokitBottomButton(
+                        "삭제",
+                        state: .filled(.primary),
+                        action: { delegateSend?(.deleteButtonTapped) }
+                    )
+                }
             }
-            .padding(.top, 36)
-            .padding(.bottom, 20)
-            /// - 취소 / 삭제 버튼 영역
-            HStack(spacing: 8) {
-                PokitBottomButton(
-                    "취소",
-                    state: .default(.primary),
-                    action: { delegateSend?(.cancelButtonTapped) }
-                )
-                
-                PokitBottomButton(
-                    "삭제",
-                    state: .filled(.primary),
-                    action: { delegateSend?(.deleteButtonTapped) }
-                )
+            .padding(.horizontal, 20)
+            .padding(.bottom, 36 - bottomSafeArea)
+            .background(.white)
+            .pokitPresentationCornerRadius()
+            .pokitPresentationBackground()
+            .presentationDragIndicator(.visible)
+            .readHeight()
+            .onPreferenceChange(HeightPreferenceKey.self) { height in
+                if let height {
+                    self.height = height
+                }
             }
-        }
-        .padding(.horizontal, 20)
-        .background(.white)
-        .pokitPresentationCornerRadius()
-        .pokitPresentationBackground()
-        .presentationDragIndicator(.visible)
-        .readHeight()
-        .onPreferenceChange(HeightPreferenceKey.self) { height in
-            if let height {
-                self.height = height
+            .presentationDetents([.height(self.height)])
+            .onAppear {
+                UINotificationFeedbackGenerator()
+                    .notificationOccurred(.warning)
             }
-        }
-        .presentationDetents([.height(self.height)])
-        .onAppear {
-            UINotificationFeedbackGenerator()
-                .notificationOccurred(.warning)
         }
     }
 }
