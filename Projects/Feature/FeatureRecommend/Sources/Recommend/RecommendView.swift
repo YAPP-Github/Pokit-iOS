@@ -26,10 +26,12 @@ public struct RecommendView: View {
 public extension RecommendView {
     var body: some View {
         WithPerceptionTracking {
-            VStack(spacing: 10) {
+            VStack(spacing: 0) {
                 interestList
                 
                 list
+                    .padding(.top, 12)
+                    .background(.pokit(.bg(.primary)))
             }
             .ignoresSafeArea(edges: .bottom)
             .sheet(item: $store.shareContent) { content in
