@@ -119,6 +119,7 @@ public struct RecommendFeature {
             case 검색_버튼_눌렀을때
             case 알림_버튼_눌렀을때
             case 컨텐츠_신고_API_반영
+            case 포킷_추가하기_버튼_눌렀을때
         }
     }
     
@@ -228,10 +229,11 @@ private extension RecommendFeature {
             return .none
         case .포킷선택_항목_눌렀을때(pokit: let pokit):
             state.selectedPokit = pokit
-            return .none
-        case .포킷_추가하기_버튼_눌렀을때:
             state.showSelectSheet = false
             return shared(.async(.컨텐츠_추가_API), state: &state)
+        case .포킷_추가하기_버튼_눌렀을때:
+            state.showSelectSheet = false
+            return .send(.delegate(.포킷_추가하기_버튼_눌렀을때))
         }
     }
     
