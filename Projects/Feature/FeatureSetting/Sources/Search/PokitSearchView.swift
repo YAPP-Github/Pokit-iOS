@@ -265,14 +265,6 @@ private extension PokitSearchView {
     
     var resultList: some View {
         VStack(alignment: .leading, spacing: 20) {
-            PokitIconLTextLink(
-                store.isResultAscending ? "오래된순" : "최신순",
-                icon: .icon(.align),
-                action: { send(.정렬_버튼_눌렀을때) }
-            )
-            .contentTransition(.numericText())
-            .padding(.horizontal, 20)
-            
             if !store.isLoading {
                 ScrollView {
                     LazyVStack(spacing: 0) {

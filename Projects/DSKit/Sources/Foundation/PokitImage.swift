@@ -50,7 +50,7 @@ public enum PokitImage {
             case .trash:
                 return DSKitAsset.iconTrash.swiftUIImage
             case .plusR:
-                return DSKitAsset.iconPlus.swiftUIImage
+                return DSKitAsset.iconPlusR.swiftUIImage
             case .remind:
                 return DSKitAsset.iconRemind.swiftUIImage
             case .reminder:

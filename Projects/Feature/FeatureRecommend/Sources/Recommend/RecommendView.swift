@@ -26,11 +26,13 @@ public struct RecommendView: View {
 public extension RecommendView {
     var body: some View {
         WithPerceptionTracking {
-            VStack(spacing: 10) {
+            VStack(spacing: 0) {
                 interestList
+                    .background(.pokit(.bg(.base)))
                 
                 list
             }
+            .background(.pokit(.bg(.primary)))
             .ignoresSafeArea(edges: .bottom)
             .sheet(item: $store.shareContent) { content in
                 if let shareURL = URL(string: content.data) {
@@ -57,6 +59,20 @@ public extension RecommendView {
                     action: { send(.신고하기_확인_버튼_눌렀을때(content)) },
                     cancelAction: { send(.경고시트_dismiss) }
                 )
+            }
+            .sheet(isPresented: $store.showSelectSheet) {
+                PokitSelectSheet(
+                    list: store.pokitList,
+                    selectedItem: .constant(nil),
+                    itemSelected: { item in
+                        send(.포킷선택_항목_눌렀을때(pokit: item))
+                    },
+                    pokitAddAction: { send(.포킷_추가하기_버튼_눌렀을때) }
+                )
+                .presentationDragIndicator(.visible)
+                .pokitPresentationCornerRadius()
+                .presentationDetents([.height(564)])
+                .pokitPresentationBackground()
             }
         }
     }
@@ -180,6 +196,7 @@ private extension RecommendView {
             }
             .padding(.horizontal, 20)
             .padding(.bottom, 150)
+            .padding(.top, 12)
         }
     }
     
