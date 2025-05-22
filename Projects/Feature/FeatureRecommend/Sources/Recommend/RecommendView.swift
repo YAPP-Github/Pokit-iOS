@@ -63,7 +63,7 @@ public extension RecommendView {
             .sheet(isPresented: $store.showSelectSheet) {
                 PokitSelectSheet(
                     list: store.pokitList,
-                    selectedItem: $store.selectedPokit,
+                    selectedItem: .constant(nil),
                     itemSelected: { item in
                         send(.포킷선택_항목_눌렀을때(pokit: item))
                     },
