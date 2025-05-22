@@ -61,6 +61,7 @@ public extension PokitCategorySettingView {
                     action: { send(.키워드_선택_버튼_눌렀을때($0)) }
                 )
             }
+            .ignoresSafeArea(.container, edges: .bottom)
             .task { await send(.뷰가_나타났을때).finish() }
         }
     }
