@@ -24,19 +24,17 @@ public struct PokitLinkEditFloatView: View {
     
     public var body: some View {
         RoundedRectangle(cornerRadius: 16)
-            .foregroundStyle(
-                isActive
-                ? .pokit(.bg(.brand))
-                : .pokit(.bg(.disable))
-            )
+            .foregroundStyle(.pokit(.bg(.brand)))
             .frame(height: 84)
             .overlay {
                 HStack(spacing: 0) {
                     button(isChecked ? .전체해제 : .전체선택)
                     Spacer()
                     button(.링크삭제)
+                        .disabled(!isActive)
                     Spacer()
                     button(.포킷이동)
+                        .disabled(!isActive)
                 }
                 .padding(.horizontal, 20)
             }
@@ -69,7 +67,6 @@ private extension PokitLinkEditFloatView {
         }
         .buttonStyle(.plain)
         .foregroundStyle(.white)
-        .disabled(!isActive)
     }
 }
 public extension PokitLinkEditFloatView {
