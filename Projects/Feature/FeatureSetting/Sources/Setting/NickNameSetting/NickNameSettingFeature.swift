@@ -231,7 +231,13 @@ private extension NickNameSettingFeature {
                 state.textfieldState = .error(message: "한글, 영어, 숫자만 입력이 가능합니다.")
                 return .none
             }
-            /// [6]. 정상 케이스일 때
+            /// [6]. 현재 닉네임 == 입력한 닉네임
+            if state.user?.nickname == state.text {
+                state.textfieldState = .active
+                state.buttonState = .disable
+                return .none
+            }
+            /// [7]. 정상 케이스일 때
             return .run { send in await send(.async(.닉네임_중복_확인_API)) }
             
         case let .닉네임_중복_확인_API_반영(isDuplicate):
