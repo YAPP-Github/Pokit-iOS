@@ -54,7 +54,7 @@ public struct PokitCategorySettingFeature {
         var saveButtonEnabled: Bool {
             !categoryName.isEmpty
             && selectedProfile != nil
-            && keywordSelectType != .normal
+            && (domain.openType == .공개 ? keywordSelectType != .normal : true)
         }
         
         let type: SettingType
