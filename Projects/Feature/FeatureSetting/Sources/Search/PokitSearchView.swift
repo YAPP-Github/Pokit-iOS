@@ -72,7 +72,7 @@ private extension PokitSearchView {
                     action: store.isSearching ? { send(.검색_버튼_눌렀을때) } : nil
                 ),
                 shape: .round,
-                state: .constant(.default),
+                state: .constant(focused ? .active : .default),
                 placeholder: "제목, 메모를 검색해보세요.",
                 focusState: $focused,
                 equals: true,
