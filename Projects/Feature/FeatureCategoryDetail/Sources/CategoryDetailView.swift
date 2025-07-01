@@ -30,17 +30,19 @@ public struct CategoryDetailView: View {
 public extension CategoryDetailView {
     var body: some View {
         WithPerceptionTracking {
-            ScrollView {
+            ScrollView(showsIndicators: false) {
                 VStack(spacing: 24) {
                     header
                     scrollObservableView
                     LazyVStack(spacing: 0, pinnedViews: [.sectionHeaders]) {
                         Section {
                             contentScrollView
+                                .padding(.horizontal, 20)
                         } header: {
                             VStack(spacing: 24) {
-                                PokitDivider().padding(.horizontal, -20)
+                                PokitDivider()
                                 filterHeader
+                                    .padding(.horizontal, 20)
                             }
                             .padding(.bottom, 16)
                             .background(.white)
@@ -60,7 +62,6 @@ public extension CategoryDetailView {
                     isSticky = false
                 }
             })
-            .padding(.horizontal, 20)
             .padding(.top, 12)
             .pokitNavigationBar { navigationBar }
             .overlay(
