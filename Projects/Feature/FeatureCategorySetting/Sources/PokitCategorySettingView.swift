@@ -203,7 +203,7 @@ private extension PokitCategorySettingView {
     var saveButton: some View {
         PokitBottomButton(
             "저장하기",
-            state: !store.categoryName.isEmpty && store.selectedProfile != nil
+            state: store.saveButtonEnabled
             ? .filled(.primary)
             : .disable,
             action: { send(.저장_버튼_눌렀을때) }

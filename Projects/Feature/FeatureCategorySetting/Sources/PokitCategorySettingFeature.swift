@@ -51,6 +51,11 @@ public struct PokitCategorySettingFeature {
             get { domain.openType == .공개 ? true : false }
             set { domain.openType = newValue ? .공개 : .비공개 }
         }
+        var saveButtonEnabled: Bool {
+            !categoryName.isEmpty
+            && selectedProfile != nil
+            && keywordSelectType != .normal
+        }
         
         let type: SettingType
         var keywordSelectType: KeywordSelectType = .normal
