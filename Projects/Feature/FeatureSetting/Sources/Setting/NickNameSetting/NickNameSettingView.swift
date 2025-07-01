@@ -51,6 +51,7 @@ public extension NickNameSettingView {
             .padding(.horizontal, 20)
             .padding(.top, 16)
             .pokitNavigationBar { navigationBar }
+            .dismissKeyboard(focused: $isFocused)
             .sheet(isPresented: $store.isProfileSheetPresented) {
                 PokitProfileBottomSheet(
                     selectedImage: store.selectedProfile,

@@ -60,6 +60,7 @@ public extension RegisterNicknameView {
                     }
                 }
             }
+            .dismissKeyboard(focused: $isFocused)
             .ignoresSafeArea(edges: .bottom)
             .onAppear { send(.onAppear) }
         }

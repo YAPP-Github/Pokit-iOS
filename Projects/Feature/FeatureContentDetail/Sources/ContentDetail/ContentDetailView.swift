@@ -56,6 +56,7 @@ public extension ContentDetailView {
             .overlay(if: store.linkPopup != nil, alignment: .bottom) {
                 PokitLinkPopup(type: $store.linkPopup)
             }
+            .dismissKeyboard(focused: $isFocused)
             .sheet(isPresented: $store.showAlert) {
                 PokitAlert(
                     "링크를 정말 삭제하시겠습니까?",

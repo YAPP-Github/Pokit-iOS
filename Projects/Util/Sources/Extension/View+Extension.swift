@@ -13,14 +13,10 @@ public extension View {
         focused: FocusState<Bool>.Binding
     ) -> some View {
         self
-            .overlay {
-                if focused.wrappedValue {
-                    Color.clear
-                        .contentShape(Rectangle())
-                        .onTapGesture {
-                            focused.wrappedValue = false
-                        }
-                }
+            .contentShape(Rectangle())
+            .onTapGesture {
+                guard focused.wrappedValue else { return }
+                focused.wrappedValue = false
             }
     }
     
@@ -29,14 +25,10 @@ public extension View {
         focused: FocusState<Value?>.Binding
     ) -> some View {
         self
-            .overlay {
-                if focused.wrappedValue != nil {
-                    Color.clear
-                        .contentShape(Rectangle())
-                        .onTapGesture {
-                            focused.wrappedValue = nil
-                        }
-                }
+            .contentShape(Rectangle())
+            .onTapGesture {
+                guard focused.wrappedValue != nil else { return }
+                focused.wrappedValue = nil
             }
     }
     

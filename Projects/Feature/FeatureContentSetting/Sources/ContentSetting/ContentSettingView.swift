@@ -71,6 +71,7 @@ public extension ContentSettingView {
                 .padding(.bottom, 36)
             }
             .pokitNavigationBar { navigationBar }
+            .dismissKeyboard(focused: $focusedType)
             .ignoresSafeArea(edges: focusedType == nil ? .bottom : [])
             .onAppear { send(.뷰가_나타났을때) }
         }

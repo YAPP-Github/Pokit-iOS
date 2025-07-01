@@ -62,6 +62,7 @@ public extension PokitCategorySettingView {
                 )
             }
             .ignoresSafeArea(.container, edges: .bottom)
+            .dismissKeyboard(focused: $isFocused)
             .task { await send(.뷰가_나타났을때).finish() }
         }
     }

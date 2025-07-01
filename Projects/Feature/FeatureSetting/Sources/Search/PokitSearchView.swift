@@ -16,7 +16,7 @@ public struct PokitSearchView: View {
     @Perception.Bindable
     public var store: StoreOf<PokitSearchFeature>
     @FocusState
-        private var focused: Bool
+    private var focused: Bool
     
     /// - Initializer
     public init(store: StoreOf<PokitSearchFeature>) {
@@ -43,6 +43,7 @@ public extension PokitSearchView {
             .background(.pokit(.bg(.base)))
             .ignoresSafeArea(edges: .bottom)
             .navigationBarBackButtonHidden(true)
+            .dismissKeyboard(focused: $focused)
             .sheet(
                 item: $store.scope(
                     state: \.filterBottomSheet,
