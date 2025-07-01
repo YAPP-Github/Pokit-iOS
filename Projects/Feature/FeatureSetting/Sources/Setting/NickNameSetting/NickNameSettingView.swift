@@ -127,6 +127,7 @@ private extension NickNameSettingView {
                 ),
                 shape: .rectangle,
                 state: $store.textfieldState,
+                placeholder: "닉네임을 입력해주세요.",
                 info: Constants.한글_영어_숫자_입력_문구,
                 maxLetter: 10,
                 focusState: $isFocused,
