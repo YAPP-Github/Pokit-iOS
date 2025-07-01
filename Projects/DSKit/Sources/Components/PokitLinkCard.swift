@@ -138,7 +138,7 @@ public struct PokitLinkCard<Item: PokitLinkCardItem>: View {
     
     @ViewBuilder
     private func badges() -> some View {
-        let isUnCategorized = link.categoryName == "미분류"
+        let isUnCategorized = link.categoryName == Constants.미분류
         
         HStack(spacing: 6) {
             PokitBadge(

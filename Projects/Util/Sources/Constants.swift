@@ -33,4 +33,6 @@ public enum Constants {
     public static let 한글_영어_숫자_입력_문구: String = "한글, 영어, 숫자로만 입력이 가능합니다."
     
     public static var mockImageUrl: String { "https://picsum.photos/\(Int.random(in: 150...250))" }
+    
+    public static let 미분류: String = "미분류"
 }

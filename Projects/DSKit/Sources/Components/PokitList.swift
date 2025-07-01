@@ -59,7 +59,14 @@ public struct PokitList<Item: PokitSelectItem>: View {
             action(item)
         } label: {
             HStack(spacing: 12) {
-                thumbNail(url: item.categoryImage.imageURL)
+                if item.categoryName == Constants.미분류 {
+                    Image(.image(.unpokited))
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 60, height: 60)
+                } else {
+                    thumbNail(url: item.categoryImage.imageURL)
+                }
                 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(item.categoryName)
