@@ -39,12 +39,10 @@ public extension PokitCategorySettingView {
                 Spacer()
             }
             .padding(.top, 16)
+            .padding(.horizontal, 20)
             .overlay(alignment: .bottom) {
                 saveButton
-                    .padding(.bottom, store.isKeyboardVisible ? -26 : 0)
-                    .padding(.bottom, 36)
             }
-            .padding(.horizontal, 20)
             .padding(.top, 16)
 //            .pokitMaxWidth()
             .pokitNavigationBar { navigationBar }
@@ -209,6 +207,8 @@ private extension PokitCategorySettingView {
             : .disable,
             action: { send(.저장_버튼_눌렀을때) }
         )
+        .gradientBackground()
+        .keyboardAnchor(store.isKeyboardVisible)
     }
     /// 내포킷 Item
     struct PokitItem: View {
