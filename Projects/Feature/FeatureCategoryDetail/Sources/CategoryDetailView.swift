@@ -288,14 +288,10 @@ private extension CategoryDetailView {
         Group {
             if !store.isLoading {
                 if store.contents.isEmpty {
-                    VStack {
-                        PokitCaution(
-                            type: .포킷상세_링크없음,
-                            action: { send(.링크_추가_버튼_눌렀을때) }
-                        )
-                        
-                        Spacer()
-                    }
+                    PokitCaution(
+                        type: .포킷상세_링크없음,
+                        action: { send(.링크_추가_버튼_눌렀을때) }
+                    )
                 } else {
                     LazyVStack(spacing: 0) {
                         ForEach(

@@ -33,11 +33,7 @@ public struct PokitList<Item: PokitSelectItem>: View {
     
     public var body: some View {
         if list.isEmpty {
-            VStack {
-                PokitCaution(type: .카테고리없음)
-                
-                Spacer()
-            }
+            PokitCaution(type: .카테고리없음)
         } else {
             ScrollView {
                 VStack(spacing: 0) {

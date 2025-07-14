@@ -121,34 +121,28 @@ private extension PokitRootView {
         Group {
             if store.folderType == .folder(.포킷) {
                 pokitView
+                    .padding(.top, 20)
             } else {
                 unclassifiedView
             }
         }
-        .padding(.top, 20)
         .scrollIndicators(.hidden)
         .animation(.pokitDissolve, value: store.folderType)
     }
 
+    @ViewBuilder
     var pokitView: some View {
-        Group {
-            if let categories = store.categories {
-                if categories.isEmpty {
-                    VStack {
-                        PokitCaution(
-                            type: .카테고리없음,
-                            action: { send(.포킷추가_버튼_눌렀을때) }
-                        )
-                        .padding(.top, 36)
-
-                        Spacer()
-                    }
-                } else {
-                    pokitList(categories)
-                }
+        if let categories = store.categories {
+            if categories.isEmpty {
+                PokitCaution(
+                    type: .카테고리없음,
+                    action: { send(.포킷추가_버튼_눌렀을때) }
+                )
             } else {
-                PokitLoading()
+                pokitList(categories)
             }
+        } else {
+            PokitLoading()
         }
     }
 
@@ -183,25 +177,20 @@ private extension PokitRootView {
         }
     }
 
+    @ViewBuilder
     var unclassifiedView: some View {
-        Group {
-            if !store.isLoading {
-                if store.contents.isEmpty {
-                    VStack {
-                        PokitCaution(
-                            type: .미분류_링크없음,
-                            action: { send(.링크추가_버튼_눌렀을때) }
-                        )
-                        .padding(.top, 36)
-
-                        Spacer()
-                    }
-                } else {
-                    unclassifiedList
-                }
+        if !store.isLoading {
+            if store.contents.isEmpty {
+                PokitCaution(
+                    type: .미분류_링크없음,
+                    action: { send(.링크추가_버튼_눌렀을때) }
+                )
             } else {
-                PokitLoading()
+                unclassifiedList
+                    .padding(.top, 20)
             }
+        } else {
+            PokitLoading()
         }
     }
 

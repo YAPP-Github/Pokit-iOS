@@ -164,21 +164,13 @@ private extension RecommendView {
     var list: some View {
         if let recommendedList = store.recommendedList {
             if recommendedList.isEmpty {
-                empty
+                PokitCaution(type: .추천_링크없음)
             } else {
                 listContent(recommendedList)
             }
         } else {
             PokitLoading()
         }
-    }
-    
-    @ViewBuilder
-    var empty: some View {
-        PokitCaution(type: .추천_링크없음)
-            .padding(.top, 100)
-        
-        Spacer()
     }
     
     @ViewBuilder

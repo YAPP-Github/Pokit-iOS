@@ -128,6 +128,9 @@ public struct PokitCaution: View {
             
             Spacer()
         }
+        .padding(.bottom, 80)
+        .frame(maxHeight: .infinity)
+        .padding(.bottom, 92)
     }
 }
 
