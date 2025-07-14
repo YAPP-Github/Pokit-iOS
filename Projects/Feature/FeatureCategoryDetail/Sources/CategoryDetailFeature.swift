@@ -198,8 +198,10 @@ private extension CategoryDetailFeature {
         case let .분류_버튼_눌렀을때(type):
             if type == .즐겨찾기 {
                 state.domain.condition.isFavoriteFlitered.toggle()
+                state.domain.condition.isUnreadFlitered = !state.domain.condition.isFavoriteFlitered
             } else {
                 state.domain.condition.isUnreadFlitered.toggle()
+                state.domain.condition.isFavoriteFlitered = !state.domain.condition.isUnreadFlitered
             }
             return .concatenate(
                 .send(.inner(.pagenation_초기화), animation: .pokitDissolve),
