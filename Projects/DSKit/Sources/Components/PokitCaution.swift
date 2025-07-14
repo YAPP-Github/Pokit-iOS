@@ -65,7 +65,7 @@ public enum CautionType {
         case .알림없음:
             return "리마인드 알림을 설정하세요"
         case .추천_링크없음:
-            return ""
+            return "다른 사용자들이 링크를 저장하면\n추천해드릴게요"
         }
     }
     

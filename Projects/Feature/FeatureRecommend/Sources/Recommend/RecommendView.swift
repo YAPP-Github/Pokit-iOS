@@ -46,10 +46,12 @@ public extension RecommendView {
             .task { await send(.onAppear).finish() }
             .sheet(isPresented: $store.showKeywordSheet) {
                 RecommendKeywordBottomSheet(
-                    selectedInterests: $store.selectedInterestList,
-                    interests: store.interests,
-                    action: { send(.키워드_선택_버튼_눌렀을때) }
+                    selectedInterests: store.selectedInterestList,
+                    interests: store.interests
                 )
+                .onSave { interests in
+                    send(.키워드_선택_버튼_눌렀을때(interests))
+                }
             }
             .sheet(item: $store.reportContent) { content in
                 PokitAlert(

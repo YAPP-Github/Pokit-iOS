@@ -12,22 +12,31 @@ import DSKit
 import Util
 
 struct RecommendKeywordBottomSheet: View {
-    @Binding
+    @State
     private var selectedInterests: Set<BaseInterest>
     @State
     private var height: CGFloat = 0
     
     private let interests: [BaseInterest]
-    private let action: () -> Void
+    private let onSave: ((Set<BaseInterest>) -> Void)?
+    
+    private init(
+        selectedInterests: Set<BaseInterest>,
+        interests: [BaseInterest],
+        onSave: ((Set<BaseInterest>) -> Void)?
+    ) {
+        self._selectedInterests = State(wrappedValue: selectedInterests)
+        self.interests = interests
+        self.onSave = onSave
+    }
     
     init(
-        selectedInterests: Binding<Set<BaseInterest>>,
-        interests: [BaseInterest],
-        action: @escaping () -> Void
+        selectedInterests: Set<BaseInterest>,
+        interests: [BaseInterest]
     ) {
-        self._selectedInterests = selectedInterests
+        self._selectedInterests = State(wrappedValue: selectedInterests)
         self.interests = interests
-        self.action = action
+        self.onSave = nil
     }
     
     
@@ -44,7 +53,7 @@ struct RecommendKeywordBottomSheet: View {
             PokitBottomButton(
                 "키워드 선택",
                 state: selectedInterests.count == 0 ? .disable : .filled(.primary),
-                action: action
+                action: { onSave?(selectedInterests) }
             )
             .pokitMaxWidth()
         }
@@ -61,6 +70,14 @@ struct RecommendKeywordBottomSheet: View {
         }
         .presentationDetents([.height(height)])
         .ignoresSafeArea(edges: [.bottom, .top])
+    }
+    
+    func onSave(_ perform: @escaping (Set<BaseInterest>) -> Void) -> Self {
+        RecommendKeywordBottomSheet(
+            selectedInterests: self.selectedInterests,
+            interests: self.interests,
+            onSave: perform
+        )
     }
 }
 
@@ -114,7 +131,7 @@ extension RecommendKeywordBottomSheet {
     var selectedInterests = Set<BaseInterest>()
     
     RecommendKeywordBottomSheet(
-        selectedInterests: $selectedInterests,
+        selectedInterests: selectedInterests,
         interests: []
-    ) {  }
+    )
 }
