@@ -101,7 +101,7 @@ public struct PokitCaution: View {
                     .resizable()
                     .aspectRatio(contentMode: .fill)
                     .frame(width: 180, height: 180)
-                    .padding(.bottom, 16)
+                    .padding(.bottom, 8)
                 
                 Text(type.title)
                     .pokitFont(.title2)
@@ -109,9 +109,10 @@ public struct PokitCaution: View {
                     .padding(.bottom, 8)
                 
                 Text(type.message)
+                    .multilineTextAlignment(.center)
                     .pokitFont(.b2(.m))
                     .foregroundStyle(.pokit(.text(.secondary)))
-                    .padding(.bottom, 16)
+                    .padding(.bottom, 20)
                 
                 if let action,
                    let actionTitle = type.actionTitle {
