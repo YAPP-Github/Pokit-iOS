@@ -44,9 +44,7 @@ public extension NickNameSettingView {
                     state: store.buttonState,
                     action: { send(.저장_버튼_눌렀을때) }
                 )
-                .padding(.bottom, store.isKeyboardVisible ? -26 : 0)
-                .padding(.bottom, 36)
-//                .setKeyboardHeight()
+                .keyboardAnchor(store.isKeyboardVisible)
             }
             .padding(.horizontal, 20)
             .padding(.top, 16)

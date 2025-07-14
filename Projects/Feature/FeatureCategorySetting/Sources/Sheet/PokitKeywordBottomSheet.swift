@@ -67,7 +67,6 @@ public struct PokitKeywordBottomSheet: View {
                     state: keywordSheetBottomButtonState,
                     action: { action(selectedKeywordType) }
                 )
-                .padding(.top, 16)
             }
             .padding(.horizontal, 20)
             .padding(.top, 48)
