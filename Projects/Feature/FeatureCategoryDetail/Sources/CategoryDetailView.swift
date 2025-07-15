@@ -30,17 +30,19 @@ public struct CategoryDetailView: View {
 public extension CategoryDetailView {
     var body: some View {
         WithPerceptionTracking {
-            ScrollView {
+            ScrollView(showsIndicators: false) {
                 VStack(spacing: 24) {
                     header
                     scrollObservableView
                     LazyVStack(spacing: 0, pinnedViews: [.sectionHeaders]) {
                         Section {
                             contentScrollView
+                                .padding(.horizontal, 20)
                         } header: {
                             VStack(spacing: 24) {
-                                PokitDivider().padding(.horizontal, -20)
+                                PokitDivider()
                                 filterHeader
+                                    .padding(.horizontal, 20)
                             }
                             .padding(.bottom, 16)
                             .background(.white)
@@ -60,27 +62,26 @@ public extension CategoryDetailView {
                     isSticky = false
                 }
             })
-            .padding(.horizontal, 20)
             .padding(.top, 12)
             .pokitNavigationBar { navigationBar }
-            //TODO: overlay(condition) merge 시 수정
-            .overlay(alignment: .bottomTrailing) {
-                if !store.contents.isEmpty {
-                    Button(action: { send(.링크_추가_버튼_눌렀을때) }) {
-                        Image(.icon(.plus))
-                            .resizable()
-                            .frame(width: 36, height: 36)
-                            .padding(12)
-                            .foregroundStyle(.pokit(.icon(.inverseWh)))
-                            .background {
-                                RoundedRectangle(cornerRadius: 9999, style: .continuous)
-                                    .fill(.pokit(.bg(.brand)))
-                            }
-                            .frame(width: 60, height: 60)
-                    }
-                    .padding(.trailing, 20)
-                    .padding(.bottom, 39)
+            .overlay(
+                if: store.isContentsNotEmpty,
+                alignment: .bottomTrailing
+            ) {
+                Button(action: { send(.링크_추가_버튼_눌렀을때) }) {
+                    Image(.icon(.plus))
+                        .resizable()
+                        .frame(width: 36, height: 36)
+                        .padding(12)
+                        .foregroundStyle(.pokit(.icon(.inverseWh)))
+                        .background {
+                            RoundedRectangle(cornerRadius: 9999, style: .continuous)
+                                .fill(.pokit(.bg(.brand)))
+                        }
+                        .frame(width: 60, height: 60)
                 }
+                .padding(.trailing, 20)
+                .padding(.bottom, 39)
             }
             .ignoresSafeArea(edges: .bottom)
             .sheet(isPresented: $store.isCategorySheetPresented) {
@@ -213,14 +214,15 @@ private extension CategoryDetailView {
     @ViewBuilder
     var filterHeader: some View {
         let isFavoriteCategory = store.isFavoriteCategory
-        if !store.contents.isEmpty {
+        let favoriteContentsCount = store.contents.filter { $0.content.isFavorite ?? false }.count
+        if store.isContentsNotEmpty {
             HStack(spacing: isFavoriteCategory ? 2 : 8) {
                 if isFavoriteCategory {
                     Image(.icon(.link))
                         .resizable()
                         .frame(width: 16, height: 16)
                         .foregroundStyle(.pokit(.icon(.secondary)))
-                    Text("\(store.contents.count)개")
+                    Text("\(favoriteContentsCount)개")
                         .foregroundStyle(.pokit(.text(.tertiary)))
                         .pokitFont(.b2(.m))
                 } else {
@@ -258,7 +260,7 @@ private extension CategoryDetailView {
     var contentScrollView: some View {
         Group {
             if !store.isLoading {
-                if store.contents.isEmpty {
+                if !store.isContentsNotEmpty {
                     VStack {
                         PokitCaution(
                             type: .포킷상세_링크없음,
@@ -275,12 +277,23 @@ private extension CategoryDetailView {
                             let isFirst = store.state.id == self.store.contents.first?.id
                             let isLast = store.state.id == self.store.contents.last?.id
                             
-                            ContentCardView(
-                                store: store,
-                                type: .linkList,
-                                isFirst: isFirst,
-                                isLast: isLast
-                            )
+                            if !self.store.isFavoriteCategory {
+                                ContentCardView(
+                                    store: store,
+                                    type: .linkList,
+                                    isFirst: isFirst,
+                                    isLast: isLast
+                                )
+                            } else {
+                                if store.content.isFavorite == true {
+                                    ContentCardView(
+                                        store: store,
+                                        type: .linkList,
+                                        isFirst: isFirst,
+                                        isLast: isLast
+                                    )
+                                }
+                            }
                         }
                         
                         if store.hasNext {
