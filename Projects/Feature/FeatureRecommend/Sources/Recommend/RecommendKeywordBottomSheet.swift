@@ -51,7 +51,7 @@ struct RecommendKeywordBottomSheet: View {
                 .padding(.bottom, 40)
             
             PokitBottomButton(
-                "키워드 선택",
+                "키워드 저장",
                 state: selectedInterests.count == 0 ? .disable : .filled(.primary),
                 action: { onSave?(selectedInterests) }
             )
