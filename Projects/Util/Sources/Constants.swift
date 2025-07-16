@@ -8,7 +8,7 @@
 import Foundation
 
 public enum Constants {
-    public static let serverURL: URL = URL(string: "https://pokit.site")!
+    public static let serverURL: URL = URL(string: "https://pokit.cloud")!
     public static let userPath: String = "/api/v1/user"
     public static let authPath: String = "/api/v1/auth"
     public static let categoryPath: String = "/api/v1/category"
