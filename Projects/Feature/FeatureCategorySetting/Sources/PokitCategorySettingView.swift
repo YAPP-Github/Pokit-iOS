@@ -39,12 +39,10 @@ public extension PokitCategorySettingView {
                 Spacer()
             }
             .padding(.top, 16)
+            .padding(.horizontal, 20)
             .overlay(alignment: .bottom) {
                 saveButton
-                    .padding(.bottom, store.isKeyboardVisible ? -26 : 0)
-                    .padding(.bottom, 36)
             }
-            .padding(.horizontal, 20)
             .padding(.top, 16)
 //            .pokitMaxWidth()
             .pokitNavigationBar { navigationBar }
@@ -62,6 +60,7 @@ public extension PokitCategorySettingView {
                 )
             }
             .ignoresSafeArea(.container, edges: .bottom)
+            .dismissKeyboard(focused: $isFocused)
             .task { await send(.뷰가_나타났을때).finish() }
         }
     }
@@ -203,11 +202,13 @@ private extension PokitCategorySettingView {
     var saveButton: some View {
         PokitBottomButton(
             "저장하기",
-            state: !store.categoryName.isEmpty && store.selectedProfile != nil
+            state: store.saveButtonEnabled
             ? .filled(.primary)
             : .disable,
             action: { send(.저장_버튼_눌렀을때) }
         )
+        .gradientBackground()
+        .keyboardAnchor(store.isKeyboardVisible)
     }
     /// 내포킷 Item
     struct PokitItem: View {

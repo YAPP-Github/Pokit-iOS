@@ -8,21 +8,25 @@
 import SwiftUI
 
 import FeatureContentSetting
+import FeatureIntro
 
 @main
 struct FeatureContentSettingDemoApp: App {
     
     var body: some Scene {
         WindowGroup {
-            NavigationStack {
-                ContentSettingView(
-                    store: .init(
-                        initialState: ContentSettingFeature.State(
-                            contentId: 4
-                        ),
-                        reducer: { ContentSettingFeature()._printChanges() }
+            DemoView(store: .init(
+                initialState: DemoFeature.State(),
+                reducer: { DemoFeature() }
+            )) {
+                NavigationStack {
+                    ContentSettingView(
+                        store: .init(
+                            initialState: ContentSettingFeature.State(),
+                            reducer: { ContentSettingFeature()._printChanges() }
+                        )
                     )
-                )
+                }
             }
         }
     }

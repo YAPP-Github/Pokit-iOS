@@ -113,7 +113,6 @@ private extension CategoryFilterSheet {
                 )
                 }
             )
-            .padding(.bottom, 36)
         }
         .padding(.horizontal, 20)
     }

@@ -90,12 +90,7 @@ private extension CategorySharingView {
         Group {
             if !store.isLoading {
                 if store.contents.isEmpty {
-                    VStack {
-                        PokitCaution(type: .링크없음)
-                        .padding(.top, 20)
-                        
-                        Spacer()
-                    }
+                    PokitCaution(type: .링크없음)
                 } else {
                     ScrollView(showsIndicators: false) {
                         LazyVStack(spacing: 0) {

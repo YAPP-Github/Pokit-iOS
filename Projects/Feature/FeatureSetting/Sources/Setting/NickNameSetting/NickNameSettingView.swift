@@ -44,13 +44,12 @@ public extension NickNameSettingView {
                     state: store.buttonState,
                     action: { send(.저장_버튼_눌렀을때) }
                 )
-                .padding(.bottom, store.isKeyboardVisible ? -26 : 0)
-                .padding(.bottom, 36)
-//                .setKeyboardHeight()
+                .keyboardAnchor(store.isKeyboardVisible)
             }
             .padding(.horizontal, 20)
             .padding(.top, 16)
             .pokitNavigationBar { navigationBar }
+            .dismissKeyboard(focused: $isFocused)
             .sheet(isPresented: $store.isProfileSheetPresented) {
                 PokitProfileBottomSheet(
                     selectedImage: store.selectedProfile,
@@ -126,6 +125,7 @@ private extension NickNameSettingView {
                 ),
                 shape: .rectangle,
                 state: $store.textfieldState,
+                placeholder: "닉네임을 입력해주세요.",
                 info: Constants.한글_영어_숫자_입력_문구,
                 maxLetter: 10,
                 focusState: $isFocused,

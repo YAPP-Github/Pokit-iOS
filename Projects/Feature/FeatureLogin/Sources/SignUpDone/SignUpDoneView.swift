@@ -45,7 +45,6 @@ public extension SignUpDoneView {
                 )
                 .pokitMaxWidth()
                 .padding(.horizontal, 20)
-                .padding(.bottom, 36)
                 .background(.pokit(.bg(.base)))
             }
             .ignoresSafeArea(edges: .bottom)

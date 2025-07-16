@@ -9,19 +9,25 @@ import SwiftUI
 
 import ComposableArchitecture
 import FeatureCategorySetting
+import FeatureIntro
 import Util
 
 @main
 struct FeatureCategorySettingDemoApp: App {
     var body: some Scene {
         WindowGroup {
-            NavigationStack {
-                PokitCategorySettingView(
-                    store: Store(
-                        initialState: .init(type: .추가),
-                        reducer: { PokitCategorySettingFeature() }
+            DemoView(store: .init(
+                initialState: DemoFeature.State(),
+                reducer: { DemoFeature() }
+            )) {
+                NavigationStack {
+                    PokitCategorySettingView(
+                        store: Store(
+                            initialState: .init(type: .추가),
+                            reducer: { PokitCategorySettingFeature() }
+                        )
                     )
-                )
+                }
             }
         }
     }

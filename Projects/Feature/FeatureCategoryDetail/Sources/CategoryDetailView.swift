@@ -226,24 +226,9 @@ private extension CategoryDetailView {
                         .foregroundStyle(.pokit(.text(.tertiary)))
                         .pokitFont(.b2(.m))
                 } else {
-                    PokitTextButton(
-                        "즐겨찾기",
-                        state: store.isFavoriteFiltered
-                        ? .filled(.primary)
-                        : .default(.secondary),
-                        size: .small,
-                        shape: .round,
-                        action: { send(.분류_버튼_눌렀을때(.즐겨찾기)) }
-                    )
-                    PokitTextButton(
-                        "안읽음",
-                        state: store.isUnreadFiltered
-                        ? .filled(.primary)
-                        : .default(.secondary),
-                        size: .small,
-                        shape: .round,
-                        action: { send(.분류_버튼_눌렀을때(.안읽음)) }
-                    )
+                    favoriteButton
+                    
+                    unreadButton
                 }
                 
                 Spacer()
@@ -257,18 +242,58 @@ private extension CategoryDetailView {
         }
     }
     
+    @ViewBuilder
+    var favoriteButton: some View {
+        if store.isFavoriteFiltered {
+            PokitIconRButton(
+                "즐겨찾기",
+                .icon(.x),
+                state: .filled(.primary),
+                size: .small,
+                shape: .round,
+                action: { send(.분류_버튼_눌렀을때(.즐겨찾기)) }
+            )
+        } else {
+            PokitTextButton(
+                "즐겨찾기",
+                state: .default(.secondary),
+                size: .small,
+                shape: .round,
+                action: { send(.분류_버튼_눌렀을때(.즐겨찾기)) }
+            )
+        }
+    }
+    
+    @ViewBuilder
+    var unreadButton: some View {
+        if store.isUnreadFiltered {
+            PokitIconRButton(
+                "안읽음",
+                .icon(.x),
+                state: .filled(.primary),
+                size: .small,
+                shape: .round,
+                action: { send(.분류_버튼_눌렀을때(.안읽음)) }
+            )
+        } else {
+            PokitTextButton(
+                "안읽음",
+                state: .default(.secondary),
+                size: .small,
+                shape: .round,
+                action: { send(.분류_버튼_눌렀을때(.안읽음)) }
+            )
+        }
+    }
+    
     var contentScrollView: some View {
         Group {
             if !store.isLoading {
-                if !store.isContentsNotEmpty {
-                    VStack {
-                        PokitCaution(
-                            type: .포킷상세_링크없음,
-                            action: { send(.링크_추가_버튼_눌렀을때) }
-                        )
-                        
-                        Spacer()
-                    }
+                if store.contents.isEmpty {
+                    PokitCaution(
+                        type: .포킷상세_링크없음,
+                        action: { send(.링크_추가_버튼_눌렀을때) }
+                    )
                 } else {
                     LazyVStack(spacing: 0) {
                         ForEach(

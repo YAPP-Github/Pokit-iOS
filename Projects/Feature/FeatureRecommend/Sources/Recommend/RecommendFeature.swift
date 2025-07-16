@@ -83,7 +83,7 @@ public struct RecommendFeature {
             case 전체보기_버튼_눌렀을때(ScrollViewProxy)
             case 관심사_버튼_눌렀을때(BaseInterest, ScrollViewProxy)
             case 관심사_편집_버튼_눌렀을때
-            case 키워드_선택_버튼_눌렀을때
+            case 키워드_선택_버튼_눌렀을때(Set<BaseInterest>)
             case 링크_공유_완료되었을때
             case 검색_버튼_눌렀을때
             case 알림_버튼_눌렀을때
@@ -215,9 +215,10 @@ private extension RecommendFeature {
             return .run { _ in await openURL(url) }
         case .관심사_편집_버튼_눌렀을때:
             return shared(.async(.관심사_조회_API), state: &state)
-        case .키워드_선택_버튼_눌렀을때:
+        case let .키워드_선택_버튼_눌렀을때(interests):
             state.showKeywordSheet = false
             state.selectedInterest = nil
+            state.selectedInterestList = interests
             return .run { [ interests = state.selectedInterestList ] send in
                 let request = InterestRequest(interests: interests.map(\.description))
                 try await userClient.관심사_수정(model: request)
@@ -271,12 +272,12 @@ private extension RecommendFeature {
             /// [1]. `미분류`에 해당하는 인덱스 번호와 항목을 체크, 없다면 목록갱신이 불가함
             guard
                 let unclassifiedItemIdx = categoryList.data?.firstIndex(where: {
-                    $0.categoryName == "미분류"
+                    $0.categoryName == Constants.미분류
                 })
             else { return .none }
             guard
                 let unclassifiedItem = categoryList.data?.first(where: {
-                    $0.categoryName == "미분류"
+                    $0.categoryName == Constants.미분류
                 })
             else { return .none }
             

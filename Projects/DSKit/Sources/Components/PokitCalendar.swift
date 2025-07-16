@@ -181,6 +181,7 @@ public struct PokitCalendar: View {
         let isSelected = isStartDate || isEndDate
         let backgoundColor: Color = .pokit(.bg(.brand)).opacity(isSelected ? 1 : isContains ? 0.2 : 0)
         let day = calendar.component(.day, from: date)
+        let isFuture = date > .now
         
         Button {
             dayButtonTapped(
@@ -192,13 +193,14 @@ public struct PokitCalendar: View {
         } label: {
             Text("\(day)")
                 .pokitFont(.b1(.m))
-                .foregroundStyle(isCurrentMonth ? textColor : .pokit(.text(.tertiary)))
+                .foregroundStyle(isCurrentMonth && !isFuture ? textColor : .pokit(.text(.tertiary)))
                 .frame(width: width, height: width)
                 .background {
                     RoundedRectangle(cornerRadius: 8, style: .continuous)
                         .fill(backgoundColor)
                 }
         }
+        .disabled(isFuture)
     }
     
     private func dates(_ date: Date) -> [Date] {

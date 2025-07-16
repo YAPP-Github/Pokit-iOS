@@ -327,12 +327,12 @@ private extension ContentSettingFeature {
             /// [1]. `미분류`에 해당하는 인덱스 번호와 항목을 체크, 없다면 목록갱신이 불가함
             guard
                 let unclassifiedItemIdx = categoryList.data?.firstIndex(where: {
-                    $0.categoryName == "미분류"
+                    $0.categoryName == Constants.미분류
                 })
             else { return .none }
             guard
                 let unclassifiedItem = categoryList.data?.first(where: {
-                    $0.categoryName == "미분류"
+                    $0.categoryName == Constants.미분류
                 })
             else { return .none }
             

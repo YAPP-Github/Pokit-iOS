@@ -250,7 +250,7 @@ private extension MainTabFeature {
             state.linkPopup = type
             return .none
         case let .카테고리상세_이동(category):
-            if category.categoryName == "미분류" {
+            if category.categoryName == Constants.미분류 {
                 state.selectedTab = .pokit
                 state.path.removeAll()
                 return .send(.pokit(.delegate(.미분류_카테고리_활성화)))

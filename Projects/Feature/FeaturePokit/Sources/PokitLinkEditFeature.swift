@@ -257,10 +257,12 @@ private extension PokitLinkEditFeature {
                 
             case .전체선택_버튼_눌렀을때:
                 state.selectedItems = state.list
+                state.isActive = !state.selectedItems.isEmpty
                 return .none
                 
             case .전체해제_버튼_눌렀을때:
                 state.selectedItems.removeAll()
+                state.isActive = !state.selectedItems.isEmpty
                 return .none
                 
             case .포킷이동_버튼_눌렀을때:

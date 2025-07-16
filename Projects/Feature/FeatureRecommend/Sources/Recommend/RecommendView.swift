@@ -46,10 +46,12 @@ public extension RecommendView {
             .task { await send(.onAppear).finish() }
             .sheet(isPresented: $store.showKeywordSheet) {
                 RecommendKeywordBottomSheet(
-                    selectedInterests: $store.selectedInterestList,
-                    interests: store.interests,
-                    action: { send(.키워드_선택_버튼_눌렀을때) }
+                    selectedInterests: store.selectedInterestList,
+                    interests: store.interests
                 )
+                .onSave { interests in
+                    send(.키워드_선택_버튼_눌렀을때(interests))
+                }
             }
             .sheet(item: $store.reportContent) { content in
                 PokitAlert(
@@ -162,21 +164,13 @@ private extension RecommendView {
     var list: some View {
         if let recommendedList = store.recommendedList {
             if recommendedList.isEmpty {
-                empty
+                PokitCaution(type: .추천_링크없음)
             } else {
                 listContent(recommendedList)
             }
         } else {
             PokitLoading()
         }
-    }
-    
-    @ViewBuilder
-    var empty: some View {
-        PokitCaution(type: .추천_링크없음)
-            .padding(.top, 100)
-        
-        Spacer()
     }
     
     @ViewBuilder

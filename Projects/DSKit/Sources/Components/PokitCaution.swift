@@ -65,7 +65,7 @@ public enum CautionType {
         case .알림없음:
             return "리마인드 알림을 설정하세요"
         case .추천_링크없음:
-            return ""
+            return "다른 사용자들이 링크를 저장하면\n추천해드릴게요"
         }
     }
     
@@ -101,7 +101,7 @@ public struct PokitCaution: View {
                     .resizable()
                     .aspectRatio(contentMode: .fill)
                     .frame(width: 180, height: 180)
-                    .padding(.bottom, 16)
+                    .padding(.bottom, 8)
                 
                 Text(type.title)
                     .pokitFont(.title2)
@@ -109,9 +109,10 @@ public struct PokitCaution: View {
                     .padding(.bottom, 8)
                 
                 Text(type.message)
+                    .multilineTextAlignment(.center)
                     .pokitFont(.b2(.m))
                     .foregroundStyle(.pokit(.text(.secondary)))
-                    .padding(.bottom, 16)
+                    .padding(.bottom, 20)
                 
                 if let action,
                    let actionTitle = type.actionTitle {
@@ -127,6 +128,9 @@ public struct PokitCaution: View {
             
             Spacer()
         }
+        .padding(.bottom, 80)
+        .frame(maxHeight: .infinity)
+        .padding(.bottom, 92)
     }
 }
 
