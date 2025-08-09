@@ -70,6 +70,7 @@ struct RecommendKeywordBottomSheet: View {
         }
         .presentationDetents([.height(height)])
         .ignoresSafeArea(edges: [.bottom, .top])
+        .onDisappear { onSave?(selectedInterests) }
     }
     
     func onSave(_ perform: @escaping (Set<BaseInterest>) -> Void) -> Self {
