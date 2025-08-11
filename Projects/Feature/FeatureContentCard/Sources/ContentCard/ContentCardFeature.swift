@@ -148,9 +148,8 @@ private extension ContentCardFeature {
                 return .none
             }
             return .run { send in
-                let imageURL = try await swiftSoupClient.parseOGImageURL(url)
-                guard let imageURL else { return }
-                await send(.inner(.메타데이터_조회_수행_반영(imageURL)))
+                let imageURL = try? await swiftSoupClient.parseOGImageURL(url)
+                await send(.inner(.메타데이터_조회_수행_반영(imageURL ?? Constants.기본_썸네일_주소.absoluteString)))
             }
         case .즐겨찾기_API:
             return .run { [id = state.content.id] send in

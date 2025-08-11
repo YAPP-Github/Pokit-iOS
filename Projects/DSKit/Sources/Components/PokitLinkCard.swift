@@ -175,9 +175,6 @@ public struct PokitLinkCard<Item: PokitLinkCardItem>: View {
                     image
                         .resizable()
                         .aspectRatio(contentMode: .fill)
-                } else if phase.error != nil {
-                    placeholder
-                        .onAppear { fetchMetaData?() }
                 } else {
                     placeholder
                 }
@@ -185,6 +182,10 @@ public struct PokitLinkCard<Item: PokitLinkCardItem>: View {
             .animation(.pokitDissolve, value: phase.image)
             .frame(width: 124, height: 94)
             .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+        }
+        .onCompletion { result in
+            guard case .failure(_) = result else { return }
+            fetchMetaData?()
         }
     }
     

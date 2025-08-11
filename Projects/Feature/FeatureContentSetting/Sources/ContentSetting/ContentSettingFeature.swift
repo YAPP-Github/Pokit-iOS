@@ -253,9 +253,9 @@ private extension ContentSettingFeature {
             return .none
         case .메타데이터_조회_수행(url: let url):
             return .run { send in
-                async let title = swiftSoup.parseOGTitle(url)
-                async let imageURL = swiftSoup.parseOGImageURL(url)
-                try await send(
+                async let title = try? swiftSoup.parseOGTitle(url)
+                async let imageURL = try? swiftSoup.parseOGImageURL(url)
+                await send(
                     .inner(.메타데이텨_조회_반영(title: title, imageURL: imageURL)),
                     animation: .pokitDissolve
                 )
