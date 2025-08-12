@@ -260,7 +260,7 @@ private extension RecommendFeature {
             return .none
         case let .관심사_조회_API_반영(interests):
             state.domain.interests = interests.filter({ interest in
-                interest.code != .default
+                interest.code != "default"
             })
             state.showKeywordSheet = true
             return .none
