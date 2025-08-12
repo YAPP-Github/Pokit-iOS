@@ -12,7 +12,7 @@ import CoreKit
 public extension InterestResponse {
     func toDomian() -> BaseInterest {
         return BaseInterest(
-            code: BaseInterest.Code(rawValue: self.code) ?? .default,
+            code: self.code,
             description: self.description
         )
     }

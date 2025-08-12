@@ -120,6 +120,7 @@ public struct RecommendFeature {
             case 알림_버튼_눌렀을때
             case 컨텐츠_신고_API_반영
             case 포킷_추가하기_버튼_눌렀을때
+            case 포킷_추가하기_완료
         }
     }
     
@@ -259,7 +260,7 @@ private extension RecommendFeature {
             return .none
         case let .관심사_조회_API_반영(interests):
             state.domain.interests = interests.filter({ interest in
-                interest.code != .default
+                interest.code != "default"
             })
             state.showKeywordSheet = true
             return .none
@@ -371,7 +372,16 @@ private extension RecommendFeature {
     
     /// - Delegate Effect
     func handleDelegateAction(_ action: Action.DelegateAction, state: inout State) -> Effect<Action> {
-        return .none
+        switch action {
+        case .포킷_추가하기_완료:
+            guard state.addContent != nil else { return .none }
+            state.showSelectSheet = true
+            return shared(.async(.카테고리_목록_조회_API), state: &state)
+        case .저장하기_완료:
+            state.addContent = nil
+            return .none
+        default: return .none
+        }
     }
     
     /// - Shared Effect

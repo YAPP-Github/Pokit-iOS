@@ -16,6 +16,8 @@ struct RecommendKeywordBottomSheet: View {
     private var selectedInterests: Set<BaseInterest>
     @State
     private var height: CGFloat = 0
+    @State
+    private var isTouchActive: Bool = false
     
     private let interests: [BaseInterest]
     private let onSave: ((Set<BaseInterest>) -> Void)?
@@ -70,6 +72,7 @@ struct RecommendKeywordBottomSheet: View {
         }
         .presentationDetents([.height(height)])
         .ignoresSafeArea(edges: [.bottom, .top])
+        .onDisappear { onSave?(selectedInterests) }
     }
     
     func onSave(_ perform: @escaping (Set<BaseInterest>) -> Void) -> Self {
@@ -112,15 +115,24 @@ extension RecommendKeywordBottomSheet {
                     : isMaxCount ? .disable : .default(.primary),
                     size: .medium
                 ) {
+                    guard !isTouchActive else { return }
+                    
                     if isSelected {
                         selectedInterests.remove(field)
                     } else {
-                        selectedInterests.insert(field)
+                        if selectedInterests.count < 3 {
+                            selectedInterests.insert(field)
+                        }
                     }
                 }
             }
             .animation(.pokitDissolve, value: selectedInterests)
         }
+        .simultaneousGesture(
+            DragGesture(minimumDistance: 0)
+                .onChanged { _ in isTouchActive = true }
+                .onEnded { _ in isTouchActive = false }
+        )
     }
 }
 

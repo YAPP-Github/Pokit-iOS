@@ -101,7 +101,13 @@ public extension MainTabFeature {
             /// - 포킷 `추가` or `수정`이 성공적으로 `완료`되었을 때
             case .path(.element(_, action: .포킷추가및수정(.delegate(.settingSuccess)))):
                 state.path.removeLast()
-                guard let lastPath = state.path.last else { return .none }
+                guard let lastPath = state.path.last else {
+                    switch state.selectedTab {
+                    case .pokit: return .none
+                    case .recommend:
+                        return .send(.recommend(.delegate(.포킷_추가하기_완료)))
+                    }
+                }
                 switch lastPath {
                 case .링크공유:
                     state.path.removeLast()
