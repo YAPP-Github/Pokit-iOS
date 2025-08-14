@@ -8,7 +8,7 @@ import SwiftUI
 
 import ComposableArchitecture
 import FeaturePokit
-import FeatureRemind
+import FeatureRecommend
 import FeatureContentDetail
 import Domain
 import DSKit
@@ -37,7 +37,7 @@ public struct MainTabFeature {
 
         var path: StackState<MainTabPath.State> = .init()
         var pokit: PokitRootFeature.State
-        var remind: RemindFeature.State = .init()
+        var recommend: RecommendFeature.State = .init()
         @Presents var contentDetail: ContentDetailFeature.State?
         @Shared(.inMemory("SelectCategory")) var categoryId: Int?
         @Shared(.inMemory("PushTapped")) var isPushTapped: Bool = false
@@ -59,7 +59,7 @@ public struct MainTabFeature {
         /// Todo: scope로 이동
         case path(StackAction<MainTabPath.State, MainTabPath.Action>)
         case pokit(PokitRootFeature.Action)
-        case remind(RemindFeature.Action)
+        case recommend(RecommendFeature.Action)
         case contentDetail(PresentationAction<ContentDetailFeature.Action>)
 
         @CasePathable
@@ -70,6 +70,8 @@ public struct MainTabFeature {
             case onAppear
             case onOpenURL(url: URL)
             case 경고_확인버튼_클릭
+            case 검색_버튼_눌렀을때
+            case 알림_버튼_눌렀을때
         }
         public enum InnerAction: Equatable {
             case 링크추가및수정이동(contentId: Int)
@@ -129,7 +131,7 @@ public struct MainTabFeature {
             return .none
         case .pokit:
             return .none
-        case .remind:
+        case .recommend:
             return .none
         case .contentDetail:
             return .none
@@ -138,7 +140,9 @@ public struct MainTabFeature {
     /// - Reducer body
     public var body: some ReducerOf<Self> {
         Scope(state: \.pokit, action: \.pokit) { PokitRootFeature() }
-        Scope(state: \.remind, action: \.remind) { RemindFeature() }
+        Scope(state: \.recommend, action: \.recommend) {
+            RecommendFeature()
+        }
 
         BindingReducer()
         navigationReducer
@@ -198,6 +202,28 @@ private extension MainTabFeature {
         case .경고_확인버튼_클릭:
             state.error = nil
             return .run { send in await send(.inner(.errorSheetPresented(false))) }
+        case .검색_버튼_눌렀을때:
+            switch state.selectedTab {
+            case .pokit: return .none
+            case .recommend:
+                return RecommendFeature()
+                    .reduce(
+                        into: &state.recommend,
+                        action: .view(.검색_버튼_눌렀을때)
+                    )
+                    .map(Action.recommend)
+            }
+        case .알림_버튼_눌렀을때:
+            switch state.selectedTab {
+            case .pokit: return .none
+            case .recommend:
+                return RecommendFeature()
+                    .reduce(
+                        into: &state.recommend,
+                        action: .view(.알림_버튼_눌렀을때)
+                    )
+                    .map(Action.recommend)
+            }
         }
     }
     /// - Inner Effect
@@ -224,7 +250,7 @@ private extension MainTabFeature {
             state.linkPopup = type
             return .none
         case let .카테고리상세_이동(category):
-            if category.categoryName == "미분류" {
+            if category.categoryName == Constants.미분류 {
                 state.selectedTab = .pokit
                 state.path.removeAll()
                 return .send(.pokit(.delegate(.미분류_카테고리_활성화)))
@@ -270,7 +296,7 @@ private extension MainTabFeature {
             guard let category = state.categoryOfSavedContent else { return .none }
             state.categoryOfSavedContent = nil
             return .send(.inner(.카테고리상세_이동(category: category)))
-        case .error, .text, .warning, .none:
+        case .error, .text, .warning, .report, .none:
             return .none
         }
     }

@@ -61,7 +61,7 @@ public extension MainTabFeature {
             switch action {
             /// - 네비게이션 바 `알림`버튼 눌렀을 때
             case .pokit(.delegate(.alertButtonTapped)),
-                 .remind(.delegate(.alertButtonTapped)),
+                 .recommend(.delegate(.알림_버튼_눌렀을때)),
                  .delegate(.알림함이동):
                 state.isPushTapped = false
                 state.path.append(.알림함(PokitAlertBoxFeature.State()))
@@ -69,7 +69,7 @@ public extension MainTabFeature {
 
             /// - 네비게이션 바 `검색`버튼 눌렀을 때
             case .pokit(.delegate(.searchButtonTapped)),
-                 .remind(.delegate(.searchButtonTapped)):
+                 .recommend(.delegate(.검색_버튼_눌렀을때)):
                 state.path.append(.검색(PokitSearchFeature.State()))
                 return .none
 
@@ -83,23 +83,31 @@ public extension MainTabFeature {
                  let .path(.element(_, action: .카테고리상세(.delegate(.포킷수정(category))))):
                 state.path.append(.포킷추가및수정(PokitCategorySettingFeature.State(
                     type: .수정,
-                    categoryId: category.id,
-                    categoryImage: category.categoryImage,
-                    categoryName: category.categoryName
+                    category: category
                 )))
                 return .none
+                
+            case .recommend(.delegate(.컨텐츠_신고_API_반영)):
+                return .send(.inner(.링크팝업_활성화(.report(title: "신고가 완료되었습니다"))))
 
             /// - 포킷 `추가` 버튼 눌렀을 때
             case .delegate(.포킷추가하기),
                  .path(.element(_, action: .링크추가및수정(.delegate(.포킷추가하기)))),
-                 .pokit(.delegate(.포킷추가_버튼_눌렀을때)):
+                 .pokit(.delegate(.포킷추가_버튼_눌렀을때)),
+                 .recommend(.delegate(.포킷_추가하기_버튼_눌렀을때)):
                 state.path.append(.포킷추가및수정(PokitCategorySettingFeature.State(type: .추가)))
                 return .none
 
             /// - 포킷 `추가` or `수정`이 성공적으로 `완료`되었을 때
             case .path(.element(_, action: .포킷추가및수정(.delegate(.settingSuccess)))):
                 state.path.removeLast()
-                guard let lastPath = state.path.last else { return .none }
+                guard let lastPath = state.path.last else {
+                    switch state.selectedTab {
+                    case .pokit: return .none
+                    case .recommend:
+                        return .send(.recommend(.delegate(.포킷_추가하기_완료)))
+                    }
+                }
                 switch lastPath {
                 case .링크공유:
                     state.path.removeLast()
@@ -120,7 +128,6 @@ public extension MainTabFeature {
             /// - 링크 상세
             case let .path(.element(_, action: .카테고리상세(.delegate(.contentItemTapped(content))))),
                  let .pokit(.delegate(.contentDetailTapped(content))),
-                 let .remind(.delegate(.링크상세(content))),
                  let .path(.element(_, action: .링크목록(.delegate(.링크상세(content: content))))),
                  let .path(.element(_, action: .검색(.delegate(.linkCardTapped(content: content))))):
                 
@@ -130,7 +137,6 @@ public extension MainTabFeature {
             /// - 링크상세 바텀시트에서 링크수정으로 이동
             case let .contentDetail(.presented(.delegate(.editButtonTapped(id)))),
                  let .pokit(.delegate(.링크수정하기(id))),
-                 let .remind(.delegate(.링크수정(id))),
                  let .path(.element(_, action: .카테고리상세(.delegate(.링크수정(id))))),
                  let .path(.element(_, action: .링크목록(.delegate(.링크수정(id))))),
                  let .path(.element(_, action: .검색(.delegate(.링크수정(id))))),
@@ -148,8 +154,8 @@ public extension MainTabFeature {
                     switch state.selectedTab {
                     case .pokit:
                         return .send(.pokit(.delegate(.미분류_카테고리_컨텐츠_조회)))
-                    case .remind:
-                        return .send(.remind(.delegate(.컨텐츠_상세보기_delegate_위임)))
+                    case .recommend:
+                        return .none
                     }
                 }
                 switch lastPath {
@@ -174,6 +180,11 @@ public extension MainTabFeature {
                 state.path.append(.링크추가및수정(ContentSettingFeature.State(urlText: state.link)))
                 state.link = nil
                 return .none
+                
+            case let .path(.element(_, action: .카테고리상세(.delegate(.링크추가(categoryId))))):
+                state.categoryId = categoryId
+                state.path.append(.링크추가및수정(ContentSettingFeature.State()))
+                return .none
 
             /// - 링크추가 및 수정에서 저장하기 눌렀을 때
             case let .path(.element(stackElementId, action: .링크추가및수정(.delegate(.저장하기_완료(contentId))))):
@@ -188,6 +199,8 @@ public extension MainTabFeature {
                 default:
                     return .send(.inner(.링크팝업_활성화(.success(title: Constants.링크_저장_완료_문구))), animation: .pokitSpring)
                 }
+            case .recommend(.delegate(.저장하기_완료)):
+                return .send(.inner(.링크팝업_활성화(.success(title: Constants.링크_저장_완료_문구))), animation: .pokitSpring)
             /// - 각 화면에서 링크 복사 감지했을 때 (링크 추가 및 수정 화면 제외)
             case let .path(.element(_, action: .알림함(.delegate(.linkCopyDetected(url))))),
                  let .path(.element(_, action: .검색(.delegate(.linkCopyDetected(url))))),
@@ -196,13 +209,9 @@ public extension MainTabFeature {
                  let .path(.element(_, action: .포킷추가및수정(.delegate(.linkCopyDetected(url))))),
                  let .path(.element(_, action: .링크목록(.delegate(.linkCopyDetected(url))))):
                 return .run { send in await send(.inner(.linkCopySuccess(url)), animation: .pokitSpring) }
-            /// 링크목록 `안읽음`
-            case .remind(.delegate(.링크목록_안읽음)):
-                state.path.append(.링크목록(ContentListFeature.State(contentType: .unread)))
-                return .none
-            /// 링크목록 `즐겨찾기`
-            case .remind(.delegate(.링크목록_즐겨찾기)):
-                state.path.append(.링크목록(ContentListFeature.State(contentType: .favorite)))
+            /// 바텀메세지
+            case let .pokit(.delegate(.linkPopup(text))):
+                state.linkPopup = .text(title: text)
                 return .none
                 
             case .path(.element(_, action: .설정(.delegate(.로그아웃)))):
@@ -231,14 +240,24 @@ public extension MainTabFeature {
                 return .none
             
             case let .path(.element(_, action: .링크공유(.delegate(.공유받은_카테고리_추가(sharedCategory))))):
-                state.path.append(.포킷추가및수정(PokitCategorySettingFeature.State(
-                    type: .공유추가,
-                    categoryId: sharedCategory.categoryId,
+                let category = BaseCategoryItem(
+                    id: sharedCategory.categoryId,
+                    userId: 0,
+                    categoryName: sharedCategory.categoryName,
                     categoryImage: BaseCategoryImage(
                         imageId: sharedCategory.categoryImageId,
                         imageURL: sharedCategory.categoryImageUrl
                     ),
-                    categoryName: sharedCategory.categoryName
+                    contentCount: sharedCategory.contentCount,
+                    createdAt: "",
+                    openType: .공개,
+                    keywordType: .default,
+                    userCount: 0,
+                    isFavorite: false
+                )
+                state.path.append(.포킷추가및수정(PokitCategorySettingFeature.State(
+                    type: .공유추가,
+                    category: category
                 )))
                 return .none
             case .path(.element(_, action: .알림함(.delegate(.alertBoxDismiss)))):

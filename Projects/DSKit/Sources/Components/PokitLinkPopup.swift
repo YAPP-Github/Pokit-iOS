@@ -57,7 +57,7 @@ public struct PokitLinkPopup: View {
                 VStack(alignment: .leading, spacing: 0) {
                     Text(title)
                         .lineLimit(2)
-                        .pokitFont(.b2(.b))
+                        .pokitFont(titleFont)
                         .multilineTextAlignment(.leading)
                         .foregroundStyle(textColor)
                     
@@ -76,7 +76,7 @@ public struct PokitLinkPopup: View {
                         .foregroundStyle(.pokit(.icon(.inverseWh)))
                 }
                 
-                Spacer(minLength: 72)
+                Spacer()
             }
             
             closeButton
@@ -90,10 +90,17 @@ public struct PokitLinkPopup: View {
     
     private var closeButton: some View {
         Button(action: closedPopup) {
-            Image(.icon(.x))
-                .resizable()
-                .frame(width: 24, height: 24)
-                .foregroundStyle(iconColor)
+            Group {
+                if case .report = type {
+                    Image(.icon(.check))
+                        .resizable()
+                } else {
+                    Image(.icon(.x))
+                        .resizable()
+                }
+            }
+            .frame(width: 24, height: 24)
+            .foregroundStyle(iconColor)
         }
     }
     
@@ -109,7 +116,7 @@ public struct PokitLinkPopup: View {
         case .link, .text, .warning:
             UINotificationFeedbackGenerator()
                 .notificationOccurred(.warning)
-        case .success:
+        case .success, .report:
             UINotificationFeedbackGenerator()
                 .notificationOccurred(.success)
         case .error:
@@ -125,7 +132,7 @@ public struct PokitLinkPopup: View {
             return .pokit(.bg(.tertiary))
         case .success:
             return .pokit(.bg(.success))
-        case .error:
+        case .error, .report:
             return .pokit(.bg(.error))
         case .warning:
             return .pokit(.bg(.warning))
@@ -151,13 +158,21 @@ public struct PokitLinkPopup: View {
         }
     }
     
+    private var titleFont: PokitFont {
+        switch type {
+        case .link: return .b2(.b)
+        default:    return .b3(.b)
+        }
+    }
+    
     private var title: String {
         switch type {
         case let .link(title, _),
              let .text(title),
              let .success(title),
              let .error(title),
-             let .warning(title):
+             let .warning(title),
+             let .report(title):
             return title
         default: return ""
         }
@@ -171,6 +186,7 @@ public extension PokitLinkPopup {
         case success(title: String)
         case error(title: String)
         case warning(title: String)
+        case report(title: String)
     }
 }
 
@@ -197,6 +213,10 @@ public extension PokitLinkPopup {
         
         PokitLinkPopup(
             type: .constant(.warning(title: "저장공간 부족"))
+        )
+        
+        PokitLinkPopup(
+            type: .constant(.report(title: "신고가 완료되었습니다"))
         )
     }
 }

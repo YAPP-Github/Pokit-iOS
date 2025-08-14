@@ -26,6 +26,8 @@ public struct ContentSettingFeature {
     private var contentClient
     @Dependency(CategoryClient.self)
     private var categoryClient
+    @Dependency(KeyboardClient.self)
+    private var keyboardClient
     /// - State
     @ObservableState
     public struct State: Equatable {
@@ -70,6 +72,8 @@ public struct ContentSettingFeature {
         var link: String?
         var showLinkPreview = false
         var isShareExtension: Bool
+        var pokitAddSheetPresented: Bool = false
+        var isKeyboardVisible: Bool = false
     }
 
     /// - Action
@@ -109,6 +113,7 @@ public struct ContentSettingFeature {
             case 선택한_포킷_인메모리_삭제
             case 링크팝업_활성화(PokitLinkPopup.PopupType)
             case error(Error)
+            case 키보드_감지_반영(Bool)
         }
 
         public enum AsyncAction: Equatable {
@@ -118,6 +123,7 @@ public struct ContentSettingFeature {
             case 컨텐츠_수정_API
             case 컨텐츠_추가_API
             case 클립보드_감지
+            case 키보드_감지
         }
 
         public enum ScopeAction: Equatable { case 없음 }
@@ -187,7 +193,8 @@ private extension ContentSettingFeature {
             var mergeEffect: [Effect<Action>] = [
                 .send(.async(.카테고리_목록_조회_API)),
                 .send(.inner(.URL_유효성_확인)),
-                .send(.async(.클립보드_감지))
+                .send(.async(.클립보드_감지)),
+                .send(.async(.키보드_감지))
             ]
             if let id = state.domain.contentId {
                 mergeEffect.append(.send(.async(.컨텐츠_상세_조회_API(id: id))))
@@ -209,9 +216,11 @@ private extension ContentSettingFeature {
                 state.linkPopup = .text(title: Constants.포킷_최대_갯수_문구)
                 return .none
             }
-            
+            /// 바텀시트 내리고 `포킷추가하기` depth 추가
+            state.pokitAddSheetPresented = false
             return .send(.delegate(.포킷추가하기))
         case .뒤로가기_버튼_눌렀을때:
+            state.categoryId = nil
             return state.isShareExtension
             ? .send(.delegate(.dismiss))
             : .run { _ in await dismiss() }
@@ -244,9 +253,9 @@ private extension ContentSettingFeature {
             return .none
         case .메타데이터_조회_수행(url: let url):
             return .run { send in
-                async let title = swiftSoup.parseOGTitle(url)
-                async let imageURL = swiftSoup.parseOGImageURL(url)
-                try await send(
+                async let title = try? swiftSoup.parseOGTitle(url)
+                async let imageURL = try? swiftSoup.parseOGImageURL(url)
+                await send(
                     .inner(.메타데이텨_조회_반영(title: title, imageURL: imageURL)),
                     animation: .pokitDissolve
                 )
@@ -304,7 +313,12 @@ private extension ContentSettingFeature {
                 categoryName: category.categoryName,
                 categoryImage: category.categoryImage,
                 contentCount: 0,
-                createdAt: ""
+                createdAt: "",
+                //TODO: v2 property 수정
+                openType: .비공개,
+                keywordType: .default,
+                userCount: 0,
+                isFavorite: false
             )
             return .none
         case .카테고리_목록_조회_API_반영(categoryList: let categoryList):
@@ -313,12 +327,12 @@ private extension ContentSettingFeature {
             /// [1]. `미분류`에 해당하는 인덱스 번호와 항목을 체크, 없다면 목록갱신이 불가함
             guard
                 let unclassifiedItemIdx = categoryList.data?.firstIndex(where: {
-                    $0.categoryName == "미분류"
+                    $0.categoryName == Constants.미분류
                 })
             else { return .none }
             guard
                 let unclassifiedItem = categoryList.data?.first(where: {
-                    $0.categoryName == "미분류"
+                    $0.categoryName == Constants.미분류
                 })
             else { return .none }
             
@@ -348,6 +362,9 @@ private extension ContentSettingFeature {
                 .inner(.링크팝업_활성화(.error(title: errorResponse.message))),
                 animation: .pokitSpring
             )
+        case let .키보드_감지_반영(response):
+            state.isKeyboardVisible = response
+            return .none
         }
     }
 
@@ -437,6 +454,13 @@ private extension ContentSettingFeature {
                     await send(.inner(.linkPopup(url)), animation: .pokitSpring)
                 }
             }
+        
+        case .키보드_감지:
+            return .run { send in
+                for await detect in await keyboardClient.isVisible() {
+                    await send(.inner(.키보드_감지_반영(detect)), animation: .pokitSpring)
+                }
+            }
         }
     }
     
@@ -452,7 +476,7 @@ private extension ContentSettingFeature {
     
     func categoryListFetch(request: BasePageableRequest) -> Effect<Action> {
         return .run { send in
-            let categoryList = try await categoryClient.카테고리_목록_조회(request, false).toDomain()
+            let categoryList = try await categoryClient.카테고리_목록_조회(request, false, true).toDomain()
             await send(.inner(.카테고리_목록_조회_API_반영(categoryList: categoryList)), animation: .pokitDissolve)
         }
     }

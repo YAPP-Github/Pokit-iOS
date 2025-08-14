@@ -96,8 +96,8 @@ public struct PokitSearchFeature {
             case 카테고리_버튼_눌렀을때
             case 모아보기_버튼_눌렀을때
             case 기간_버튼_눌렀을때
-            case 카테고리_태그_눌렀을때(category: BaseCategoryItem)
-            case 즐겨찾기_태그_눌렀을때
+            case 카테고리_태그_눌렀을때
+            case 컨텐츠_타입_태그_눌렀을때
             case 안읽음_태그_눌렀을때
             case 전체_삭제_버튼_눌렀을때
             case 정렬_버튼_눌렀을때
@@ -236,17 +236,7 @@ private extension PokitSearchFeature {
             return .send(.inner(.filterBottomSheet(filterType: .contentType)))
             
         case .기간_버튼_눌렀을때:
-            guard
-                state.domain.condition.startDate != nil &&
-                state.domain.condition.endDate != nil
-                /// - 선택된 기간이 없을 경우
-            else { return .send(.inner(.filterBottomSheet(filterType: .date))) }
-            state.domain.condition.startDate = nil
-            state.domain.condition.endDate = nil
-            return .run { send in
-                await send(.inner(.기간_업데이트(startDate: nil, endDate: nil)))
-                await send(.inner(.페이징_초기화), animation: .pokitDissolve)
-            }
+            return .send(.inner(.filterBottomSheet(filterType: .date)))
             
         case .카테고리_버튼_눌렀을때:
             return .send(.inner(.filterBottomSheet(filterType: .pokit)))
@@ -287,20 +277,14 @@ private extension PokitSearchFeature {
             
             return .merge(effectBox)
             
-        case let .카테고리_태그_눌렀을때(category):
-            state.categoryFilter.remove(category)
-            return .run { send in
-                await send(.inner(.카테고리_ID_목록_업데이트))
-                await send(.inner(.페이징_초기화))
-            }
+        case .카테고리_태그_눌렀을때:
+            return .send(.inner(.filterBottomSheet(filterType: .pokit)))
             
-        case .즐겨찾기_태그_눌렀을때:
-            state.domain.condition.favorites = false
-            return .send(.inner(.페이징_초기화))
+        case .컨텐츠_타입_태그_눌렀을때:
+            return .send(.inner(.filterBottomSheet(filterType: .contentType)))
             
         case .안읽음_태그_눌렀을때:
-            state.domain.condition.isRead = false
-            return .send(.inner(.페이징_초기화))
+            return .send(.inner(.filterBottomSheet(filterType: .contentType)))
             
         case .로딩중일때:
             return .send(.async(.컨텐츠_검색_페이징_API))

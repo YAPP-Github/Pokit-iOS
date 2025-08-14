@@ -20,8 +20,8 @@ let frameworkTemplate = Template(
         .file(
             path: "Projects/\(frameworkProjectAttribute)/\(frameworkTargetAttribute)/Sources/Source.swift",
             templatePath: "Dummy.stencil"),
-        .file(
-            path: "Projects/\(frameworkProjectAttribute)/\(frameworkTargetAttribute)/Resources/Resource.swift",
-            templatePath: "Dummy.stencil")
+        .string(
+            path: "Projects/\(frameworkProjectAttribute)/\(frameworkTargetAttribute)/Resources/.gitkeep",
+            contents: "")
     ]
 )

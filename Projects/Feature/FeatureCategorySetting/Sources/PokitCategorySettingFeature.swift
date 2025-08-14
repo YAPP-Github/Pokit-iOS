@@ -21,6 +21,10 @@ public struct PokitCategorySettingFeature {
     var pasteboard
     @Dependency(CategoryClient.self) 
     var categoryClient
+    @Dependency(UserClient.self)
+    var userClient
+    @Dependency(KeyboardClient.self)
+    var keyboardClient
     /// - State
     @ObservableState
     public struct State: Equatable {
@@ -37,20 +41,28 @@ public struct PokitCategorySettingFeature {
         var profileImages: [BaseCategoryImage] {
             get { domain.imageList }
         }
-        var itemList: IdentifiedArrayOf<BaseCategoryItem>? {
-            guard let categoryList = domain.categoryListInQuiry.data else {
-                return nil
-            }
-            var identifiedArray = IdentifiedArrayOf<BaseCategoryItem>()
-            categoryList.forEach { category in
-                identifiedArray.append(category)
-            }
-            return identifiedArray
+        
+        var selectedKeywordType: BaseInterestType {
+            get { domain.keywordType }
+            set { domain.keywordType = newValue }
+        }
+        
+        var isPublicType: Bool {
+            get { domain.openType == .공개 ? true : false }
+            set { domain.openType = newValue ? .공개 : .비공개 }
+        }
+        var saveButtonEnabled: Bool {
+            !categoryName.isEmpty
+            && selectedProfile != nil
+            && (domain.openType == .공개 ? keywordSelectType != .normal : true)
         }
         
         let type: SettingType
+        var keywordSelectType: KeywordSelectType = .normal
         var isProfileSheetPresented: Bool = false
+        var isKeywordSheetPresented: Bool = false
         var pokitNameTextInpuState: PokitInputStyle.State = .default
+        var isKeyboardVisible: Bool = false
         @Shared(.inMemory("SelectCategory")) var categoryId: Int?
         /// - 포킷 수정 API / 추가 API
         /// categoryName
@@ -59,15 +71,15 @@ public struct PokitCategorySettingFeature {
     
         public init(
             type: SettingType,
-            categoryId: Int? = nil,
-            categoryImage: BaseCategoryImage? = nil,
-            categoryName: String? = ""
+            category: BaseCategoryItem? = nil
         ) {
             self.type = type
             self.domain = .init(
-                categoryId: categoryId,
-                categoryName: categoryName,
-                categoryImage: categoryImage
+                categoryId: category?.id,
+                categoryName: category?.categoryName,
+                categoryImage: category?.categoryImage,
+                openType: category?.openType,
+                keywordType: category?.keywordType
             )
         }
     }
@@ -88,23 +100,25 @@ public struct PokitCategorySettingFeature {
             case 저장_버튼_눌렀을때
             case 뷰가_나타났을때
             case 포킷명지우기_버튼_눌렀을때
+            case 키워드_바텀시트_활성화(Bool)
+            case 키워드_선택_버튼_눌렀을때(BaseInterestType)
         }
         
         public enum InnerAction: Equatable {
-            case 카테고리_목록_조회_API_반영(BaseCategoryListInquiry)
             case 프로필_목록_조회_API_반영(images: [BaseCategoryImage])
             case 포킷_오류_핸들링(BaseError)
             case 카테고리_인메모리_저장(BaseCategoryItem)
+            case 키보드_감지_반영(Bool)
         }
         
         public enum AsyncAction: Equatable {
-            case 카테고리_목록_조회_API
             case 프로필_목록_조회_API
             case 클립보드_감지
+            case 키보드_감지
         }
         
-        public enum ScopeAction: Equatable {
-            case profile(ProfileBottomSheet.Delegate)
+        public enum ScopeAction {
+            case profile(PokitProfileBottomSheet<BaseCategoryImage>.Delegate)
         }
         
         public enum DelegateAction: Equatable {
@@ -153,6 +167,12 @@ private extension PokitCategorySettingFeature {
     /// - View Effect
     func handleViewAction(_ action: Action.View, state: inout State) -> Effect<Action> {
         switch action {
+        case .binding(\.isPublicType):
+            if !state.isPublicType {
+                state.selectedKeywordType = .default
+                state.keywordSelectType = .normal
+            }
+            return .none
         case .binding:
             return .none
             
@@ -164,61 +184,101 @@ private extension PokitCategorySettingFeature {
             return .none
 
         case .저장_버튼_눌렀을때:
-            return .run { [domain = state.domain,
-                           type = state.type] send in
-                switch type {
-                case .추가:
-                    guard let image = domain.categoryImage else { return }
-                    let request = CategoryEditRequest(categoryName: domain.categoryName, categoryImageId: image.id)
-                    let response = try await categoryClient.카테고리_생성(request)
-                    let responseToCategoryDomain = BaseCategoryItem(
-                        id: response.categoryId,
-                        userId: 0,
-                        categoryName: response.categoryName,
-                        categoryImage: BaseCategoryImage(
-                            imageId: response.categoryImage.imageId,
-                            imageURL: response.categoryImage.imageUrl
-                        ),
-                        contentCount: 0,
-                        createdAt: ""
-                    )
-                    await send(.inner(.카테고리_인메모리_저장(responseToCategoryDomain)))
-                    await send(.delegate(.settingSuccess))
-                    
-                case .수정:
-                    guard let categoryId = domain.categoryId else { return }
-                    guard let image = domain.categoryImage else { return }
-                    let request = CategoryEditRequest(categoryName: domain.categoryName, categoryImageId: image.id)
-                    let _ = try await categoryClient.카테고리_수정(categoryId, request)
-                    await send(.delegate(.settingSuccess))
-                    
-                case .공유추가:
-                    guard let categoryId = domain.categoryId else { return }
-                    guard let image = domain.categoryImage else { return }
-                    try await categoryClient.공유받은_카테고리_저장(
-                        CopiedCategoryRequest(
-                            originCategoryId: categoryId,
+            /// 전체공개 설정을 했는데 키워드 설정을 안했을 때
+            if state.domain.openType == .공개
+            && state.domain.keywordType == .default {
+                state.keywordSelectType = .warnning
+                return .none
+            } else {
+                return .run { [domain = state.domain,
+                               type = state.type] send in
+                    switch type {
+                    case .추가:
+                        guard let image = domain.categoryImage else { return }
+                        let request = CategoryEditRequest(
                             categoryName: domain.categoryName,
-                            categoryImageId: image.id
+                            categoryImageId: image.id,
+                            openType: domain.openType.title,
+                            keywordType: domain.keywordType.title
                         )
-                    )
-                    await send(.delegate(.settingSuccess))
+                        let response = try await categoryClient.카테고리_생성(request)
+                        let responseToCategoryDomain = BaseCategoryItem(
+                            id: response.categoryId,
+                            userId: 0,
+                            categoryName: response.categoryName,
+                            categoryImage: BaseCategoryImage(
+                                imageId: response.categoryImage.imageId,
+                                imageURL: response.categoryImage.imageUrl
+                            ),
+                            contentCount: 0,
+                            createdAt: "",
+                            //TODO: v2 property 수정
+                            openType: domain.openType,
+                            keywordType: domain.keywordType,
+                            userCount: 0,
+                            isFavorite: false
+                        )
+                        await send(.inner(.카테고리_인메모리_저장(responseToCategoryDomain)))
+                        await send(.delegate(.settingSuccess))
+                        
+                    case .수정:
+                        guard let categoryId = domain.categoryId else { return }
+                        guard let image = domain.categoryImage else { return }
+                        let request = CategoryEditRequest(
+                            categoryName: domain.categoryName,
+                            categoryImageId: image.id,
+                            openType: domain.openType.title,
+                            keywordType: domain.keywordType.title
+                        )
+                        let _ = try await categoryClient.카테고리_수정(categoryId, request)
+                        await send(.delegate(.settingSuccess))
+                        
+                    case .공유추가:
+                        guard let categoryId = domain.categoryId else { return }
+                        guard let image = domain.categoryImage else { return }
+                        try await categoryClient.공유받은_카테고리_저장(
+                            CopiedCategoryRequest(
+                                originCategoryId: categoryId,
+                                categoryName: domain.categoryName,
+                                categoryImageId: image.id,
+                                keyword: domain.keywordType.title,
+                                openType: domain.openType.title
+                            )
+                        )
+                        await send(.delegate(.settingSuccess))
+                    }
+                } catch: { error, send in
+                    guard let errorResponse = error as? ErrorResponse else { return }
+                    await send(.inner(.포킷_오류_핸들링(BaseError(response: errorResponse))))
                 }
-            } catch: { error, send in
-                guard let errorResponse = error as? ErrorResponse else { return }
-                await send(.inner(.포킷_오류_핸들링(BaseError(response: errorResponse))))
             }
             
         case .뷰가_나타났을때:
+            let selectType = state.selectedKeywordType
+            if selectType != .default {
+                state.keywordSelectType = .select(keywordName: selectType.title)
+            }
             /// 단순 조회API들의 나열이라 merge사용
             return .merge(
-                .send(.async(.카테고리_목록_조회_API)),
                 .send(.async(.프로필_목록_조회_API)),
-                .send(.async(.클립보드_감지))
+                .send(.async(.클립보드_감지)),
+                .send(.async(.키보드_감지))
             )
         case .포킷명지우기_버튼_눌렀을때:
             state.domain.categoryName = ""
             return .none
+            
+        case let .키워드_바텀시트_활성화(isActive):
+            state.isKeywordSheetPresented = isActive
+            return .none
+            
+        //TODO: 액션 마이그레이션 시 반영
+        case let .키워드_선택_버튼_눌렀을때(type):
+            state.domain.keywordType = type
+            state.keywordSelectType = .select(keywordName: type.title)
+            return .run { send in
+                await send(.view(.키워드_바텀시트_활성화(false)))
+            }
         }
     }
     
@@ -234,10 +294,6 @@ private extension PokitCategorySettingFeature {
             }
             return .none
             
-        case let .카테고리_목록_조회_API_반영(response):
-            state.domain.categoryListInQuiry = response
-            return .none
-            
         case let .포킷_오류_핸들링(baseError):
             state.pokitNameTextInpuState = .error(message: baseError.message)
             return .none
@@ -245,19 +301,16 @@ private extension PokitCategorySettingFeature {
         case let .카테고리_인메모리_저장(response):
             state.categoryId = response.id
             return .none
+            
+        case let .키보드_감지_반영(isVisible):
+            state.isKeyboardVisible = isVisible
+            return .none
         }
     }
     
     /// - Async Effect
     func handleAsyncAction(_ action: Action.AsyncAction, state: inout State) -> Effect<Action> {
         switch action {
-        case .카테고리_목록_조회_API:
-            return .run { send in
-                let pageRequest = BasePageableRequest(page: 0, size: 100, sort: ["desc"])
-                let response = try await categoryClient.카테고리_목록_조회(pageRequest, true).toDomain()
-                await send(.inner(.카테고리_목록_조회_API_반영(response)))
-            }
-            
         case .프로필_목록_조회_API:
             return .run { send in
                 let response = try await categoryClient.카테고리_프로필_목록_조회()
@@ -270,6 +323,13 @@ private extension PokitCategorySettingFeature {
                 for await _ in self.pasteboard.changes() {
                     let url = try await pasteboard.probableWebURL()
                     await send(.delegate(.linkCopyDetected(url)), animation: .pokitSpring)
+                }
+            }
+            
+        case .키보드_감지:
+            return .run { send in
+                for await detect in await keyboardClient.isVisible() {
+                    await send(.inner(.키보드_감지_반영(detect)), animation: .pokitSpring)
                 }
             }
         }

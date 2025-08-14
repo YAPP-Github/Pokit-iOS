@@ -8,6 +8,7 @@ import SwiftUI
 
 import ComposableArchitecture
 import DSKit
+import NukeUI
 
 @ViewAction(for: PokitSettingFeature.self)
 public struct PokitSettingView: View {
@@ -25,9 +26,9 @@ public extension PokitSettingView {
     var body: some View {
         WithPerceptionTracking {
             VStack(spacing: 0) {
-                section1
-                section2
-                section3
+                profileSection
+                menuSection
+                accountSection
                 Spacer()
             }
             .padding(.top, 16)
@@ -60,32 +61,59 @@ public extension PokitSettingView {
             ) { store in
                 NickNameSettingView(store: store)
             }
-            .onAppear { send(.뷰가_나타났을때) }
+            .task { await send(.onAppear).finish() }
         }
     }
 }
 //MARK: - Configure View
 private extension PokitSettingView {
     @ViewBuilder
-    var section1: some View {
-        Section {
-            SettingItem(
-                title: "닉네임 설정",
-                action: { send(.닉네임설정) }
-            )
-            
-            SettingItem(
-                title: "알림 설정",
-                action: { send(.알림설정) }
+    var profileSection: some View {
+        HStack(spacing: 12) {
+            LazyImage(url: URL(string: store.user?.profile?.imageURL ?? "")) { state in
+                Group {
+                    if let image = state.image {
+                        image
+                            .resizable()
+                            .clipShape(.circle)
+                    } else if state.isLoading {
+                        PokitSpinner()
+                            .foregroundStyle(.pokit(.icon(.brand)))
+                    } else {
+                        Image(.image(.profile))
+                            .resizable()
+                    }
+
+                }
+                .animation(.pokitDissolve, value: state.image)
+            }
+            .frame(width: 40, height: 40)
+            Text(store.user?.nickname ?? "")
+                .pokitFont(.b1(.m))
+            Spacer()
+            PokitTextButton(
+                "프로필 편집",
+                state: .stroke(.secondary),
+                size: .small,
+                shape: .rectangle,
+                action: { send(.프로필설정) }
             )
         }
+        .padding(.top, 16)
+        .padding(.vertical, 8)
+        .padding(.horizontal, 20)
         PokitDivider()
             .padding(.vertical, 16)
     }
     
     @ViewBuilder
-    var section2: some View {
+    var menuSection: some View {
         Section {
+            SettingItem(
+                title: "알림 설정",
+                action: { send(.알림설정) }
+            )
+            
             SettingItem(
                 title: "공지사항",
                 action: { send(.공지사항) }
@@ -110,7 +138,7 @@ private extension PokitSettingView {
             .padding(.vertical, 16)
     }
     
-    var section3: some View {
+    var accountSection: some View {
         Section {
             SettingItem(
                 title: "로그아웃",

@@ -9,6 +9,7 @@ import SwiftUI
 import ComposableArchitecture
 import Domain
 import DSKit
+import Util
 
 @ViewAction(for: ContentDetailFeature.self)
 public struct ContentDetailView: View {
@@ -52,11 +53,10 @@ public extension ContentDetailView {
             .pokitPresentationCornerRadius()
             .presentationDragIndicator(.visible)
             .presentationDetents([.height(588), .large])
-            .overlay(alignment: .bottom) {
-                if store.linkPopup != nil {
-                    PokitLinkPopup(type: $store.linkPopup)
-                }
+            .overlay(if: store.linkPopup != nil, alignment: .bottom) {
+                PokitLinkPopup(type: $store.linkPopup)
             }
+            .dismissKeyboard(focused: $isFocused)
             .sheet(isPresented: $store.showAlert) {
                 PokitAlert(
                     "링크를 정말 삭제하시겠습니까?",

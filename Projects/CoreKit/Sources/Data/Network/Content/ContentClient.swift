@@ -50,5 +50,12 @@ public struct ContentClient {
     public var 미분류_링크_삭제: @Sendable (
         _ model: ContentDeleteRequest
     ) async throws -> Void
+    public var 추천_컨텐츠_조회: @Sendable (
+        _ pageable: BasePageableRequest,
+        _ keyword: String?
+    ) async throws -> ContentListInquiryResponse
+    public var 컨텐츠_신고: @Sendable (
+        _ contentId: Int
+    ) async throws -> Void
 }
 

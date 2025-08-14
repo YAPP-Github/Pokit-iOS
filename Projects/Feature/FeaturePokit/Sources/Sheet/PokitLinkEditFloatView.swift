@@ -11,11 +11,14 @@ import SwiftUI
 public struct PokitLinkEditFloatView: View {
     /// 전체 선택/해제 toggle
     @State private var isChecked: Bool = false
+    @Binding private var isActive: Bool
     private let delegateSend: ((PokitLinkEditFloatView.Delegate) -> Void)?
     
     public init(
+        isActive: Binding<Bool>,
         delegateSend: ((PokitLinkEditFloatView.Delegate) -> Void)?
     ) {
+        self._isActive = isActive
         self.delegateSend = delegateSend
     }
     
@@ -28,8 +31,10 @@ public struct PokitLinkEditFloatView: View {
                     button(isChecked ? .전체해제 : .전체선택)
                     Spacer()
                     button(.링크삭제)
+                        .disabled(!isActive)
                     Spacer()
                     button(.포킷이동)
+                        .disabled(!isActive)
                 }
                 .padding(.horizontal, 20)
             }
@@ -41,6 +46,7 @@ public struct PokitLinkEditFloatView: View {
                 color: Color.black,
                 colorPercent: 10
             )
+            .animation(.pokitSpring, value: isActive)
     }
 }
 private extension PokitLinkEditFloatView {
@@ -107,5 +113,8 @@ public extension PokitLinkEditFloatView {
     }
 }
 #Preview {
-    PokitLinkEditFloatView(delegateSend: {_ in }).padding(20)
+    PokitLinkEditFloatView(
+        isActive: .constant(true),
+        delegateSend: {_ in }
+    ).padding(20)
 }

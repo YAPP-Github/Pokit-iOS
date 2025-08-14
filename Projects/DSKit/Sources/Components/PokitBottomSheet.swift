@@ -8,13 +8,14 @@
 import SwiftUI
 
 public struct PokitBottomSheet: View {
+    @State
+    private var height: CGFloat
     private let items: [Item]
-    private let height: CGFloat
     private let delegateSend: ((PokitBottomSheet.Delegate) -> Void)?
     
     public init(
         items: [Item],
-        height: CGFloat,
+        height: CGFloat = 0,
         delegateSend: ((PokitBottomSheet.Delegate) -> Void)?
     ) {
         self.items = items
@@ -30,6 +31,16 @@ public struct PokitBottomSheet: View {
         .presentationDetents([.height(height)])
         .pokitPresentationCornerRadius()
         .pokitPresentationBackground()
+        .readHeight()
+        .onPreferenceChange(HeightPreferenceKey.self) { height in
+            if let height {
+                print("height:", height)
+                self.height = height
+            }
+        }
+        .ignoresSafeArea(.all)
+        .padding(.top, 12)
+        .padding(.bottom, -20)
     }
     
     @ViewBuilder
@@ -120,3 +131,18 @@ public extension PokitBottomSheet {
     }
 }
 
+@available(iOS 18.0, *)
+#Preview {
+    @Previewable
+    @State var isPresented: Bool = true
+    
+    ZStack {
+        Color.green.ignoresSafeArea()
+    }
+    .sheet(isPresented: $isPresented) {
+        PokitBottomSheet(
+            items: [.share, .edit, .delete],
+            delegateSend: { _ in }
+        )
+    }
+}

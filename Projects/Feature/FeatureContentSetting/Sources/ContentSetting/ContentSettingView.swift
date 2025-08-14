@@ -54,7 +54,8 @@ public extension ContentSettingView {
                     }
                     .pokitMaxWidth()
                 }
-                
+            }
+            .overlay(alignment: .bottom) {
                 let isDisable = store.urlText.isEmpty ||
                                 store.title.isEmpty ||
                                 store.memoTextAreaState == .error(message: "최대 100자까지 입력가능합니다.")
@@ -62,13 +63,15 @@ public extension ContentSettingView {
                 PokitBottomButton(
                     "저장하기",
                     state: isDisable ? .disable : .filled(.primary),
-                    isLoading: $store.saveIsLoading,
                     action: { send(.저장_버튼_눌렀을때) }
                 )
-                .padding(.horizontal, 20)
+                .gradientBackground()
+                .loading($store.saveIsLoading)
+                .keyboardAnchor(store.isKeyboardVisible)
                 .pokitMaxWidth()
             }
             .pokitNavigationBar { navigationBar }
+            .dismissKeyboard(focused: $focusedType)
             .ignoresSafeArea(edges: focusedType == nil ? .bottom : [])
             .onAppear { send(.뷰가_나타났을때) }
         }
@@ -141,6 +144,7 @@ private extension ContentSettingView {
     var pokitSelectButton: some View {
         PokitSelect(
             selectedItem: $store.selectedPokit,
+            isPresented: $store.pokitAddSheetPresented,
             label: "포킷",
             list: store.pokitList,
             action: { send(.포킷선택_항목_눌렀을때(pokit: $0), animation: .pokitDissolve) },

@@ -9,6 +9,7 @@ import SwiftUI
 import ComposableArchitecture
 import Domain
 import DSKit
+import Util
 import NukeUI
 
 @ViewAction(for: PokitCategorySettingFeature.self)
@@ -30,21 +31,36 @@ public extension PokitCategorySettingView {
             VStack(spacing: 0) {
                 thumbnailSection
                 pokitNameSection
-                myPokitSection
+                PokitDivider()
+                    .padding(.horizontal, -20)
+                    .padding(.top, 28)
+                openTypeSettingSection
+                keywordSection
+                Spacer()
+            }
+            .padding(.top, 16)
+            .padding(.horizontal, 20)
+            .overlay(alignment: .bottom) {
                 saveButton
             }
-            .padding(.horizontal, 20)
             .padding(.top, 16)
-            .pokitMaxWidth()
+//            .pokitMaxWidth()
             .pokitNavigationBar { navigationBar }
-            .ignoresSafeArea(edges: isFocused ? [] : .bottom)
             .sheet(isPresented: $store.isProfileSheetPresented) {
-                ProfileBottomSheet(
+                PokitProfileBottomSheet(
                     selectedImage: store.selectedProfile,
                     images: store.profileImages,
                     delegateSend: { store.send(.scope(.profile($0))) }
                 )
             }
+            .sheet(isPresented: $store.isKeywordSheetPresented) {
+                PokitKeywordBottomSheet(
+                    selectedKeywordType: store.selectedKeywordType,
+                    action: { send(.키워드_선택_버튼_눌렀을때($0)) }
+                )
+            }
+            .ignoresSafeArea(.container, edges: .bottom)
+            .dismissKeyboard(focused: $isFocused)
             .task { await send(.뷰가_나타났을때).finish() }
         }
     }
@@ -69,21 +85,24 @@ private extension PokitCategorySettingView {
             transaction: .init(animation: .spring)
         ) { phase in
             if let image = phase.image {
-                image
-                    .resizable()
-                    .roundedCorner(12, corners: .allCorners)
+                Circle().foregroundStyle(.pokit(.bg(.primary)))
+                    .overlay {
+                        image
+                            .resizable()
+                            .padding(10)
+                            .clipShape(.circle)
+                    }
             } else {
                 WithPerceptionTracking {
                     ZStack {
-                        Color.pokit(.bg(.disable))
-                        
+                        Color.pokit(.bg(.primary))
                         if store.selectedProfile?.imageURL != nil {
                             PokitSpinner()
                                 .foregroundStyle(.pokit(.icon(.brand)))
                                 .frame(width: 48, height: 48)
                         }
                     }
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .clipShape(.circle)
                 }
             }
         }
@@ -112,7 +131,7 @@ private extension PokitCategorySettingView {
                     
                 }
                 .offset(x: 10)
-                .padding(.bottom, 7)
+                .padding(.bottom, 3)
         }
     }
     /// 타이틀 + 텍스트필드를 포함한 포킷명 입력 섹션
@@ -137,43 +156,59 @@ private extension PokitCategorySettingView {
             )
         }
     }
-    /// 내포킷 리스트( ScrollView)
-    var myPokitSection: some View {
-        VStack(spacing: 8) {
-            if let itemList = store.itemList {
-                if itemList.isEmpty {
-                    Spacer()
-                } else {
-                    HStack {
-                        Text("내 포킷")
-                            .pokitFont(.b2(.m))
-                            .foregroundStyle(.pokit(.text(.secondary)))
+    /// 공개 여부 설정
+    var openTypeSettingSection: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Toggle(isOn: $store.isPublicType) {
+                Text("전체 공개로 설정하기")
+                    .pokitFont(.b1(.b))
+                    .foregroundStyle(.pokit(.text(.primary)))
+            }
+            .tint(.pokit(.icon(.brand)))
+            Text("포킷에 저장된 링크가 다른 사용자에게 추천됩니다.")
+                .pokitFont(.detail1)
+                .foregroundStyle(.pokit(.text(.tertiary)))
+        }
+        .padding(.vertical, 12)
+        .padding(.leading, 8)
+        .padding(.top, 16)
+    }
+    
+    /// 포킷 키워드
+    var keywordSection: some View {
+        Group {
+            if store.isPublicType {
+                VStack(alignment: .leading, spacing: 4) {
+                    Button(action: { send(.키워드_바텀시트_활성화(true)) }) {
+                        Text("포킷 키워드")
+                            .pokitFont(.b1(.b))
+                            .foregroundStyle(.pokit(.text(.primary)))
                         Spacer()
+                        Image(.icon(.arrowRight))
                     }
-                    
-                    
-                    ScrollView {
-                        ForEach(itemList, id: \.id) { item in
-                            PokitItem(item: item)
-                        }
-                    }
-                    .scrollIndicators(.hidden)
+                    .buttonStyle(.plain)
+                    Text(store.keywordSelectType.label)
+                        .pokitFont(.detail1)
+                        .foregroundStyle(store.keywordSelectType.fontColor)
                 }
-            } else {
-                PokitLoading()
+                .padding(.vertical, 12)
+                .padding(.leading, 8)
+                .padding(.top, 8)
             }
         }
-        .padding(.top, 28)
+        .animation(.smooth, value: store.isPublicType)
     }
     /// 저장하기 버튼
     var saveButton: some View {
         PokitBottomButton(
             "저장하기",
-            state: !store.categoryName.isEmpty && store.selectedProfile != nil
+            state: store.saveButtonEnabled
             ? .filled(.primary)
             : .disable,
             action: { send(.저장_버튼_눌렀을때) }
         )
+        .gradientBackground()
+        .keyboardAnchor(store.isKeyboardVisible)
     }
     /// 내포킷 Item
     struct PokitItem: View {

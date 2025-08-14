@@ -22,8 +22,8 @@ let projectTemplate = Template(
         .file(
             path: "Projects/\(nameAttribute)/Sources/Source.swift",
             templatePath: "Dummy.stencil"),
-        .file(
-            path: "Projects/\(nameAttribute)/Resources/Resource.swift",
-            templatePath: "Dummy.stencil"),
+        .string(
+            path: "Projects/\(nameAttribute)/Resources/.gitkeep",
+            contents: ""),
     ]
 )

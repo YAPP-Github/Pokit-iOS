@@ -120,7 +120,7 @@ public struct ContentListFeature {
             return handleDelegateAction(delegateAction, state: &state)
             
         case let .contents(contentAction):
-            return .send(.scope(.contents(contentAction)))
+            return shared(.scope(.contents(contentAction)), state: &state)
         }
     }
 
@@ -144,17 +144,18 @@ private extension ContentListFeature {
             state.domain.pageable.sort = [
                 state.isListDescending ? "createdAt,desc" : "createdAt,asc"
             ]
-            return .send(.inner(.페이징_초기화), animation: .pokitDissolve)
+            return shared(.inner(.페이징_초기화), state: &state)
+                .animation(.pokitDissolve)
         case .dismiss:
             return .run { _ in await dismiss() }
         case .뷰가_나타났을때:
             return .merge(
-                .send(.async(.컨텐츠_개수_조회_API)),
-                .send(.async(.컨텐츠_목록_조회_API)),
-                .send(.async(.클립보드_감지))
+                shared(.async(.컨텐츠_개수_조회_API), state: &state),
+                shared(.async(.컨텐츠_목록_조회_API), state: &state),
+                shared(.async(.클립보드_감지), state: &state)
             )
         case .pagenation:
-            return .send(.async(.컨텐츠_목록_조회_페이징_API))
+            return shared(.async(.컨텐츠_목록_조회_페이징_API), state: &state)
         }
     }
 
@@ -184,7 +185,8 @@ private extension ContentListFeature {
             state.domain.contentList.data = nil
             state.isLoading = true
             state.contents.removeAll()
-            return .send(.async(.컨텐츠_목록_조회_API), animation: .pokitDissolve)
+            return shared(.async(.컨텐츠_목록_조회_API), state: &state)
+                .animation(.pokitDissolve)
         case let .컨텐츠_개수_업데이트(count):
             state.domain.contentCount = count
             return .none
@@ -247,7 +249,7 @@ private extension ContentListFeature {
         /// - 링크에 대한 `공유` /  `수정` / `삭제` delegate
         switch action {
         case let .contents(.element(id: _, action: .delegate(.컨텐츠_항목_케밥_버튼_눌렀을때(content)))):
-            return .send(.delegate(.링크상세(content: content)))
+            return shared(.delegate(.링크상세(content: content)), state: &state)
         case .contents:
             return .none
         }
@@ -257,7 +259,7 @@ private extension ContentListFeature {
     func handleDelegateAction(_ action: Action.DelegateAction, state: inout State) -> Effect<Action> {
         switch action {
         case .컨텐츠_목록_조회:
-            return .send(.async(.컨텐츠_목록_조회_API))
+            return shared(.async(.컨텐츠_목록_조회_API), state: &state)
         default:
             return .none
         }
@@ -301,6 +303,24 @@ private extension ContentListFeature {
             }
             guard let contentItems else { return }
             await send(.inner(.컨텐츠_목록_조회_API_반영(contentItems)), animation: .pokitDissolve)
+        }
+    }
+    
+    /// - Shared Effect
+    func shared(_ action: Action, state: inout State) -> Effect<Action> {
+        switch action {
+        case .view(let viewAction):
+            return handleViewAction(viewAction, state: &state)
+        case .inner(let innerAction):
+            return handleInnerAction(innerAction, state: &state)
+        case .async(let asyncAction):
+            return handleAsyncAction(asyncAction, state: &state)
+        case .scope(let scopeAction):
+            return handleScopeAction(scopeAction, state: &state)
+        case .delegate(let delegateAction):
+            return handleDelegateAction(delegateAction, state: &state)
+        case let .contents(contentAction):
+            return shared(.scope(.contents(contentAction)), state: &state)
         }
     }
 }

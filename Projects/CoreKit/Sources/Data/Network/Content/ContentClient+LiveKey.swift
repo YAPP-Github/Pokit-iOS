@@ -61,6 +61,12 @@ extension ContentClient: DependencyKey {
             },
             미분류_링크_삭제: { model in
                 try await provider.requestNoBody(.미분류_링크_삭제(model: model))
+            },
+            추천_컨텐츠_조회: { pageable, keyword in
+                try await provider.request(.추천_컨텐츠_조회(pageable: pageable, keyword: keyword))
+            },
+            컨텐츠_신고: { id in
+                try await provider.requestNoBody(.컨텐츠_신고(contentId: id))
             }
         )
     }()

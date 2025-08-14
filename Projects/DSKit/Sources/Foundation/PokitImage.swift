@@ -50,7 +50,7 @@ public enum PokitImage {
             case .trash:
                 return DSKitAsset.iconTrash.swiftUIImage
             case .plusR:
-                return DSKitAsset.iconPlus.swiftUIImage
+                return DSKitAsset.iconPlusR.swiftUIImage
             case .remind:
                 return DSKitAsset.iconRemind.swiftUIImage
             case .reminder:
@@ -103,6 +103,8 @@ public enum PokitImage {
                 return DSKitAsset.iconAlluncheck.swiftUIImage
             case .report:
                 return DSKitAsset.iconReport.swiftUIImage
+            case .tack:
+                return DSKitAsset.iconTack.swiftUIImage
             }
         case .logo(let name):
             switch name {
@@ -124,6 +126,10 @@ public enum PokitImage {
                 return DSKitAsset.imageConfetti.swiftUIImage
             case .firecracker:
                 return DSKitAsset.imageFirecracker.swiftUIImage
+            case .profile:
+                return DSKitAsset.imageProfile.swiftUIImage
+            case .unpokited:
+                return DSKitAsset.unpokited.swiftUIImage
             }
         }
     }
@@ -174,6 +180,7 @@ public extension PokitImage {
         case allCheck
         case allUncheck
         case report
+        case tack
     }
     
     enum Logo {
@@ -189,5 +196,7 @@ public extension PokitImage {
     enum PokitImage {
         case confetti
         case firecracker
+        case profile
+        case unpokited
     }
 }

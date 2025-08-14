@@ -58,43 +58,39 @@ private extension ContentListView {
         }
     }
     
+    @ViewBuilder
     var list: some View {
-        Group {
-            if !store.isLoading {
-                if store.contents.isEmpty {
-                    PokitCaution(type: .즐겨찾기_링크없음)
-                    .padding(.top, 100)
-                    
-                    Spacer()
-                } else {
-                    ScrollView {
-                        LazyVStack(spacing: 0) {
-                            ForEach(
-                                Array(store.scope(state: \.contents, action: \.contents))
-                            ) { store in
-                                let isFirst = store.state.id == self.store.contents.first?.id
-                                let isLast = store.state.id == self.store.contents.last?.id
-                                
-                                ContentCardView(
-                                    store: store,
-                                    type: .linkList,
-                                    isFirst: isFirst,
-                                    isLast: isLast
-                                )
-                            }
-                            
-                            if store.hasNext {
-                                PokitLoading()
-                                    .task { await send(.pagenation).finish() }
-                            }
-                        }
-                        .padding(.horizontal, 20)
-                        .padding(.bottom, 36)
-                    }
-                }
+        if !store.isLoading {
+            if store.contents.isEmpty {
+                PokitCaution(type: .즐겨찾기_링크없음)
             } else {
-                PokitLoading()
+                ScrollView {
+                    LazyVStack(spacing: 0) {
+                        ForEach(
+                            Array(store.scope(state: \.contents, action: \.contents))
+                        ) { store in
+                            let isFirst = store.state.id == self.store.contents.first?.id
+                            let isLast = store.state.id == self.store.contents.last?.id
+                            
+                            ContentCardView(
+                                store: store,
+                                type: .linkList,
+                                isFirst: isFirst,
+                                isLast: isLast
+                            )
+                        }
+                        
+                        if store.hasNext {
+                            PokitLoading()
+                                .task { await send(.pagenation).finish() }
+                        }
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.bottom, 36)
+                }
             }
+        } else {
+            PokitLoading()
         }
     }
     

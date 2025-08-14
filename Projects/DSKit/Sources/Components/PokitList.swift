@@ -33,11 +33,7 @@ public struct PokitList<Item: PokitSelectItem>: View {
     
     public var body: some View {
         if list.isEmpty {
-            VStack {
-                PokitCaution(type: .카테고리없음)
-                
-                Spacer()
-            }
+            PokitCaution(type: .카테고리없음)
         } else {
             ScrollView {
                 VStack(spacing: 0) {
@@ -59,7 +55,14 @@ public struct PokitList<Item: PokitSelectItem>: View {
             action(item)
         } label: {
             HStack(spacing: 12) {
-                thumbNail(url: item.categoryImage.imageURL)
+                if item.categoryName == Constants.미분류 {
+                    Image(.image(.unpokited))
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 60, height: 60)
+                } else {
+                    thumbNail(url: item.categoryImage.imageURL)
+                }
                 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(item.categoryName)
@@ -83,15 +86,13 @@ public struct PokitList<Item: PokitSelectItem>: View {
             }
             .padding(.vertical, 12)
             .padding(.horizontal, 20)
-            .background {
-                if isSelected {
-                    Color.pokit(.bg(.primary))
-                        .matchedGeometryEffect(id: "SELECT", in: heroEffect)
-                } else {
-                    isDisabled
-                    ? Color.pokit(.bg(.disable))
-                    : Color.pokit(.bg(.base))
-                }
+            .background(if: isSelected) {
+                Color.pokit(.bg(.primary))
+                    .matchedGeometryEffect(id: "SELECT", in: heroEffect)
+            } else: {
+                isDisabled
+                ? Color.pokit(.bg(.disable))
+                : Color.pokit(.bg(.base))
             }
         }
         .animation(.pokitDissolve, value: isSelected)

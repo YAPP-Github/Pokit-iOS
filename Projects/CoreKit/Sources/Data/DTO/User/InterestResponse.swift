@@ -23,6 +23,14 @@ extension InterestResponse {
         Self(code: "code2", description: "산책"),
         Self(code: "code3", description: "프로그래밍"),
         Self(code: "code4", description: "여행"),
-        Self(code: "code5", description: "요리")
+        Self(code: "code5", description: "요리"),
+        Self(code: "code6", description: "스포츠/레저"),
+        Self(code: "code7", description: "기획/마케팅"),
+        Self(code: "code8", description: "쇼핑"),
+        Self(code: "code9", description: "경제/시사"),
+        Self(code: "code10", description: "영화/드라마"),
+        Self(code: "code11", description: "장소"),
+        Self(code: "code12", description: "인테리어"),
+        Self(code: "code13", description: "IT"),
     ]
 }

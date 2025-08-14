@@ -23,7 +23,8 @@ public extension ContentBaseResponse {
             domain: self.domain,
             createdAt: self.createdAt,
             isRead: self.isRead,
-            isFavorite: self.isFavorite
+            isFavorite: self.isFavorite,
+            keyword: self.keyword
         )
     }
 }

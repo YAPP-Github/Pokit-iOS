@@ -16,7 +16,7 @@ public struct PokitSearchView: View {
     @Perception.Bindable
     public var store: StoreOf<PokitSearchFeature>
     @FocusState
-        private var focused: Bool
+    private var focused: Bool
     
     /// - Initializer
     public init(store: StoreOf<PokitSearchFeature>) {
@@ -43,6 +43,7 @@ public extension PokitSearchView {
             .background(.pokit(.bg(.base)))
             .ignoresSafeArea(edges: .bottom)
             .navigationBarBackButtonHidden(true)
+            .dismissKeyboard(focused: $focused)
             .sheet(
                 item: $store.scope(
                     state: \.filterBottomSheet,
@@ -71,7 +72,7 @@ private extension PokitSearchView {
                     action: store.isSearching ? { send(.검색_버튼_눌렀을때) } : nil
                 ),
                 shape: .round,
-                state: .constant(.default),
+                state: .constant(focused ? .active : .default),
                 placeholder: "제목, 메모를 검색해보세요.",
                 focusState: $focused,
                 equals: true,
@@ -110,28 +111,31 @@ private extension PokitSearchView {
         .padding(.horizontal, 20)
     }
     
+    @ViewBuilder
     var recentSearch: some View {
-        VStack(spacing: 20) {
-            recentSearchTitle
-            
-            if store.isSearching {
-                filterToolbar
-            } else if store.isAutoSaveSearch {
-                if store.recentSearchTexts.isEmpty {
-                    Text("검색 내역이 없습니다.")
+        if store.isSearching {
+            filterToolbar
+        } else {
+            VStack(spacing: 20) {
+                recentSearchTitle
+                
+                if store.isAutoSaveSearch {
+                    if store.recentSearchTexts.isEmpty {
+                        Text("검색 내역이 없습니다.")
+                            .pokitFont(.b3(.r))
+                            .foregroundStyle(.pokit(.text(.tertiary)))
+                            .pokitBlurReplaceTransition(.pokitDissolve)
+                            .padding(.vertical, 5)
+                    } else {
+                        recentSearchList
+                    }
+                } else {
+                    Text("최근 검색 저장 기능이 꺼져있습니다.")
                         .pokitFont(.b3(.r))
                         .foregroundStyle(.pokit(.text(.tertiary)))
                         .pokitBlurReplaceTransition(.pokitDissolve)
                         .padding(.vertical, 5)
-                } else {
-                    recentSearchList
                 }
-            } else {
-                Text("최근 검색 저장 기능이 꺼져있습니다.")
-                    .pokitFont(.b3(.r))
-                    .foregroundStyle(.pokit(.text(.tertiary)))
-                    .pokitBlurReplaceTransition(.pokitDissolve)
-                    .padding(.vertical, 5)
             }
         }
     }
@@ -194,68 +198,64 @@ private extension PokitSearchView {
         )
     }
     
+    @ViewBuilder
     var categoryFilterButton: some View {
-        Group {
-            if store.categoryFilter.isEmpty {
-                PokitIconRChip(
-                    "포킷",
-                    icon: .icon(.arrowDown),
-                    state: .default(.primary),
-                    size: .small,
-                    action: { send(.카테고리_버튼_눌렀을때) }
-                )
-            } else {
-                ForEach(store.categoryFilter) { category in
-                    PokitIconRChip(
-                        category.categoryName,
-                        state: .stroke(.primary),
-                        size: .small,
-                        action: { send(.카테고리_태그_눌렀을때(category: category), animation: .pokitSpring) }
-                    )
-                    .pokitBlurReplaceTransition(.pokitDissolve)
-                }
-            }
+        if store.categoryFilter.isEmpty {
+            PokitIconRChip(
+                "포킷",
+                icon: .icon(.arrowDown),
+                state: .default(.primary),
+                size: .small,
+                action: { send(.카테고리_버튼_눌렀을때) }
+            )
+        } else {
+            let firstName = store.categoryFilter.first?.categoryName ?? ""
+            let text = store.categoryFilter.count == 1
+            ? firstName
+            : firstName + " 외 \(store.categoryFilter.count - 1)"
+            
+            PokitIconRChip(
+                text,
+                icon: .icon(.arrowDown),
+                state: .stroke(.primary),
+                size: .small,
+                action: { send(.카테고리_태그_눌렀을때, animation: .pokitSpring) }
+            )
+            .pokitBlurReplaceTransition(.pokitDissolve)
         }
     }
     
+    @ViewBuilder
     var contentTypeFilterButton: some View {
-        Group {
-            if !store.favoriteFilter && !store.unreadFilter {
-                PokitIconRChip(
-                    "모아보기",
-                    icon: .icon(.arrowDown),
-                    state: .default(.primary),
-                    size: .small,
-                    action: { send(.모아보기_버튼_눌렀을때) }
-                )
-            } else {
-                if store.favoriteFilter {
-                    PokitIconRChip(
-                        "즐겨찾기",
-                        state: .stroke(.primary),
-                        size: .small,
-                        action: { send(.즐겨찾기_태그_눌렀을때, animation: .pokitSpring) }
-                    )
-                    .pokitBlurReplaceTransition(.pokitDissolve)
-                }
-                
-                if store.unreadFilter {
-                    PokitIconRChip(
-                        "안읽음",
-                        state: .stroke(.primary),
-                        size: .small,
-                        action: { send(.안읽음_태그_눌렀을때, animation: .pokitSpring) }
-                    )
-                    .pokitBlurReplaceTransition(.pokitDissolve)
-                }
-            }
+        if !store.favoriteFilter && !store.unreadFilter {
+            PokitIconRChip(
+                "모아보기",
+                icon: .icon(.arrowDown),
+                state: .default(.primary),
+                size: .small,
+                action: { send(.모아보기_버튼_눌렀을때) }
+            )
+        } else {
+            let contentTypes = [
+                store.favoriteFilter ? "즐겨찾기" : nil,
+                store.unreadFilter ? "안읽음" : nil
+            ].compactMap(\.self).joined(separator: ", ")
+            
+            PokitIconRChip(
+                contentTypes,
+                icon: .icon(.arrowDown),
+                state: .stroke(.primary),
+                size: .small,
+                action: { send(.컨텐츠_타입_태그_눌렀을때, animation: .pokitSpring) }
+            )
+            .pokitBlurReplaceTransition(.pokitDissolve)
         }
     }
     
     var dateFilterButton: some View {
         PokitIconRChip(
             store.dateFilterText,
-            icon: store.dateFilterText == "기간" ? .icon(.arrowDown) : .icon(.x),
+            icon: .icon(.arrowDown),
             state: store.dateFilterText == "기간" ? .default(.primary) : .stroke(.primary),
             size: .small,
             action: { send(.기간_버튼_눌렀을때, animation: .pokitSpring) }
@@ -265,14 +265,6 @@ private extension PokitSearchView {
     
     var resultList: some View {
         VStack(alignment: .leading, spacing: 20) {
-            PokitIconLTextLink(
-                store.isResultAscending ? "오래된순" : "최신순",
-                icon: .icon(.align),
-                action: { send(.정렬_버튼_눌렀을때) }
-            )
-            .contentTransition(.numericText())
-            .padding(.horizontal, 20)
-            
             if !store.isLoading {
                 ScrollView {
                     LazyVStack(spacing: 0) {
