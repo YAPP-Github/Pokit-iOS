@@ -63,11 +63,9 @@ public extension PokitLinkEditView {
             }
             .overlay(alignment: .bottom) {
                 if store.linkPopup != nil {
-                    PokitLinkPopup(
-                        type: $store.linkPopup,
-                        action: { send(.링크팝업_버튼_눌렀을때, animation: .pokitSpring) }
-                    )
-                    .pokitMaxWidth()
+                    PokitLinkPopup(type: $store.linkPopup)
+                        .onAction { send(.링크팝업_버튼_눌렀을때, animation: .pokitSpring) }
+                        .pokitMaxWidth()
                 }
             }
             /// fullScreenCover를 통해 새로운 Destination을 만들었음
