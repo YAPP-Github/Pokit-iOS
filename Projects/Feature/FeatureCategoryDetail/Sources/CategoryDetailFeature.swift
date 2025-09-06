@@ -199,11 +199,14 @@ private extension CategoryDetailFeature {
             )
             
         case let .분류_버튼_눌렀을때(type):
-            if type == .즐겨찾기 {
+            switch type {
+            case .즐겨찾기:
                 state.domain.condition.isFavoriteFlitered.toggle()
+                guard state.domain.condition.isFavoriteFlitered else { break }
                 state.domain.condition.isUnreadFlitered = !state.domain.condition.isFavoriteFlitered
-            } else {
+            case .안읽음:
                 state.domain.condition.isUnreadFlitered.toggle()
+                guard state.domain.condition.isUnreadFlitered else { break }
                 state.domain.condition.isFavoriteFlitered = !state.domain.condition.isUnreadFlitered
             }
             return .concatenate(
