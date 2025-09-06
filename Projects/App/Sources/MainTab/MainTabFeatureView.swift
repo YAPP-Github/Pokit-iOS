@@ -74,10 +74,8 @@ public extension MainTabView {
                         }
                         
                         if self.store.linkPopup != nil {
-                            PokitLinkPopup(
-                                type: $store.linkPopup,
-                                action: { send(.링크팝업_버튼_눌렀을때, animation: .pokitSpring) }
-                            )
+                            PokitLinkPopup(type: $store.linkPopup)
+                                .onAction { send(.링크팝업_버튼_눌렀을때, animation: .pokitSpring) }
                         }
                     }
                 }
@@ -93,11 +91,9 @@ private extension MainTabView {
             .overlay(alignment: .bottom) {
                 VStack(spacing: 0) {
                     if store.linkPopup != nil {
-                        PokitLinkPopup(
-                            type: $store.linkPopup,
-                            action: { send(.링크팝업_버튼_눌렀을때, animation: .pokitSpring) }
-                        )
-                        .padding(.bottom, 20)
+                        PokitLinkPopup(type: $store.linkPopup)
+                            .onAction { send(.링크팝업_버튼_눌렀을때, animation: .pokitSpring) }
+                            .padding(.bottom, 20)
                     }
                     
                     bottomTabBar
