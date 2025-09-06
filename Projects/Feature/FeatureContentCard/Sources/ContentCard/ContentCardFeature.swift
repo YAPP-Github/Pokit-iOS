@@ -52,6 +52,7 @@ public struct ContentCardFeature {
         public enum InnerAction: Equatable {
             case 메타데이터_조회_수행_반영(String)
             case 즐겨찾기_API_반영(Bool)
+            case 컨텐츠_상세_조회_API_반영
         }
         
         @CasePathable
@@ -60,6 +61,7 @@ public struct ContentCardFeature {
             case 즐겨찾기_API
             case 즐겨찾기_취소_API
             case 썸네일_수정_API
+            case 컨텐츠_상세_조회_API
         }
         
         public enum ScopeAction: Equatable { case doNothing }
@@ -111,7 +113,10 @@ private extension ContentCardFeature {
             guard let url = URL(string: state.content.data) else {
                 return .none
             }
-            return .run {  _ in await openURL(url) }
+            return .run {  send in
+                await send(.async(.컨텐츠_상세_조회_API))
+                await openURL(url)
+            }
         case .컨텐츠_항목_케밥_버튼_눌렀을때:
             return .send(.delegate(.컨텐츠_항목_케밥_버튼_눌렀을때(content: state.content)))
         case .메타데이터_조회:
@@ -136,6 +141,9 @@ private extension ContentCardFeature {
             return shared(.async(.썸네일_수정_API), state: &state)
         case .즐겨찾기_API_반영(let favorite):
             state.content.isFavorite = favorite
+            return .none
+        case .컨텐츠_상세_조회_API_반영:
+            state.content.isRead = true
             return .none
         }
     }
@@ -166,6 +174,11 @@ private extension ContentCardFeature {
                 let request = ThumbnailRequest(thumbnail: content.thumbNail)
                 
                 try await contentClient.썸네일_수정("\(content.id)", request)
+            }
+        case .컨텐츠_상세_조회_API:
+            return .run { [id = state.content.id] send in
+                let _ = try await contentClient.컨텐츠_상세_조회("\(id)")
+                await send(.inner(.컨텐츠_상세_조회_API_반영))
             }
         }
     }
