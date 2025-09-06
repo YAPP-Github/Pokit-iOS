@@ -65,9 +65,6 @@ public struct CategoryDetailFeature {
             domain.contentList.hasNext
         }
         var isLoading: Bool = true
-        var isContentsNotEmpty: Bool {
-            (isFavoriteCategory && contents.contains { $0.content.isFavorite == true }) || (!isFavoriteCategory && !contents.isEmpty)
-        }
         
         public init(category: BaseCategoryItem) {
             self.domain = .init(categpry: category)

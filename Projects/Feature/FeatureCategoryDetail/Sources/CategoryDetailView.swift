@@ -65,7 +65,7 @@ public extension CategoryDetailView {
             .padding(.top, 12)
             .pokitNavigationBar { navigationBar }
             .overlay(
-                if: store.isContentsNotEmpty,
+                if: !store.isFavoriteCategory,
                 alignment: .bottomTrailing
             ) {
                 Button(action: { send(.링크_추가_버튼_눌렀을때) }) {
@@ -215,30 +215,32 @@ private extension CategoryDetailView {
     var filterHeader: some View {
         let isFavoriteCategory = store.isFavoriteCategory
         let favoriteContentsCount = store.contents.filter { $0.content.isFavorite ?? false }.count
-        if store.isContentsNotEmpty {
-            HStack(spacing: isFavoriteCategory ? 2 : 8) {
-                if isFavoriteCategory {
-                    Image(.icon(.link))
-                        .resizable()
-                        .frame(width: 16, height: 16)
-                        .foregroundStyle(.pokit(.icon(.secondary)))
-                    Text("\(favoriteContentsCount)개")
-                        .foregroundStyle(.pokit(.text(.tertiary)))
-                        .pokitFont(.b2(.m))
-                } else {
-                    favoriteButton
-                    
-                    unreadButton
-                }
+        
+        HStack(spacing: isFavoriteCategory ? 2 : 8) {
+            if isFavoriteCategory {
+                Image(.icon(.link))
+                    .resizable()
+                    .frame(width: 16, height: 16)
+                    .foregroundStyle(.pokit(.icon(.secondary)))
                 
-                Spacer()
-                PokitIconLTextLink(
-                    store.sortType.title,
-                    icon: .icon(.align),
-                    action: { send(.정렬_버튼_눌렀을때) }
-                )
-                .contentTransition(.numericText())
+                Text("\(favoriteContentsCount)개")
+                    .foregroundStyle(.pokit(.text(.tertiary)))
+                    .pokitFont(.b2(.m))
+                
+            } else {
+                favoriteButton
+                
+                unreadButton
             }
+            
+            Spacer()
+            
+            PokitIconLTextLink(
+                store.sortType.title,
+                icon: .icon(.align),
+                action: { send(.정렬_버튼_눌렀을때) }
+            )
+            .contentTransition(.numericText())
         }
     }
     
@@ -286,53 +288,47 @@ private extension CategoryDetailView {
         }
     }
     
+    @ViewBuilder
     var contentScrollView: some View {
-        Group {
-            if !store.isLoading {
-                if store.contents.isEmpty {
-                    PokitCaution(
-                        type: .포킷상세_링크없음,
-                        action: { send(.링크_추가_버튼_눌렀을때) }
-                    )
-                } else {
-                    LazyVStack(spacing: 0) {
-                        ForEach(
-                            Array(store.scope(state: \.contents, action: \.contents))
-                        ) { store in
-                            let isFirst = store.state.id == self.store.contents.first?.id
-                            let isLast = store.state.id == self.store.contents.last?.id
-                            
-                            if !self.store.isFavoriteCategory {
-                                ContentCardView(
-                                    store: store,
-                                    type: .linkList,
-                                    isFirst: isFirst,
-                                    isLast: isLast
-                                )
-                            } else {
-                                if store.content.isFavorite == true {
-                                    ContentCardView(
-                                        store: store,
-                                        type: .linkList,
-                                        isFirst: isFirst,
-                                        isLast: isLast
-                                    )
-                                }
-                            }
-                        }
-                        
-                        if store.hasNext {
-                            PokitLoading()
-                                .task { await send(.pagenation).finish() }
-                        }
-                        
-                        Spacer()
-                    }
-                    .padding(.bottom, 36)
-                }
+        if !store.isLoading {
+            if store.contents.isEmpty {
+                PokitCaution(type: .포킷상세_링크없음)
             } else {
-                PokitLoading()
+                LazyVStack(spacing: 0) {
+                    ForEach(
+                        Array(store.scope(state: \.contents, action: \.contents))
+                    ) { store in
+                        let isFirst = store.state.id == self.store.contents.first?.id
+                        let isLast = store.state.id == self.store.contents.last?.id
+                        
+                        if !self.store.isFavoriteCategory {
+                            ContentCardView(
+                                store: store,
+                                type: .linkList,
+                                isFirst: isFirst,
+                                isLast: isLast
+                            )
+                        } else if store.content.isFavorite == true {
+                            ContentCardView(
+                                store: store,
+                                type: .linkList,
+                                isFirst: isFirst,
+                                isLast: isLast
+                            )
+                        }
+                    }
+                    
+                    if store.hasNext {
+                        PokitLoading()
+                            .task { await send(.pagenation).finish() }
+                    }
+                    
+                    Spacer()
+                }
+                .padding(.bottom, 36)
             }
+        } else {
+            PokitLoading()
         }
     }
     
