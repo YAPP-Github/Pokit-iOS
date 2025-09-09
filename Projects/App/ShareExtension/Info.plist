@@ -13,7 +13,7 @@
 	<key>CFBundleName</key>
 	<string>Pokit</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.0.9</string>
+	<string>2.0.1</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
