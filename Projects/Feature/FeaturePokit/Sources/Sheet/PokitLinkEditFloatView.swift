@@ -11,14 +11,14 @@ import SwiftUI
 public struct PokitLinkEditFloatView: View {
     /// 전체 선택/해제 toggle
     @State private var isChecked: Bool = false
-    @Binding private var isActive: Bool
+    private let isActive: Bool
     private let delegateSend: ((PokitLinkEditFloatView.Delegate) -> Void)?
     
     public init(
-        isActive: Binding<Bool>,
+        isActive: Bool,
         delegateSend: ((PokitLinkEditFloatView.Delegate) -> Void)?
     ) {
-        self._isActive = isActive
+        self.isActive = isActive
         self.delegateSend = delegateSend
     }
     
@@ -114,7 +114,7 @@ public extension PokitLinkEditFloatView {
 }
 #Preview {
     PokitLinkEditFloatView(
-        isActive: .constant(true),
+        isActive: true,
         delegateSend: {_ in }
     ).padding(20)
 }

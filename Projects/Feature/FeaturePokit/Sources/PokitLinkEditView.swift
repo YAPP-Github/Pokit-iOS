@@ -121,7 +121,7 @@ private extension PokitLinkEditView {
     
     var actionFloatButtonView: some View {
         PokitLinkEditFloatView(
-            isActive: $store.isActive,
+            isActive: store.isActive,
             delegateSend: { store.send(.scope(.floatButtonAction($0))) }
         )
     }
