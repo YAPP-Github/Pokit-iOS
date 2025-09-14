@@ -41,6 +41,7 @@ platform :ios do
     workspace: "Pokit.xcworkspace",
     scheme: "App",
     configuration: "Debug",
+    destination: "generic/platform=iOS Simulator",
     export_method: "development",
     export_options: {
         provisioningProfiles: {
