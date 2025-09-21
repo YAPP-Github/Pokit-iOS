@@ -18,8 +18,13 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
+    - uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: '3.2'
+        bundler-cache: true
+
     - name: Install GitHub CLI
-      run: sudo apt-get install gh
+      run: brew install gh
 
     - name: Update Release
       env:
