@@ -15,17 +15,36 @@ public struct PokitLinkPopup: View {
     @State
     private var second: Int = 0
     private let action: (() -> Void)?
+    private let until: Int
     private let timer = Timer.publish(
         every: 1,
         on: .main,
         in: .common
     ).autoconnect()
     
-    public init(
+    public init(type: Binding<PokitLinkPopup.PopupType?>) {
+        self._type = type
+        switch type.wrappedValue {
+        case let .link(_, _, until),
+             let .text(_, until),
+             let .success(_, until),
+             let .error(_, until),
+             let .warning(_, until),
+             let .report(_, until):
+            self.until = until
+        default:
+            self.until = 2
+        }
+        self.action = nil
+    }
+    
+    private init(
         type: Binding<PokitLinkPopup.PopupType?>,
-        action: (() -> Void)? = nil
+        until: Int,
+        action: (() -> Void)?
     ) {
         self._type = type
+        self.until = until
         self.action = action
     }
     
@@ -40,7 +59,7 @@ public struct PokitLinkPopup: View {
         .frame(width: 335, height: 60)
         .transition(.move(edge: .bottom).combined(with: .opacity))
         .onReceive(timer) { _ in
-            guard second < 2 else {
+            guard second < until else {
                 closedPopup()
                 return
             }
@@ -61,7 +80,7 @@ public struct PokitLinkPopup: View {
                         .multilineTextAlignment(.leading)
                         .foregroundStyle(textColor)
                     
-                    if case let .link(_, url) = type {
+                    if case let .link(_, url, _) = type {
                         Text(url)
                             .lineLimit(1)
                             .pokitFont(.detail2)
@@ -167,26 +186,34 @@ public struct PokitLinkPopup: View {
     
     private var title: String {
         switch type {
-        case let .link(title, _),
-             let .text(title),
-             let .success(title),
-             let .error(title),
-             let .warning(title),
-             let .report(title):
+        case let .link(title, _, _),
+             let .text(title, _),
+             let .success(title, _),
+             let .error(title, _),
+             let .warning(title, _),
+             let .report(title, _):
             return title
         default: return ""
         }
+    }
+    
+    public func onAction(_ action: @escaping () -> Void) -> Self {
+        PokitLinkPopup(
+            type: self.$type,
+            until: self.until,
+            action: action
+        )
     }
 }
 
 public extension PokitLinkPopup {
     enum PopupType: Equatable {
-        case link(title: String, url: String)
-        case text(title: String)
-        case success(title: String)
-        case error(title: String)
-        case warning(title: String)
-        case report(title: String)
+        case link(title: String, url: String, until: Int = 2)
+        case text(title: String, until: Int = 2)
+        case success(title: String, until: Int = 2)
+        case error(title: String, until: Int = 2)
+        case warning(title: String, until: Int = 2)
+        case report(title: String, until: Int = 2)
     }
 }
 

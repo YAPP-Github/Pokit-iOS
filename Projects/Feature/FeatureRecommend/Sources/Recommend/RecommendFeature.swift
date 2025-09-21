@@ -168,7 +168,7 @@ private extension RecommendFeature {
         case .onAppear:
             return .merge(
                 shared(.async(.추천_조회_API), state: &state),
-                shared(.async(.유저_관심사_조회_API), state: &state)
+                shared(.async(.관심사_조회_API), state: &state)
             )
         case .pagination:
             return shared(.async(.추천_조회_페이징_API), state: &state)
@@ -215,7 +215,8 @@ private extension RecommendFeature {
             guard let url = URL(string: urlString) else { return .none }
             return .run { _ in await openURL(url) }
         case .관심사_편집_버튼_눌렀을때:
-            return shared(.async(.관심사_조회_API), state: &state)
+            state.showKeywordSheet = true
+            return .none
         case let .키워드_선택_버튼_눌렀을때(interests):
             state.showKeywordSheet = false
             state.selectedInterest = nil
@@ -255,14 +256,18 @@ private extension RecommendFeature {
             state.isLoading = false
             return .none
         case let .유저_관심사_조회_API_반영(interests):
-            state.domain.myInterests = interests
-            interests.forEach { state.selectedInterestList.insert($0) }
+            state.domain.myInterests = interests.filter { interest in
+                state.interests.contains(interest)
+            }
+            interests.forEach {
+                guard state.interests.contains($0) else { return }
+                state.selectedInterestList.insert($0)
+            }
             return .none
         case let .관심사_조회_API_반영(interests):
             state.domain.interests = interests.filter({ interest in
                 interest.code != "default"
             })
-            state.showKeywordSheet = true
             return .none
         case let .컨텐츠_신고_API_반영(contentId):
             state.domain.contentList.data?.removeAll(where: { $0.id == contentId })
@@ -319,13 +324,20 @@ private extension RecommendFeature {
             return contentListFetch(state: &state)
         case .유저_관심사_조회_API:
             return .run { send in
-                let interests = try await userClient.유저_관심사_목록_조회().map { $0.toDomian() }
+                let interests = try await userClient.유저_관심사_목록_조회()
+                    .map { $0.toDomian() }
+                    .sorted { $0.description < $1.description }
+                
                 await send(.inner(.유저_관심사_조회_API_반영(interests)))
             }
         case .관심사_조회_API:
             return .run { send in
-                let interests = try await userClient.관심사_목록_조회().map { $0.toDomian() }
+                let interests = try await userClient.관심사_목록_조회()
+                    .map { $0.toDomian() }
+                    .sorted { $0.description < $1.description }
+                
                 await send(.inner(.관심사_조회_API_반영(interests)))
+                await send(.async(.유저_관심사_조회_API))
             }
         case let .컨텐츠_신고_API(contentId):
             return .run { send in

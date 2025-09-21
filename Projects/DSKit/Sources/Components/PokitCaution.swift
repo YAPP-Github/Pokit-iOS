@@ -84,9 +84,14 @@ public struct PokitCaution: View {
     private let type: CautionType
     private let action: (() -> Void)?
     
-    public init(
+    public init(type: CautionType) {
+        self.type = type
+        self.action = nil
+    }
+    
+    private init(
         type: CautionType,
-        action: (() -> Void)? = nil
+        action: (() -> Void)?
     ) {
         self.type = type
         self.action = action
@@ -132,11 +137,15 @@ public struct PokitCaution: View {
         .frame(maxHeight: .infinity)
         .padding(.bottom, 92)
     }
+    
+    public func onAction(_ action: @escaping () -> Void) -> Self {
+        PokitCaution(type: self.type, action: action)
+    }
 }
 
 #Preview {
-    PokitCaution(
-        type: .미분류_링크없음,
-        action: {}
-    )
+    PokitCaution(type: .미분류_링크없음)
+        .onAction {
+            
+        }
 }
