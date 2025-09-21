@@ -23,6 +23,9 @@ jobs:
         ruby-version: '3.2'
         bundler-cache: true
 
+    - name: Install Fastlane
+      run: gem install fastlane -N
+
     - name: Install GitHub CLI
       run: brew install gh
 

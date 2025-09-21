@@ -25,6 +25,9 @@ jobs:
         ruby-version: '3.2'
         bundler-cache: true
 
+    - name: Install Fastlane
+      run: gem install fastlane -N
+
     - name: Set up Xcode
       uses: maxim-lobanov/setup-xcode@v1
       with:
