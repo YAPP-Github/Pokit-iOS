@@ -41,7 +41,6 @@ platform :ios do
     workspace: "Pokit.xcworkspace",
     scheme: "App",
     configuration: "Debug",
-    destination: "platform=iOS Simulator,name=iPhone 15,OS=17.5",
     export_method: "development",
     export_options: {
         provisioningProfiles: {
@@ -73,7 +72,6 @@ platform :ios do
     workspace: "Pokit.xcworkspace",
     scheme: "App",
     configuration: "Release",
-    destination: "generic/platform=iOS",
     export_method: "app-store",
     export_options: {
         provisioningProfiles: {
