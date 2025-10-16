@@ -59,7 +59,7 @@ jobs:
         if: env.MATCH_GIT_PRIVATE_KEY != ''
         run: |
           mkdir -p "$HOME/.ssh"
-          echo "$MATCH_GIT_PRIVATE_KEY" > "$HOME/.ssh/match_git_key"
+          echo -e "$MATCH_GIT_PRIVATE_KEY" > "$HOME/.ssh/match_git_key"
           chmod 600 "$HOME/.ssh/match_git_key"
 
           eval "$(ssh-agent -s)"
