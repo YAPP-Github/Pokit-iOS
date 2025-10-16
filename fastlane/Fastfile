@@ -134,6 +134,7 @@ def build_app_for_release(scheme:, output_name:, export_method:)
     clean: true,
     skip_profile_detection: true,
     export_method: export_method,
+    xcargs: "-skipMacroValidation",
     export_options: {
       provisioningProfiles: {
         APP_IDENTIFIERS[:app] => "match #{export_method == 'app-store' ? 'AppStore' : 'Development'} #{APP_IDENTIFIERS[:app]}",
@@ -164,10 +165,12 @@ platform :ios do
   lane :build do
     generate_tuist_project
 
-    build_app_for_release(
+    xcodebuild(
+      workspace: "Pokit.xcworkspace",
       scheme: "App",
-      output_name: "Pokit-dev.ipa",
-      export_method: "development"
+      configuration: "Debug",
+      xcargs: "-skipMacroValidation",
+      build: true
     )
   end
 
