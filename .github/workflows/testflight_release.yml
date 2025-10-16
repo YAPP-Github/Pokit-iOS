@@ -1,7 +1,4 @@
-# This workflow will build a Swift project
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-swift
-
-name: testflight-release
+name: TestFlight Release
 
 on:
   pull_request:
@@ -13,50 +10,121 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  deploy:
     if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true }}
     runs-on: macos-26
+    timeout-minutes: 90
+
+    env:
+      # App Store Connect
+      APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+      APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+      APP_STORE_CONNECT_API: ${{ secrets.APP_STORE_CONNECT_API }}
+
+      # Team IDs
+      DEVELOPMENT_TEAM: ${{ secrets.DEVELOPMENT_TEAM }}
+      APP_STORE_CONNECT_TEAM_ID: ${{ secrets.APP_STORE_CONNECT_TEAM_ID }}
+
+      # Match (Code Signing)
+      MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+      MATCH_KEYCHAIN_NAME: fastlane_tmp.keychain-db
+      MATCH_GIT_PRIVATE_KEY: ${{ secrets.MATCH_GIT_PRIVATE_KEY }}
+
+      # Fastlane
+      FASTLANE_XCODEBUILD_SETTINGS_TIMEOUT: '120'
+      FASTLANE_XCODE_LIST_TIMEOUT: '120'
+      FASTLANE_DISABLE_COLORS: 'true'
 
     steps:
-    - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Set up Xcode
-      uses: maxim-lobanov/setup-xcode@v1
-      with:
-        xcode-version: latest-stable
+      - name: Set up Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
 
-    - uses: shimataro/ssh-key-action@v2
-      with:
-        key: ${{ secrets.SSH_KEY }}
-        known_hosts: ${{ secrets.KNOWN_HOSTS }}
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+          bundler-cache: true
 
-    - name: initial mise
-      run: |
-        curl https://mise.jdx.dev/install.sh | sh
-        echo "$HOME/.local/share/mise/bin" >> $GITHUB_PATH
-        echo "$HOME/.local/share/mise/shims" >> $GITHUB_PATH
+      - name: Setup SSH for Match
+        if: env.MATCH_GIT_PRIVATE_KEY != ''
+        run: |
+          mkdir -p "$HOME/.ssh"
+          echo "$MATCH_GIT_PRIVATE_KEY" > "$HOME/.ssh/match_git_key"
+          chmod 600 "$HOME/.ssh/match_git_key"
 
-    - name: initial tuist
-      run: mise install tuist
+          eval "$(ssh-agent -s)"
+          ssh-add "$HOME/.ssh/match_git_key"
+          ssh-keyscan -H github.com >> "$HOME/.ssh/known_hosts"
 
-    - name: Generate Project
-      env:
-        MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
-        DEVELOPMENT_TEAM: ${{ secrets.DEVELOPMENT_TEAM }}
-      run: |
-        fastlane appstore_profile
-        make release
+          cat >> "$HOME/.ssh/config" << EOF
+          Host github.com
+            IdentityFile ~/.ssh/match_git_key
+            StrictHostKeyChecking yes
+            User git
+          EOF
 
-    - name: Build Archive
-      env:
-        APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
-        APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
-        APP_STORE_CONNECT_API: ${{ secrets.APP_STORE_CONNECT_API }}
-      run: fastlane archive
+      - name: Setup SSH for Private repo
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.SSH_KEY }}
+          known_hosts: ${{ secrets.KNOWN_HOSTS }}
 
-    - name: Testflight Release
-      env:
-        APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
-        APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
-        APP_STORE_CONNECT_API: ${{ secrets.APP_STORE_CONNECT_API }}
-      run: fastlane testflight_release
+      - name: Setup keychain
+        if: env.MATCH_PASSWORD != ''
+        run: |
+          security create-keychain -p "$MATCH_PASSWORD" "$MATCH_KEYCHAIN_NAME"
+          security set-keychain-settings -lut 21600 "$MATCH_KEYCHAIN_NAME"
+          security unlock-keychain -p "$MATCH_PASSWORD" "$MATCH_KEYCHAIN_NAME"
+
+          existing_keychains=$(security list-keychains | tr -d '"')
+          security list-keychains -s "$MATCH_KEYCHAIN_NAME" $existing_keychains
+          security default-keychain -s "$MATCH_KEYCHAIN_NAME"
+
+      - name: Setup mise
+        run: |
+          curl https://mise.jdx.dev/install.sh | sh
+          echo "$HOME/.local/share/mise/bin" >> $GITHUB_PATH
+          echo "$HOME/.local/share/mise/shims" >> $GITHUB_PATH
+
+      - name: Install Tuist
+        run: mise install tuist
+
+      - name: Setup code signing
+        run: bundle exec fastlane appstore_profile
+
+      - name: Generate project with Tuist
+        run: make release
+
+      - name: Build and upload to TestFlight
+        run: bundle exec fastlane archive && bundle exec fastlane testflight_release
+
+      - name: Upload logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: xcode-logs
+          path: |
+            ~/Library/Logs/gym
+            ~/Library/Developer/Xcode/DerivedData
+            /Users/runner/Library/Developer/Xcode/Archives
+          if-no-files-found: ignore
+          retention-days: 3
+
+      - name: Cleanup
+        if: always()
+        run: |
+          # SSH cleanup
+          if [ -n "$MATCH_GIT_PRIVATE_KEY" ]; then
+            ssh-add -D >/dev/null 2>&1 || true
+            rm -f "$HOME/.ssh/match_git_key"
+          fi
+
+          # Keychain cleanup
+          if [ -n "$MATCH_PASSWORD" ]; then
+            security delete-keychain "$MATCH_KEYCHAIN_NAME" 2>/dev/null || true
+          fi

@@ -1,150 +1,293 @@
-# This file contains the fastlane.tools configuration
-# You can find the documentation at https://docs.fastlane.tools
-#
-# For a list of all available actions, check out
-#
-#     https://docs.fastlane.tools/actions
-#
-# For a list of all available plugins, check out
-#
-#     https://docs.fastlane.tools/plugins/available-plugins
-#
-
-# Uncomment the line if you want fastlane to automatically update itself
-# update_fastlane
+# frozen_string_literal: true
 
 default_platform(:ios)
 
-platform :ios do
-  lane :appstore_profile do
-    setup_ci
+# =============================================================================
+# MARK: - Configuration
+# =============================================================================
 
-    match(
-    type: "appstore",
-    app_identifier:["com.pokitmons.pokit", "com.pokitmons.pokit.ShareExtension"],
-    readonly: true
-    )
-  end
+APP_CONFIG = {
+  apple_id: "shapekim98@gmail.com",
+  app_store_team_id: ENV["APP_STORE_CONNECT_TEAM_ID"],
+  development_team_id: ENV["DEVELOPMENT_TEAM"],
+  match_git_url: "git@github.com:stealmh/Pokit_iOS_Private.git",
+  match_git_branch: "main"
+}.freeze
 
-  lane :development_profile do
-    setup_ci
+APP_IDENTIFIERS = {
+  app: "com.pokitmons.pokit",
+  share_extension: "com.pokitmons.pokit.ShareExtension"
+}.freeze
 
-    match(
-    type: "development",
-    app_identifier:["com.pokitmons.pokit", "com.pokitmons.pokit.ShareExtension"],
-    readonly: true
-    )
-  end
+# =============================================================================
+# MARK: - Helper Methods
+# =============================================================================
 
-  lane :build do
-    build_app(
-    workspace: "Pokit.xcworkspace",
-    scheme: "App",
-    configuration: "Debug",
-    export_method: "development",
-    export_options: {
-        provisioningProfiles: {
-          "com.pokitmons.pokit" => "match Development com.pokitmons.pokit",
-          "com.pokitmons.pokit.ShareExtension" => "match Development com.pokitmons.pokit.ShareExtension"
-        }
-    }
-    )
-  end
+# 필수 환경변수 검증
+def ensure_env_values(env_vars:)
+  missing = env_vars.select { |key| ENV[key].to_s.strip.empty? }
+  UI.user_error!("필수 환경변수 누락: #{missing.join(', ')}") unless missing.empty?
+end
 
-  lane :archive do
-    api_key = app_store_connect_api_key(
-    key_id: ENV['APP_STORE_CONNECT_KEY_ID'],
-    issuer_id: ENV['APP_STORE_CONNECT_ISSUER_ID'],
-    key_content: ENV['APP_STORE_CONNECT_API']
-    )
+# Match에 사용할 Bundle Identifier 목록 생성
+def match_bundle_identifiers
+  [APP_IDENTIFIERS[:app], APP_IDENTIFIERS[:share_extension]]
+end
 
-    latest_build_number = latest_testflight_build_number(
+# Match 키체인 이름 반환
+def match_keychain_name
+  ENV["MATCH_KEYCHAIN_NAME"] || "fastlane_tmp.keychain-db"
+end
+
+# App Store Connect API Key 내용 반환
+def app_store_connect_key_content
+  # 환경변수에서 직접 읽기
+  key = ENV["APP_STORE_CONNECT_API"]
+  return key unless key.to_s.strip.empty?
+
+  # 파일에서 읽기
+  path = ENV["APP_STORE_CONNECT_PRIVATE_KEY_PATH"]
+  UI.user_error!("APP_STORE_CONNECT_API 또는 APP_STORE_CONNECT_PRIVATE_KEY_PATH 환경변수가 필요합니다.") if path.to_s.strip.empty?
+
+  expanded_path = File.expand_path(path.strip)
+  UI.user_error!("파일을 찾을 수 없습니다: #{expanded_path}") unless File.exist?(expanded_path)
+
+  File.read(expanded_path)
+end
+
+# App Store Connect API Key 생성
+def create_api_key
+  app_store_connect_api_key(
+    key_id: ENV["APP_STORE_CONNECT_KEY_ID"],
+    issuer_id: ENV["APP_STORE_CONNECT_ISSUER_ID"],
+    key_content: app_store_connect_key_content,
+    duration: 1200,
+    in_house: false
+  )
+end
+
+# 다음 빌드 번호 계산
+def get_next_build_number(api_key:, app_identifier:)
+  latest_testflight_build_number(
     api_key: api_key,
-    app_identifier: "com.pokitmons.pokit"
-    )
+    app_identifier: app_identifier,
+    platform: "ios"
+  ).to_i + 1
+rescue StandardError => e
+  UI.message("최신 빌드 번호 확인 실패: #{e.message}. 1부터 시작합니다.")
+  1
+end
 
-    increment_build_number(
-    xcodeproj: "Projects/App/App.xcodeproj",
-    build_number: (latest_build_number + 1).to_s
-    )
+# Match 코드 사이닝 설정
+def setup_code_signing(type:)
+  return UI.message("MATCH_PASSWORD가 없어 코드 사이닝을 건너뜁니다.") if ENV["MATCH_PASSWORD"].to_s.strip.empty?
 
-    build_app(
+  ensure_env_values(env_vars: %w[MATCH_PASSWORD])
+
+  match_params = {
+    type: type,
+    readonly: true,
+    app_identifier: match_bundle_identifiers,
+    username: APP_CONFIG[:apple_id],
+    team_id: APP_CONFIG[:development_team_id],
+    git_branch: APP_CONFIG[:match_git_branch],
+    git_url: APP_CONFIG[:match_git_url],
+    clone_branch_directly: true
+  }
+
+  # CI 환경에서는 키체인 설정 추가 (MATCH_PASSWORD 재사용)
+  if ENV["CI"] == "true" || ENV["GITHUB_ACTIONS"] == "true"
+    match_params[:keychain_name] = match_keychain_name
+    match_params[:keychain_password] = ENV["MATCH_PASSWORD"]
+  end
+
+  # Git private key가 있으면 추가
+  if !ENV["MATCH_GIT_PRIVATE_KEY"].to_s.strip.empty?
+    match_params[:git_private_key] = ENV["MATCH_GIT_PRIVATE_KEY"].strip
+  end
+
+  match(match_params)
+end
+
+# Tuist 프로젝트 생성
+def generate_tuist_project
+  UI.message("Tuist 프로젝트를 생성합니다...")
+
+  development_team = ENV["DEVELOPMENT_TEAM"]
+
+  if development_team.to_s.empty?
+    sh("tuist generate")
+  else
+    sh("TUIST_DEVELOPMENT_TEAM=#{development_team} tuist generate")
+  end
+end
+
+# 앱 빌드
+def build_app_for_release(scheme:, output_name:, export_method:)
+  build_app(
     workspace: "Pokit.xcworkspace",
-    scheme: "App",
+    scheme: scheme,
     configuration: "Release",
-    export_method: "app-store",
+    derived_data_path: "build/DerivedData",
+    output_directory: "build/artifacts",
+    output_name: output_name,
+    clean: true,
+    skip_profile_detection: true,
+    export_method: export_method,
     export_options: {
-        provisioningProfiles: {
-          "com.pokitmons.pokit" => "match AppStore com.pokitmons.pokit",
-          "com.pokitmons.pokit.ShareExtension" => "match AppStore com.pokitmons.pokit.ShareExtension"
-        }
+      provisioningProfiles: {
+        APP_IDENTIFIERS[:app] => "match #{export_method == 'app-store' ? 'AppStore' : 'Development'} #{APP_IDENTIFIERS[:app]}",
+        APP_IDENTIFIERS[:share_extension] => "match #{export_method == 'app-store' ? 'AppStore' : 'Development'} #{APP_IDENTIFIERS[:share_extension]}"
+      }
     }
+  )
+end
+
+# =============================================================================
+# MARK: - Lanes
+# =============================================================================
+
+platform :ios do
+  desc "앱스토어용 프로비저닝 프로파일 설정"
+  lane :appstore_profile do
+    setup_ci if ENV["CI"] == "true"
+    setup_code_signing(type: "appstore")
+  end
+
+  desc "개발용 프로비저닝 프로파일 설정"
+  lane :development_profile do
+    setup_ci if ENV["CI"] == "true"
+    setup_code_signing(type: "development")
+  end
+
+  desc "개발 빌드 테스트"
+  lane :build do
+    generate_tuist_project
+
+    build_app_for_release(
+      scheme: "App",
+      output_name: "Pokit-dev.ipa",
+      export_method: "development"
     )
   end
 
+  desc "릴리즈 빌드 및 아카이브"
+  lane :archive do
+    begin
+      # 환경변수 검증
+      ensure_env_values(env_vars: %w[APP_STORE_CONNECT_KEY_ID APP_STORE_CONNECT_ISSUER_ID])
+
+      # Tuist 프로젝트 생성
+      generate_tuist_project
+
+      # API Key 생성
+      api_key = create_api_key
+
+      # 빌드 번호 업데이트
+      next_build_number = get_next_build_number(api_key: api_key, app_identifier: APP_IDENTIFIERS[:app])
+      increment_build_number(xcodeproj: "Projects/App/App.xcodeproj", build_number: next_build_number.to_s)
+
+      # 빌드
+      build_app_for_release(
+        scheme: "App",
+        output_name: "Pokit.ipa",
+        export_method: "app-store"
+      )
+    ensure
+      clean_build_artifacts
+    end
+  end
+
+  desc "TestFlight에 업로드"
   lane :testflight_release do
-    api_key = app_store_connect_api_key(
-    key_id: ENV['APP_STORE_CONNECT_KEY_ID'],
-    issuer_id: ENV['APP_STORE_CONNECT_ISSUER_ID'],
-    key_content: ENV['APP_STORE_CONNECT_API']
-    )
+    begin
+      # 환경변수 검증
+      ensure_env_values(env_vars: %w[APP_STORE_CONNECT_KEY_ID APP_STORE_CONNECT_ISSUER_ID])
 
-    upload_to_testflight(
-    api_key: api_key,
-    distribute_external: true,
-    groups: ["Pokitmons"],
-    changelog: ""
-    )
+      # API Key 생성
+      api_key = create_api_key
+
+      # TestFlight 업로드
+      upload_to_testflight(
+        api_key: api_key,
+        skip_waiting_for_build_processing: false,
+        distribute_external: true,
+        groups: ["Pokitmons"],
+        changelog: ""
+      )
+
+      UI.success("✅ TestFlight 업로드 완료!")
+    ensure
+      clean_build_artifacts
+    end
   end
 
+  desc "App Store에 제출"
   lane :appstore_release do
-    api_key = app_store_connect_api_key(
-    key_id: ENV['APP_STORE_CONNECT_KEY_ID'],
-    issuer_id: ENV['APP_STORE_CONNECT_ISSUER_ID'],
-    key_content: ENV['APP_STORE_CONNECT_API']
-    )
+    begin
+      # 환경변수 검증
+      ensure_env_values(env_vars: %w[APP_STORE_CONNECT_KEY_ID APP_STORE_CONNECT_ISSUER_ID])
 
-    release_notes = File.read("release_notes.txt")
+      # API Key 생성
+      api_key = create_api_key
 
-    upload_to_app_store(
-    api_key: api_key,
-    skip_metadata: false,
-    skip_screenshots: true,
-    skip_binary_upload: true,
-    precheck_include_in_app_purchases: false,
-    release_notes: {
-      'default' => release_notes
-    },
-    submit_for_review: true,
-    automatic_release: true,
-    force: true
-    )
+      # App Store Connect에 업로드 및 메타데이터 업데이트
+      deliver(
+        api_key: api_key,
+        app_identifier: APP_IDENTIFIERS[:app],
+        skip_screenshots: true,
+        skip_metadata: false,
+        force: true,
+        submit_for_review: true,
+        automatic_release: true,
+        submission_information: {
+          add_id_info_uses_idfa: false
+        },
+        precheck_include_in_app_purchases: false
+      )
+
+      UI.success("✅ App Store 심사 제출 완료!")
+    ensure
+      clean_build_artifacts
+    end
   end
 
-  lane :update_github_release do
+  desc "App Store 승인 확인 및 Release draft publish"
+  lane :check_and_publish_release do
     require 'spaceship'
 
-    api_key = app_store_connect_api_key(
-    key_id: ENV['APP_STORE_CONNECT_KEY_ID'],
-    issuer_id: ENV['APP_STORE_CONNECT_ISSUER_ID'],
-    key_content: ENV['APP_STORE_CONNECT_API']
-    )
-
+    api_key = create_api_key
     Spaceship::ConnectAPI.login(api_key: api_key)
 
-    app = Spaceship::ConnectAPI::App.find("com.pokitmons.pokit")
-
+    app = Spaceship::ConnectAPI::App.find(APP_IDENTIFIERS[:app])
     live_version = app.get_live_version
     app_state = live_version.app_store_state
     app_version = live_version.version_string
 
-    if app_state == 'READY_FOR_SALE'
-      pr_number = ENV['PR_NUMBER']
-      pr_body = sh("gh pr view #{pr_number} --json body --jq '.body'")
-      release_notes = pr_body.strip
+    UI.message("현재 앱 상태: #{app_state}, 버전: #{app_version}")
 
-      # GitHub 릴리즈 버전 및 릴리즈 노트 업데이트
-      sh("gh release create v#{app_version} --notes '#{release_notes}'")
+    if app_state == 'READY_FOR_SALE'
+      tag = "v#{app_version}"
+
+      # Draft release 확인
+      release_info = sh("gh release view #{tag} --json isDraft,name 2>/dev/null || echo ''").strip
+
+      if release_info.empty?
+        UI.message("Release #{tag}가 존재하지 않습니다. 건너뜁니다.")
+        return
+      end
+
+      is_draft = sh("echo '#{release_info}' | jq -r '.isDraft'").strip
+
+      if is_draft == "true"
+        # Draft release를 publish
+        sh("gh release edit #{tag} --draft=false")
+        UI.success("✅ GitHub Release #{tag} 를 publish 했습니다!")
+      else
+        UI.message("GitHub Release #{tag}는 이미 published 상태입니다.")
+      end
+    else
+      UI.message("앱이 아직 'READY_FOR_SALE' 상태가 아닙니다. 현재 상태: #{app_state}")
     end
   end
 end

@@ -21,7 +21,7 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 [bundle exec] fastlane ios appstore_profile
 ```
 
-
+앱스토어용 프로비저닝 프로파일 설정
 
 ### ios development_profile
 
@@ -29,7 +29,7 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 [bundle exec] fastlane ios development_profile
 ```
 
-
+개발용 프로비저닝 프로파일 설정
 
 ### ios build
 
@@ -37,7 +37,7 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 [bundle exec] fastlane ios build
 ```
 
-
+개발 빌드 테스트
 
 ### ios archive
 
@@ -45,7 +45,7 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 [bundle exec] fastlane ios archive
 ```
 
-
+릴리즈 빌드 및 아카이브
 
 ### ios testflight_release
 
@@ -53,7 +53,7 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 [bundle exec] fastlane ios testflight_release
 ```
 
-
+TestFlight에 업로드
 
 ### ios appstore_release
 
@@ -61,7 +61,7 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 [bundle exec] fastlane ios appstore_release
 ```
 
-
+App Store에 제출
 
 ### ios update_github_release
 
@@ -69,7 +69,7 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 [bundle exec] fastlane ios update_github_release
 ```
 
-
+GitHub Release 업데이트 (App Store 승인 후)
 
 ----
 

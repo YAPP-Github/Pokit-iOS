@@ -1,0 +1,41 @@
+name: Publish Release on App Store Approval
+
+on:
+  schedule:
+    # 매일 오전 9시, 오후 3시, 오후 9시 (KST 기준 오전 6시, 정오, 오후 6시 UTC)
+    - cron: '0 0,6,12 * * *'
+
+  workflow_dispatch:
+
+jobs:
+  publish-release:
+    runs-on: macos-26
+    timeout-minutes: 30
+
+    env:
+      # App Store Connect
+      APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+      APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+      APP_STORE_CONNECT_API: ${{ secrets.APP_STORE_CONNECT_API }}
+
+      # Team IDs
+      DEVELOPMENT_TEAM: ${{ secrets.DEVELOPMENT_TEAM }}
+      APP_STORE_CONNECT_TEAM_ID: ${{ secrets.APP_STORE_CONNECT_TEAM_ID }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+          bundler-cache: true
+
+      - name: Check App Store status and publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          bundle exec fastlane check_and_publish_release || echo "Release publish skipped or failed"
