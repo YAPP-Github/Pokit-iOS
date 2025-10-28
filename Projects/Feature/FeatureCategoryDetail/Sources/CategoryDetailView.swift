@@ -98,6 +98,7 @@ public extension CategoryDetailView {
                         action: { send(.카테고리_선택했을때($0)) }
                     )
                     .presentationDragIndicator(.visible)
+                    .presentationDetents([.medium, .large])
                 } else {
                     PokitLoading()
                         .presentationDragIndicator(.visible)
