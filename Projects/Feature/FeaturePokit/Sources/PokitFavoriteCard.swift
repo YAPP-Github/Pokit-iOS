@@ -7,6 +7,10 @@
 
 import SwiftUI
 
+import NukeUI
+import DSKit
+import Util
+
 public struct PokitFavoriteCard: View {
     private let linkCount: Int
     private let action: () -> Void
@@ -76,9 +80,20 @@ public struct PokitFavoriteCard: View {
     }
 
     private var thumbNail: some View {
-        Image(.character(.pooki))
-            .resizable()
-            .frame(width: 84, height: 84)
+        LazyImage(url: Constants.즐겨찾기_썸네일_주소) { state in
+            Group {
+                if let image = state.image {
+                    image
+                        .resizable()
+                } else {
+                    PokitSpinner()
+                        .foregroundStyle(.pokit(.icon(.brand)))
+                        .frame(width: 48, height: 48)
+                }
+            }
+            .animation(.pokitDissolve, value: state.image)
+        }
+        .frame(width: 84, height: 84)
     }
     
     private var background: some View {

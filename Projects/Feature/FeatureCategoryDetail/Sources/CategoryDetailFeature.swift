@@ -321,7 +321,7 @@ private extension CategoryDetailFeature {
         case .카테고리_목록_조회_API:
             return .run { send in
                 let request = BasePageableRequest(page: 0, size: 30, sort: ["createdAt,desc"])
-                let response = try await categoryClient.카테고리_목록_조회(request, true, true).toDomain()
+                let response = try await categoryClient.카테고리_목록_조회(request, true, false).toDomain()
                 await send(.inner(.카테고리_목록_조회_API_반영(response)))
             }
             

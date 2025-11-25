@@ -11,7 +11,9 @@ struct PokitPresentationCornerRadiusModifier: ViewModifier {
     init() { }
     
     func body(content: Content) -> some View {
-        if #available(iOS 16.4, *) {
+        if #available(iOS 26.0, *) {
+             content
+        } else if #available(iOS 16.4, *) {
             content
                 .presentationCornerRadius(20)
         } else {
