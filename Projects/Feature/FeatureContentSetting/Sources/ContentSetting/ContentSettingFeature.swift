@@ -28,6 +28,9 @@ public struct ContentSettingFeature {
     private var categoryClient
     @Dependency(KeyboardClient.self)
     private var keyboardClient
+    @Dependency(\.amplitude.track)
+    private var amplitudeTrack
+    
     /// - State
     @ObservableState
     public struct State: Equatable {
