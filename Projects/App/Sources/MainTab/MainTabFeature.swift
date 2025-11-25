@@ -24,6 +24,9 @@ public struct MainTabFeature {
     private var categoryClient
     @Dependency(UserDefaultsClient.self)
     private var userDefaults
+    @Dependency(\.amplitude)
+    private var amplitude
+    
     /// - State
     @ObservableState
     public struct State: Equatable {
@@ -102,6 +105,14 @@ public struct MainTabFeature {
         case .binding(\.linkPopup):
             guard state.linkPopup == nil else { return .none }
             state.categoryOfSavedContent = nil
+            return .none
+        case .binding(\.selectedTab):
+            switch state.selectedTab {
+            case .pokit:
+                amplitude.track(.view_home_pokit(entryPoint: "pokit"))
+            case .recommend:
+                amplitude.track(.view_home_recommend(entryPoint: "recommend"))
+            }
             return .none
         case .binding:
             return .none
@@ -197,6 +208,13 @@ private extension MainTabFeature {
                 let categoryIdString = queryItems.first(where: { $0.name == "categoryId" })?.value,
                 let categoryId = Int(categoryIdString)
             else { return .none }
+            
+            switch state.selectedTab {
+            case .pokit:
+                amplitude.track(.view_home_pokit(entryPoint: "deeplink"))
+            case .recommend:
+                amplitude.track(.view_home_recommend(entryPoint: "deeplink"))
+            }
 
             return .send(.async(.공유받은_카테고리_조회(categoryId: categoryId)))
         case .경고_확인버튼_클릭:
