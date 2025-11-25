@@ -44,7 +44,8 @@ extension CategoryClient: DependencyKey {
                 try await provider.request(.유저_카테고리_개수_조회)
             },
             카테고리_상세_조회: { id in
-                try await provider.request(.카테고리_상세_조회(categoryId: id))
+                amplitudeTrack(.view_folder_detail(folderId: id))
+                return try await provider.request(.카테고리_상세_조회(categoryId: id))
             },
             공유받은_카테고리_조회: { id, model in
                 try await provider.request(.공유받은_카테고리_조회(categoryId: id, model: model))
