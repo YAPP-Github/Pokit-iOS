@@ -10,8 +10,9 @@ import Moya
 
 extension ContentClient: DependencyKey {
     public static let liveValue: Self = {
+        @Dependency(\.amplitude.track) var amplitudeTrack
         let provider = MoyaProvider<ContentEndpoint>.build()
-        
+
         return Self(
             컨텐츠_삭제: { id in
                 try await provider.requestNoBody(.컨텐츠_삭제(contentId: id))
@@ -23,7 +24,13 @@ extension ContentClient: DependencyKey {
                 try await provider.request(.컨텐츠_수정(contentId: id, model: model))
             },
             컨텐츠_추가: { model in
-                try await provider.request(.컨텐츠_추가(model: model))
+                let response: ContentDetailResponse
+                response = try await provider.request(.컨텐츠_추가(model: model))
+                amplitudeTrack(.add_link(
+                    folderId: "\(response.category.categoryId)",
+                    linkDomain: response.data
+                ))
+                return response
             },
             즐겨찾기: { id in
                 try await provider.request(.즐겨찾기(contentId: id))
