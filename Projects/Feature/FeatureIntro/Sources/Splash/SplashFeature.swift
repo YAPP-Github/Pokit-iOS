@@ -27,6 +27,9 @@ public struct SplashFeature {
     var keychain
     @Dependency(VersionClient.self)
     var versionClient
+    @Dependency(\.amplitude)
+    var amplitude
+    
     /// - State
     @ObservableState
     public struct State {
@@ -103,6 +106,7 @@ private extension SplashFeature {
             
         case .onAppear:
             return .run { [isNeedSessionDeleted  = state.isNeedSessionDeleted] send in
+                amplitude.track(.view_splash)
                 try await self.clock.sleep(for: .milliseconds(2000))
                 /// Version Check
                 let response = try await versionClient.버전체크().toDomain()
