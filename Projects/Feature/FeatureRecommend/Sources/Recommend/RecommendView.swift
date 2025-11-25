@@ -196,7 +196,7 @@ private extension RecommendView {
     
     @ViewBuilder
     func recommendedCard(_ content: BaseContentItem) -> some View {
-        Button(action: { send(.추천_컨텐츠_눌렀을때(content.data)) }) {
+        Button(action: { send(.추천_컨텐츠_눌렀을때(content)) }) {
             recomendedCardLabel(content)
         }
     }

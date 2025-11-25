@@ -26,6 +26,9 @@ public struct CategoryDetailFeature {
     private var contentClient
     @Dependency(KakaoShareClient.self)
     private var kakaoShareClient
+    @Dependency(\.amplitude.track)
+    private var amplitudeTrack
+    
     /// - State
     @ObservableState
     public struct State: Equatable {
@@ -212,6 +215,10 @@ private extension CategoryDetailFeature {
             )
             
         case .공유_버튼_눌렀을때:
+            amplitudeTrack(.share_link(
+                linkId: "\(state.domain.category.id)",
+                shareTarget: "kakaotalk"
+            ))
             kakaoShareClient.카테고리_카카오톡_공유(
                 CategoryKaKaoShareModel(
                     categoryName: state.domain.category.categoryName,

@@ -21,6 +21,9 @@ public struct ContentCardFeature {
     private var openURL
     @Dependency(ContentClient.self)
     private var contentClient
+    @Dependency(\.amplitude.track)
+    private var amplitudeTrack
+    
     /// - State
     @ObservableState
     public struct State: Equatable, Identifiable {
@@ -113,7 +116,11 @@ private extension ContentCardFeature {
             guard let url = URL(string: state.content.data) else {
                 return .none
             }
-            return .run {  send in
+            return .run { [content = state.content]  send in
+                amplitudeTrack(.view_link_detail(
+                    linkId: "\(content.id)",
+                    linkDomain: content.data
+                ))
                 await send(.async(.컨텐츠_상세_조회_API))
                 await openURL(url)
             }

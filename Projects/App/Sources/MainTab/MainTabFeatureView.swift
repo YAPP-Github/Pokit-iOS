@@ -269,7 +269,14 @@ private extension MainTabView {
         
         var body: some View {
             GeometryReader { proxy in
-                let bottomSafeArea = proxy.safeAreaInsets.bottom
+                let bottomPadding: CGFloat = {
+                    if #available(iOS 26.0, *) {
+                        return 32
+                    } else {
+                        return 48
+                    }
+                }()
+                
                 HStack(spacing: 20) {
                     Spacer()
                     
@@ -302,7 +309,7 @@ private extension MainTabView {
                     
                     Spacer()
                 }
-                .padding(.bottom, 48 - bottomSafeArea)
+                .padding(.bottom, bottomPadding)
                 .padding(.top, 36)
                 .pokitPresentationCornerRadius()
                 .pokitPresentationBackground()
@@ -315,6 +322,7 @@ private extension MainTabView {
                 }
                 .presentationDetents([.height(self.height)])
             }
+            .ignoresSafeArea(edges: .bottom)
         }
     }
 }

@@ -44,17 +44,21 @@ public extension PokitProfileBottomSheet {
                         transaction: .init(animation: .pokitDissolve)
                     ) { phase in
                         if let image = phase.image {
+                            let isSelected = item.imageURL == selectedImage?.imageURL
+                            
                             Button(action: { delegateSend?(.이미지_선택했을때(item)) }) {
                                 image
                                     .resizable()
                                     .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
                             }
                             .buttonStyle(.plain)
-                            .overlay {
-                                if let selectedImage, item.imageURL == selectedImage.imageURL {
-                                    RoundedRectangle(cornerRadius: 12, style: .continuous)
-                                        .stroke(.pokit(.border(.brand)), lineWidth: 2)
-                                }
+                            .overlay(if: isSelected) {
+                                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                    .stroke(.pokit(.border(.brand)), lineWidth: 2)
+                            }
+                            .overlay(if: !isSelected && item.id == 33) {
+                                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                    .stroke(.pokit(.border(.tertiary)), lineWidth: 2)
                             }
                         } else {
                             PokitSpinner()

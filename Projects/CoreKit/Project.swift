@@ -36,6 +36,7 @@ let coreKit: Target = .target(
         .external(name: "KakaoSDKCommon"),
         .external(name: "KakaoSDKShare"),
         .external(name: "KakaoSDKTemplate"),
+        .external(name: "AmplitudeSwift"),
     ],
     settings: .settings()
 )
