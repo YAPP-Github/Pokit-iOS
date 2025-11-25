@@ -6,19 +6,25 @@
 //
 
 import SwiftUI
+import UIKit
 
 import ComposableArchitecture
 import Firebase
 import FirebaseMessaging
 import GoogleSignIn
+import Dependencies
 
 final class AppDelegate: NSObject {
+    @Dependency(\.amplitude)
+    private var amplitude
+    
     let store = Store(initialState: AppDelegateFeature.State()) {
         AppDelegateFeature()
     }
 }
 //MARK: - UIApplicationDelegate
 extension AppDelegate: UIApplicationDelegate {
+    
     func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey: Any] = [:]) -> Bool {
         if GIDSignIn.sharedInstance.handle(url) { return true }
         return false
@@ -30,6 +36,14 @@ extension AppDelegate: UIApplicationDelegate {
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
         self.store.send(.didFinishLaunching)
+
+        // 운영체제 버전 (ex: "iOS 18.0.0")
+        let osVersion = "iOS \(UIDevice.current.systemVersion)"
+
+        // 앱 번들 버전 (ex: "2.0.1")
+        let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
+
+        amplitude.track(.app_open(deviceOS: osVersion, appVersion: appVersion))
         return true
     }
     
