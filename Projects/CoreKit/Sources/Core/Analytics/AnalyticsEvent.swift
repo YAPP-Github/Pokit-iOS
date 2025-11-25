@@ -11,9 +11,9 @@ public enum AnalyticsEvent {
     case view_home_pokit(entryPoint: String)
     case view_home_recommend(entryPoint: String)
     case add_folder(folderName: String)
-    case add_link(folderId: String, linkDomain: String)
+    case add_link(folderId: String, linkDomain: String, entryPoint: String? = nil, linkId: String? = nil, positionIndex: Int? = nil, algoVersion: String? = nil)
     case view_folder_detail(folderId: String)
-    case view_link_detail(linkId: String, linkDomain: String)
+    case view_link_detail(linkId: String, linkDomain: String, entryPoint: String? = nil, positionIndex: Int? = nil, cardType: String? = nil, algoVersion: String? = nil)
     case share_link(linkId: String, shareTarget: String)
     case session_end(duration: Int)
 
@@ -70,20 +70,46 @@ public enum AnalyticsEvent {
         case let .add_folder(folderName):
             return [PropertyKey.folder_name.rawValue: folderName]
 
-        case let .add_link(folderId, linkDomain):
-            return [
+        case let .add_link(folderId, linkDomain, entryPoint, linkId, positionIndex, algoVersion):
+            var props: [String: Any] = [
                 PropertyKey.folder_id.rawValue: folderId,
                 PropertyKey.link_domain.rawValue: linkDomain
             ]
+            if let entryPoint = entryPoint {
+                props[PropertyKey.entry_point.rawValue] = entryPoint
+            }
+            if let linkId = linkId {
+                props[PropertyKey.link_id.rawValue] = linkId
+            }
+            if let positionIndex = positionIndex {
+                props[PropertyKey.position_index.rawValue] = positionIndex
+            }
+            if let algoVersion = algoVersion {
+                props[PropertyKey.algo_version.rawValue] = algoVersion
+            }
+            return props
 
         case let .view_folder_detail(folderId):
             return [PropertyKey.folder_id.rawValue: folderId]
 
-        case let .view_link_detail(linkId, linkDomain):
-            return [
+        case let .view_link_detail(linkId, linkDomain, entryPoint, positionIndex, cardType, algoVersion):
+            var props: [String: Any] = [
                 PropertyKey.link_id.rawValue: linkId,
                 PropertyKey.link_domain.rawValue: linkDomain
             ]
+            if let entryPoint = entryPoint {
+                props[PropertyKey.entry_point.rawValue] = entryPoint
+            }
+            if let positionIndex = positionIndex {
+                props[PropertyKey.position_index.rawValue] = positionIndex
+            }
+            if let cardType = cardType {
+                props[PropertyKey.card_type.rawValue] = cardType
+            }
+            if let algoVersion = algoVersion {
+                props[PropertyKey.algo_version.rawValue] = algoVersion
+            }
+            return props
 
         case let .share_link(linkId, shareTarget):
             return [
@@ -110,6 +136,9 @@ public enum PropertyKey: String {
     case link_id
     case share_target
     case duration
+    case position_index
+    case card_type
+    case algo_version
 }
 
 /// 로그인 방식

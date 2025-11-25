@@ -444,7 +444,11 @@ private extension ContentSettingFeature {
                 thumbNail: state.domain.thumbNail
             )
             return .run { send in
-                let content = try await contentClient.컨텐츠_추가(request)
+                let response = try await contentClient.컨텐츠_추가(request)
+                amplitudeTrack(.add_link(
+                    folderId: "\(response.contentId)",
+                    linkDomain: response.data
+                ))
                 await send(.inner(.선택한_포킷_인메모리_삭제))
                 await send(.delegate(.저장하기_완료(category: category)))
             } catch: { error, send in

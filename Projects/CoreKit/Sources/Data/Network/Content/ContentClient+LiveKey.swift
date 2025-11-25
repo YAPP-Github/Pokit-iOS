@@ -18,13 +18,7 @@ extension ContentClient: DependencyKey {
                 try await provider.requestNoBody(.컨텐츠_삭제(contentId: id))
             },
             컨텐츠_상세_조회: { id in
-                let response: ContentDetailResponse
-                response = try await provider.request(.컨텐츠_상세_조회(contentId: id))
-                amplitudeTrack(.view_link_detail(
-                    linkId: "\(id)",
-                    linkDomain: response.data
-                ))
-                return response
+                try await provider.request(.컨텐츠_상세_조회(contentId: id))
             },
             컨텐츠_수정: { id, model in
                 try await provider.request(.컨텐츠_수정(contentId: id, model: model))
