@@ -14,6 +14,8 @@ import Util
 public struct SignUpDoneFeature {
     /// - Dependency
     @Dependency(\.dismiss) var dismiss
+    @Dependency(\.amplitude)
+    var amplitude
     /// - State
     @ObservableState
     public struct State: Equatable {
@@ -41,6 +43,7 @@ public struct SignUpDoneFeature {
             case 제목_나타났을때
             case 폭죽_이미지_나타났을때
             case 푸키_이미지_나타났을때
+            case 뷰가_나타났을때
         }
         public enum InnerAction: Equatable { case 없음 }
         public enum AsyncAction: Equatable { case 없음 }
@@ -94,6 +97,9 @@ private extension SignUpDoneFeature {
             return .none
         case .푸키_이미지_나타났을때:
             state.pookiIsAppear = true
+            return .none
+        case .뷰가_나타났을때:
+            amplitude.track(.onboarding_complete)
             return .none
         }
     }

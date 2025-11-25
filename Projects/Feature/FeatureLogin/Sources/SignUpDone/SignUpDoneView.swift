@@ -49,6 +49,7 @@ public extension SignUpDoneView {
             }
             .ignoresSafeArea(edges: .bottom)
             .navigationBarBackButtonHidden()
+            .onAppear { send(.뷰가_나타났을때) }
         }
     }
 }
