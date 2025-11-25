@@ -42,7 +42,9 @@ extension AppDelegate: UIApplicationDelegate {
 
         // 앱 번들 버전 (ex: "2.0.1")
         let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
-
+        let amplitudeKey = Bundle.main.infoDictionary?["AMPLITUDE_API_KEY"] as? String ?? ""
+        amplitude.initialize(amplitudeKey, nil)
+        
         amplitude.track(.app_open(deviceOS: osVersion, appVersion: appVersion))
         return true
     }
