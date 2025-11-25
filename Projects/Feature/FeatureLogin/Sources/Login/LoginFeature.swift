@@ -23,8 +23,8 @@ public struct LoginFeature {
     var userDefaults
     @Dependency(KeychainClient.self)
     var keychain
-    @Dependency(\.amplitude.track)
-    private var amplitudeTrack
+    @Dependency(\.amplitude)
+    private var amplitude
     /// - State
     @ObservableState
     public struct State {
@@ -110,10 +110,10 @@ private extension LoginFeature {
     func handleViewAction(_ action: Action.View, state: inout State) -> Effect<Action> {
         switch action {
         case .애플로그인_버튼_눌렀을때:
-            amplitudeTrack(.login_start(method: .apple))
+            amplitude.track(.login_start(method: .apple))
             return .send(.async(.애플로그인_소셜_API))
         case .구글로그인_버튼_눌렀을때:
-            amplitudeTrack(.login_start(method: .google))
+            amplitude.track(.login_start(method: .google))
             return .send(.async(.구글로그인_소셜_API))
         }
     }
@@ -173,7 +173,11 @@ private extension LoginFeature {
                 let appleTokenRequest = AppleTokenRequest(authCode: authCode, jwt: jwt)
                 let appleTokenResponse = try await authClient.apple(appleTokenRequest)
                 keychain.save(.serverRefresh, appleTokenResponse.refresh_token)
-                amplitudeTrack(.login_complete(method: .apple))
+                amplitude.track(.login_complete(method: .apple))
+                
+                let user = try await userClient.닉네임_조회()
+                amplitude.setUserProperties(["userId": user.id])
+                
                 await send(.inner(.로그인_이후_화면이동(isRegistered: tokenResponse.isRegistered)))
             }
         case let .구글로그인_API(response):
@@ -189,7 +193,10 @@ private extension LoginFeature {
                 keychain.save(.accessToken, tokenResponse.accessToken)
                 keychain.save(.refreshToken, tokenResponse.refreshToken)
                 keychain.save(.serverRefresh, response.serverRefreshToken)
-                amplitudeTrack(.login_complete(method: .google))
+                amplitude.track(.login_complete(method: .google))
+                
+                let user = try await userClient.닉네임_조회()
+                amplitude.setUserProperties(["userId": user.id])
                 
                 await send(.inner(.로그인_이후_화면이동(isRegistered: tokenResponse.isRegistered)))
             }
