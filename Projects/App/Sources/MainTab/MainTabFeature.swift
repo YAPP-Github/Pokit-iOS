@@ -24,8 +24,8 @@ public struct MainTabFeature {
     private var categoryClient
     @Dependency(UserDefaultsClient.self)
     private var userDefaults
-    @Dependency(\.amplitude)
-    private var amplitude
+    @Dependency(\.amplitude.track)
+    private var amplitudeTrack
     
     /// - State
     @ObservableState
@@ -109,9 +109,9 @@ public struct MainTabFeature {
         case .binding(\.selectedTab):
             switch state.selectedTab {
             case .pokit:
-                amplitude.track(.view_home_pokit(entryPoint: "pokit"))
+                amplitudeTrack(.view_home_pokit(entryPoint: "pokit"))
             case .recommend:
-                amplitude.track(.view_home_recommend(entryPoint: "recommend"))
+                amplitudeTrack(.view_home_recommend(entryPoint: "recommend"))
             }
             return .none
         case .binding:
@@ -211,9 +211,9 @@ private extension MainTabFeature {
             
             switch state.selectedTab {
             case .pokit:
-                amplitude.track(.view_home_pokit(entryPoint: "deeplink"))
+                amplitudeTrack(.view_home_pokit(entryPoint: "deeplink"))
             case .recommend:
-                amplitude.track(.view_home_recommend(entryPoint: "deeplink"))
+                amplitudeTrack(.view_home_recommend(entryPoint: "deeplink"))
             }
 
             return .send(.async(.공유받은_카테고리_조회(categoryId: categoryId)))

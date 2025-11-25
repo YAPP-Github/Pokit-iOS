@@ -14,8 +14,8 @@ import Util
 public struct SignUpDoneFeature {
     /// - Dependency
     @Dependency(\.dismiss) var dismiss
-    @Dependency(\.amplitude)
-    var amplitude
+    @Dependency(\.amplitude.track)
+    private var amplitudeTrack
     /// - State
     @ObservableState
     public struct State: Equatable {
@@ -99,7 +99,7 @@ private extension SignUpDoneFeature {
             state.pookiIsAppear = true
             return .none
         case .뷰가_나타났을때:
-            amplitude.track(.onboarding_complete)
+            amplitudeTrack(.onboarding_complete)
             return .none
         }
     }
