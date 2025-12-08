@@ -12,7 +12,7 @@ on:
 jobs:
   build:
     if: startsWith(github.event.head_commit.message, '[hotfix]')
-    runs-on: macos-latest
+    runs-on: macos-26
 
     steps:
     - uses: actions/checkout@v4

@@ -14,6 +14,8 @@ public struct SelectFieldFeature {
     /// - Dependency
     @Dependency(\.dismiss) var dismiss
     @Dependency(UserClient.self) var userClient
+    @Dependency(\.amplitude.track)
+    private var amplitudeTrack
     /// - State
     @ObservableState
     public struct State: Equatable {
@@ -93,6 +95,7 @@ private extension SelectFieldFeature {
             }
         case .nextButtonTapped:
             let interests = Array(state.selectedFields)
+            amplitudeTrack(.interest_select(interests: interests))
             return .send(.delegate(.pushSignUpDoneView(interests: interests)))
         case .backButtonTapped:
             return .run { _ in await self.dismiss() }

@@ -26,6 +26,9 @@ public struct CategoryDetailFeature {
     private var contentClient
     @Dependency(KakaoShareClient.self)
     private var kakaoShareClient
+    @Dependency(\.amplitude.track)
+    private var amplitudeTrack
+    
     /// - State
     @ObservableState
     public struct State: Equatable {
@@ -65,9 +68,6 @@ public struct CategoryDetailFeature {
             domain.contentList.hasNext
         }
         var isLoading: Bool = true
-        var isContentsNotEmpty: Bool {
-            (isFavoriteCategory && contents.contains { $0.content.isFavorite == true }) || (!isFavoriteCategory && !contents.isEmpty)
-        }
         
         public init(category: BaseCategoryItem) {
             self.domain = .init(categpry: category)
@@ -199,11 +199,14 @@ private extension CategoryDetailFeature {
             )
             
         case let .분류_버튼_눌렀을때(type):
-            if type == .즐겨찾기 {
+            switch type {
+            case .즐겨찾기:
                 state.domain.condition.isFavoriteFlitered.toggle()
+                guard state.domain.condition.isFavoriteFlitered else { break }
                 state.domain.condition.isUnreadFlitered = !state.domain.condition.isFavoriteFlitered
-            } else {
+            case .안읽음:
                 state.domain.condition.isUnreadFlitered.toggle()
+                guard state.domain.condition.isUnreadFlitered else { break }
                 state.domain.condition.isFavoriteFlitered = !state.domain.condition.isUnreadFlitered
             }
             return .concatenate(
@@ -212,6 +215,10 @@ private extension CategoryDetailFeature {
             )
             
         case .공유_버튼_눌렀을때:
+            amplitudeTrack(.share_link(
+                linkId: "\(state.domain.category.id)",
+                shareTarget: "kakaotalk"
+            ))
             kakaoShareClient.카테고리_카카오톡_공유(
                 CategoryKaKaoShareModel(
                     categoryName: state.domain.category.categoryName,
@@ -314,7 +321,7 @@ private extension CategoryDetailFeature {
         case .카테고리_목록_조회_API:
             return .run { send in
                 let request = BasePageableRequest(page: 0, size: 30, sort: ["createdAt,desc"])
-                let response = try await categoryClient.카테고리_목록_조회(request, true, true).toDomain()
+                let response = try await categoryClient.카테고리_목록_조회(request, true, false).toDomain()
                 await send(.inner(.카테고리_목록_조회_API_반영(response)))
             }
             

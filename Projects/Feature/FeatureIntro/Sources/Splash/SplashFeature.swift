@@ -27,6 +27,11 @@ public struct SplashFeature {
     var keychain
     @Dependency(VersionClient.self)
     var versionClient
+    @Dependency(\.amplitude)
+    private var amplitude
+    @Dependency(UserClient.self)
+    var userClient
+    
     /// - State
     @ObservableState
     public struct State {
@@ -103,6 +108,7 @@ private extension SplashFeature {
             
         case .onAppear:
             return .run { [isNeedSessionDeleted  = state.isNeedSessionDeleted] send in
+                amplitude.track(.view_splash)
                 try await self.clock.sleep(for: .milliseconds(2000))
                 /// Version Check
                 let response = try await versionClient.버전체크().toDomain()
@@ -173,6 +179,10 @@ private extension SplashFeature {
                     let tokenRequest = ReissueRequest(refreshToken: refreshToken)
                     let tokenResponse = try await authClient.토큰재발급(tokenRequest)
                     keychain.save(.accessToken, tokenResponse.accessToken)
+                    
+                    let user = try await userClient.닉네임_조회()
+                    amplitude.setUserProperties(["userId": user.id])
+                    
                     await send(.delegate(.autoLoginSuccess))
                 } catch {
                     await send(.delegate(.loginNeeded), animation: .smooth)

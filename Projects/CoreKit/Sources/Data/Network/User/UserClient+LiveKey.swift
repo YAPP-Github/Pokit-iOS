@@ -12,6 +12,8 @@ import Moya
 
 extension UserClient: DependencyKey {
     public static let liveValue: Self = {
+        @Dependency(\.amplitude.setUserProperties)
+        var amplitudeSetUserProperties
         let provider = MoyaProvider<UserEndpoint>.build()
 
         return Self(
@@ -22,7 +24,10 @@ extension UserClient: DependencyKey {
                 try await provider.request(.닉네임_수정(model: model))
             },
             회원등록: { model in
-                try await provider.request(.회원등록(model: model))
+                let response: BaseUserResponse
+                response = try await provider.request(.회원등록(model: model))
+                amplitudeSetUserProperties(["userId": response.id])
+                return response
             },
             닉네임_중복_체크: { nickname in
                 try await provider.request(.닉네임_중복_체크(nickname: nickname))

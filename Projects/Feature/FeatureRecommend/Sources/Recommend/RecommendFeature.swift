@@ -23,6 +23,9 @@ public struct RecommendFeature {
     private var categoryClient
     @Dependency(\.openURL)
     private var openURL
+    @Dependency(\.amplitude.track)
+    private var amplitudeTrack
+    
     /// - State
     @ObservableState
     public struct State: Equatable {
@@ -87,7 +90,7 @@ public struct RecommendFeature {
             case 링크_공유_완료되었을때
             case 검색_버튼_눌렀을때
             case 알림_버튼_눌렀을때
-            case 추천_컨텐츠_눌렀을때(String)
+            case 추천_컨텐츠_눌렀을때(BaseContentItem)
             case 경고시트_dismiss
             case 포킷선택_항목_눌렀을때(pokit: BaseCategoryItem)
             case 포킷_추가하기_버튼_눌렀을때
@@ -168,7 +171,7 @@ private extension RecommendFeature {
         case .onAppear:
             return .merge(
                 shared(.async(.추천_조회_API), state: &state),
-                shared(.async(.유저_관심사_조회_API), state: &state)
+                shared(.async(.관심사_조회_API), state: &state)
             )
         case .pagination:
             return shared(.async(.추천_조회_페이징_API), state: &state)
@@ -211,11 +214,21 @@ private extension RecommendFeature {
             return .send(.delegate(.검색_버튼_눌렀을때))
         case .알림_버튼_눌렀을때:
             return .send(.delegate(.알림_버튼_눌렀을때))
-        case let .추천_컨텐츠_눌렀을때(urlString):
-            guard let url = URL(string: urlString) else { return .none }
+        case let .추천_컨텐츠_눌렀을때(content):
+            guard let url = URL(string: content.data) else { return .none }
+            let index = state.recommendedList?.index(id: content.id)
+            amplitudeTrack(.view_link_detail(
+                linkId: "\(content.id)",
+                linkDomain: content.data,
+                entryPoint: "recommend",
+                positionIndex: index,
+                cardType: "list",
+                algoVersion: "v1.2"
+            ))
             return .run { _ in await openURL(url) }
         case .관심사_편집_버튼_눌렀을때:
-            return shared(.async(.관심사_조회_API), state: &state)
+            state.showKeywordSheet = true
+            return .none
         case let .키워드_선택_버튼_눌렀을때(interests):
             state.showKeywordSheet = false
             state.selectedInterest = nil
@@ -255,14 +268,18 @@ private extension RecommendFeature {
             state.isLoading = false
             return .none
         case let .유저_관심사_조회_API_반영(interests):
-            state.domain.myInterests = interests
-            interests.forEach { state.selectedInterestList.insert($0) }
+            state.domain.myInterests = interests.filter { interest in
+                state.interests.contains(interest)
+            }
+            interests.forEach {
+                guard state.interests.contains($0) else { return }
+                state.selectedInterestList.insert($0)
+            }
             return .none
         case let .관심사_조회_API_반영(interests):
             state.domain.interests = interests.filter({ interest in
                 interest.code != "default"
             })
-            state.showKeywordSheet = true
             return .none
         case let .컨텐츠_신고_API_반영(contentId):
             state.domain.contentList.data?.removeAll(where: { $0.id == contentId })
@@ -319,13 +336,20 @@ private extension RecommendFeature {
             return contentListFetch(state: &state)
         case .유저_관심사_조회_API:
             return .run { send in
-                let interests = try await userClient.유저_관심사_목록_조회().map { $0.toDomian() }
+                let interests = try await userClient.유저_관심사_목록_조회()
+                    .map { $0.toDomian() }
+                    .sorted { $0.description < $1.description }
+                
                 await send(.inner(.유저_관심사_조회_API_반영(interests)))
             }
         case .관심사_조회_API:
             return .run { send in
-                let interests = try await userClient.관심사_목록_조회().map { $0.toDomian() }
+                let interests = try await userClient.관심사_목록_조회()
+                    .map { $0.toDomian() }
+                    .sorted { $0.description < $1.description }
+                
                 await send(.inner(.관심사_조회_API_반영(interests)))
+                await send(.async(.유저_관심사_조회_API))
             }
         case let .컨텐츠_신고_API(contentId):
             return .run { send in
@@ -343,12 +367,8 @@ private extension RecommendFeature {
             )
             return categoryListFetch(request: request)
         case .컨텐츠_추가_API:
-            guard
-                let categoryId = state.selectedPokit?.id,
-                let category = state.domain.categoryListInQuiry.data?.first(where: {
-                    $0.id == categoryId
-                }),
-                let content = state.addContent
+            guard let categoryId = state.selectedPokit?.id,
+                  let content = state.addContent
             else { return .none }
             let request = ContentBaseRequest(
                 data: content.data,
@@ -358,8 +378,17 @@ private extension RecommendFeature {
                 alertYn: "NO",
                 thumbNail: content.thumbNail
             )
+            let index = state.recommendedList?.index(id: content.id)
             return .run { send in
-                let content = try await contentClient.컨텐츠_추가(request)
+                let response = try await contentClient.컨텐츠_추가(request)
+                amplitudeTrack(.add_link(
+                    folderId: "\(categoryId)",
+                    linkDomain: content.data,
+                    entryPoint: "recommend",
+                    linkId: "\(response.contentId)",
+                    positionIndex: index,
+                    algoVersion: "v1.2"
+                ))
                 await send(.delegate(.저장하기_완료))
             }
         }

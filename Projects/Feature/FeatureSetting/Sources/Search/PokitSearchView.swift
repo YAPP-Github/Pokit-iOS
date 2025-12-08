@@ -265,36 +265,68 @@ private extension PokitSearchView {
     
     var resultList: some View {
         VStack(alignment: .leading, spacing: 20) {
+            if store.isSearching {
+                PokitIconLTextLink(
+                    store.isResultAscending ? "오래된순" : "최신순",
+                    icon: .icon(.align),
+                    action: { send(.정렬_버튼_눌렀을때) }
+                )
+                .contentTransition(.numericText())
+                .padding(.horizontal, 20)
+            }
+            
             if !store.isLoading {
-                ScrollView {
-                    LazyVStack(spacing: 0) {
-                        ForEach(
-                            Array(store.scope(state: \.contents, action: \.contents))
-                        ) { store in
-                            let isFirst = store.state.id == self.store.contents.first?.id
-                            let isLast = store.state.id == self.store.contents.last?.id
-                            
-                            ContentCardView(
-                                store: store,
-                                type: .linkList,
-                                isFirst: isFirst,
-                                isLast: isLast
-                            )
-                        }
-                        
-                        if store.hasNext {
-                            PokitLoading()
-                                .task { await send(.로딩중일때, animation: .pokitDissolve).finish() }
-                        }
-                    }
-                    .padding(.horizontal, 20)
-                    .padding(.bottom, 36)
+                if store.contents.isEmpty && store.isSearching {
+                    resultEmptyLabel
+                } else {
+                    resultListContent
                 }
             } else {
                 PokitLoading()
             }
         }
         .padding(.top, 24)
+    }
+    
+    var resultListContent: some View {
+        ScrollView {
+            LazyVStack(spacing: 0) {
+                ForEach(
+                    Array(store.scope(state: \.contents, action: \.contents))
+                ) { store in
+                    let isFirst = store.state.id == self.store.contents.first?.id
+                    let isLast = store.state.id == self.store.contents.last?.id
+                    
+                    ContentCardView(
+                        store: store,
+                        type: .linkList,
+                        isFirst: isFirst,
+                        isLast: isLast
+                    )
+                }
+                
+                if store.hasNext {
+                    PokitLoading()
+                        .task { await send(.로딩중일때, animation: .pokitDissolve).finish() }
+                }
+            }
+            .padding(.horizontal, 20)
+            .padding(.bottom, 36)
+        }
+    }
+    
+    var resultEmptyLabel: some View {
+        VStack(spacing: 8) {
+            Text("검색어가 없어요")
+                .pokitFont(.title2)
+            
+            Text("링크 제목, 포킷으로 검색해주세요")
+                .pokitFont(.b2(.m))
+        }
+        .padding(.top, 100)
+        .padding(.bottom, 80)
+        .frame(maxWidth: .infinity)
+        .foregroundStyle(.pokit(.text(.tertiary)))
     }
 }
 //MARK: - Preview

@@ -134,10 +134,8 @@ private extension PokitRootView {
     var pokitView: some View {
         if let categories = store.categories {
             if categories.isEmpty {
-                PokitCaution(
-                    type: .카테고리없음,
-                    action: { send(.포킷추가_버튼_눌렀을때) }
-                )
+                PokitCaution(type: .카테고리없음)
+                    .onAction { send(.포킷추가_버튼_눌렀을때) }
             } else {
                 pokitList(categories)
             }
@@ -181,10 +179,8 @@ private extension PokitRootView {
     var unclassifiedView: some View {
         if !store.isLoading {
             if store.contents.isEmpty {
-                PokitCaution(
-                    type: .미분류_링크없음,
-                    action: { send(.링크추가_버튼_눌렀을때) }
-                )
+                PokitCaution(type: .미분류_링크없음)
+                    .onAction { send(.링크추가_버튼_눌렀을때) }
             } else {
                 unclassifiedList
                     .padding(.top, 20)

@@ -30,7 +30,7 @@ public extension PokitAlertBoxView {
                     if alertContents.isEmpty {
                         VStack {
                             PokitCaution(type: .알림없음)
-                            .padding(.top, 84)
+                                .padding(.top, 84)
                             Spacer()
                         }
                     } else {

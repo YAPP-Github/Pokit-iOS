@@ -90,6 +90,8 @@ private extension PokitSettingView {
             .frame(width: 40, height: 40)
             Text(store.user?.nickname ?? "")
                 .pokitFont(.b1(.m))
+                .foregroundStyle(.pokit(.text(.primary)))
+            
             Spacer()
             PokitTextButton(
                 "프로필 편집",

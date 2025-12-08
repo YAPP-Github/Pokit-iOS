@@ -32,7 +32,7 @@ public struct PokitLinkEditFeature {
         var list = IdentifiedArrayOf<BaseContentItem>()
         /// 선택한 링크 목록
         var selectedItems = IdentifiedArrayOf<BaseContentItem>()
-        var isActive: Bool = false
+        var isActive: Bool { !selectedItems.isEmpty }
         /// 포킷 이동 눌렀을 때 sheet
         var categorySelectSheetPresetend: Bool = false
         var linkDeleteSheetPresented: Bool = false
@@ -160,8 +160,6 @@ private extension PokitLinkEditFeature {
             } else {
                 state.selectedItems.append(item)
             }
-            
-            state.isActive = !state.selectedItems.isEmpty
             return .none
             
         case let .카테고리_선택했을때(pokit):
@@ -257,12 +255,10 @@ private extension PokitLinkEditFeature {
                 
             case .전체선택_버튼_눌렀을때:
                 state.selectedItems = state.list
-                state.isActive = !state.selectedItems.isEmpty
                 return .none
                 
             case .전체해제_버튼_눌렀을때:
                 state.selectedItems.removeAll()
-                state.isActive = !state.selectedItems.isEmpty
                 return .none
                 
             case .포킷이동_버튼_눌렀을때:
