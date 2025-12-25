@@ -219,10 +219,13 @@ private extension PokitCategorySettingView {
                         Text("포킷 키워드")
                             .pokitFont(.b1(.b))
                             .foregroundStyle(.pokit(.text(.primary)))
+                        
                         Spacer()
+                        
                         Image(.icon(.arrowRight))
                     }
                     .buttonStyle(.plain)
+                    
                     Text(store.keywordSelectType.label)
                         .pokitFont(.detail1)
                         .foregroundStyle(store.keywordSelectType.fontColor)

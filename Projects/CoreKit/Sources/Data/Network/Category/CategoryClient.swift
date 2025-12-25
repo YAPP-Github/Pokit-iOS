@@ -36,5 +36,7 @@ public struct CategoryClient {
     public var 공유받은_카테고리_저장: @Sendable (
         _ model: CopiedCategoryRequest
     ) async throws -> Void
+    public var 포킷_초대된_유저_목록_조회: @Sendable (
+        _ categoryId: Int
+    ) async throws -> [InvitedUserResponse]
 }
-

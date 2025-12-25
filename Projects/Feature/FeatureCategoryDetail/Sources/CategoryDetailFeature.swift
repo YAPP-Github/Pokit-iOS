@@ -109,6 +109,7 @@ public struct CategoryDetailFeature {
             case 카테고리_내_컨텐츠_목록_조회_API_반영(BaseContentListInquiry)
             case pagenation_API_반영(BaseContentListInquiry)
             case pagenation_초기화
+            case 포킷_초대된_유저_목록_조회_API_반영([InvitedUser])
         }
         
         public enum AsyncAction: Equatable {
@@ -116,6 +117,7 @@ public struct CategoryDetailFeature {
             case 카테고리_목록_조회_API
             case 페이징_재조회
             case 클립보드_감지
+            case 포킷_초대된_유저_목록_조회_API
         }
         
         public enum ScopeAction {
@@ -254,6 +256,7 @@ private extension CategoryDetailFeature {
             return .merge(
                 .send(.async(.카테고리_내_컨텐츠_목록_조회_API)),
                 .send(.async(.카테고리_목록_조회_API)),
+                .send(.async(.포킷_초대된_유저_목록_조회_API)),
                 .send(.async(.클립보드_감지))
             )
         case .pagenation:
@@ -311,6 +314,10 @@ private extension CategoryDetailFeature {
             state.domain.contentList.data = nil
             state.isLoading = true
             state.contents.removeAll()
+            return .none
+            
+        case .포킷_초대된_유저_목록_조회_API_반영(let users):
+            state.domain.invitedUsers = users
             return .none
         }
     }
@@ -391,6 +398,13 @@ private extension CategoryDetailFeature {
                     let url = try await pasteboard.probableWebURL()
                     await send(.delegate(.linkCopyDetected(url)), animation: .pokitSpring)
                 }
+            }
+            
+        case .포킷_초대된_유저_목록_조회_API:
+            return .run { [id = state.domain.category.id] send in
+                let response = try await categoryClient.포킷_초대된_유저_목록_조회(id)
+                let users = response.map { $0.toDomain() }
+                await send(.inner(.포킷_초대된_유저_목록_조회_API_반영(users)))
             }
         }
     }

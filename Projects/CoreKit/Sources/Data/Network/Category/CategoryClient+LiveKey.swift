@@ -52,6 +52,9 @@ extension CategoryClient: DependencyKey {
             },
             공유받은_카테고리_저장: { model in
                 try await provider.requestNoBody(.공유받은_카테고리_저장(model: model))
+            },
+            포킷_초대된_유저_목록_조회: { id in
+                try await provider.request(.포킷_초대된_유저_목록_조회(categoryId: id))
             }
         )
     }()
