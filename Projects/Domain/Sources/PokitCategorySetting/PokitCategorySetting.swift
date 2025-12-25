@@ -27,12 +27,16 @@ public struct PokitCategorySetting: Equatable {
     /// 유저가 선택한 카테고리 키워드(기본값: default - 미선택)
     public var keywordType: BaseInterestType
     
+    /// 카테고리 참여자 수
+    public let userCount: Int?
+    
     public init(
         categoryId: Int?,
         categoryName: String?,
         categoryImage: BaseCategoryImage?,
         openType: BaseOpenType?,
-        keywordType: BaseInterestType?
+        keywordType: BaseInterestType?,
+        userCount: Int? = nil
     ) {
         self.imageList = []
         self.pageable = .init(
@@ -45,5 +49,6 @@ public struct PokitCategorySetting: Equatable {
         self.categoryImage = categoryImage
         self.openType = openType ?? .공개
         self.keywordType = keywordType ?? .default
+        self.userCount = userCount
     }
 }

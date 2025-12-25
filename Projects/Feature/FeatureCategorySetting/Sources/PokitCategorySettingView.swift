@@ -14,6 +14,9 @@ import NukeUI
 
 @ViewAction(for: PokitCategorySettingFeature.self)
 public struct PokitCategorySettingView: View {
+    @Environment(\.scenePhase)
+    private var scenePhase
+    
     /// - Properties
     @Perception.Bindable
     public var store: StoreOf<PokitCategorySettingFeature>
@@ -34,6 +37,9 @@ public extension PokitCategorySettingView {
                 PokitDivider()
                     .padding(.horizontal, -20)
                     .padding(.top, 28)
+                
+                if store.isCoEditing { alarmSettingSection }
+                
                 openTypeSettingSection
                 keywordSection
                 Spacer()
@@ -59,9 +65,17 @@ public extension PokitCategorySettingView {
                     action: { send(.키워드_선택_버튼_눌렀을때($0)) }
                 )
             }
+            .sheet(isPresented: $store.showAlertSheet) {
+                WithPerceptionTracking {
+                    PokitAlertBottomSheet(store: store)
+                }
+            }
             .ignoresSafeArea(.container, edges: .bottom)
             .dismissKeyboard(focused: $isFocused)
             .task { await send(.뷰가_나타났을때).finish() }
+            .onChange(of: scenePhase) { newValue in
+                send(.scenePhase_바꼈을때(newValue))
+            }
         }
     }
 }
@@ -156,6 +170,28 @@ private extension PokitCategorySettingView {
             )
         }
     }
+    
+    /// 알림 받기
+    var alarmSettingSection: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Toggle(isOn: .init(
+                get: { store.alertEnable },
+                set: { send(.알림_권한_바인딩($0)) }
+            )) {
+                Text("알림 받기")
+                    .pokitFont(.b1(.b))
+                    .foregroundStyle(.pokit(.text(.primary)))
+            }
+            .tint(.pokit(.icon(.brand)))
+            Text("포킷이 수정되면 알림을 보내드립니다.")
+                .pokitFont(.detail1)
+                .foregroundStyle(.pokit(.text(.tertiary)))
+        }
+        .padding(.vertical, 12)
+        .padding(.leading, 8)
+        .padding(.top, 16)
+    }
+    
     /// 공개 여부 설정
     var openTypeSettingSection: some View {
         VStack(alignment: .leading, spacing: 4) {

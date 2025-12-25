@@ -261,7 +261,7 @@ public extension MainTabFeature {
                 )))
                 return .none
             case .path(.element(_, action: .알림함(.delegate(.alertBoxDismiss)))):
-                state.path.popLast()
+                let _ = state.path.popLast()
                 return .none
             default: return .none
             }

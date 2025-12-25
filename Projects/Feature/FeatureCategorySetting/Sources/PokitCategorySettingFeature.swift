@@ -4,7 +4,7 @@
 //
 //  Created by 김민호 on 7/25/24.
 
-import Foundation
+import SwiftUI
 
 import ComposableArchitecture
 import DSKit
@@ -25,6 +25,10 @@ public struct PokitCategorySettingFeature {
     var userClient
     @Dependency(KeyboardClient.self)
     var keyboardClient
+    @Dependency(UserNotificationClient.self)
+    var userNotificationClient
+    @Dependency(\.openSettings)
+    var openSetting
     /// - State
     @ObservableState
     public struct State: Equatable {
@@ -56,6 +60,13 @@ public struct PokitCategorySettingFeature {
             && selectedProfile != nil
             && (domain.openType == .공개 ? keywordSelectType != .normal : true)
         }
+        var isCoEditing: Bool {
+            let userCount = domain.userCount ?? 0
+            return userCount > 0
+        }
+        var alertEnable: Bool {
+            isNotificationAuthorization && isAlert
+        }
         
         let type: SettingType
         var keywordSelectType: KeywordSelectType = .normal
@@ -63,6 +74,9 @@ public struct PokitCategorySettingFeature {
         var isKeywordSheetPresented: Bool = false
         var pokitNameTextInpuState: PokitInputStyle.State = .default
         var isKeyboardVisible: Bool = false
+        var isNotificationAuthorization: Bool = false
+        var isAlert = true
+        var showAlertSheet = false
         @Shared(.inMemory("SelectCategory")) var categoryId: Int?
         /// - 포킷 수정 API / 추가 API
         /// categoryName
@@ -79,7 +93,8 @@ public struct PokitCategorySettingFeature {
                 categoryName: category?.categoryName,
                 categoryImage: category?.categoryImage,
                 openType: category?.openType,
-                keywordType: category?.keywordType
+                keywordType: category?.keywordType,
+                userCount: category?.userCount
             )
         }
     }
@@ -102,6 +117,10 @@ public struct PokitCategorySettingFeature {
             case 포킷명지우기_버튼_눌렀을때
             case 키워드_바텀시트_활성화(Bool)
             case 키워드_선택_버튼_눌렀을때(BaseInterestType)
+            case 알림_권한_바인딩(Bool)
+            case 알림_바텀시트_알림켜기_버튼_눌렀을떼
+            case 알림_바텀시트_다음에_버튼_눌렀을떼
+            case scenePhase_바꼈을때(ScenePhase)
         }
         
         public enum InnerAction: Equatable {
@@ -109,12 +128,14 @@ public struct PokitCategorySettingFeature {
             case 포킷_오류_핸들링(BaseError)
             case 카테고리_인메모리_저장(BaseCategoryItem)
             case 키보드_감지_반영(Bool)
+            case 알림_권한_감지_반영(Bool)
         }
         
         public enum AsyncAction: Equatable {
             case 프로필_목록_조회_API
             case 클립보드_감지
             case 키보드_감지
+            case 알림_권한_감지
         }
         
         public enum ScopeAction {
@@ -279,6 +300,22 @@ private extension PokitCategorySettingFeature {
             return .run { send in
                 await send(.view(.키워드_바텀시트_활성화(false)))
             }
+            
+        case let .알림_권한_바인딩(isAlert):
+            state.isAlert = isAlert
+            guard isAlert && !state.isNotificationAuthorization else { return .none }
+            state.showAlertSheet = true
+            return .none
+            
+        case .알림_바텀시트_알림켜기_버튼_눌렀을떼:
+            return .run { _ in await openSetting() }
+            
+        case .알림_바텀시트_다음에_버튼_눌렀을떼:
+            state.showAlertSheet = false
+            return .none
+        case let .scenePhase_바꼈을때(scenePhase):
+            guard scenePhase == .active else { return .none }
+            return .send(.async(.알림_권한_감지))
         }
     }
     
@@ -304,6 +341,12 @@ private extension PokitCategorySettingFeature {
             
         case let .키보드_감지_반영(isVisible):
             state.isKeyboardVisible = isVisible
+            return .none
+        case let .알림_권한_감지_반영(authorization):
+            state.isNotificationAuthorization = authorization
+            if state.isNotificationAuthorization {
+                state.showAlertSheet = false
+            }
             return .none
         }
     }
@@ -331,6 +374,11 @@ private extension PokitCategorySettingFeature {
                 for await detect in await keyboardClient.isVisible() {
                     await send(.inner(.키보드_감지_반영(detect)), animation: .pokitSpring)
                 }
+            }
+        case .알림_권한_감지:
+            return .run { send in
+                let authorization = await userNotificationClient.getNotificationSettings()
+                await send(.inner(.알림_권한_감지_반영(authorization.authorizationStatus == .authorized)))
             }
         }
     }
