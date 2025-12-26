@@ -33,7 +33,7 @@ public extension CategoryItemInquiryResponse {
             createdAt: self.createdAt,
             openType: BaseOpenType(rawValue: self.openType) ?? .비공개,
             keywordType: BaseInterestType(rawValue: self.keywordType.slashConvertUnderBar) ?? .default,
-            userCount: self.userCount,
+            userCount: self.userCount + 1,
             isFavorite: self.isFavorite
         )
     }
