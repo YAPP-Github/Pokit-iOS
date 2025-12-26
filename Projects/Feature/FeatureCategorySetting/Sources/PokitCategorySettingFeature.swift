@@ -27,13 +27,15 @@ public struct PokitCategorySettingFeature {
     var keyboardClient
     @Dependency(UserNotificationClient.self)
     var userNotificationClient
+    @Dependency(UserDefaultsClient.self)
+    var userDefaultsClient
     @Dependency(\.openSettings)
     var openSetting
     /// - State
     @ObservableState
     public struct State: Equatable {
         fileprivate var domain: PokitCategorySetting
-        
+
         var selectedProfile: BaseCategoryImage? {
             get { domain.categoryImage }
             set { domain.categoryImage = newValue }
@@ -45,20 +47,25 @@ public struct PokitCategorySettingFeature {
         var profileImages: [BaseCategoryImage] {
             get { domain.imageList }
         }
-        
+
         var selectedKeywordType: BaseInterestType {
             get { domain.keywordType }
             set { domain.keywordType = newValue }
         }
-        
+
         var isPublicType: Bool {
             get { domain.openType == .공개 ? true : false }
             set { domain.openType = newValue ? .공개 : .비공개 }
         }
         var saveButtonEnabled: Bool {
-            !categoryName.isEmpty
-            && selectedProfile != nil
-            && (domain.openType == .공개 ? keywordSelectType != .normal : true)
+            // 참여자는 항상 활성화 (알림 설정만 변경)
+            if isParticipant {
+                return true
+            }
+            // 소유자는 기존 로직
+            return !categoryName.isEmpty
+                && selectedProfile != nil
+                && (domain.openType == .공개 ? keywordSelectType != .normal : true)
         }
         var isCoEditing: Bool {
             let userCount = domain.userCount ?? 0
@@ -66,6 +73,17 @@ public struct PokitCategorySettingFeature {
         }
         var alertEnable: Bool {
             isNotificationAuthorization && isAlert
+        }
+
+        /// 소유권 검증
+        var categoryUserId: Int?
+        var currentUserId: Int?
+        var isOwner: Bool {
+            guard let currentUserId, let categoryUserId else { return true }
+            return categoryUserId == currentUserId
+        }
+        var isParticipant: Bool {
+            !isOwner && isCoEditing
         }
         
         let type: SettingType
@@ -96,6 +114,7 @@ public struct PokitCategorySettingFeature {
                 keywordType: category?.keywordType,
                 userCount: category?.userCount
             )
+            self.categoryUserId = category?.userId
         }
     }
     
@@ -275,6 +294,12 @@ private extension PokitCategorySettingFeature {
             }
             
         case .뷰가_나타났을때:
+            /// 현재 로그인한 사용자 ID 가져오기
+            if let userIdString = userDefaultsClient.stringKey(.userId),
+               let userId = Int(userIdString) {
+                state.currentUserId = userId
+            }
+
             let selectType = state.selectedKeywordType
             if selectType != .default {
                 state.keywordSelectType = .select(keywordName: selectType.title)

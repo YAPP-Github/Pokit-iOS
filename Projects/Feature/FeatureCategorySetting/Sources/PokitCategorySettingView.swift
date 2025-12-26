@@ -37,11 +37,18 @@ public extension PokitCategorySettingView {
                 PokitDivider()
                     .padding(.horizontal, -20)
                     .padding(.top, 28)
-                
-                if store.isCoEditing { alarmSettingSection }
-                
-                openTypeSettingSection
-                keywordSection
+
+                // 공동 편집 중이면 알림 받기 표시 (소유자, 참여자 모두)
+                if store.isCoEditing {
+                    alarmSettingSection
+                }
+
+                // 소유자만 전체 공개 설정과 키워드 표시
+                if store.isOwner {
+                    openTypeSettingSection
+                    keywordSection
+                }
+
                 Spacer()
             }
             .padding(.top, 16)
@@ -81,8 +88,17 @@ public extension PokitCategorySettingView {
 }
 //MARK: - Configure View
 private extension PokitCategorySettingView {
+    @ViewBuilder
     var navigationBar: some View {
-        PokitHeader(title: store.type.title) {
+        let title: String = {
+            // 참여자는 "포킷 설정", 소유자는 기존 타이틀
+            if store.isParticipant {
+                return "포킷 설정"
+            }
+            return store.type.title
+        }()
+
+        PokitHeader(title: title) {
             PokitHeaderItems(placement: .leading) {
                 PokitToolbarButton(.icon(.arrowLeft)) {
                     send(.dismiss)
@@ -122,30 +138,33 @@ private extension PokitCategorySettingView {
         }
         .frame(width: 80, height: 80)
         .overlay(alignment: .bottomTrailing) {
-            Circle()
-                .stroke(
-                    .pokit(.icon(.tertiary)),
-                    lineWidth: 1
-                )
-                .frame(width: 24, height: 24)
-                .background {
-                    ZStack {
-                        Circle()
-                            .foregroundStyle(
-                                .pokit(.icon(.inverseWh))
-                            )
-                        Button(action: { send(.프로필_설정_버튼_눌렀을때) }) {
-                            Image(.icon(.edit))
-                                .resizable()
-                                .frame(width: 18, height: 18)
-                                .foregroundStyle(.pokit(.icon(.tertiary)))
-                                .padding(2)
+            // 소유자만 프로필 편집 버튼 표시
+            if store.isOwner {
+                Circle()
+                    .stroke(
+                        .pokit(.icon(.tertiary)),
+                        lineWidth: 1
+                    )
+                    .frame(width: 24, height: 24)
+                    .background {
+                        ZStack {
+                            Circle()
+                                .foregroundStyle(
+                                    .pokit(.icon(.inverseWh))
+                                )
+                            Button(action: { send(.프로필_설정_버튼_눌렀을때) }) {
+                                Image(.icon(.edit))
+                                    .resizable()
+                                    .frame(width: 18, height: 18)
+                                    .foregroundStyle(.pokit(.icon(.tertiary)))
+                                    .padding(2)
+                            }
                         }
+
                     }
-                    
-                }
-                .offset(x: 10)
-                .padding(.bottom, 3)
+                    .offset(x: 10)
+                    .padding(.bottom, 3)
+            }
         }
     }
     /// 타이틀 + 텍스트필드를 포함한 포킷명 입력 섹션
@@ -154,20 +173,24 @@ private extension PokitCategorySettingView {
             Text("포킷명")
                 .pokitFont(.b2(.m))
                 .foregroundStyle(.pokit(.text(.secondary)))
-            
+
             PokitTextInput(
                 text: $store.categoryName,
-                type: store.categoryName.isEmpty ? .text : .iconR(
+                type: store.isOwner && !store.categoryName.isEmpty ? .iconR(
                     icon: .icon(.x),
                     action: { send(.포킷명지우기_버튼_눌렀을때) }
-                ),
+                ) : .text,
                 shape: .rectangle,
-                state: $store.pokitNameTextInpuState,
-                placeholder: "포킷명을 입력해주세요.",
+                state: store.isParticipant
+                    ? .constant(.disable)
+                    : $store.pokitNameTextInpuState,
+                placeholder: store.isOwner ? "포킷명을 입력해주세요." : "",
+                info: store.isParticipant ? "수정 권한이 없습니다." : nil,
                 maxLetter: 10,
                 focusState: $isFocused,
                 equals: true
             )
+            .disabled(!store.isOwner)
         }
     }
     
