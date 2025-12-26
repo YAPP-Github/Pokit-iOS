@@ -292,9 +292,19 @@ private extension CategoryDetailFeature {
                 state.currentUserId = userId
             }
 
-            /// 단순 조회 액션들의 나열이기 때문에 merge로 우선 처리
+            /// 데이터가 있으면 페이징 재조회, 없으면 초기 조회
+            let contentListEffect: Effect<Action> = {
+                guard let _ = state.domain.contentList.data?.count else {
+                    return .concatenate(
+                        .send(.inner(.pagenation_초기화)),
+                        .send(.async(.카테고리_내_컨텐츠_목록_조회_API))
+                    )
+                }
+                return .send(.async(.페이징_재조회), animation: .pokitSpring)
+            }()
+
             return .merge(
-                .send(.async(.카테고리_내_컨텐츠_목록_조회_API)),
+                contentListEffect,
                 .send(.async(.카테고리_목록_조회_API)),
                 .send(.async(.포킷_초대된_유저_목록_조회_API)),
                 .send(.async(.클립보드_감지))
