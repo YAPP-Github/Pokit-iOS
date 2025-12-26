@@ -280,6 +280,7 @@ private extension CategoryDetailFeature {
             return .run { send in
                 await send(.inner(.pagenation_초기화), animation: .pokitDissolve)
                 await send(.async(.카테고리_내_컨텐츠_목록_조회_API))
+                await send(.async(.포킷_초대된_유저_목록_조회_API))
                 await send(.inner(.카테고리_선택_시트_활성화(false)))
             }
             
