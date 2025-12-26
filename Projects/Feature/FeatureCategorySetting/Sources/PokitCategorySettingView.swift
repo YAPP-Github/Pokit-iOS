@@ -239,13 +239,20 @@ private extension PokitCategorySettingView {
             if store.isPublicType {
                 VStack(alignment: .leading, spacing: 4) {
                     Button(action: { send(.키워드_바텀시트_활성화(true)) }) {
-                        Text("포킷 키워드")
-                            .pokitFont(.b1(.b))
-                            .foregroundStyle(.pokit(.text(.primary)))
-                        
-                        Spacer()
-                        
-                        Image(.icon(.arrowRight))
+                        HStack {
+                            Text("포킷 키워드")
+                                .pokitFont(.b1(.b))
+                                .foregroundStyle(.pokit(.text(.primary)))
+                            
+                            Spacer()
+                            
+                            Image(.icon(.arrowRight))
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(width: 24, height: 24)
+                                .foregroundStyle(.pokit(.icon(.primary)))
+                        }
+                        .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
                     
