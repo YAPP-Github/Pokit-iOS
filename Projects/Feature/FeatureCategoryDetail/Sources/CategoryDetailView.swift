@@ -50,6 +50,7 @@ public extension CategoryDetailView {
             }
             .listStyle(.plain)
             .listRowSpacing(0)
+            .refreshable { await send(.새로고침).finish() }
             .background { scrollObservableView }
             .onPreferenceChange(ScrollOffsetKey.self) {
                 if $0 != targetOffset {

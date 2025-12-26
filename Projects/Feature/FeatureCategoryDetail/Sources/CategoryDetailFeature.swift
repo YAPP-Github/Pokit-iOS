@@ -110,6 +110,7 @@ public struct CategoryDetailFeature {
             case binding(BindingAction<State>)
             case dismiss
             case pagenation
+            case 새로고침
 
             /// 즐겨찾기 or 안읽음 버튼 눌렀을 때
             case 분류_버튼_눌렀을때(SortCollectType)
@@ -322,6 +323,12 @@ private extension CategoryDetailFeature {
 
         case .저장하기_버튼_눌렀을때:
             return .send(.async(.공유받은_포킷_저장_API))
+
+        case .새로고침:
+            return .concatenate(
+                .send(.inner(.pagenation_초기화), animation: .pokitDissolve),
+                .send(.async(.카테고리_내_컨텐츠_목록_조회_API))
+            )
         }
     }
     
