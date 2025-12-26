@@ -650,13 +650,19 @@ private extension CategoryDetailFeature {
     /// - Scope Effect
     func handleScopeAction(_ action: Action.ScopeAction, state: inout State) -> Effect<Action> {
         switch action {
-        /// - 카테고리에 대한 `공유` / `수정` / `삭제` / `나가기` Delegate
+        /// - 카테고리에 대한 `공유` / `포킷 설정` / `삭제` / `나가기` Delegate
         case .categoryBottomSheet(let delegateAction):
             switch delegateAction {
             case .shareCellButtonTapped:
                 return .run { send in
                     await send(.inner(.카테고리_시트_활성화(false)))
                     await send(.inner(.카카오톡_공유(.공유)))
+                }
+
+            case .pokitSettingCellButtonTapped:
+                return .run { [category = state.category] send in
+                    await send(.inner(.카테고리_시트_활성화(false)))
+                    await send(.delegate(.포킷수정(category)))
                 }
 
             case .editCellButtonTapped:

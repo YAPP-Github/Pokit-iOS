@@ -87,6 +87,9 @@ public struct PokitBottomSheet: View {
         case .share:
             delegateSend?(.shareCellButtonTapped)
             return
+        case .pokitSetting:
+            delegateSend?(.pokitSettingCellButtonTapped)
+            return
         case .edit:
             delegateSend?(.editCellButtonTapped)
             return
@@ -104,6 +107,7 @@ public extension PokitBottomSheet {
     enum Item: CaseIterable {
         case favorite
         case share
+        case pokitSetting
         case edit
         case delete
         case leave
@@ -112,6 +116,7 @@ public extension PokitBottomSheet {
             switch self {
             case .favorite: return "즐겨찾기"
             case .share: return "공유하기"
+            case .pokitSetting: return "포킷 설정하기"
             case .edit: return "수정하기"
             case .delete: return "삭제하기"
             case .leave: return "나가기"
@@ -122,9 +127,10 @@ public extension PokitBottomSheet {
             switch self {
             case .favorite: return .icon(.star)
             case .share: return .icon(.share)
+            case .pokitSetting: return .icon(.setup)
             case .edit: return .icon(.edit)
             case .delete: return .icon(.trash)
-            case .leave: return .icon(.arrowRight)
+            case .leave: return .icon(.trash)
             }
         }
     }
@@ -132,6 +138,7 @@ public extension PokitBottomSheet {
     enum Delegate {
         case favoriteCellButtonTapped
         case shareCellButtonTapped
+        case pokitSettingCellButtonTapped
         case editCellButtonTapped
         case deleteCellButtonTapped
         case leaveCellButtonTapped

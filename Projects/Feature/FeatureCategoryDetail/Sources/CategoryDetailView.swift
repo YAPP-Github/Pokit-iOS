@@ -72,12 +72,12 @@ public extension CategoryDetailView {
             .sheet(isPresented: $store.isCategorySheetPresented) {
                 let items: [PokitBottomSheet.Item] = {
                     if store.isSharedCategory {
-                        return [.edit, .share, .leave]
+                        return [.pokitSetting, .share, .leave]
                     } else {
-                        return [.edit, .share, .delete]
+                        return [.pokitSetting, .share, .delete]
                     }
                 }()
-                
+
                 PokitBottomSheet(
                     items: items,
                     delegateSend: { store.send(.scope(.categoryBottomSheet($0))) }
