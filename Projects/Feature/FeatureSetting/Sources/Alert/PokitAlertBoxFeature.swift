@@ -26,7 +26,9 @@ public struct PokitAlertBoxFeature {
         public init() {}
 
         fileprivate var domain = Alert()
-        
+        @Shared(.appStorage("lastAlertCheckDate"))
+        var lastAlertCheckDate: String?
+
         var alertContents: IdentifiedArrayOf<AlertItem>? {
             guard let list = domain.alertList.data else { return nil }
             var identifiedArray = IdentifiedArrayOf<AlertItem>()
@@ -134,6 +136,10 @@ private extension PokitAlertBoxFeature {
         switch action {
         case let .뷰가_나타났을때_알람_목록_조회_API_반영(list):
             state.domain.alertList = list
+            /// 가장 최신 알림의 날짜를 저장 (읽음 처리용)
+            if let latestAlert = list.data?.first {
+                state.lastAlertCheckDate = latestAlert.createdAt
+            }
             return .none
             
         case let .pagenation_알람_목록_조회_API_반영(alertList):
