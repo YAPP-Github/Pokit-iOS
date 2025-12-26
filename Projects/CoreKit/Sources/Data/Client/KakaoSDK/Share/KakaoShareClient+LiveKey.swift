@@ -19,8 +19,10 @@ extension KakaoShareClient: DependencyKey {
                 /// 딥링크
                 let appLink = Link(
                     androidExecutionParams: [
+                        "shareType": model.shareType.rawValue,
                         "categoryId": "\(model.categoryId)"
                     ], iosExecutionParams: [
+                        "shareType": model.shareType.rawValue,
                         "categoryId": "\(model.categoryId)"
                     ]
                 )
@@ -32,12 +34,24 @@ extension KakaoShareClient: DependencyKey {
                 )
                 
                 /// 카카오톡 메세지 내용
-                let content = Content(
-                    title: "\(model.categoryName) 포킷을 공유받았어요!",
-                    imageUrl: URL(string: model.imageURL),
-                    description: "소중한 링크들이 담긴 포킷을 Pokit 앱에서 지금 바로 확인해보세요!",
-                    link: appLink
-                )
+                let content = {
+                    switch model.shareType {
+                    case .공유:
+                        Content(
+                            title: "\(model.categoryName) 포킷을 공유받았어요!",
+                            imageUrl: URL(string: model.imageURL),
+                            description: "소중한 링크들이 담긴 포킷을 Pokit 앱에서 지금 바로 확인해보세요!",
+                            link: appLink
+                        )
+                    case .초대:
+                        Content(
+                            title: "\(model.categoryName) 포킷 초대장이 왔어요!",
+                            imageUrl: URL(string: model.imageURL),
+                            description: "소중한 링크들이 담긴 포킷을 Pokit 앱에서 지금 바로 침여해보세요!",
+                            link: appLink
+                        )
+                    }
+                }()
                 
                 /// 피드 템플릿
                 let template = FeedTemplate(
@@ -60,7 +74,9 @@ extension KakaoShareClient: DependencyKey {
                     return
                 }
                 
-                let serverCallbackArgs = ["categoryId": "\(model.categoryId)"]
+                let serverCallbackArgs = [
+                    "categoryId": "\(model.categoryId)"
+                ]
                 
                 ShareApi.shared.shareDefault(
                     templateObject: templateJsonObject,
