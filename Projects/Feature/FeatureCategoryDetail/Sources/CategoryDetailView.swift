@@ -30,26 +30,27 @@ public struct CategoryDetailView: View {
 public extension CategoryDetailView {
     var body: some View {
         WithPerceptionTracking {
-            ScrollView(showsIndicators: false) {
-                VStack(spacing: 24) {
-                    header
-                    scrollObservableView
-                    LazyVStack(spacing: 0, pinnedViews: [.sectionHeaders]) {
-                        Section {
-                            contentScrollView
-                                .padding(.horizontal, 20)
-                        } header: {
-                            VStack(spacing: 24) {
-                                PokitDivider()
-                                filterHeader
-                                    .padding(.horizontal, 20)
-                            }
-                            .padding(.bottom, 16)
-                            .background(.white)
-                        }
+            List {
+                Section { header }
+                    .listRowInsets(EdgeInsets(.zero))
+                
+                Section {
+                    contentScrollView
+                } header: {
+                    VStack(spacing: 24) {
+                        PokitDivider()
+                        
+                        filterHeader
+                            .padding(.horizontal, 20)
                     }
+                    .padding(.bottom, 16)
+                    .background(.pokit(.bg(.base)))
                 }
+                .listRowInsets(EdgeInsets(.zero))
             }
+            .listStyle(.plain)
+            .listRowSpacing(0)
+            .background { scrollObservableView }
             .onPreferenceChange(ScrollOffsetKey.self) {
                 if $0 != targetOffset {
                     currentOffset = $0
@@ -64,29 +65,21 @@ public extension CategoryDetailView {
             })
             .padding(.top, 12)
             .pokitNavigationBar { navigationBar }
-            .overlay(
-                if: !store.isFavoriteCategory,
-                alignment: .bottomTrailing
-            ) {
-                Button(action: { send(.링크_추가_버튼_눌렀을때) }) {
-                    Image(.icon(.plus))
-                        .resizable()
-                        .frame(width: 36, height: 36)
-                        .padding(12)
-                        .foregroundStyle(.pokit(.icon(.inverseWh)))
-                        .background {
-                            RoundedRectangle(cornerRadius: 9999, style: .continuous)
-                                .fill(.pokit(.bg(.brand)))
-                        }
-                        .frame(width: 60, height: 60)
-                }
-                .padding(.trailing, 20)
-                .padding(.bottom, 39)
+            .overlay(alignment: .bottom) {
+                bottomOverlay
             }
             .ignoresSafeArea(edges: .bottom)
             .sheet(isPresented: $store.isCategorySheetPresented) {
+                let items: [PokitBottomSheet.Item] = {
+                    if store.isSharedCategory {
+                        return [.edit, .share, .leave]
+                    } else {
+                        return [.edit, .share, .delete]
+                    }
+                }()
+                
                 PokitBottomSheet(
-                    items: [.edit, .delete],
+                    items: items,
                     delegateSend: { store.send(.scope(.categoryBottomSheet($0))) }
                 )
             }
@@ -110,6 +103,30 @@ public extension CategoryDetailView {
                     delegateSend: { store.send(.scope(.categoryDeleteBottomSheet($0))) }
                 )
             }
+            .sheet(isPresented: $store.isParticipantsSheetPresented) {
+                PokitParticipantsBottomSheet(
+                    title: "포킷 공유 유저",
+                    participants: store.invitedUsers,
+                    isCreator: store.isCreator,
+                    currentUserId: store.currentUserId,
+                    creatorUserId: store.category.userId,
+                    delegateSend: { store.send(.scope(.participantsBottomSheet($0))) }
+                )
+            }
+            .sheet(isPresented: $store.isRemoveParticipantSheetPresented) {
+                if let selectedUser = store.selectedUserToRemove {
+                    PokitDeleteBottomSheet(
+                        type: .유저내보내기(selectedUser.nickname),
+                        delegateSend: { store.send(.scope(.removeParticipantBottomSheet($0))) }
+                    )
+                }
+            }
+            .sheet(isPresented: $store.isLeaveSheetPresented) {
+                PokitDeleteBottomSheet(
+                    type: .포킷나가기,
+                    delegateSend: { store.send(.scope(.leaveBottomSheet($0))) }
+                )
+            }
             .task { await send(.뷰가_나타났을때).finish() }
         }
     }
@@ -124,13 +141,20 @@ private extension CategoryDetailView {
                     action: { send(.dismiss) }
                 )
             }
-            if !store.isFavoriteCategory {
+            
+            if !store.isFavoriteCategory && store.type == .참여 {
                 PokitHeaderItems(placement: .trailing) {
+                    if store.isSharedCategory {
+                        participantsView
+                            .pokitBlurReplaceTransition(.pokitDissolve)
+                    }
+                    
                     PokitToolbarButton(
                         .icon(.kebab),
                         action: { send(.카테고리_케밥_버튼_눌렀을때) }
                     )
                 }
+                .animation(.pokitDissolve, value: store.isSharedCategory)
             }
         }
         .padding(.top, 8)
@@ -171,7 +195,7 @@ private extension CategoryDetailView {
                 HStack(spacing: 3.5) {
                     let iconColor: Color = .pokit(.icon(.secondary))
                     let textColor: Color = .pokit(.text(.tertiary))
-                    
+
                     if store.category.openType == .비공개 {
                         HStack(spacing: 2) {
                             Image(.icon(.lock))
@@ -200,48 +224,73 @@ private extension CategoryDetailView {
                     }
                 }
                 .padding(.bottom, 16)
-                PokitIconLButton(
-                    "공유",
-                    .icon(.share),
-                    state: .filled(.primary),
-                    size: .medium,
-                    shape: .round,
-                    action: { send(.공유_버튼_눌렀을때) }
-                )
+
+                switch store.type {
+                case .참여:
+                    PokitIconLButton(
+                        "초대",
+                        .icon(.invite),
+                        state: .filled(.primary),
+                        size: .medium,
+                        shape: .round,
+                        action: { send(.공유_버튼_눌렀을때(.초대)) }
+                    )
+                case .초대:
+                    PokitTextButton(
+                        "초대 수락하기",
+                        state: .filled(.primary),
+                        size: .medium,
+                        shape: .round,
+                        action: { send(.초대_수락하기_버튼_눌렀을때) }
+                    )
+                case .공유:
+                    PokitTextButton(
+                        "저장하기",
+                        state: .filled(.primary),
+                        size: .medium,
+                        shape: .round,
+                        action: { send(.저장하기_버튼_눌렀을때) }
+                    )
+                }
             }
         }
+        .frame(maxWidth: .infinity)
+        .listRowBackground(Color.clear)
+        .listRowSeparator(.hidden)
     }
     
     @ViewBuilder
     var filterHeader: some View {
         let isFavoriteCategory = store.isFavoriteCategory
         let favoriteContentsCount = store.contents.filter { $0.content.isFavorite ?? false }.count
-        
+
         HStack(spacing: isFavoriteCategory ? 2 : 8) {
             if isFavoriteCategory {
                 Image(.icon(.link))
                     .resizable()
                     .frame(width: 16, height: 16)
                     .foregroundStyle(.pokit(.icon(.secondary)))
-                
+
                 Text("\(favoriteContentsCount)개")
                     .foregroundStyle(.pokit(.text(.tertiary)))
                     .pokitFont(.b2(.m))
-                
-            } else {
+
+            } else if store.type == .참여 {
                 favoriteButton
-                
+
                 unreadButton
             }
-            
+
             Spacer()
-            
-            PokitIconLTextLink(
-                store.sortType.title,
-                icon: .icon(.align),
-                action: { send(.정렬_버튼_눌렀을때) }
-            )
-            .contentTransition(.numericText())
+
+            if store.type == .참여 {
+                PokitIconLTextLink(
+                    store.sortType.title,
+                    icon: .icon(.align),
+                    action: { send(.정렬_버튼_눌렀을때) }
+                )
+                .contentTransition(.numericText())
+            }
         }
     }
     
@@ -294,51 +343,144 @@ private extension CategoryDetailView {
         if !store.isLoading {
             if store.contents.isEmpty {
                 PokitCaution(type: .포킷상세_링크없음)
+                    .listRowBackground(Color.clear)
+                    .listRowInsets(EdgeInsets(.zero))
+                    .listRowSeparator(.hidden)
             } else {
-                LazyVStack(spacing: 0) {
-                    ForEach(
-                        Array(store.scope(state: \.contents, action: \.contents))
-                    ) { store in
-                        let isFirst = store.state.id == self.store.contents.first?.id
-                        let isLast = store.state.id == self.store.contents.last?.id
-                        
-                        if !self.store.isFavoriteCategory {
-                            ContentCardView(
-                                store: store,
-                                type: .linkList,
-                                isFirst: isFirst,
-                                isLast: isLast
-                            )
-                        } else if store.content.isFavorite == true {
-                            ContentCardView(
-                                store: store,
-                                type: .linkList,
-                                isFirst: isFirst,
-                                isLast: isLast
-                            )
-                        }
-                    }
+                ForEach(
+                    Array(store.scope(state: \.contents, action: \.contents))
+                ) { store in
+                    let isFirst = store.state.id == self.store.contents.first?.id
+                    let isLast = store.state.id == self.store.contents.last?.id
                     
-                    if store.hasNext {
-                        PokitLoading()
-                            .task { await send(.pagenation).finish() }
+                    if !self.store.isFavoriteCategory {
+                        ContentCardView(
+                            store: store,
+                            type: .linkList,
+                            isFirst: isFirst,
+                            isLast: isLast,
+                            showKebab: self.store.type == .참여
+                        )
+                    } else if store.content.isFavorite == true {
+                        ContentCardView(
+                            store: store,
+                            type: .linkList,
+                            isFirst: isFirst,
+                            isLast: isLast,
+                            showKebab: self.store.type == .참여
+                        )
                     }
-                    
-                    Spacer()
                 }
-                .padding(.bottom, 36)
+                
+                if store.hasNext {
+                    PokitLoading()
+                        .listRowBackground(Color.clear)
+                        .listRowInsets(EdgeInsets(.zero))
+                        .listRowSeparator(.hidden)
+                        .task { await send(.pagenation).finish() }
+                }
             }
         } else {
             PokitLoading()
+                .listRowBackground(Color.clear)
+                .listRowInsets(EdgeInsets(.zero))
+                .listRowSeparator(.hidden)
         }
     }
     
+    @ViewBuilder
+    var bottomOverlay: some View {
+        if store.type == .참여 && !store.isFavoriteCategory {
+            HStack {
+                Spacer()
+                Button(action: { send(.링크_추가_버튼_눌렀을때) }) {
+                    Image(.icon(.plus))
+                        .resizable()
+                        .frame(width: 36, height: 36)
+                        .padding(12)
+                        .foregroundStyle(.pokit(.icon(.inverseWh)))
+                        .background {
+                            RoundedRectangle(cornerRadius: 9999, style: .continuous)
+                                .fill(.pokit(.bg(.brand)))
+                        }
+                        .frame(width: 60, height: 60)
+                }
+                .padding(.trailing, 20)
+                .padding(.bottom, 39)
+            }
+        }
+    }
+
+    @ViewBuilder
+    var participantsView: some View {
+        Button(action: { send(.참여인원_버튼_눌렀을때) }) {
+            GeometryReader { proxy in
+                let local = proxy.frame(in: .local)
+                let firstUser = store.invitedUsers.indices.contains(0) ? store.invitedUsers[0] : nil
+                let secondUser = store.invitedUsers.indices.contains(1) ? store.invitedUsers[1] : nil
+
+                HStack(spacing: 2) {
+                    participantsProfileImage(url: secondUser?.profile?.imageURL)
+                        .overlay(Circle().stroke(.pokit(.border(.tertiary)), lineWidth: 1))
+
+                    Text("\(store.invitedUsers.count)")
+                        .foregroundStyle(.pokit(.text(.secondary)))
+                        .pokitFont(.b3(.m))
+                        .frame(width: 18)
+
+                    Image(.icon(.arrowDown))
+                        .resizable()
+                        .frame(width: 16, height: 16)
+                        .foregroundStyle(.pokit(.icon(.tertiary)))
+                }
+                .padding(.trailing, 6)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 9999)
+                        .stroke(.pokit(.border(.tertiary)), lineWidth: 1)
+                )
+                .offset(x: local.minX + 20, y: local.minY)
+
+                participantsProfileImage(url: firstUser?.profile?.imageURL)
+                    .overlay(Circle().stroke(.pokit(.border(.inverseWh)), lineWidth: 1))
+                    .offset(x: local.minX, y: local.minY)
+            }
+            .frame(width: 92, height: 28)
+        }
+        .buttonStyle(.plain)
+    }
+    
+    func participantsProfileImage(url: String?) -> some View {
+        Group {
+            if let url {
+                LazyImage(url: URL(string: url)) { phase in
+                    Group {
+                        if let image = phase.image {
+                            image
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                        } else {
+                            PokitSpinner()
+                                .foregroundStyle(.pokit(.icon(.brand)))
+                        }
+                    }
+                    .animation(.pokitDissolve, value: phase.image)
+                }
+            } else {
+                Image(.image(.profile))
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+            }
+        }
+        .frame(width: 28, height: 28)
+        .clipShape(Circle())
+    }
+
     struct PokitCategorySheet: View {
         @State private var height: CGFloat = 0
         var action: (BaseCategoryItem) -> Void
         var selectedItem: BaseCategoryItem?
         var list: [BaseCategoryItem]
-        
+
         public init(
             selectedItem: BaseCategoryItem?,
             list: [BaseCategoryItem],
@@ -348,7 +490,7 @@ private extension CategoryDetailView {
             self.list = list
             self.action = action
         }
-        
+
         var body: some View {
             PokitList(
                 selectedItem: selectedItem,

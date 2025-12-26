@@ -93,6 +93,9 @@ public struct PokitBottomSheet: View {
         case .delete:
             delegateSend?(.deleteCellButtonTapped)
             return
+        case .leave:
+            delegateSend?(.leaveCellButtonTapped)
+            return
         }
     }
 }
@@ -103,31 +106,35 @@ public extension PokitBottomSheet {
         case share
         case edit
         case delete
-        
+        case leave
+
         var name: String {
             switch self {
             case .favorite: return "즐겨찾기"
             case .share: return "공유하기"
             case .edit: return "수정하기"
             case .delete: return "삭제하기"
+            case .leave: return "나가기"
             }
         }
-        
+
         var icon: PokitImage {
             switch self {
             case .favorite: return .icon(.star)
             case .share: return .icon(.share)
             case .edit: return .icon(.edit)
             case .delete: return .icon(.trash)
+            case .leave: return .icon(.arrowRight)
             }
         }
     }
-    
+
     enum Delegate {
         case favoriteCellButtonTapped
         case shareCellButtonTapped
         case editCellButtonTapped
         case deleteCellButtonTapped
+        case leaveCellButtonTapped
     }
 }
 

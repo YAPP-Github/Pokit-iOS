@@ -10,6 +10,7 @@ import ComposableArchitecture
 import FeaturePokit
 import FeatureRecommend
 import FeatureContentDetail
+import FeatureCategoryDetail
 import Domain
 import DSKit
 import Util
@@ -79,14 +80,14 @@ public struct MainTabFeature {
         public enum InnerAction: Equatable {
             case 링크추가및수정이동(contentId: Int)
             case linkCopySuccess(URL?)
-            case 공유포킷_이동(sharedCategory: CategorySharing.SharedCategory)
+            case 공유받은_카테고리_이동(category: BaseCategoryItem, type: CategoryType)
             case 경고_띄움(BaseError)
             case errorSheetPresented(Bool)
             case 링크팝업_활성화(PokitLinkPopup.PopupType)
             case 카테고리상세_이동(category: BaseCategoryItem)
         }
         public enum AsyncAction: Equatable {
-            case 공유받은_카테고리_조회(categoryId: Int)
+            case 공유받은_카테고리_조회(categoryId: Int, shareType: String?)
         }
         public enum ScopeAction: Equatable { case doNothing }
         public enum DelegateAction: Equatable {
@@ -208,7 +209,9 @@ private extension MainTabFeature {
                 let categoryIdString = queryItems.first(where: { $0.name == "categoryId" })?.value,
                 let categoryId = Int(categoryIdString)
             else { return .none }
-            
+
+            let shareType = queryItems.first(where: { $0.name == "shareType" })?.value
+
             switch state.selectedTab {
             case .pokit:
                 amplitudeTrack(.view_home_pokit(entryPoint: "deeplink"))
@@ -216,7 +219,7 @@ private extension MainTabFeature {
                 amplitudeTrack(.view_home_recommend(entryPoint: "deeplink"))
             }
 
-            return .send(.async(.공유받은_카테고리_조회(categoryId: categoryId)))
+            return .send(.async(.공유받은_카테고리_조회(categoryId: categoryId, shareType: shareType)))
         case .경고_확인버튼_클릭:
             state.error = nil
             return .run { send in await send(.inner(.errorSheetPresented(false))) }
@@ -275,18 +278,39 @@ private extension MainTabFeature {
             }
             state.path.append(.카테고리상세(.init(category: category)))
             return .none
+
+        case let .공유받은_카테고리_이동(category, type):
+            state.path.append(.카테고리상세(.init(type: type, category: category)))
+            return .none
+
         default: return .none
         }
     }
     /// - Async Effect
     func handleAsyncAction(_ action: Action.AsyncAction, state: inout State) -> Effect<Action> {
         switch action {
-        case let .공유받은_카테고리_조회(categoryId: categoryId):
+        case let .공유받은_카테고리_조회(categoryId: categoryId, shareType: shareType):
             return .run { send in
                 do {
-                    let request = BasePageableRequest(page: 0, size: 10, sort: ["createdAt", "desc"])
-                    let sharedCategory = try await categoryClient.공유받은_카테고리_조회("\(categoryId)", request).toDomain()
-                    await send(.inner(.공유포킷_이동(sharedCategory: sharedCategory)), animation: .smooth)
+                    let request = BasePageableRequest(page: 0, size: 10, sort: ["createdAt,desc"])
+                    let response = try await categoryClient.공유받은_카테고리_조회("\(categoryId)", request)
+                    let category = BaseCategoryItem(
+                        id: response.category.categoryId,
+                        userId: 0,
+                        categoryName: response.category.categoryName,
+                        categoryImage: BaseCategoryImage(
+                            imageId: response.category.categoryImageId,
+                            imageURL: response.category.categoryImageUrl
+                        ),
+                        contentCount: response.category.contentCount,
+                        createdAt: "",
+                        openType: .공개,
+                        keywordType: .default,
+                        userCount: 0,
+                        isFavorite: false
+                    )
+                    let type: CategoryType = shareType == "invite" ? .초대 : .공유
+                    await send(.inner(.공유받은_카테고리_이동(category: category, type: type)), animation: .smooth)
                 } catch {
                     guard let errorResponse = error as? ErrorResponse else { return }
                     let errorDomain = BaseError(response: errorResponse)

@@ -111,17 +111,16 @@ public struct ContentSettingFeature {
             case URL_유효성_확인
             case 링크복사_반영(String?)
             case 컨텐츠_상세_조회_API_반영(content: BaseContentDetail)
-            case 카테고리_상세_조회_API_반영(category: BaseCategory)
             case 카테고리_목록_조회_API_반영(categoryList: BaseCategoryListInquiry)
             case 선택한_포킷_인메모리_삭제
             case 링크팝업_활성화(PokitLinkPopup.PopupType)
             case error(Error)
             case 키보드_감지_반영(Bool)
+            case 선택_카테고리_반영(BaseCategoryItem?)
         }
 
         public enum AsyncAction: Equatable {
             case 컨텐츠_상세_조회_API(id: Int)
-            case 카테고리_상세_조회_API(id: Int?, sharedId: Int?)
             case 카테고리_목록_조회_API
             case 컨텐츠_수정_API
             case 컨텐츠_추가_API
@@ -303,55 +302,24 @@ private extension ContentSettingFeature {
             state.domain.memo = content.memo
             state.domain.alertYn = content.alertYn
             state.contentLoading = false
-            let id = content.category.categoryId
-            
-            return .merge(
-                .send(.inner(.URL_유효성_확인)),
-                .send(.async(.카테고리_상세_조회_API(id: id, sharedId: state.categoryId)))
-            )
-        case .카테고리_상세_조회_API_반영(category: let category):
-            state.selectedPokit = BaseCategoryItem(
-                id: category.categoryId,
-                userId: 0,
-                categoryName: category.categoryName,
-                categoryImage: category.categoryImage,
-                contentCount: 0,
-                createdAt: "",
-                //TODO: v2 property 수정
-                openType: .비공개,
-                keywordType: .default,
-                userCount: 0,
-                isFavorite: false
-            )
-            return .none
+            return .send(.inner(.URL_유효성_확인))
         case .카테고리_목록_조회_API_반영(categoryList: let categoryList):
-            /// - `카테고리_목록_조회`의 filter 옵션을 `false`로 해두었기 때문에 `미분류` 카테고리 또한 항목에서 조회가 가능함
-
-            /// [1]. `미분류`에 해당하는 인덱스 번호와 항목을 체크, 없다면 목록갱신이 불가함
-            guard
-                let unclassifiedItemIdx = categoryList.data?.firstIndex(where: {
-                    $0.categoryName == Constants.미분류
-                })
-            else { return .none }
-            guard
-                let unclassifiedItem = categoryList.data?.first(where: {
-                    $0.categoryName == Constants.미분류
-                })
-            else { return .none }
-            
-            /// [2]. 새로운 list변수를 만들어주고 카테고리 항목 순서를 재배치 (최신순 정렬 시  미분류는 항상 맨 마지막)
-            var list = categoryList
-            list.data?.remove(at: unclassifiedItemIdx)
-            list.data?.insert(unclassifiedItem, at: 0)
-            
             /// [3]. 도메인 항목 리스트에 list 할당
-            state.domain.categoryListInQuiry = list
+            state.domain.categoryListInQuiry = categoryList
             
             /// [4]. 최초 진입시: `미분류`로 설정함. 포킷 추가하고 왔다면 `@Shared`에 값이 있기 때문에 기존 값을 업데이트함
             if state.selectedPokit == nil {
-                state.selectedPokit = unclassifiedItem
+                state.selectedPokit = categoryList.data?.first
             }
-            return .none
+            return .run { [
+                id = state.domain.categoryId,
+                sharedId = state.categoryId
+            ] send in
+                let selectedCategory = categoryList.data?.first { category in
+                    return category.id == id || category.id == sharedId
+                }
+                await send(.inner(.선택_카테고리_반영(selectedCategory)))
+            }
         case .선택한_포킷_인메모리_삭제:
             state.selectedPokit = nil
             return .none
@@ -368,6 +336,9 @@ private extension ContentSettingFeature {
         case let .키보드_감지_반영(response):
             state.isKeyboardVisible = response
             return .none
+        case let .선택_카테고리_반영(selectedCategory):
+            state.selectedPokit = selectedCategory
+            return .none
         }
     }
 
@@ -380,28 +351,13 @@ private extension ContentSettingFeature {
                 let content = try await contentClient.컨텐츠_상세_조회("\(id)").toDomain()
                 await send(.inner(.컨텐츠_상세_조회_API_반영(content: content)), animation: .pokitDissolve)
             }
-        case let .카테고리_상세_조회_API(id, sharedId):
-            return .run { send in
-                if let sharedId {
-                    let category = try await categoryClient.카테고리_상세_조회("\(sharedId)").toDomain()
-                    await send(.inner(.카테고리_상세_조회_API_반영(category: category)))
-                } else if let id {
-                    let category = try await categoryClient.카테고리_상세_조회("\(id)").toDomain()
-                    await send(.inner(.카테고리_상세_조회_API_반영(category: category)))
-                }
-            }
         case .카테고리_목록_조회_API:
             let request = BasePageableRequest(
                 page: state.domain.pageable.page,
                 size: 30,
                 sort: state.domain.pageable.sort
             )
-            let id = state.domain.categoryId
-            let sharedId = state.categoryId
-            return .merge(
-                .send(.async(.카테고리_상세_조회_API(id: id, sharedId: sharedId))),
-                categoryListFetch(request: request)
-            )
+            return categoryListFetch(request: request)
         case .컨텐츠_수정_API:
             guard
                 let contentId = state.domain.contentId,
@@ -484,7 +440,24 @@ private extension ContentSettingFeature {
     func categoryListFetch(request: BasePageableRequest) -> Effect<Action> {
         return .run { send in
             let categoryList = try await categoryClient.카테고리_목록_조회(request, false, true).toDomain()
-            await send(.inner(.카테고리_목록_조회_API_반영(categoryList: categoryList)), animation: .pokitDissolve)
+            /// - `카테고리_목록_조회`의 filter 옵션을 `false`로 해두었기 때문에 `미분류` 카테고리 또한 항목에서 조회가 가능함
+
+            /// [1]. `미분류`에 해당하는 인덱스 번호와 항목을 체크, 없다면 목록갱신이 불가함
+            guard let unclassifiedItemIdx = categoryList.data?.firstIndex(where: {
+                    $0.categoryName == Constants.미분류
+                })
+            else { return }
+            guard let unclassifiedItem = categoryList.data?.first(where: {
+                    $0.categoryName == Constants.미분류
+                })
+            else { return }
+            
+            /// [2]. 새로운 list변수를 만들어주고 카테고리 항목 순서를 재배치 (최신순 정렬 시  미분류는 항상 맨 마지막)
+            var list = categoryList
+            list.data?.remove(at: unclassifiedItemIdx)
+            list.data?.insert(unclassifiedItem, at: 0)
+            
+            await send(.inner(.카테고리_목록_조회_API_반영(categoryList: list)), animation: .pokitDissolve)
         }
     }
 }
