@@ -55,6 +55,17 @@ extension CategoryClient: DependencyKey {
             },
             포킷_초대된_유저_목록_조회: { id in
                 try await provider.request(.포킷_초대된_유저_목록_조회(categoryId: id))
+            },
+            포킷_내보내기: { categoryId, resignUserId in
+                try await provider.requestNoBody(
+                    .포킷_내보내기(categoryId: categoryId, resignUserId: resignUserId)
+                )
+            },
+            포킷_나가기: { categoryId in
+                try await provider.requestNoBody(.포킷_나가기(categoryId: categoryId))
+            },
+            포킷_초대_수락: { categoryId in
+                try await provider.requestNoBody(.포킷_초대_수락(categoryId: categoryId))
             }
         )
     }()
