@@ -289,30 +289,31 @@ private extension PokitSearchView {
     }
     
     var resultListContent: some View {
-        ScrollView {
-            LazyVStack(spacing: 0) {
-                ForEach(
-                    Array(store.scope(state: \.contents, action: \.contents))
-                ) { store in
-                    let isFirst = store.state.id == self.store.contents.first?.id
-                    let isLast = store.state.id == self.store.contents.last?.id
-                    
-                    ContentCardView(
-                        store: store,
-                        type: .linkList,
-                        isFirst: isFirst,
-                        isLast: isLast
-                    )
-                }
+        List {
+            ForEach(
+                Array(store.scope(state: \.contents, action: \.contents))
+            ) { store in
+                let isFirst = store.state.id == self.store.contents.first?.id
+                let isLast = store.state.id == self.store.contents.last?.id
                 
-                if store.hasNext {
-                    PokitLoading()
-                        .task { await send(.로딩중일때, animation: .pokitDissolve).finish() }
-                }
+                ContentCardView(
+                    store: store,
+                    type: .linkList,
+                    isFirst: isFirst,
+                    isLast: isLast
+                )
             }
-            .padding(.horizontal, 20)
-            .padding(.bottom, 36)
+            
+            if store.hasNext {
+                PokitLoading()
+                    .listRowBackground(Color.clear)
+                    .listRowInsets(EdgeInsets(.zero))
+                    .listRowSeparator(.hidden)
+                    .task { await send(.로딩중일때, animation: .pokitDissolve).finish() }
+            }
         }
+        .listStyle(.plain)
+        .listRowSpacing(0)
     }
     
     var resultEmptyLabel: some View {
