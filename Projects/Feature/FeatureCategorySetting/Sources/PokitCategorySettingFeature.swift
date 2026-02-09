@@ -62,10 +62,14 @@ public struct PokitCategorySettingFeature {
             if isParticipant {
                 return true
             }
-            // 소유자는 기존 로직
-            return !categoryName.isEmpty
-                && selectedProfile != nil
-                && (domain.openType == .공개 ? keywordSelectType != .normal : true)
+
+            // warning 상태일 때는 비활성화
+            if keywordSelectType == .warnning {
+                return false
+            }
+
+            // 제목과 프로필만 체크
+            return !categoryName.isEmpty && selectedProfile != nil
         }
         var isCoEditing: Bool {
             let userCount = domain.userCount ?? 0
