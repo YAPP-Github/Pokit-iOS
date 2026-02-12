@@ -15,12 +15,12 @@ public struct AlertItem: Identifiable, Equatable {
     public var title: String
     public var body: String
     public let createdAt: String
-    
+
     public init(
         id: Int,
         userId: Int,
         contentId: Int,
-        thumbNail: String, 
+        thumbNail: String,
         title: String,
         body: String,
         createdAt: String

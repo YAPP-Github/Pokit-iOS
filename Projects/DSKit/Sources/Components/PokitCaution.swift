@@ -63,7 +63,7 @@ public enum CautionType {
         case .링크부족:
             return "링크를 5개 이상 저장하고 추천을 받아보세요"
         case .알림없음:
-            return "리마인드 알림을 설정하세요"
+            return "공동 편집 포킷을 만들어보세요"
         case .추천_링크없음:
             return "다른 사용자들이 링크를 저장하면\n추천해드릴게요"
         }

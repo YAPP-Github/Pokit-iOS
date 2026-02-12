@@ -130,6 +130,8 @@ public enum PokitImage {
                 return DSKitAsset.imageProfile.swiftUIImage
             case .unpokited:
                 return DSKitAsset.unpokited.swiftUIImage
+            case .alertExplain:
+                return DSKitAsset.alertExplain.swiftUIImage
             }
         }
     }
@@ -198,5 +200,6 @@ public extension PokitImage {
         case firecracker
         case profile
         case unpokited
+        case alertExplain
     }
 }

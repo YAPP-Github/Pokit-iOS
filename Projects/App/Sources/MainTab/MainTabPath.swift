@@ -14,7 +14,6 @@ import FeatureCategorySetting
 import FeatureContentDetail
 import FeatureContentSetting
 import FeatureContentList
-import FeatureCategorySharing
 import Domain
 import Util
 
@@ -29,7 +28,6 @@ public struct MainTabPath {
         case 링크추가및수정(ContentSettingFeature.State)
         case 카테고리상세(CategoryDetailFeature.State)
         case 링크목록(ContentListFeature.State)
-        case 링크공유(CategorySharingFeature.State)
     }
 
     public enum Action {
@@ -40,7 +38,6 @@ public struct MainTabPath {
         case 링크추가및수정(ContentSettingFeature.Action)
         case 카테고리상세(CategoryDetailFeature.Action)
         case 링크목록(ContentListFeature.Action)
-        case 링크공유(CategorySharingFeature.Action)
     }
 
     public var body: some Reducer<State, Action> {
@@ -51,7 +48,6 @@ public struct MainTabPath {
         Scope(state: \.링크추가및수정, action: \.링크추가및수정) { ContentSettingFeature() }
         Scope(state: \.카테고리상세, action: \.카테고리상세) { CategoryDetailFeature() }
         Scope(state: \.링크목록, action: \.링크목록) { ContentListFeature() }
-        Scope(state: \.링크공유, action: \.링크공유) { CategorySharingFeature() }
     }
 }
 
@@ -101,18 +97,10 @@ public extension MainTabFeature {
             /// - 포킷 `추가` or `수정`이 성공적으로 `완료`되었을 때
             case .path(.element(_, action: .포킷추가및수정(.delegate(.settingSuccess)))):
                 state.path.removeLast()
-                guard let lastPath = state.path.last else {
-                    switch state.selectedTab {
-                    case .pokit: return .none
-                    case .recommend:
-                        return .send(.recommend(.delegate(.포킷_추가하기_완료)))
-                    }
-                }
-                switch lastPath {
-                case .링크공유:
-                    state.path.removeLast()
-                    return .none
-                default: return .none
+                switch state.selectedTab {
+                case .pokit: return .none
+                case .recommend:
+                    return .send(.recommend(.delegate(.포킷_추가하기_완료)))
                 }
 
             /// - 포킷 카테고리 아이템 눌렀을 때
@@ -218,51 +206,26 @@ public extension MainTabFeature {
                 return .send(.delegate(.로그아웃))
             case .path(.element(_, action: .설정(.delegate(.회원탈퇴)))):
                 return .send(.delegate(.회원탈퇴))
-            case let .inner(.공유포킷_이동(sharedCategory: sharedCategory)):
-                state.path.append(.링크공유(CategorySharingFeature.State(sharedCategory: sharedCategory)))
-                return .none
-                
-            /// 링크 공유에서 컨텐츠 상세보기
-            case let .path(.element(_, action: .링크공유(.delegate(.컨텐츠_아이템_클릭(categoryId: categoryId, content: content))))):
-                state.contentDetail = ContentDetailFeature.State(content: BaseContentDetail(
-                    id: content.id,
-                    category: BaseCategoryInfo(
-                        categoryId: categoryId,
-                        categoryName: content.categoryName
-                    ),
-                    title: content.title,
-                    data: content.data,
-                    memo: content.memo ?? "",
-                    createdAt: content.createdAt,
-                    favorites: nil,
-                    alertYn: .no
-                ))
-                return .none
-            
-            case let .path(.element(_, action: .링크공유(.delegate(.공유받은_카테고리_추가(sharedCategory))))):
-                let category = BaseCategoryItem(
-                    id: sharedCategory.categoryId,
-                    userId: 0,
-                    categoryName: sharedCategory.categoryName,
-                    categoryImage: BaseCategoryImage(
-                        imageId: sharedCategory.categoryImageId,
-                        imageURL: sharedCategory.categoryImageUrl
-                    ),
-                    contentCount: sharedCategory.contentCount,
-                    createdAt: "",
-                    openType: .공개,
-                    keywordType: .default,
-                    userCount: 0,
-                    isFavorite: false
-                )
-                state.path.append(.포킷추가및수정(PokitCategorySettingFeature.State(
-                    type: .공유추가,
-                    category: category
-                )))
-                return .none
+
             case .path(.element(_, action: .알림함(.delegate(.alertBoxDismiss)))):
-                state.path.popLast()
+                let _ = state.path.popLast()
                 return .none
+
+            /// - 초대 수락 완료
+            case .path(.element(_, action: .카테고리상세(.delegate(.초대_수락_완료)))):
+                state.path.removeLast()
+                return .send(.inner(.링크팝업_활성화(.success(title: "초대를 수락했습니다", until: 2))), animation: .pokitSpring)
+
+            /// - 공유 포킷 저장 완료
+            case .path(.element(_, action: .카테고리상세(.delegate(.저장_완료)))):
+                state.path.removeLast()
+                return .send(.inner(.링크팝업_활성화(.success(title: "포킷을 저장했습니다", until: 2))), animation: .pokitSpring)
+
+            /// - 포킷 나가기 완료
+            case .path(.element(_, action: .카테고리상세(.delegate(.포킷나가기)))):
+                state.path.removeLast()
+                return .send(.inner(.링크팝업_활성화(.success(title: "포킷에서 나갔습니다", until: 2))), animation: .pokitSpring)
+
             default: return .none
             }
         }

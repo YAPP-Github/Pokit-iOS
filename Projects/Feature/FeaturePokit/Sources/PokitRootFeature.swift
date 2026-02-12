@@ -479,6 +479,7 @@ private extension PokitRootFeature {
             }
             kakaoShareClient.카테고리_카카오톡_공유(
                 CategoryKaKaoShareModel(
+                    shareType: .공유,
                     categoryName: selectedItem.categoryName,
                     categoryId: selectedItem.id,
                     imageURL: selectedItem.categoryImage.imageURL

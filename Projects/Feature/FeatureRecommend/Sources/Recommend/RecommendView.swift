@@ -177,21 +177,33 @@ private extension RecommendView {
     func listContent(
         _ recommendedList: IdentifiedArrayOf<BaseContentItem>
     ) -> some View {
-        ScrollView {
-            LazyVStack(spacing: 8) {
-                ForEach(recommendedList) { content in
-                    recommendedCard(content)
-                }
+        List {
+            ForEach(recommendedList) { content in
+                let isFirst = recommendedList.first == content
+                let isLast = recommendedList.last == content
                 
-                if store.hasNext {
-                    PokitLoading()
-                        .task { await send(.pagination).finish() }
-                }
+                recommendedCard(content)
+                    .listRowBackground(Color.clear)
+                    .listRowInsets(EdgeInsets(
+                        top: isFirst ? 12 : 0,
+                        leading: 20,
+                        bottom: !store.hasNext && isLast ? 150 : 0,
+                        trailing: 20
+                    ))
+                    .listRowSeparator(.hidden)
+                    .id(content.id)
             }
-            .padding(.horizontal, 20)
-            .padding(.bottom, 150)
-            .padding(.top, 12)
+            
+            if store.hasNext {
+                PokitLoading()
+                    .listRowBackground(Color.clear)
+                    .listRowInsets(EdgeInsets(.zero))
+                    .listRowSeparator(.hidden)
+                    .task { await send(.pagination).finish() }
+            }
         }
+        .listStyle(.plain)
+        .listRowSpacing(8)
     }
     
     @ViewBuilder

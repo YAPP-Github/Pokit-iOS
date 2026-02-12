@@ -32,9 +32,10 @@ public extension PokitRootView {
         WithPerceptionTracking {
             VStack(spacing: 0) {
                 self.filterHeader
+                    .padding(.horizontal, 20)
+                
                 self.cardScrollView
             }
-            .padding(.horizontal, 20)
             .padding(.vertical, 16)
             .background(.pokit(.bg(.base)))
             .ignoresSafeArea(edges: .bottom)
@@ -122,6 +123,7 @@ private extension PokitRootView {
             if store.folderType == .folder(.포킷) {
                 pokitView
                     .padding(.top, 20)
+                    .padding(.horizontal, 20)
             } else {
                 unclassifiedView
             }
@@ -184,6 +186,7 @@ private extension PokitRootView {
             } else {
                 unclassifiedList
                     .padding(.top, 20)
+                    .padding(.bottom, 74)
             }
         } else {
             PokitLoading()
@@ -191,29 +194,31 @@ private extension PokitRootView {
     }
 
     var unclassifiedList: some View {
-        ScrollView {
-            LazyVStack(spacing: 0) {
-                ForEach(
-                    Array(store.scope(state: \.contents, action: \.contents))
-                ) { store in
-                    let isFirst = store.state.id == self.store.contents.first?.id
-                    let isLast = store.state.id == self.store.contents.last?.id
-                    
-                    ContentCardView(
-                        store: store,
-                        type: .linkList,
-                        isFirst: isFirst,
-                        isLast: isLast
-                    )
-                }
-
-                if store.unclassifiedHasNext {
-                    PokitLoading()
-                        .onAppear(perform: { send(.페이지_로딩중일때) })
-                }
+        List {
+            ForEach(
+                Array(store.scope(state: \.contents, action: \.contents))
+            ) { store in
+                let isFirst = store.state.id == self.store.contents.first?.id
+                let isLast = store.state.id == self.store.contents.last?.id
+                
+                ContentCardView(
+                    store: store,
+                    type: .linkList,
+                    isFirst: isFirst,
+                    isLast: isLast
+                )
             }
-            .padding(.bottom, 150)
+
+            if store.unclassifiedHasNext {
+                PokitLoading()
+                    .listRowBackground(Color.clear)
+                    .listRowInsets(EdgeInsets(.zero))
+                    .listRowSeparator(.hidden)
+                    .onAppear(perform: { send(.페이지_로딩중일때) })
+            }
         }
+        .listStyle(.plain)
+        .listRowSpacing(0)
     }
 }
 

@@ -17,18 +17,21 @@ public struct ContentCardView: View {
     private let type: PokitLinkCard<BaseContentItem>.CardType
     private let isFirst: Bool
     private let isLast: Bool
-    
+    private let showKebab: Bool
+
     /// - Initializer
     public init(
         store: StoreOf<ContentCardFeature>,
         type: PokitLinkCard<BaseContentItem>.CardType = .accept,
         isFirst: Bool = false,
-        isLast: Bool = false
+        isLast: Bool = false,
+        showKebab: Bool = true
     ) {
         self.store = store
         self.type = type
         self.isFirst = isFirst
         self.isLast = isLast
+        self.showKebab = showKebab
     }
 }
 //MARK: - View
@@ -42,10 +45,19 @@ public extension ContentCardView {
                 : isLast ? .bottom : .middle,
                 type: type,
                 action: { send(.컨텐츠_항목_눌렀을때) },
-                kebabAction: { send(.컨텐츠_항목_케밥_버튼_눌렀을때) },
+                kebabAction: showKebab ? { send(.컨텐츠_항목_케밥_버튼_눌렀을때) } : nil,
                 fetchMetaData: { send(.메타데이터_조회) },
                 favoriteAction: { send(.즐겨찾기_버튼_눌렀을때) }
             )
+            .listRowInsets(EdgeInsets(
+                top: 0,
+                leading: 20,
+                bottom: isLast ? 36 : 0,
+                trailing: 20
+            ))
+            .listRowSeparator(.hidden)
+            .listRowBackground(Color.clear)
+            .id(store.content.id)
         }
     }
 }

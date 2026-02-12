@@ -15,6 +15,8 @@ public struct CategoryDetail: Equatable {
     public var categoryListInQuiry: BaseCategoryListInquiry
     /// 카테고리(포킷) 내 콘텐츠(링크) 리스트
     public var contentList: BaseContentListInquiry
+    /// 초대된 유저 목록
+    public var invitedUsers: [InvitedUser]
     // - MARK: Request
     /// 조회할 페이징 정보
     public var pageable: BasePageable
@@ -36,6 +38,7 @@ public struct CategoryDetail: Equatable {
             sort: [],
             hasNext: false
         )
+        self.invitedUsers = []
         self.pageable = .init(
             page: 0,
             size: 10,

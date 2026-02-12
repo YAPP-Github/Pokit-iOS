@@ -37,11 +37,15 @@ public extension PokitAlertBoxView {
                         List {
                             ForEach(alertContents, id: \.id) { item in
                                 Button(action: { send(.알람_항목_선택했을때(item: item)) }) {
-                                    AlertContent(item: item)
+                                    AlertContent(
+                                        item: item,
+                                        lastCheckDate: store.lastAlertCheckDate
+                                    )
                                 }
                                 .listRowSeparator(.hidden)
                                 .listRowInsets(EdgeInsets())
                                 .onDelete(deleteAction: { delete(item) })
+                                .id(item.id)
                             }
                             .listRowBackground(Color.pokit(.bg(.base)))
                             .padding(.top, 16)
@@ -76,12 +80,19 @@ private extension PokitAlertBoxView {
     }
 
     struct AlertContent: View {
-        var item: AlertItem
-        
-        init(item: AlertItem) {
+        let item: AlertItem
+        let lastCheckDate: String?
+
+        init(item: AlertItem, lastCheckDate: String?) {
             self.item = item
+            self.lastCheckDate = lastCheckDate
         }
-        
+
+        private var isUnread: Bool {
+            guard let lastCheckDate else { return true }
+            return item.createdAt > lastCheckDate
+        }
+
         var body: some View {
             VStack(alignment: .leading, spacing: 20) {
                 HStack(spacing: 16) {
@@ -117,6 +128,11 @@ private extension PokitAlertBoxView {
                     .foregroundStyle(.pokit(.border(.tertiary)))
             }
             .padding(.top, 20)
+            .background(
+                isUnread
+                    ? .pokit(.color(.orange(._50)))
+                    : .clear
+            )
         }
     }
 }

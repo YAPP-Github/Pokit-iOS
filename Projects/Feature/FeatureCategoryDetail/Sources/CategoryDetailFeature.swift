@@ -26,6 +26,8 @@ public struct CategoryDetailFeature {
     private var contentClient
     @Dependency(KakaoShareClient.self)
     private var kakaoShareClient
+    @Dependency(UserDefaultsClient.self)
+    private var userDefaults
     @Dependency(\.amplitude.track)
     private var amplitudeTrack
     
@@ -63,13 +65,33 @@ public struct CategoryDetailFeature {
         var isCategorySheetPresented: Bool = false
         var isCategorySelectSheetPresented: Bool = false
         var isPokitDeleteSheetPresented: Bool = false
+        var isParticipantsSheetPresented: Bool = false
+        var isRemoveParticipantSheetPresented: Bool = false
+        var isLeaveSheetPresented: Bool = false
+        /// selected user
+        var selectedUserToRemove: InvitedUser?
+        var type: CategoryType
         /// pagenation
         var hasNext: Bool {
             domain.contentList.hasNext
         }
         var isLoading: Bool = true
+        /// computed properties
+        var invitedUsers: [InvitedUser] {
+            domain.invitedUsers
+        }
+        var isSharedCategory: Bool {
+            domain.invitedUsers.count >= 2
+        }
+        /// 현재 로그인한 사용자의 ID
+        var currentUserId: Int?
+        var isCreator: Bool {
+            guard let currentUserId else { return false }
+            return domain.category.userId == currentUserId
+        }
         
-        public init(category: BaseCategoryItem) {
+        public init(type: CategoryType = .참여, category: BaseCategoryItem) {
+            self.type = type
             self.domain = .init(categpry: category)
         }
     }
@@ -88,27 +110,38 @@ public struct CategoryDetailFeature {
             case binding(BindingAction<State>)
             case dismiss
             case pagenation
-            
+            case 새로고침
+
             /// 즐겨찾기 or 안읽음 버튼 눌렀을 때
             case 분류_버튼_눌렀을때(SortCollectType)
             case 정렬_버튼_눌렀을때
-            case 공유_버튼_눌렀을때
+            case 공유_버튼_눌렀을때(CategoryKaKaoShareModel.ShareType)
             case 카테고리_케밥_버튼_눌렀을때
             case 카테고리_선택_버튼_눌렀을때
             case 카테고리_선택했을때(BaseCategoryItem)
             case 뷰가_나타났을때
             case 링크_추가_버튼_눌렀을때
+            case 참여인원_버튼_눌렀을때
+            case 초대_수락하기_버튼_눌렀을때
+            case 저장하기_버튼_눌렀을때
         }
         
         public enum InnerAction: Equatable {
             case 카테고리_시트_활성화(Bool)
             case 카테고리_선택_시트_활성화(Bool)
             case 카테고리_삭제_시트_활성화(Bool)
-            
+            case 참여인원_시트_활성화(Bool)
+            case 내보내기_확인_시트_활성화(Bool)
+            case 나가기_확인_시트_활성화(Bool)
+            case 카카오톡_공유(CategoryKaKaoShareModel.ShareType)
+            case 타입_변경(CategoryType)
+
             case 카테고리_목록_조회_API_반영(BaseCategoryListInquiry)
             case 카테고리_내_컨텐츠_목록_조회_API_반영(BaseContentListInquiry)
             case pagenation_API_반영(BaseContentListInquiry)
             case pagenation_초기화
+            case 포킷_초대된_유저_목록_조회_API_반영([InvitedUser])
+            case 내보낼_유저_선택(InvitedUser)
         }
         
         public enum AsyncAction: Equatable {
@@ -116,14 +149,26 @@ public struct CategoryDetailFeature {
             case 카테고리_목록_조회_API
             case 페이징_재조회
             case 클립보드_감지
+            case 포킷_초대된_유저_목록_조회_API
+            case 포킷_내보내기_API(categoryId: Int, resignUserId: Int)
+            case 포킷_나가기_API(categoryId: Int)
+            case 포킷_초대_수락_API(categoryId: Int)
+            case 공유받은_포킷_저장_API
         }
         
         public enum ScopeAction {
             case categoryBottomSheet(PokitBottomSheet.Delegate)
             case categoryDeleteBottomSheet(PokitDeleteBottomSheet.Delegate)
+            case participantsBottomSheet(ParticipantsBottomSheetDelegate)
+            case removeParticipantBottomSheet(PokitDeleteBottomSheet.Delegate)
+            case leaveBottomSheet(PokitDeleteBottomSheet.Delegate)
             case contents(IdentifiedActionOf<ContentCardFeature>)
         }
-        
+
+        public enum ParticipantsBottomSheetDelegate: Equatable {
+            case removeParticipant(InvitedUser)
+        }
+
         public enum DelegateAction: Equatable {
             case contentItemTapped(BaseContentItem)
             case linkCopyDetected(URL?)
@@ -132,7 +177,10 @@ public struct CategoryDetailFeature {
             case 포킷삭제
             case 포킷수정(BaseCategoryItem)
             case 포킷공유
+            case 포킷나가기
             case 카테고리_내_컨텐츠_목록_조회
+            case 초대_수락_완료
+            case 저장_완료
         }
     }
     
@@ -214,19 +262,8 @@ private extension CategoryDetailFeature {
                 .send(.async(.카테고리_내_컨텐츠_목록_조회_API))
             )
             
-        case .공유_버튼_눌렀을때:
-            amplitudeTrack(.share_link(
-                linkId: "\(state.domain.category.id)",
-                shareTarget: "kakaotalk"
-            ))
-            kakaoShareClient.카테고리_카카오톡_공유(
-                CategoryKaKaoShareModel(
-                    categoryName: state.domain.category.categoryName,
-                    categoryId: state.domain.category.id,
-                    imageURL: state.domain.category.categoryImage.imageURL
-                )
-            )
-            return .none
+        case let .공유_버튼_눌렀을때(shareType):
+            return .send(.inner(.카카오톡_공유(shareType)))
             
         case .링크_추가_버튼_눌렀을때:
             let id = state.category.id
@@ -243,6 +280,7 @@ private extension CategoryDetailFeature {
             return .run { send in
                 await send(.inner(.pagenation_초기화), animation: .pokitDissolve)
                 await send(.async(.카테고리_내_컨텐츠_목록_조회_API))
+                await send(.async(.포킷_초대된_유저_목록_조회_API))
                 await send(.inner(.카테고리_선택_시트_활성화(false)))
             }
             
@@ -250,15 +288,48 @@ private extension CategoryDetailFeature {
             return .run { _ in await dismiss() }
             
         case .뷰가_나타났을때:
-            /// 단순 조회 액션들의 나열이기 때문에 merge로 우선 처리
+            /// 현재 로그인한 사용자 ID 가져오기
+            if let userIdString = userDefaults.stringKey(.userId),
+               let userId = Int(userIdString) {
+                state.currentUserId = userId
+            }
+
+            /// 데이터가 있으면 페이징 재조회, 없으면 초기 조회
+            let contentListEffect: Effect<Action> = {
+                guard let _ = state.domain.contentList.data?.count else {
+                    return .concatenate(
+                        .send(.inner(.pagenation_초기화)),
+                        .send(.async(.카테고리_내_컨텐츠_목록_조회_API))
+                    )
+                }
+                return .send(.async(.페이징_재조회), animation: .pokitSpring)
+            }()
+
             return .merge(
-                .send(.async(.카테고리_내_컨텐츠_목록_조회_API)),
+                contentListEffect,
                 .send(.async(.카테고리_목록_조회_API)),
+                .send(.async(.포킷_초대된_유저_목록_조회_API)),
                 .send(.async(.클립보드_감지))
             )
         case .pagenation:
             state.domain.pageable.page += 1
             return .send(.async(.카테고리_내_컨텐츠_목록_조회_API))
+
+        case .참여인원_버튼_눌렀을때:
+            return .send(.inner(.참여인원_시트_활성화(true)))
+
+        case .초대_수락하기_버튼_눌렀을때:
+            let categoryId = state.domain.category.id
+            return .send(.async(.포킷_초대_수락_API(categoryId: categoryId)))
+
+        case .저장하기_버튼_눌렀을때:
+            return .send(.async(.공유받은_포킷_저장_API))
+
+        case .새로고침:
+            return .concatenate(
+                .send(.inner(.pagenation_초기화), animation: .pokitDissolve),
+                .send(.async(.카테고리_내_컨텐츠_목록_조회_API))
+            )
         }
     }
     
@@ -312,6 +383,45 @@ private extension CategoryDetailFeature {
             state.isLoading = true
             state.contents.removeAll()
             return .none
+            
+        case .포킷_초대된_유저_목록_조회_API_반영(let users):
+            state.domain.invitedUsers = users
+            return .none
+
+        case let .참여인원_시트_활성화(presented):
+            state.isParticipantsSheetPresented = presented
+            return .none
+
+        case let .내보내기_확인_시트_활성화(presented):
+            state.isRemoveParticipantSheetPresented = presented
+            return .none
+
+        case let .나가기_확인_시트_활성화(presented):
+            state.isLeaveSheetPresented = presented
+            return .none
+
+        case let .내보낼_유저_선택(user):
+            state.selectedUserToRemove = user
+            return .send(.inner(.내보내기_확인_시트_활성화(true)))
+
+        case let .타입_변경(type):
+            state.type = type
+            return .none
+
+        case let .카카오톡_공유(shareType):
+            amplitudeTrack(.share_link(
+                linkId: "\(state.domain.category.id)",
+                shareTarget: "kakaotalk"
+            ))
+            kakaoShareClient.카테고리_카카오톡_공유(
+                CategoryKaKaoShareModel(
+                    shareType: shareType,
+                    categoryName: state.domain.category.categoryName,
+                    categoryId: state.domain.category.id,
+                    imageURL: state.domain.category.categoryImage.imageURL
+                )
+            )
+            return .none
         }
     }
     
@@ -326,63 +436,170 @@ private extension CategoryDetailFeature {
             }
             
         case .카테고리_내_컨텐츠_목록_조회_API:
-            return .run { [
-                id = state.domain.category.id,
-                pageable = state.domain.pageable,
-                condition = state.domain.condition
-            ] send in
-                let request = BasePageableRequest(
-                    page: pageable.page,
-                    size: pageable.size,
-                    sort: pageable.sort
-                )
-                let conditionRequest = BaseConditionRequest(categoryIds: condition.categoryIds, isRead: condition.isUnreadFlitered, favorites: condition.isFavoriteFlitered)
-                let contentList = try await contentClient.카테고리_내_컨텐츠_목록_조회(
-                    "\(id)", request, conditionRequest
-                ).toDomain()
-                pageable.page == 0
-                ? await send(.inner(.카테고리_내_컨텐츠_목록_조회_API_반영(contentList)), animation: .pokitDissolve)
-                : await send(.inner(.pagenation_API_반영(contentList)))
+            switch state.type {
+            case .초대, .공유:
+                return .run { [
+                    id = state.domain.category.id,
+                    categoryName = state.domain.category.categoryName,
+                    pageable = state.domain.pageable
+                ] send in
+                    let request = BasePageableRequest(
+                        page: pageable.page,
+                        size: pageable.size,
+                        sort: pageable.sort
+                    )
+                    let response = try await categoryClient.공유받은_카테고리_조회("\(id)", request)
+
+                    // SharedCategoryResponse.Content를 BaseContentItem으로 변환
+                    let baseContentItems = response.contents.data.map { content in
+                        BaseContentItem(
+                            id: content.contentId,
+                            categoryName: categoryName,
+                            categoryId: id,
+                            title: content.title,
+                            memo: content.memo,
+                            thumbNail: content.thumbNail,
+                            data: content.data,
+                            domain: content.domain,
+                            createdAt: content.createdAt,
+                            isRead: false,
+                            isFavorite: false,
+                            keyword: nil
+                        )
+                    }
+
+                    let contentList = BaseContentListInquiry(
+                        data: baseContentItems,
+                        page: response.contents.page,
+                        size: response.contents.size,
+                        sort: response.contents.sort.map { $0.toDomain() },
+                        hasNext: response.contents.hasNext
+                    )
+
+                    pageable.page == 0
+                    ? await send(.inner(.카테고리_내_컨텐츠_목록_조회_API_반영(contentList)), animation: .pokitDissolve)
+                    : await send(.inner(.pagenation_API_반영(contentList)))
+                }
+
+            case .참여:
+                return .run { [
+                    id = state.domain.category.id,
+                    pageable = state.domain.pageable,
+                    condition = state.domain.condition
+                ] send in
+                    let request = BasePageableRequest(
+                        page: pageable.page,
+                        size: pageable.size,
+                        sort: pageable.sort
+                    )
+                    let conditionRequest = BaseConditionRequest(categoryIds: condition.categoryIds, isRead: condition.isUnreadFlitered, favorites: condition.isFavoriteFlitered)
+                    let contentList = try await contentClient.카테고리_내_컨텐츠_목록_조회(
+                        "\(id)", request, conditionRequest
+                    ).toDomain()
+                    pageable.page == 0
+                    ? await send(.inner(.카테고리_내_컨텐츠_목록_조회_API_반영(contentList)), animation: .pokitDissolve)
+                    : await send(.inner(.pagenation_API_반영(contentList)))
+                }
             }
             
         case .페이징_재조회:
-            return .run { [
-                pageable = state.domain.pageable,
-                categoryId = state.domain.category.id,
-                condition = state.domain.condition
-            ] send in
-                let stream = AsyncThrowingStream<BaseContentListInquiry, Error> { continuation in
-                    Task {
-                        for page in 0...pageable.page {
-                            let paeagableRequest = BasePageableRequest(
-                                page: page,
-                                size: pageable.size,
-                                sort: pageable.sort
-                            )
-                            let conditionRequest = BaseConditionRequest(
-                                categoryIds: condition.categoryIds,
-                                isRead: condition.isUnreadFlitered,
-                                favorites: condition.isFavoriteFlitered
-                            )
-                            let contentList = try await contentClient.카테고리_내_컨텐츠_목록_조회(
-                                "\(categoryId)",
-                                paeagableRequest,
-                                conditionRequest
-                            ).toDomain()
-                            continuation.yield(contentList)
+            switch state.type {
+            case .초대, .공유:
+                return .run { [
+                    pageable = state.domain.pageable,
+                    categoryId = state.domain.category.id,
+                    categoryName = state.domain.category.categoryName
+                ] send in
+                    let stream = AsyncThrowingStream<BaseContentListInquiry, Error> { continuation in
+                        Task {
+                            for page in 0...pageable.page {
+                                let paeagableRequest = BasePageableRequest(
+                                    page: page,
+                                    size: pageable.size,
+                                    sort: pageable.sort
+                                )
+                                let response = try await categoryClient.공유받은_카테고리_조회("\(categoryId)", paeagableRequest)
+
+                                // SharedCategoryResponse.Content를 BaseContentItem으로 변환
+                                let baseContentItems = response.contents.data.map { content in
+                                    BaseContentItem(
+                                        id: content.contentId,
+                                        categoryName: categoryName,
+                                        categoryId: categoryId,
+                                        title: content.title,
+                                        memo: content.memo,
+                                        thumbNail: content.thumbNail,
+                                        data: content.data,
+                                        domain: content.domain,
+                                        createdAt: content.createdAt,
+                                        isRead: false,
+                                        isFavorite: false,
+                                        keyword: nil
+                                    )
+                                }
+
+                                let contentList = BaseContentListInquiry(
+                                    data: baseContentItems,
+                                    page: response.contents.page,
+                                    size: response.contents.size,
+                                    sort: response.contents.sort.map { $0.toDomain() },
+                                    hasNext: response.contents.hasNext
+                                )
+                                continuation.yield(contentList)
+                            }
+                            continuation.finish()
                         }
-                        continuation.finish()
                     }
+                    var contentItems: BaseContentListInquiry? = nil
+                    for try await contentList in stream {
+                        let items = contentItems?.data ?? []
+                        let newItems = contentList.data ?? []
+                        contentItems = contentList
+                        contentItems?.data = items + newItems
+                    }
+                    guard let contentItems else { return }
+                    await send(.inner(.카테고리_내_컨텐츠_목록_조회_API_반영(contentItems)), animation: .pokitSpring)
                 }
-                var contentItems: BaseContentListInquiry? = nil
-                for try await contentList in stream {
-                    let items = contentItems?.data ?? []
-                    let newItems = contentList.data ?? []
-                    contentItems = contentList
-                    contentItems?.data = items + newItems
+
+            case .참여:
+                return .run { [
+                    pageable = state.domain.pageable,
+                    categoryId = state.domain.category.id,
+                    condition = state.domain.condition
+                ] send in
+                    let stream = AsyncThrowingStream<BaseContentListInquiry, Error> { continuation in
+                        Task {
+                            for page in 0...pageable.page {
+                                let paeagableRequest = BasePageableRequest(
+                                    page: page,
+                                    size: pageable.size,
+                                    sort: pageable.sort
+                                )
+                                let conditionRequest = BaseConditionRequest(
+                                    categoryIds: condition.categoryIds,
+                                    isRead: condition.isUnreadFlitered,
+                                    favorites: condition.isFavoriteFlitered
+                                )
+                                let contentList = try await contentClient.카테고리_내_컨텐츠_목록_조회(
+                                    "\(categoryId)",
+                                    paeagableRequest,
+                                    conditionRequest
+                                ).toDomain()
+                                continuation.yield(contentList)
+                            }
+                            continuation.finish()
+                        }
+                    }
+                    var contentItems: BaseContentListInquiry? = nil
+                    for try await contentList in stream {
+                        let items = contentItems?.data ?? []
+                        let newItems = contentList.data ?? []
+                        contentItems = contentList
+                        contentItems?.data = items + newItems
+                    }
+                    guard let contentItems else { return }
+                    await send(.inner(.카테고리_내_컨텐츠_목록_조회_API_반영(contentItems)), animation: .pokitSpring)
                 }
-                guard let contentItems else { return }
-                await send(.inner(.카테고리_내_컨텐츠_목록_조회_API_반영(contentItems)), animation: .pokitSpring)
             }
             
         case .클립보드_감지:
@@ -392,26 +609,88 @@ private extension CategoryDetailFeature {
                     await send(.delegate(.linkCopyDetected(url)), animation: .pokitSpring)
                 }
             }
+            
+        case .포킷_초대된_유저_목록_조회_API:
+            return .run { [id = state.domain.category.id] send in
+                let response = try await categoryClient.포킷_초대된_유저_목록_조회(id)
+                let users = response.map { $0.toDomain() }
+                await send(.inner(.포킷_초대된_유저_목록_조회_API_반영(users)))
+            }
+
+        case let .포킷_내보내기_API(categoryId, resignUserId):
+            return .run { send in
+                try await categoryClient.포킷_내보내기(categoryId, resignUserId)
+                await send(.inner(.내보내기_확인_시트_활성화(false)))
+                await send(.async(.포킷_초대된_유저_목록_조회_API))
+            }
+
+        case let .포킷_나가기_API(categoryId):
+            return .run { send in
+                try await categoryClient.포킷_나가기(categoryId)
+                await send(.inner(.나가기_확인_시트_활성화(false)))
+                await send(.delegate(.포킷나가기))
+                await dismiss()
+            }
+
+        case let .포킷_초대_수락_API(categoryId):
+            return .run { send in
+                try await categoryClient.포킷_초대_수락(categoryId)
+                await send(.inner(.타입_변경(.참여)))
+                await send(.delegate(.초대_수락_완료))
+            }
+
+        case .공유받은_포킷_저장_API:
+            return .run { [category = state.domain.category] send in
+                let request = CopiedCategoryRequest(
+                    originCategoryId: category.id,
+                    categoryName: category.categoryName,
+                    categoryImageId: category.categoryImage.id,
+                    keyword: category.keywordType.rawValue,
+                    openType: category.openType.rawValue
+                )
+                try await categoryClient.공유받은_카테고리_저장(request)
+                await send(.inner(.타입_변경(.참여)))
+                await send(.delegate(.저장_완료))
+            }
         }
     }
     
     /// - Scope Effect
     func handleScopeAction(_ action: Action.ScopeAction, state: inout State) -> Effect<Action> {
         switch action {
-        /// - 카테고리에 대한 `공유` / `수정` / `삭제` Delegate
+        /// - 카테고리에 대한 `공유` / `포킷 설정` / `삭제` / `나가기` Delegate
         case .categoryBottomSheet(let delegateAction):
             switch delegateAction {
+            case .shareCellButtonTapped:
+                return .run { send in
+                    await send(.inner(.카테고리_시트_활성화(false)))
+                    await send(.inner(.카카오톡_공유(.공유)))
+                }
+
+            case .pokitSettingCellButtonTapped:
+                return .run { [category = state.category] send in
+                    await send(.inner(.카테고리_시트_활성화(false)))
+                    await send(.delegate(.포킷수정(category)))
+                }
+
             case .editCellButtonTapped:
                 return .run { [category = state.category] send in
                     await send(.inner(.카테고리_시트_활성화(false)))
                     await send(.delegate(.포킷수정(category)))
                 }
+
             case .deleteCellButtonTapped:
                 return .run { send in
                     await send(.inner(.카테고리_시트_활성화(false)))
                     await send(.inner(.카테고리_삭제_시트_활성화(true)))
                 }
-                
+
+            case .leaveCellButtonTapped:
+                return .run { send in
+                    await send(.inner(.카테고리_시트_활성화(false)))
+                    await send(.inner(.나가기_확인_시트_활성화(true)))
+                }
+
             default: return .none
             }
         /// - 카테고리의 `삭제`를 눌렀을 때 Sheet Delegate
@@ -429,6 +708,45 @@ private extension CategoryDetailFeature {
                 }
             }
             
+        /// - 참여인원 바텀시트 Delegate
+        case .participantsBottomSheet(let delegateAction):
+            switch delegateAction {
+            case .removeParticipant(let user):
+                return .run { send in
+                    await send(.inner(.참여인원_시트_활성화(false)))
+                    await send(.inner(.내보낼_유저_선택(user)))
+                }
+            }
+
+        /// - 유저 내보내기 확인 바텀시트 Delegate
+        case .removeParticipantBottomSheet(let delegateAction):
+            switch delegateAction {
+            case .cancelButtonTapped:
+                return .run { send in
+                    await send(.inner(.내보내기_확인_시트_활성화(false)))
+                }
+
+            case .deleteButtonTapped:
+                guard let selectedUser = state.selectedUserToRemove else { return .none }
+                return .run { [categoryId = state.domain.category.id] send in
+                    await send(.async(.포킷_내보내기_API(categoryId: categoryId, resignUserId: selectedUser.id)))
+                }
+            }
+
+        /// - 포킷 나가기 확인 바텀시트 Delegate
+        case .leaveBottomSheet(let delegateAction):
+            switch delegateAction {
+            case .cancelButtonTapped:
+                return .run { send in
+                    await send(.inner(.나가기_확인_시트_활성화(false)))
+                }
+
+            case .deleteButtonTapped:
+                return .run { [categoryId = state.domain.category.id] send in
+                    await send(.async(.포킷_나가기_API(categoryId: categoryId)))
+                }
+            }
+
         case let .contents(.element(id: _, action: .delegate(.컨텐츠_항목_케밥_버튼_눌렀을때(content)))):
             return .send(.delegate(.contentItemTapped(content)))
         case .contents:
