@@ -30,6 +30,7 @@ let package = Package(
         .package(url: "https://github.com/kean/Nuke", from: "12.8.0"),
         .package(url: "https://github.com/scinfu/SwiftSoup", "2.7.0" ..< "2.7.5"),
         .package(url: "https://github.com/kakao/kakao-ios-sdk", from: "2.22.5"),
-        .package(url: "https://github.com/amplitude/Amplitude-Swift", from: "1.15.2")
+        .package(url: "https://github.com/amplitude/Amplitude-Swift", from: "1.15.2"),
+        .package(url: "https://github.com/ShapeKim98/SchemeRoute", "0.3.1" ..< "0.4.0")
     ]
 )
