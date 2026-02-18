@@ -7,7 +7,7 @@
 
 import Foundation
 
-import SharedThirdPartyLib
+import SchemeRoute
 
 @SchemeRoutable
 enum PokitDeeplink: Equatable, Sendable {
