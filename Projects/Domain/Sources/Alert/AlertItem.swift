@@ -11,6 +11,7 @@ public struct AlertItem: Identifiable, Equatable {
     public let id: Int
     public let userId: Int
     public let contentId: Int
+    public let deeplink: String?
     public var thumbNail: String
     public var title: String
     public var body: String
@@ -20,6 +21,7 @@ public struct AlertItem: Identifiable, Equatable {
         id: Int,
         userId: Int,
         contentId: Int,
+        deeplink: String? = nil,
         thumbNail: String,
         title: String,
         body: String,
@@ -28,6 +30,7 @@ public struct AlertItem: Identifiable, Equatable {
         self.id = id
         self.userId = userId
         self.contentId = contentId
+        self.deeplink = deeplink
         self.thumbNail = thumbNail
         self.title = title
         self.body = body

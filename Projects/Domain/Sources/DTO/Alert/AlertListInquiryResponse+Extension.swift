@@ -27,6 +27,7 @@ public extension AlertItemInquiryResponse {
             id: self.id,
             userId: self.userId,
             contentId: self.contentId,
+            deeplink: self.deeplink,
             thumbNail: self.thumbNail,
             title: self.title,
             body: self.body,

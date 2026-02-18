@@ -20,6 +20,8 @@ public struct PokitAlertBoxFeature {
     var pasteboard
     @Dependency(AlertClient.self) 
     var alertClient
+    @Dependency(DeeplinkRouteClient.self)
+    var deeplinkRouter
     /// - State
     @ObservableState
     public struct State: Equatable {
@@ -38,6 +40,7 @@ public struct PokitAlertBoxFeature {
     }
     
     /// - Action
+    @CasePathable
     public enum Action: FeatureAction, ViewAction {
         case view(View)
         case inner(InnerAction)
@@ -54,12 +57,14 @@ public struct PokitAlertBoxFeature {
             case 뷰가_나타났을때
         }
         
+        @CasePathable
         public enum InnerAction: Equatable {
             case pagenation_알람_목록_조회_API_반영(AlertListInquiry)
             case 뷰가_나타났을때_알람_목록_조회_API_반영(AlertListInquiry)
             case 알람_삭제_API_반영(item: AlertItem)
         }
         
+        @CasePathable
         public enum AsyncAction: Equatable {
             case pagenation_알람_목록_조회_API
             case 뷰가_나타났을때_알람_목록_조회_API
@@ -67,10 +72,11 @@ public struct PokitAlertBoxFeature {
             case 클립보드_감지
         }
         
+        @CasePathable
         public enum ScopeAction: Equatable { case 없음 }
         
+        @CasePathable
         public enum DelegateAction: Equatable {
-            case moveToContentEdit(id: Int)
             case linkCopyDetected(URL?)
             case alertBoxDismiss
         }
@@ -117,7 +123,15 @@ private extension PokitAlertBoxFeature {
             return .send(.async(.알람_삭제_API(item: item)))
             
         case let .알람_항목_선택했을때(item):
-            return .send(.delegate(.moveToContentEdit(id: item.contentId)))
+            guard
+                let deeplink = item.deeplink,
+                !deeplink.isEmpty,
+                let url = URL(string: deeplink)
+            else { return .none }
+
+            return .run { _ in
+                await deeplinkRouter.routeTo(url)
+            }
             
         case .뷰가_나타났을때:
             return .merge(
