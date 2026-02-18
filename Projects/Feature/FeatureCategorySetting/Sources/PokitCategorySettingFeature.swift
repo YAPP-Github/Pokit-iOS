@@ -119,6 +119,7 @@ public struct PokitCategorySettingFeature {
     }
     
     /// - Action
+    @CasePathable
     public enum Action: FeatureAction, ViewAction {
         case view(View)
         case inner(InnerAction)
@@ -142,6 +143,7 @@ public struct PokitCategorySettingFeature {
             case scenePhase_바꼈을때(ScenePhase)
         }
         
+        @CasePathable
         public enum InnerAction: Equatable {
             case 프로필_목록_조회_API_반영(images: [BaseCategoryImage])
             case 포킷_오류_핸들링(BaseError)
@@ -150,6 +152,7 @@ public struct PokitCategorySettingFeature {
             case 알림_권한_감지_반영(Bool)
         }
         
+        @CasePathable
         public enum AsyncAction: Equatable {
             case 프로필_목록_조회_API
             case 클립보드_감지
@@ -157,10 +160,12 @@ public struct PokitCategorySettingFeature {
             case 알림_권한_감지
         }
         
+        @CasePathable
         public enum ScopeAction {
             case profile(PokitProfileBottomSheet<BaseCategoryImage>.Delegate)
         }
         
+        @CasePathable
         public enum DelegateAction: Equatable {
             /// 이전화면으로 돌아가 카테고리 항목을 추가하면됨
             case settingSuccess

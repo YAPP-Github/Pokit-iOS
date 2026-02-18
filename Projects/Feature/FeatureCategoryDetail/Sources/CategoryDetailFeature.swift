@@ -36,7 +36,7 @@ public struct CategoryDetailFeature {
     public struct State: Equatable {
         /// Domain
         fileprivate var domain: CategoryDetail
-        var category: BaseCategoryItem {
+        public var category: BaseCategoryItem {
             get { domain.category }
         }
         var isUnreadFiltered: Bool {
@@ -97,6 +97,7 @@ public struct CategoryDetailFeature {
     }
     
     /// - Action
+    @CasePathable
     public enum Action: FeatureAction, ViewAction {
         case view(View)
         case inner(InnerAction)
@@ -126,6 +127,7 @@ public struct CategoryDetailFeature {
             case 저장하기_버튼_눌렀을때
         }
         
+        @CasePathable
         public enum InnerAction: Equatable {
             case 카테고리_시트_활성화(Bool)
             case 카테고리_선택_시트_활성화(Bool)
@@ -144,6 +146,7 @@ public struct CategoryDetailFeature {
             case 내보낼_유저_선택(InvitedUser)
         }
         
+        @CasePathable
         public enum AsyncAction: Equatable {
             case 카테고리_내_컨텐츠_목록_조회_API
             case 카테고리_목록_조회_API
@@ -156,6 +159,7 @@ public struct CategoryDetailFeature {
             case 공유받은_포킷_저장_API
         }
         
+        @CasePathable
         public enum ScopeAction {
             case categoryBottomSheet(PokitBottomSheet.Delegate)
             case categoryDeleteBottomSheet(PokitDeleteBottomSheet.Delegate)
@@ -165,10 +169,12 @@ public struct CategoryDetailFeature {
             case contents(IdentifiedActionOf<ContentCardFeature>)
         }
 
+        @CasePathable
         public enum ParticipantsBottomSheetDelegate: Equatable {
             case removeParticipant(InvitedUser)
         }
 
+        @CasePathable
         public enum DelegateAction: Equatable {
             case contentItemTapped(BaseContentItem)
             case linkCopyDetected(URL?)

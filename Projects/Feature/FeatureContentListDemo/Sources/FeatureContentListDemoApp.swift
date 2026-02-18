@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import XCTestDynamicOverlay
 
 import FeatureContentList
 import FeatureIntro
@@ -14,16 +15,18 @@ import FeatureIntro
 struct FeatureContentListDemoApp: App {
     var body: some Scene {
         WindowGroup {
-            // TODO: 루트 뷰 추가
-            
-            DemoView(store: .init(
-                initialState: .init(),
-                reducer: { DemoFeature() }
-            )) {
-                ContentListView(store: .init(
-                    initialState: .init(contentType: .favorite),
-                    reducer: { ContentListFeature() }
-                ))
+            if !_XCTIsTesting {
+                // TODO: 루트 뷰 추가
+                
+                DemoView(store: .init(
+                    initialState: .init(),
+                    reducer: { DemoFeature() }
+                )) {
+                    ContentListView(store: .init(
+                        initialState: .init(contentType: .favorite),
+                        reducer: { ContentListFeature() }
+                    ))
+                }
             }
         }
     }

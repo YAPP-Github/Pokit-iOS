@@ -50,6 +50,7 @@ public struct ContentDetailFeature {
     }
 
     /// - Action
+    @CasePathable
     public enum Action: FeatureAction, ViewAction {
         case view(View)
         case inner(InnerAction)
@@ -77,12 +78,14 @@ public struct ContentDetailFeature {
             case 링크_공유_완료되었을때
         }
 
+        @CasePathable
         public enum InnerAction: Equatable {
             case 컨텐츠_상세_조회_API_반영(content: BaseContentDetail)
             case 즐겨찾기_API_반영(Bool)
             case 링크팝업_활성화(PokitLinkPopup.PopupType)
         }
 
+        @CasePathable
         public enum AsyncAction: Equatable {
             case 컨텐츠_상세_조회_API(id: Int)
             case 즐겨찾기_API(id: Int)
@@ -91,8 +94,10 @@ public struct ContentDetailFeature {
             case 컨텐츠_수정_API
         }
 
+        @CasePathable
         public enum ScopeAction: Equatable { case 없음 }
 
+        @CasePathable
         public enum DelegateAction: Equatable {
             case editButtonTapped(contentId: Int)
             case 즐겨찾기_갱신_완료

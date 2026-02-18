@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import XCTestDynamicOverlay
 
 import ComposableArchitecture
 import FeaturePokit
@@ -14,13 +15,15 @@ import FeaturePokit
 struct FeaturePokitDemoApp: App {
     var body: some Scene {
         WindowGroup {
-            // TODO: 루트 뷰 추가
-            PokitRootView(
-                store: Store(
-                    initialState: .init(),
-                    reducer: { PokitRootFeature() }
+            if !_XCTIsTesting {
+                // TODO: 루트 뷰 추가
+                PokitRootView(
+                    store: Store(
+                        initialState: .init(),
+                        reducer: { PokitRootFeature() }
+                    )
                 )
-            )
+            }
         }
     }
 }

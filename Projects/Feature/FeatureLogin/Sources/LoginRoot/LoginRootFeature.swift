@@ -13,7 +13,7 @@ public struct LoginRootFeature {
 
     /// - State
     @ObservableState
-    public enum State {
+    public enum State: Equatable {
         case login(LoginFeature.State)
         case signUpDone(SignUpDoneFeature.State)
     }

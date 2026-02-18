@@ -6,12 +6,15 @@
 //
 
 import SwiftUI
+import XCTestDynamicOverlay
 
 @main
 struct FeatureIntroDemoApp: App {
     var body: some Scene {
         WindowGroup {
-            // TODO: 루트 뷰 추가
+            if !_XCTIsTesting {
+                // TODO: 루트 뷰 추가
+            }
         }
     }
 }

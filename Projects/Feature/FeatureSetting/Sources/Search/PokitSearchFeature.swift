@@ -75,6 +75,7 @@ public struct PokitSearchFeature {
     }
     
     /// - Action
+    @CasePathable
     public enum Action: FeatureAction, ViewAction {
         case view(View)
         case inner(InnerAction)
@@ -106,6 +107,7 @@ public struct PokitSearchFeature {
             case 로딩중일때
         }
         
+        @CasePathable
         public enum InnerAction: Equatable {
             case filterBottomSheet(filterType: FilterBottomFeature.FilterType)
             case 검색창_활성화(Bool)
@@ -121,6 +123,7 @@ public struct PokitSearchFeature {
             case 페이징_초기화
         }
         
+        @CasePathable
         public enum AsyncAction: Equatable {
             case 컨텐츠_검색_API
             case 최근검색어_갱신_수행
@@ -129,11 +132,13 @@ public struct PokitSearchFeature {
             case 클립보드_감지
         }
         
+        @CasePathable
         public enum ScopeAction {
             case filterBottomSheet(FilterBottomFeature.Action.DelegateAction)
             case contents(IdentifiedActionOf<ContentCardFeature>)
         }
         
+        @CasePathable
         public enum DelegateAction: Equatable {
             case linkCardTapped(content: BaseContentItem)
             case 링크수정(contentId: Int)

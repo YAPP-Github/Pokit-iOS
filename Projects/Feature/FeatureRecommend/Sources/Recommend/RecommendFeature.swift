@@ -64,6 +64,7 @@ public struct RecommendFeature {
     }
     
     /// - Action
+    @CasePathable
     public enum Action: FeatureAction, ViewAction {
         case view(View)
         case inner(InnerAction)
@@ -96,6 +97,7 @@ public struct RecommendFeature {
             case 포킷_추가하기_버튼_눌렀을때
         }
         
+        @CasePathable
         public enum InnerAction {
             case 추천_조회_API_반영(BaseContentListInquiry)
             case 추천_조회_페이징_API_반영(BaseContentListInquiry)
@@ -105,6 +107,7 @@ public struct RecommendFeature {
             case 카테고리_목록_조회_API_반영(categoryList: BaseCategoryListInquiry)
         }
         
+        @CasePathable
         public enum AsyncAction: Equatable {
             case 추천_조회_API
             case 추천_조회_페이징_API
@@ -115,8 +118,10 @@ public struct RecommendFeature {
             case 컨텐츠_추가_API
         }
         
+        @CasePathable
         public enum ScopeAction: Equatable { case doNothing }
         
+        @CasePathable
         public enum DelegateAction: Equatable {
             case 저장하기_완료
             case 검색_버튼_눌렀을때

@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import XCTestDynamicOverlay
 
 import FeatureRecommend
 import FeatureIntro
@@ -15,16 +16,18 @@ import CoreKit
 struct FeatureRecommendDemoApp: App {
     var body: some Scene {
         WindowGroup {
-            // TODO: 루트 뷰 추가
-            
-            DemoView(store: .init(
-                initialState: .init(),
-                reducer: { DemoFeature() }
-            )) {
-                RecommendView(store: .init(
+            if !_XCTIsTesting {
+                // TODO: 루트 뷰 추가
+                
+                DemoView(store: .init(
                     initialState: .init(),
-                    reducer: { RecommendFeature()._printChanges() }
-                ))
+                    reducer: { DemoFeature() }
+                )) {
+                    RecommendView(store: .init(
+                        initialState: .init(),
+                        reducer: { RecommendFeature()._printChanges() }
+                    ))
+                }
             }
         }
     }

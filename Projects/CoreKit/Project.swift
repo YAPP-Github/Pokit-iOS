@@ -41,7 +41,17 @@ let coreKit: Target = .target(
     settings: .settings()
 )
 
+let coreKitTests: Target = .makeTarget(
+    name: "CoreKitTests",
+    product: .unitTests,
+    bundleName: "CoreKitTests",
+    infoPlist: .dictionary(["ENABLE_TESTING_SEARCH_PATHS": "YES"]),
+    dependencies: [
+        .target(coreKit)
+    ]
+)
+
 let project = Project(
     name: "CoreKit",
-    targets: [coreKit]
+    targets: [coreKit, coreKitTests]
 )

@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import XCTestDynamicOverlay
 
 import ComposableArchitecture
 
@@ -17,8 +18,10 @@ struct PokitApp: App {
     
     var body: some Scene {
         WindowGroup {
-            WithPerceptionTracking {
-                RootView(store: store.scope(state: \.root, action: \.root))
+            if !_XCTIsTesting {
+                WithPerceptionTracking {
+                    RootView(store: store.scope(state: \.root, action: \.root))
+                }
             }
         }
     }

@@ -80,6 +80,7 @@ public struct ContentSettingFeature {
     }
 
     /// - Action
+    @CasePathable
     public enum Action: FeatureAction, ViewAction {
         case view(View)
         case inner(InnerAction)
@@ -103,6 +104,7 @@ public struct ContentSettingFeature {
             case 뒤로가기_버튼_눌렀을때
         }
 
+        @CasePathable
         public enum InnerAction {
             case linkPopup(URL?)
             case linkPreview
@@ -119,6 +121,7 @@ public struct ContentSettingFeature {
             case 선택_카테고리_반영(BaseCategoryItem?)
         }
 
+        @CasePathable
         public enum AsyncAction: Equatable {
             case 컨텐츠_상세_조회_API(id: Int)
             case 카테고리_목록_조회_API
@@ -128,8 +131,10 @@ public struct ContentSettingFeature {
             case 키보드_감지
         }
 
+        @CasePathable
         public enum ScopeAction: Equatable { case 없음 }
 
+        @CasePathable
         public enum DelegateAction: Equatable {
             case 저장하기_완료(category: BaseCategoryItem)
             case 포킷추가하기

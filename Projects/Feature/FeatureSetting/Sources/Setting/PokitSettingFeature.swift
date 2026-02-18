@@ -44,6 +44,7 @@ public struct PokitSettingFeature {
     }
     
     /// - Action
+    @CasePathable
     public enum Action: FeatureAction, ViewAction {
         case view(View)
         case inner(InnerAction)
@@ -70,12 +71,14 @@ public struct PokitSettingFeature {
             case 회원탈퇴_팝업_확인_눌렀을때
         }
         
+        @CasePathable
         public enum InnerAction: Equatable {
             case 닉네임_조회_API_반영(BaseUser)
             case 로그아웃_팝업(isPresented: Bool)
             case 회원탈퇴_팝업(isPresented: Bool)
         }
         
+        @CasePathable
         public enum AsyncAction: Equatable {
             case 회원탈퇴_API
             case 닉네임_조회_API
@@ -83,8 +86,10 @@ public struct PokitSettingFeature {
             case 클립보드_감지
         }
         
+        @CasePathable
         public enum ScopeAction: Equatable { case 없음 }
         
+        @CasePathable
         public enum DelegateAction: Equatable {
             case linkCopyDetected(URL?)
             case 로그아웃
