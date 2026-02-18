@@ -299,7 +299,7 @@ private extension ContentSettingFeature {
             state.domain.contentId = content.id
             state.domain.title = content.title
             state.domain.categoryId = content.category.categoryId
-            state.domain.memo = content.memo
+            state.domain.memo = content.isWrite ? content.memo : ""
             state.domain.alertYn = content.alertYn
             state.contentLoading = false
             return .send(.inner(.URL_유효성_확인))

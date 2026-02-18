@@ -124,6 +124,7 @@ public extension MainTabFeature {
 
             /// - 링크상세 바텀시트에서 링크수정으로 이동
             case let .contentDetail(.presented(.delegate(.editButtonTapped(id)))),
+                 let .contentDetail(.presented(.delegate(.내_포킷_저장_버튼_눌렀을때(id)))),
                  let .pokit(.delegate(.링크수정하기(id))),
                  let .path(.element(_, action: .카테고리상세(.delegate(.링크수정(id))))),
                  let .path(.element(_, action: .링크목록(.delegate(.링크수정(id))))),

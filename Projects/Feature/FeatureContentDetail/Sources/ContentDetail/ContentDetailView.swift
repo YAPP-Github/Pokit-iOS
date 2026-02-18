@@ -39,7 +39,10 @@ public extension ContentDetailView {
                                 .foregroundStyle(.pokit(.border(.tertiary)))
                                 .frame(height: 1)
                             
-                            bottomList(favorites: favorites)
+                            bottomList(
+                                favorites: favorites,
+                                isWrite: content.isWrite
+                            )
                         }
                     }
                 } else {
@@ -193,9 +196,9 @@ private extension ContentDetailView {
             }
         }
     }
-
+    
     @ViewBuilder
-    func bottomList(favorites: Bool) -> some View {
+    func bottomList(favorites: Bool, isWrite: Bool) -> some View {
         VStack(spacing: 0) {
             PokitListButton(
                 title: "즐겨찾기",
@@ -218,25 +221,47 @@ private extension ContentDetailView {
                 ),
                 action: { send(.공유_버튼_눌렀을때) }
             )
-            
-            PokitListButton(
-                title: "수정하기",
-                type: .bottomSheet(
-                    icon: .icon(.edit),
-                    iconColor: .pokit(.icon(.primary))
-                ),
-                action: { send(.수정_버튼_눌렀을때) }
-            )
-            
-            PokitListButton(
-                title: "삭제하기",
-                type: .bottomSheet(
-                    icon: .icon(.trash),
-                    iconColor: .pokit(.icon(.primary)),
-                    isLast: true
-                ),
-                action: { send(.삭제_버튼_눌렀을때) }
-            )
+              
+            /// - 공유받은 컨텐츠일 때: `내포킷 저장` / `신고하기` 노출
+            if isWrite {
+                PokitListButton(
+                    title: "내 포킷에 저장하기",
+                    type: .bottomSheet(
+                        icon: .icon(.savePokit),
+                        iconColor: .pokit(.icon(.primary))
+                    ),
+                    action: { send(.내_포킷_저장_버튼_눌렀을때) }
+                )
+                
+                PokitListButton(
+                    title: "신고하기",
+                    type: .bottomSheet(
+                        icon: .icon(.report),
+                        iconColor: .pokit(.icon(.primary))
+                    ),
+                    action: { send(.신고하기_버튼_눌렀을때) }
+                )
+            } else {
+            /// - 내가 만든  컨텐츠일 때: `수정하기` / `삭제하기` 노출
+                PokitListButton(
+                    title: "수정하기",
+                    type: .bottomSheet(
+                        icon: .icon(.edit),
+                        iconColor: .pokit(.icon(.primary))
+                    ),
+                    action: { send(.수정_버튼_눌렀을때) }
+                )
+                
+                PokitListButton(
+                    title: "삭제하기",
+                    type: .bottomSheet(
+                        icon: .icon(.trash),
+                        iconColor: .pokit(.icon(.primary)),
+                        isLast: true
+                    ),
+                    action: { send(.삭제_버튼_눌렀을때) }
+                )
+            }
         }
     }
 }

@@ -69,6 +69,8 @@ public struct ContentDetailFeature {
             case 삭제_버튼_눌렀을때
             case 삭제확인_버튼_눌렀을때
             case 즐겨찾기_버튼_눌렀을때
+            case 내_포킷_저장_버튼_눌렀을때
+            case 신고하기_버튼_눌렀을때
             case 키보드_취소_버튼_눌렀을때
             case 키보드_완료_버튼_눌렀울때
             
@@ -95,6 +97,7 @@ public struct ContentDetailFeature {
 
         public enum DelegateAction: Equatable {
             case editButtonTapped(contentId: Int)
+            case 내_포킷_저장_버튼_눌렀을때(contentId: Int)
             case 즐겨찾기_갱신_완료
             case 컨텐츠_조회_완료
             case 컨텐츠_삭제_완료
@@ -141,7 +144,6 @@ private extension ContentDetailFeature {
     func handleViewAction(_ action: Action.View, state: inout State) -> Effect<Action> {
         switch action {
         case .뷰가_나타났을때:
-            /// - 나중에 공유 받은 컨텐츠인지 확인해야함
             if let content = state.domain.content {
                 state.memoTextAreaState = .memo(isReadOnly: !content.isWrite)
                 state.memo = content.memo
@@ -174,6 +176,11 @@ private extension ContentDetailFeature {
             return favorites
             ? .send(.async(.즐겨찾기_취소_API(id: content.id)))
             : .send(.async(.즐겨찾기_API(id: content.id)))
+        case .내_포킷_저장_버튼_눌렀을때:
+            guard let contentId = state.contentId else { return .none }
+            return .send(.delegate(.내_포킷_저장_버튼_눌렀을때(contentId: contentId)))
+        case .신고하기_버튼_눌렀을때:
+            return .none
         case .링크_공유_완료되었을때:
             state.showShareSheet = false
             return .none
