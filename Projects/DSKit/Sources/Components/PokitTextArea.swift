@@ -132,6 +132,10 @@ public struct PokitTextArea<Value: Hashable>: View {
     }
     
     private func onChangedIsMaxLetters(_ newValue: Bool) {
+        // readOnly 상태는 변경하지 않음
+        guard state != .memo(isReadOnly: true) && state != .readOnly && state != .disable else {
+            return
+        }
         state = newValue ? .error(message: "최대 \(maxLetter)자까지 입력가능합니다.") : .active
     }
     

@@ -142,13 +142,12 @@ private extension ContentDetailFeature {
         switch action {
         case .뷰가_나타났을때:
             /// - 나중에 공유 받은 컨텐츠인지 확인해야함
-            state.memoTextAreaState = .memo(isReadOnly: false)
+            if let content = state.domain.content {
+                state.memoTextAreaState = .memo(isReadOnly: !content.isWrite)
+                state.memo = content.memo
+            }
             if let id = state.domain.contentId {
                 return .send(.async(.컨텐츠_상세_조회_API(id: id)))
-            }
-            if let content = state.domain.content {
-                state.memo = content.memo
-                return .none
             }
             return .none
         case .공유_버튼_눌렀을때:

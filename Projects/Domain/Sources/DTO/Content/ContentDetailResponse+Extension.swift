@@ -23,6 +23,10 @@ public extension ContentDetailResponse {
             memo: self.memo,
             createdAt: self.createdAt,
             favorites: self.favorites,
-            alertYn: BaseContentDetail.RemindState(rawValue: self.alertYn) ?? .no)
+            alertYn: BaseContentDetail.RemindState(rawValue: self.alertYn) ?? .no,
+            keyword: self.keyword,
+            userNickname: self.userNickname,
+            isWrite: self.isWrite
+        )
     }
 }

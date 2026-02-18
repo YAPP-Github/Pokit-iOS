@@ -115,11 +115,22 @@ private extension ContentDetailView {
                     .multilineTextAlignment(.leading)
                     .lineLimit(2)
 
-                HStack {
+                HStack(spacing: 0) {
                     remindAndBadge(content: content)
                     
                     Spacer()
-
+                    
+                    Image(.icon(.member))
+                        .resizable()
+                        .frame(width: 16, height: 16)
+                        .foregroundStyle(.pokit(.text(.tertiary)))
+                        .padding(.trailing, 4)
+                    
+                    Text(content.userNickname)
+                        .pokitFont(.detail2)
+                        .foregroundStyle(.pokit(.text(.tertiary)))
+                        .padding(.trailing, 12)
+                    
                     Text(content.createdAt)
                         .pokitFont(.detail2)
                         .foregroundStyle(.pokit(.text(.tertiary)))
@@ -153,7 +164,7 @@ private extension ContentDetailView {
             PokitTextArea(
                 text: $store.memo,
                 state: $store.memoTextAreaState,
-                baseState: .memo(isReadOnly: false),
+                baseState: .memo(isReadOnly: true),
                 placeholder: "메모를 입력해주세요.",
                 maxLetter: 100,
                 focusState: $isFocused,

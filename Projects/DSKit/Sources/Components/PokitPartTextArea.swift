@@ -49,11 +49,7 @@ public struct PokitPartTextArea<Value: Hashable>: View {
             .foregroundStyle(.pokit(.text(.primary)))
             .scrollContentBackground(.hidden)
             .focused(focusState, equals: equals)
-            .disabled(
-                state == .disable ||
-                state == .readOnly ||
-                state == .memo(isReadOnly: true)
-            )
+            .disabled(isDisabled)
             .onSubmit {
                 onSubmit?()
             }
@@ -67,6 +63,17 @@ public struct PokitPartTextArea<Value: Hashable>: View {
             .padding(16)
             .background(state: self.state, shape: .rectangle)
     }
+
+    private var isDisabled: Bool {
+        switch state {
+        case .disable, .readOnly:
+            return true
+        case .memo(let isReadOnly):
+            return isReadOnly
+        default:
+            return false
+        }
+    }
     
     private var placeholderLabel: some View {
         Text(placeholder)
@@ -77,11 +84,17 @@ public struct PokitPartTextArea<Value: Hashable>: View {
     
     private func onChangedFocuseState(_ newValue: Value) {
         if newValue == equals {
-            state = .active
+            // readOnly 상태는 active로 변경하지 않음
+            if state != .memo(isReadOnly: true) && state != .readOnly && state != .disable {
+                state = .active
+            }
         } else {
             switch state {
             case .error(message: let message):
                 state = .error(message: message)
+            case .memo(isReadOnly: true), .readOnly, .disable:
+                // readOnly 상태는 유지
+                break
             default:
                 state = baseState
             }

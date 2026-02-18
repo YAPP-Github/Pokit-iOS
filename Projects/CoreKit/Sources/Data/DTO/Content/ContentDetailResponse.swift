@@ -16,6 +16,9 @@ public struct ContentDetailResponse: Decodable {
     public let alertYn: String
     public let createdAt: String
     public let favorites: Bool
+    public let keyword: String
+    public let userNickname: String
+    public let isWrite: Bool
 }
 
 extension ContentDetailResponse {
@@ -30,6 +33,9 @@ extension ContentDetailResponse {
         memo: "#티전드 #신서유기5 #신서유기7 #tvN\n회차정보 : 신서유기5 3회, 신서유기7 1회, 신서유기7 2회, 신서유기7 6회\n\n이제는 전설이 되어버린 역대급 장면들..\n묻지도 따지지도 않고 N회차 재생 가봅시다.",
         alertYn: "YES",
         createdAt: "2024-07-31T10:10:23.902Z",
-        favorites: true
+        favorites: true,
+        keyword: "인테리어",
+        userNickname: "망치1",
+        isWrite: true
     )
 }
