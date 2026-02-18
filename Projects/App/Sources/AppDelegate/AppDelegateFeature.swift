@@ -17,11 +17,11 @@ public struct AppDelegateFeature {
     @Dependency(UserNotificationClient.self) var userNotifications
     @Dependency(RemoteNotificationsClient.self) var registerForRemoteNotifications
     @Dependency(UserDefaultsClient.self) var userDefaults
+    @Dependency(DeeplinkRouteClient.self) var deeplinkRouter
     
     @ObservableState
-    public struct State {
+    public struct State: Equatable {
         public var root = RootFeature.State()
-        @Shared(.inMemory("PushTapped")) var isPushTapped: Bool = false
         
         public init() {}
     }
@@ -39,7 +39,7 @@ public struct AppDelegateFeature {
         Scope(state: \.root, action: \.root) {
             RootFeature()
         }
-        Reduce { state, action in
+        Reduce { _, action in
             switch action {
             case .didFinishLaunching:
                 FirebaseApp.configure()
@@ -77,12 +77,29 @@ public struct AppDelegateFeature {
             case let .userNotifications(.willPresentNotification(_, completionHandler)):
                 return .run { _ in completionHandler(.banner) }
                 
-            case let .userNotifications(.didReceiveResponse(_, completionHandler)):
-                state.isPushTapped = true
-                return .run { @MainActor _ in completionHandler() }
+            case let .userNotifications(.didReceiveResponse(response, completionHandler)):
+                let deeplinkURL = {
+                    guard
+                        let deeplink = response.notification.request.content.userInfo["deeplink"] as? String,
+                        !deeplink.isEmpty,
+                        let url = URL(string: deeplink),
+                        url.scheme?.isEmpty == false
+                    else {
+                        return URL(string: "pokit://alert")
+                    }
+                    return url
+                }()
+
+                guard let deeplinkURL else {
+                    return .run { _ in completionHandler() }
+                }
+
+                return .run { _ in
+                    await self.deeplinkRouter.routeTo(deeplinkURL)
+                    completionHandler()
+                }
             case .userNotifications:
                 return .none
-                
             case .root:
                 return .none
             }

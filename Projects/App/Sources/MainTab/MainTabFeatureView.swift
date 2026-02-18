@@ -75,6 +75,7 @@ public extension MainTabView {
                     }
                 }
             }
+            .task { await send(.onAppear).finish() }
             .onOpenURL { send(.onOpenURL(url: $0)) }
         }
     }
@@ -115,7 +116,6 @@ private extension MainTabView {
                     action: { send(.경고_확인버튼_클릭) }
                 )
             }
-            .task { await send(.onAppear).finish() }
     }
     
     var tabView: some View {
