@@ -240,5 +240,3 @@ private extension ContentDetailView {
         )
     )
 }
-
-

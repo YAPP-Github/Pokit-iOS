@@ -32,7 +32,9 @@ app_identifier([
   "com.pokitmons.pokit.Feature.CategorySharingTests",
   "com.pokitmons.pokit.Feature.ContentCardTests",
   "com.pokitmons.pokit.Feature.IntroTests",
-  "com.pokitmons.pokit.Feature.RecommendTests"
+  "com.pokitmons.pokit.Feature.RecommendTests",
+  "com.pokitmons.pokit.AppUITests",
+  "com.pokitmons.pokit.AppUITests.xctrunner"
 ])
 username("shapekim98@gmail.com") # Your Apple Developer Portal username
 

@@ -9,6 +9,7 @@ import SwiftUI
 import UIKit
 
 import ComposableArchitecture
+import CoreKit
 import Firebase
 import FirebaseMessaging
 import GoogleSignIn
@@ -17,9 +18,31 @@ import Dependencies
 final class AppDelegate: NSObject {
     @Dependency(\.amplitude)
     private var amplitude
-    
-    let store = Store(initialState: AppDelegateFeature.State()) {
-        AppDelegateFeature()
+
+    let store: StoreOf<AppDelegateFeature>
+
+    override init() {
+        if UITestEnvironment.isEnabled {
+            self.store = Store(
+                initialState: AppDelegateFeature.State(),
+                reducer: { AppDelegateFeature() },
+                withDependencies: {
+                    $0[CategoryClient.self] = .mainTabDeeplinkTestValue
+                    $0[ContentClient.self] = .mainTabDeeplinkTestValue
+                    $0[UserClient.self] = .mainTabDeeplinkTestValue
+                    $0[AuthClient.self] = .mainTabDeeplinkTestValue
+                    $0[VersionClient.self] = .mainTabDeeplinkTestValue
+                    $0[UserDefaultsClient.self] = .mainTabDeeplinkTestValue
+                    $0[PasteboardClient.self] = .noop
+                    $0[UserNotificationClient.self] = .noop
+                    $0[RemoteNotificationsClient.self] = .noop
+                }
+            )
+        } else {
+            self.store = Store(initialState: AppDelegateFeature.State()) {
+                AppDelegateFeature()
+            }
+        }
     }
 }
 //MARK: - UIApplicationDelegate
@@ -36,6 +59,10 @@ extension AppDelegate: UIApplicationDelegate {
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
         self.store.send(.didFinishLaunching)
+
+        if UITestEnvironment.isEnabled {
+            return true
+        }
 
         // 운영체제 버전 (ex: "iOS 18.0.0")
         let osVersion = "iOS \(UIDevice.current.systemVersion)"

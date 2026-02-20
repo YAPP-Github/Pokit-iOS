@@ -42,6 +42,30 @@ public struct AppDelegateFeature {
         Reduce { _, action in
             switch action {
             case .didFinishLaunching:
+                if UITestEnvironment.isEnabled {
+                    let deeplinkURLs = UITestEnvironment.deeplinkURLs
+                    let shouldForceMainTab = UITestEnvironment.shouldForceMainTab
+                    let routeBeforeMainTab = UITestEnvironment.routeBeforeMainTab
+
+                    return .run { send in
+                        if routeBeforeMainTab {
+                            for deeplinkURL in deeplinkURLs {
+                                await self.deeplinkRouter.routeTo(deeplinkURL)
+                            }
+                        }
+
+                        if shouldForceMainTab {
+                            await send(.root(._sceneChange(.mainTab())))
+                        }
+
+                        if !routeBeforeMainTab {
+                            for deeplinkURL in deeplinkURLs {
+                                await self.deeplinkRouter.routeTo(deeplinkURL)
+                            }
+                        }
+                    }
+                }
+
                 FirebaseApp.configure()
                 let userNotificationsEventStream = self.userNotifications.delegate()
                 if let kakaoAppKey = Bundle.main.object(forInfoDictionaryKey: "KAKAO_NATIVE_APP_KEY") as? String {

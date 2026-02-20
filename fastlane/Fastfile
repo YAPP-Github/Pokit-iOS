@@ -49,7 +49,9 @@ test_app_identifiers = [
   "com.pokitmons.pokit.Feature.CategorySharingTests",
   "com.pokitmons.pokit.Feature.ContentCardTests",
   "com.pokitmons.pokit.Feature.IntroTests",
-  "com.pokitmons.pokit.Feature.RecommendTests"
+  "com.pokitmons.pokit.Feature.RecommendTests",
+  "com.pokitmons.pokit.AppUITests",
+  "com.pokitmons.pokit.AppUITests.xctrunner"
 ]
 
 platform :ios do
