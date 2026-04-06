@@ -18,7 +18,7 @@ struct PokitApp: App {
     
     var body: some Scene {
         WindowGroup {
-            if !_XCTIsTesting || UITestEnvironment.isEnabled {
+            if !_XCTIsTesting {
                 WithPerceptionTracking {
                     RootView(store: store.scope(state: \.root, action: \.root))
                 }

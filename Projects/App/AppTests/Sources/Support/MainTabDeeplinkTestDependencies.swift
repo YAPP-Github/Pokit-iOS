@@ -2,34 +2,31 @@
 //  MainTabDeeplinkTestDependencies.swift
 //  App
 //
-//  Created by Codex on 2026-03-22.
+//  Created by 김도형 on 2/18/26.
 //
 
-#if DEBUG
 import Foundation
 
 import CoreKit
 import Dependencies
 
 extension DependencyValues {
-    mutating func applyAppMainTabDeeplinkTestDependencies(
+    mutating func applyMainTabDeeplinkTestDependencies(
         deeplinkRouteClient: DeeplinkRouteClient = .liveValue
     ) {
-        self[CategoryClient.self] = .appMainTabDeeplinkTestValue
-        self[ContentClient.self] = .appMainTabDeeplinkTestValue
-        self[UserClient.self] = .appMainTabDeeplinkTestValue
-        self[AuthClient.self] = .appMainTabDeeplinkTestValue
-        self[VersionClient.self] = .appMainTabDeeplinkTestValue
-        self[UserDefaultsClient.self] = .appMainTabDeeplinkTestValue
+        self[CategoryClient.self] = .mainTabDeeplinkTestValue
+        self[ContentClient.self] = .mainTabDeeplinkTestValue
+        self[UserClient.self] = .mainTabDeeplinkTestValue
+        self[AuthClient.self] = .mainTabDeeplinkTestValue
+        self[VersionClient.self] = .mainTabDeeplinkTestValue
+        self[UserDefaultsClient.self] = .mainTabDeeplinkTestValue
         self[PasteboardClient.self] = .noop
-        self[UserNotificationClient.self] = .noop
-        self[RemoteNotificationsClient.self] = .noop
         self[DeeplinkRouteClient.self] = deeplinkRouteClient
     }
 }
 
 extension CategoryClient {
-    static let appMainTabDeeplinkTestValue: Self = .init(
+    static let mainTabDeeplinkTestValue: Self = .init(
         카테고리_삭제: { _ in },
         카테고리_수정: { categoryId, _ in
             MainTabDeeplinkTestFixtures.categoryDetailResponse(categoryId: categoryId)
@@ -69,7 +66,7 @@ extension CategoryClient {
 }
 
 extension ContentClient {
-    static let appMainTabDeeplinkTestValue: Self = .init(
+    static let mainTabDeeplinkTestValue: Self = .init(
         컨텐츠_삭제: { _ in },
         컨텐츠_상세_조회: { contentId in
             MainTabDeeplinkTestFixtures.contentDetailResponse(
@@ -112,7 +109,7 @@ extension ContentClient {
 }
 
 extension UserClient {
-    static let appMainTabDeeplinkTestValue: Self = .init(
+    static let mainTabDeeplinkTestValue: Self = .init(
         프로필_수정: { _ in MainTabDeeplinkTestFixtures.baseUserResponse },
         닉네임_수정: { _ in MainTabDeeplinkTestFixtures.baseUserResponse },
         회원등록: { _ in MainTabDeeplinkTestFixtures.baseUserResponse },
@@ -127,7 +124,7 @@ extension UserClient {
 }
 
 extension AuthClient {
-    static let appMainTabDeeplinkTestValue: Self = .init(
+    static let mainTabDeeplinkTestValue: Self = .init(
         로그인: { _ in MainTabDeeplinkTestFixtures.tokenResponse },
         회원탈퇴: { _ in },
         토큰재발급: { _ in ReissueResponse(accessToken: "uitest-access-token") },
@@ -137,13 +134,13 @@ extension AuthClient {
 }
 
 extension VersionClient {
-    static let appMainTabDeeplinkTestValue: Self = .init(
+    static let mainTabDeeplinkTestValue: Self = .init(
         버전체크: { MainTabDeeplinkTestFixtures.versionResponse }
     )
 }
 
 extension UserDefaultsClient {
-    static let appMainTabDeeplinkTestValue: Self = .init(
+    static let mainTabDeeplinkTestValue: Self = .init(
         boolKey: { _ in false },
         stringKey: { _ in nil },
         stringArrayKey: { _ in nil },
@@ -516,4 +513,3 @@ private enum MainTabDeeplinkTestFixtures {
         }
     }
 }
-#endif

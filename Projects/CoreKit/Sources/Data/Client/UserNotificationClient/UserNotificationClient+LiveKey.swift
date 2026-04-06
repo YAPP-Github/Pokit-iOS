@@ -71,6 +71,7 @@ extension UserNotificationClient {
             didReceive response: UNNotificationResponse,
             withCompletionHandler completionHandler: @escaping () -> Void
         ) {
+            print(response.notification.request.content.userInfo)
             self.continuation.yield(
                 .didReceiveResponse(.init(rawValue: response)) { completionHandler() }
             )

@@ -22,26 +22,14 @@ final class AppDelegate: NSObject {
     let store: StoreOf<AppDelegateFeature>
 
     override init() {
-        if UITestEnvironment.isEnabled {
-            self.store = Store(
-                initialState: AppDelegateFeature.State(),
-                reducer: { AppDelegateFeature() },
-                withDependencies: {
-                    $0[CategoryClient.self] = .mainTabDeeplinkTestValue
-                    $0[ContentClient.self] = .mainTabDeeplinkTestValue
-                    $0[UserClient.self] = .mainTabDeeplinkTestValue
-                    $0[AuthClient.self] = .mainTabDeeplinkTestValue
-                    $0[VersionClient.self] = .mainTabDeeplinkTestValue
-                    $0[UserDefaultsClient.self] = .mainTabDeeplinkTestValue
-                    $0[PasteboardClient.self] = .noop
-                    $0[UserNotificationClient.self] = .noop
-                    $0[RemoteNotificationsClient.self] = .noop
-                }
-            )
-        } else {
-            self.store = Store(initialState: AppDelegateFeature.State()) {
-                AppDelegateFeature()
-            }
+#if DEBUG
+        if UITestLaunchConfig.current.isEnabled {
+            self.store = Self.makeUITestStore()
+            return
+        }
+#endif
+        self.store = Store(initialState: AppDelegateFeature.State()) {
+            AppDelegateFeature()
         }
     }
 }
@@ -60,9 +48,11 @@ extension AppDelegate: UIApplicationDelegate {
     ) -> Bool {
         self.store.send(.didFinishLaunching)
 
-        if UITestEnvironment.isEnabled {
+#if DEBUG
+        if Self.shouldSkipLaunchAnalytics {
             return true
         }
+#endif
 
         // 운영체제 버전 (ex: "iOS 18.0.0")
         let osVersion = "iOS \(UIDevice.current.systemVersion)"

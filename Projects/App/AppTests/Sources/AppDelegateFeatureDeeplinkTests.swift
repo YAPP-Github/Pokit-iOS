@@ -14,7 +14,7 @@ struct AppDelegateFeatureDeeplinkTests {
         var completionCalled = false
         
         let response = makeResponse(
-            userInfo: ["deeplink": "pokit://shared?categoryId=10&contentId=2&userId=3"]
+            userInfo: ["deepLink": "pokit://shared?categoryId=10&contentId=2&userId=3"]
         )
         
         let store = TestStore(initialState: AppDelegateFeature.State()) {
@@ -39,7 +39,7 @@ struct AppDelegateFeatureDeeplinkTests {
         try assertCompletionCalled(completionCalled)
     }
     
-    @Test("푸시 payload deeplink가 누락/실패면 pokit://alert fallback 전달")
+    @Test("푸시 payload deepLink가 누락되면 pokit://alert fallback 전달")
     func missingPayloadFallsBackToAlertRoute() async throws {
         let recorder = URLRecorder()
         var completionCalled = false
@@ -65,12 +65,12 @@ struct AppDelegateFeatureDeeplinkTests {
         try assertCompletionCalled(completionCalled)
     }
     
-    @Test("푸시 payload deeplink 문자열이 잘못되어도 pokit://alert fallback 전달")
+    @Test("푸시 payload deepLink 문자열이 잘못되어도 pokit://alert fallback 전달")
     func invalidPayloadFallsBackToAlertRoute() async throws {
         let recorder = URLRecorder()
         var completionCalled = false
         
-        let response = makeResponse(userInfo: ["deeplink": "not a url"])
+        let response = makeResponse(userInfo: ["deepLink": "not a url"])
         
         let store = TestStore(initialState: AppDelegateFeature.State()) {
             AppDelegateFeature()

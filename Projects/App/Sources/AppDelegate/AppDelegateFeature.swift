@@ -42,30 +42,11 @@ public struct AppDelegateFeature {
         Reduce { _, action in
             switch action {
             case .didFinishLaunching:
-                if UITestEnvironment.isEnabled {
-                    let deeplinkURLs = UITestEnvironment.deeplinkURLs
-                    let shouldForceMainTab = UITestEnvironment.shouldForceMainTab
-                    let routeBeforeMainTab = UITestEnvironment.routeBeforeMainTab
-
-                    return .run { send in
-                        if routeBeforeMainTab {
-                            for deeplinkURL in deeplinkURLs {
-                                await self.deeplinkRouter.routeTo(deeplinkURL)
-                            }
-                        }
-
-                        if shouldForceMainTab {
-                            await send(.root(._sceneChange(.mainTab())))
-                        }
-
-                        if !routeBeforeMainTab {
-                            for deeplinkURL in deeplinkURLs {
-                                await self.deeplinkRouter.routeTo(deeplinkURL)
-                            }
-                        }
-                    }
+#if DEBUG
+                if let effect = self.handleDidFinishLaunchingForUITest() {
+                    return effect
                 }
-
+#endif
                 FirebaseApp.configure()
                 let userNotificationsEventStream = self.userNotifications.delegate()
                 if let kakaoAppKey = Bundle.main.object(forInfoDictionaryKey: "KAKAO_NATIVE_APP_KEY") as? String {
@@ -102,25 +83,18 @@ public struct AppDelegateFeature {
                 return .run { _ in completionHandler(.banner) }
                 
             case let .userNotifications(.didReceiveResponse(response, completionHandler)):
+                let content = response.notification.request.content
                 let deeplinkURL = {
-                    guard
-                        let deeplink = response.notification.request.content.userInfo["deeplink"] as? String,
-                        !deeplink.isEmpty,
-                        let url = URL(string: deeplink),
-                        url.scheme?.isEmpty == false
-                    else {
-                        return URL(string: "pokit://alert")
-                    }
+                    guard let deepLink = content.userInfo["deepLink"] as? String,
+                          let url = URL(string: deepLink),
+                          url.scheme?.isEmpty == false
+                    else { return URL(string: "pokit://alert") }
                     return url
                 }()
-
-                guard let deeplinkURL else {
-                    return .run { _ in completionHandler() }
-                }
-
+                
                 return .run { _ in
-                    await self.deeplinkRouter.routeTo(deeplinkURL)
-                    completionHandler()
+                    await completionHandler()
+                    await deeplinkRouter.routeTo(deeplinkURL)
                 }
             case .userNotifications:
                 return .none
