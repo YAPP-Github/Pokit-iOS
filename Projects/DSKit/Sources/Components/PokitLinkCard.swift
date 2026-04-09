@@ -154,6 +154,21 @@ public struct PokitLinkCard<Item: PokitLinkCardItem>: View {
             if let memo = link.memo, !memo.isEmpty {
                 PokitBadge(state: .memo)
             }
+
+            if let authorProfileImageURL = link.authorProfileImageURL,
+               let url = URL(string: authorProfileImageURL) {
+                LazyImage(url: url) { state in
+                    if let image = state.image {
+                        image
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                    } else {
+                        Color.pokit(.bg(.disable))
+                    }
+                }
+                .frame(width: 20, height: 20)
+                .clipShape(Circle())
+            }
         }
     }
     
