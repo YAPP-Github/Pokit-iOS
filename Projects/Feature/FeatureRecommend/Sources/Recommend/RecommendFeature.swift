@@ -31,7 +31,7 @@ public struct RecommendFeature {
     public struct State: Equatable {
         public init() {}
         
-        fileprivate var domain = Recommend()
+        var domain = Recommend()
         var isListDescending = true
         /// pagenation
         var hasNext: Bool {
@@ -58,6 +58,8 @@ public struct RecommendFeature {
         var showKeywordSheet: Bool = false
         var selectedInterestList = Set<BaseInterest>()
         var reportContent: BaseContentItem?
+        var pendingReportContent: BaseContentItem?
+        var reportReasons: [BaseReportReason] = []
         var showSelectSheet: Bool = false
         var selectedPokit: BaseCategoryItem?
         var addContent: BaseContentItem?
@@ -83,7 +85,7 @@ public struct RecommendFeature {
             case 추가하기_버튼_눌렀을때(BaseContentItem)
             case 공유하기_버튼_눌렀을때(BaseContentItem)
             case 신고하기_버튼_눌렀을때(BaseContentItem)
-            case 신고하기_확인_버튼_눌렀을때(BaseContentItem)
+            case 신고하기_확인_버튼_눌렀을때(String)
             case 전체보기_버튼_눌렀을때(ScrollViewProxy)
             case 관심사_버튼_눌렀을때(BaseInterest, ScrollViewProxy)
             case 관심사_편집_버튼_눌렀을때
@@ -103,6 +105,7 @@ public struct RecommendFeature {
             case 추천_조회_페이징_API_반영(BaseContentListInquiry)
             case 유저_관심사_조회_API_반영([BaseInterest])
             case 관심사_조회_API_반영([BaseInterest])
+            case 컨텐츠_신고사유_조회_API_반영([BaseReportReason])
             case 컨텐츠_신고_API_반영(Int)
             case 카테고리_목록_조회_API_반영(categoryList: BaseCategoryListInquiry)
         }
@@ -113,7 +116,8 @@ public struct RecommendFeature {
             case 추천_조회_페이징_API
             case 유저_관심사_조회_API
             case 관심사_조회_API
-            case 컨텐츠_신고_API(Int)
+            case 컨텐츠_신고사유_조회_API
+            case 컨텐츠_신고_API(contentId: Int, reportReason: String)
             case 카테고리_목록_조회_API
             case 컨텐츠_추가_API
         }
@@ -187,12 +191,21 @@ private extension RecommendFeature {
         case let .공유하기_버튼_눌렀을때(content):
             state.shareContent = content
             return .none
-        case let .신고하기_확인_버튼_눌렀을때(content):
-            state.reportContent = nil
-            return shared(.async(.컨텐츠_신고_API(content.id)), state: &state)
         case let .신고하기_버튼_눌렀을때(content):
+            guard !state.reportReasons.isEmpty else {
+                state.pendingReportContent = content
+                return shared(.async(.컨텐츠_신고사유_조회_API), state: &state)
+            }
             state.reportContent = content
             return .none
+        case let .신고하기_확인_버튼_눌렀을때(reportReason):
+            guard let content = state.reportContent else { return .none }
+            state.reportContent = nil
+            state.pendingReportContent = nil
+            return shared(
+                .async(.컨텐츠_신고_API(contentId: content.id, reportReason: reportReason)),
+                state: &state
+            )
         case let .전체보기_버튼_눌렀을때(proxy):
             guard state.selectedInterest != nil else { return .none }
             state.domain.contentList.data = nil
@@ -246,6 +259,7 @@ private extension RecommendFeature {
             }
         case .경고시트_dismiss:
             state.reportContent = nil
+            state.pendingReportContent = nil
             return .none
         case .포킷선택_항목_눌렀을때(pokit: let pokit):
             state.selectedPokit = pokit
@@ -285,6 +299,13 @@ private extension RecommendFeature {
             state.domain.interests = interests.filter({ interest in
                 interest.code != "default"
             })
+            return .none
+        case let .컨텐츠_신고사유_조회_API_반영(reasons):
+            state.reportReasons = reasons
+            if let pendingReportContent = state.pendingReportContent {
+                state.reportContent = pendingReportContent
+                state.pendingReportContent = nil
+            }
             return .none
         case let .컨텐츠_신고_API_반영(contentId):
             state.domain.contentList.data?.removeAll(where: { $0.id == contentId })
@@ -356,9 +377,15 @@ private extension RecommendFeature {
                 await send(.inner(.관심사_조회_API_반영(interests)))
                 await send(.async(.유저_관심사_조회_API))
             }
-        case let .컨텐츠_신고_API(contentId):
+        case .컨텐츠_신고사유_조회_API:
             return .run { send in
-                try await contentClient.컨텐츠_신고(contentId: contentId)
+                let reasons = try await contentClient.컨텐츠_신고사유_조회().toDomain()
+                await send(.inner(.컨텐츠_신고사유_조회_API_반영(reasons)))
+            }
+        case let .컨텐츠_신고_API(contentId, reportReason):
+            return .run { send in
+                let request = ContentReportRequest(reportReason: reportReason)
+                try await contentClient.컨텐츠_신고_사유(contentId, request)
                 await send(
                     .inner(.컨텐츠_신고_API_반영(contentId)),
                     animation: .pokitSpring
