@@ -35,7 +35,7 @@ public struct CategoryDetailFeature {
     @ObservableState
     public struct State: Equatable {
         /// Domain
-        fileprivate var domain: CategoryDetail
+        var domain: CategoryDetail
         public var category: BaseCategoryItem {
             get { domain.category }
         }
@@ -470,7 +470,10 @@ private extension CategoryDetailFeature {
                             createdAt: content.createdAt,
                             isRead: false,
                             isFavorite: false,
-                            keyword: nil
+                            keyword: nil,
+                            authorUserId: content.authorUserId,
+                            authorNickname: content.authorNickname,
+                            authorProfileImageURL: content.authorProfileImageURL
                         )
                     }
 
@@ -540,7 +543,10 @@ private extension CategoryDetailFeature {
                                         createdAt: content.createdAt,
                                         isRead: false,
                                         isFavorite: false,
-                                        keyword: nil
+                                        keyword: nil,
+                                        authorUserId: content.authorUserId,
+                                        authorNickname: content.authorNickname,
+                                        authorProfileImageURL: content.authorProfileImageURL
                                     )
                                 }
 

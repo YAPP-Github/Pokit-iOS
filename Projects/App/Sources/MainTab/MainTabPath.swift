@@ -90,7 +90,8 @@ public extension MainTabFeature {
             case .delegate(.포킷추가하기),
                  .path(.element(_, action: .링크추가및수정(.delegate(.포킷추가하기)))),
                  .pokit(.delegate(.포킷추가_버튼_눌렀을때)),
-                 .recommend(.delegate(.포킷_추가하기_버튼_눌렀을때)):
+                 .recommend(.delegate(.포킷_추가하기_버튼_눌렀을때)),
+                 .contentDetail(.presented(.delegate(.포킷_추가하기_버튼_눌렀을때))):
                 state.path.append(.포킷추가및수정(PokitCategorySettingFeature.State(type: .추가)))
                 return .none
 

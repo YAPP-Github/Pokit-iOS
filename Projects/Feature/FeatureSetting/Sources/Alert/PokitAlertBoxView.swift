@@ -37,10 +37,7 @@ public extension PokitAlertBoxView {
                         List {
                             ForEach(alertContents, id: \.id) { item in
                                 Button(action: { send(.알람_항목_선택했을때(item: item)) }) {
-                                    AlertContent(
-                                        item: item,
-                                        lastCheckDate: store.lastAlertCheckDate
-                                    )
+                                    AlertContent(item: item)
                                 }
                                 .listRowSeparator(.hidden)
                                 .listRowInsets(EdgeInsets())
@@ -75,37 +72,25 @@ private extension PokitAlertBoxView {
         .padding(.top, 8)
     }
     
-    func delete(_ item: AlertItem) {
+    func delete(_ item: NotificationItem) {
         send(.밀어서_삭제했을때(item: item),animation: .pokitSpring)
     }
 
     struct AlertContent: View {
-        let item: AlertItem
-        let lastCheckDate: String?
-
-        init(item: AlertItem, lastCheckDate: String?) {
-            self.item = item
-            self.lastCheckDate = lastCheckDate
-        }
-
-        private var isUnread: Bool {
-            guard let lastCheckDate else { return true }
-            return item.createdAt > lastCheckDate
-        }
+        let item: NotificationItem
 
         var body: some View {
             VStack(alignment: .leading, spacing: 20) {
                 HStack(spacing: 16) {
-                    LazyImage(url: URL(string: item.thumbNail)) { state in
+                    LazyImage(url: URL(string: item.categoryImageUrl ?? "")) { state in
                         if let image = state.image {
                             image.resizable()
                         } else {
-                            PokitSpinner()
-                                .foregroundStyle(.pokit(.icon(.brand)))
-                                .frame(width: 48, height: 48)
+                            placeholder
                         }
                     }
                     .frame(width: 94, height: 70)
+                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
 
                     VStack(alignment: .leading, spacing: 0) {
                         Text(item.title)
@@ -129,10 +114,22 @@ private extension PokitAlertBoxView {
             }
             .padding(.top, 20)
             .background(
-                isUnread
+                !item.isRead
                     ? .pokit(.color(.orange(._50)))
                     : .clear
             )
+        }
+
+        private var placeholder: some View {
+            ZStack {
+                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                    .fill(.pokit(.bg(.primary)))
+
+                Image(.image(.profile))
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 48, height: 48)
+            }
         }
     }
 }
@@ -147,5 +144,3 @@ private extension PokitAlertBoxView {
         )
     }
 }
-
-

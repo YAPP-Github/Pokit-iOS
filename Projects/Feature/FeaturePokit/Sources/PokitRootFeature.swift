@@ -31,7 +31,7 @@ public struct PokitRootFeature {
         var folderType: PokitRootFilterType = .folder(.포킷)
         var sortType: PokitRootFilterType = .sort(.최신순)
 
-        fileprivate var domain = Pokit()
+        var domain = Pokit()
         var categories: IdentifiedArrayOf<BaseCategoryItem>? {
             guard let categoryList = domain.categoryList.data else {
                 return nil
