@@ -20,6 +20,7 @@ extension DependencyValues {
         self[AuthClient.self] = .mainTabDeeplinkTestValue
         self[VersionClient.self] = .mainTabDeeplinkTestValue
         self[UserDefaultsClient.self] = .mainTabDeeplinkTestValue
+        self[NotificationClient.self] = .mainTabDeeplinkTestValue
         self[PasteboardClient.self] = .noop
         self[DeeplinkRouteClient.self] = deeplinkRouteClient
     }
@@ -104,7 +105,17 @@ extension ContentClient {
         추천_컨텐츠_조회: { _, _ in
             MainTabDeeplinkTestFixtures.contentListResponse(categoryId: 2)
         },
-        컨텐츠_신고: { _ in }
+        컨텐츠_신고사유_조회: { [ReportReasonResponse.mock] },
+        컨텐츠_신고: { _ in },
+        컨텐츠_신고_사유: { _, _ in }
+    )
+}
+
+extension NotificationClient {
+    static let mainTabDeeplinkTestValue: Self = .init(
+        알림_목록_조회: { _ in MainTabDeeplinkTestFixtures.notificationListResponse },
+        알림_읽음: { _ in },
+        알림_삭제: { _ in }
     )
 }
 
@@ -252,6 +263,28 @@ private enum MainTabDeeplinkTestFixtures {
         ]
     )
 
+    static let notificationListResponse: NotificationListInquiryResponse = decode(
+        [
+            "data": [
+                [
+                    "id": 1,
+                    "notificationType": "LINK_ADDED",
+                    "title": "'뜨개질' 포킷에 링크가 추가되었어요",
+                    "body": "OO님이 추가한 링크를 지금 확인해보세요",
+                    "categoryImageUrl": "https://example.com/category-2.png",
+                    "isRead": false,
+                    "navigationType": "CONTENT_DETAIL",
+                    "deepLink": "pokit://shared?categoryId=2&contentId=777",
+                    "createdAt": "2026-02-18T00:00:00Z"
+                ]
+            ],
+            "page": 0,
+            "size": 30,
+            "sort": [sort()],
+            "hasNext": false
+        ]
+    )
+
     static let emptyContentListResponse: ContentListInquiryResponse = decode(
         [
             "data": [],
@@ -294,7 +327,10 @@ private enum MainTabDeeplinkTestFixtures {
                             "title": "UITest-Content-777",
                             "memo": "uitest memo",
                             "thumbNail": "https://example.com/thumb-777.png",
-                            "createdAt": "2026-02-18T00:00:00Z"
+                            "createdAt": "2026-02-18T00:00:00Z",
+                            "authorUserId": 100,
+                            "authorNickname": "UITestUser",
+                            "authorProfileImageURL": "https://example.com/profile.png"
                         ]
                     ],
                     "page": 0,
@@ -479,7 +515,13 @@ private enum MainTabDeeplinkTestFixtures {
             "createdAt": "2026-02-18T00:00:00Z",
             "isRead": false,
             "isFavorite": false,
-            "keyword": NSNull()
+            "keyword": NSNull(),
+            "author": [
+                "userId": 100,
+                "nickname": "UITestUser",
+                "profileImageUrl": "https://example.com/profile.png"
+            ],
+            "memoExists": true
         ]
     }
 
@@ -500,7 +542,14 @@ private enum MainTabDeeplinkTestFixtures {
             "memo": "memo-\(contentId)",
             "alertYn": "NO",
             "createdAt": "2026-02-18T00:00:00Z",
-            "favorites": false
+            "favorites": false,
+            "keyword": "예능",
+            "userNickname": "UITestUser",
+            "author": [
+                "userId": 100,
+                "nickname": "UITestUser",
+                "profileImageUrl": "https://example.com/profile.png"
+            ]
         ]
     }
 

@@ -106,15 +106,16 @@ private actor RouteRecorder {
     }
 }
 
-private func makeAlertItem(deeplink: String?) -> AlertItem {
+private func makeAlertItem(deeplink: String?) -> NotificationItem {
     .init(
         id: 1,
-        userId: 1,
-        contentId: 1,
-        deeplink: deeplink,
-        thumbNail: "",
+        notificationType: "LINK_ADDED",
         title: "title",
         body: "body",
+        categoryImageUrl: nil,
+        isRead: true,
+        navigationType: "CONTENT_DETAIL",
+        deepLink: deeplink,
         createdAt: ""
     )
 }

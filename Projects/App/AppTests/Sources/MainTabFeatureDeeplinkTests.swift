@@ -3,6 +3,7 @@ import Foundation
 import ComposableArchitecture
 import CoreKit
 import Domain
+import FeatureCategorySetting
 import FeatureContentDetail
 import Testing
 
@@ -29,16 +30,12 @@ struct MainTabFeatureDeeplinkTests {
 
         await store.receive(\.inner.딥링크_수신)
         await store.receive(\.async.공유받은_카테고리_조회)
-        await store.receive(\.inner.공유받은_카테고리_이동) {
-            $0.path = StackState([.카테고리상세(.init(
-                type: .공유,
-                category: makeSharedCategory(id: 2, name: "UITest-Category-2")
-            ))])
-        }
+        await store.receive(\.inner.공유받은_카테고리_이동)
 
         let routedURLs = await routeSpy.routedURLs()
         #expect(routedURLs == [url])
         #expect(topCategoryID(in: store.state) == 2)
+        #expect(store.state.path.count == 1)
 
         await store.skipInFlightEffects()
     }
@@ -52,11 +49,10 @@ struct MainTabFeatureDeeplinkTests {
         await router.routeTo(URL(string: "pokit://alert"))
 
         await store.receive(\.inner.딥링크_수신)
-        await store.receive(\.delegate.알림함이동) {
-            $0.path.append(.알림함(.init()))
-        }
+        await store.receive(\.delegate.알림함이동)
 
         #expect(isAlertPathTop(in: store.state))
+        #expect(store.state.path.count == 1)
 
         await store.skipInFlightEffects()
     }
@@ -76,16 +72,11 @@ struct MainTabFeatureDeeplinkTests {
 
         await store.receive(\.inner.딥링크_수신)
         await store.receive(\.async.포킷_딥링크_처리)
-        await store.receive(\.inner.포킷_딥링크_이동) {
-            $0.path.append(.카테고리상세(.init(
-                type: .참여,
-                category: makeCategory(id: 2, name: "UITest-Category-2")
-            )))
-            $0.contentDetail = .init(contentId: 777)
-        }
+        await store.receive(\.inner.포킷_딥링크_이동)
 
         #expect(topCategoryID(in: store.state) == 2)
         #expect(store.state.contentDetail == .init(contentId: 777))
+        #expect(store.state.path.count == 1)
 
         await store.skipInFlightEffects()
     }
@@ -105,13 +96,9 @@ struct MainTabFeatureDeeplinkTests {
 
         await store.receive(\.inner.딥링크_수신)
         await store.receive(\.async.포킷_딥링크_처리)
-        await store.receive(\.inner.포킷_딥링크_이동) {
-            $0.path.append(.카테고리상세(.init(
-                type: .참여,
-                category: makeCategory(id: 2, name: "UITest-Category-2")
-            )))
-        }
+        await store.receive(\.inner.포킷_딥링크_이동)
 
+        #expect(topCategoryID(in: store.state) == 2)
         let categoryPathID = try #require(store.state.path.ids.last)
 
         await store.receive(\.path[id: categoryPathID].카테고리상세.view.참여인원_버튼_눌렀을때)
@@ -120,25 +107,43 @@ struct MainTabFeatureDeeplinkTests {
         await store.skipInFlightEffects()
     }
 
-    @Test("앱 실행 직후 queued shared 딥링크도 정상 소비된다")
-    func queuedSharedRouteBeforeOnAppearIsConsumed() async throws {
+    @Test("링크 상세에서 내 포킷 저장용 포킷 추가 delegate를 받으면 포킷 추가 화면을 push한다")
+    func contentDetailAddPokitDelegatePushesCategoryCreate() async throws {
         let router = DeeplinkRouteClient.liveValue
+        let store = makeStore(deeplinkRouteClient: router)
+
+        await store.send(.view(.onAppear))
         await router.routeTo(URL(string: "pokit://shared?categoryId=2&contentId=777"))
 
-        let store = makeStore(deeplinkRouteClient: router)
+        await store.receive(\.inner.딥링크_수신)
+        await store.receive(\.async.포킷_딥링크_처리)
+        await store.receive(\.inner.포킷_딥링크_이동)
+
+        #expect(topCategoryID(in: store.state) == 2)
+        #expect(store.state.contentDetail == .init(contentId: 777))
+
+        await store.send(.contentDetail(.presented(.delegate(.포킷_추가하기_버튼_눌렀을때))))
+
+        #expect(store.state.contentDetail == .init(contentId: 777))
+        #expect(store.state.path.count == 2)
+
+        await store.skipInFlightEffects()
+    }
+
+    @Test("앱 실행 직후 queued shared 딥링크도 정상 소비된다")
+    func queuedSharedRouteBeforeOnAppearIsConsumed() async throws {
+        let queueRouter = QueueableRouteSpy()
+        await queueRouter.enqueue(.pokitShared(categoryId: 2, contentId: 777, userId: nil))
+
+        let store = makeStore(deeplinkRouteClient: queueRouter.client)
         await store.send(.view(.onAppear))
 
         await store.receive(\.inner.딥링크_수신)
         await store.receive(\.async.포킷_딥링크_처리)
-        await store.receive(\.inner.포킷_딥링크_이동) {
-            $0.path.append(.카테고리상세(.init(
-                type: .참여,
-                category: makeCategory(id: 2, name: "UITest-Category-2")
-            )))
-            $0.contentDetail = .init(contentId: 777)
-        }
+        await store.receive(\.inner.포킷_딥링크_이동)
 
         #expect(topCategoryID(in: store.state) == 2)
+        #expect(store.state.contentDetail == .init(contentId: 777))
 
         await store.skipInFlightEffects()
     }
@@ -153,24 +158,19 @@ struct MainTabFeatureDeeplinkTests {
 
         await store.receive(\.inner.딥링크_수신)
         await store.receive(\.async.포킷_딥링크_처리)
-        await store.receive(\.inner.포킷_딥링크_이동) {
-            $0.path.append(.카테고리상세(.init(
-                type: .참여,
-                category: makeCategory(id: 2, name: "UITest-Category-2")
-            )))
-            $0.contentDetail = .init(contentId: 777)
-        }
+        await store.receive(\.inner.포킷_딥링크_이동)
 
         let stackCountBeforeReroute = store.state.path.count
         let topPathID = try #require(store.state.path.ids.last)
+
+        #expect(topCategoryID(in: store.state) == 2)
+        #expect(store.state.contentDetail == .init(contentId: 777))
 
         await router.routeTo(URL(string: "pokit://shared?categoryId=2&contentId=778"))
 
         await store.receive(\.inner.딥링크_수신)
         await store.receive(\.async.포킷_딥링크_처리)
-        await store.receive(\.inner.포킷_딥링크_이동) {
-            $0.contentDetail = .init(contentId: 778)
-        }
+        await store.receive(\.inner.포킷_딥링크_이동)
         await store.receive(\.path[id: topPathID].카테고리상세.inner.타입_변경)
         await store.receive(\.path[id: topPathID].카테고리상세.inner.pagenation_초기화)
         await store.receive(\.path[id: topPathID].카테고리상세.async.카테고리_내_컨텐츠_목록_조회_API)
@@ -193,25 +193,16 @@ struct MainTabFeatureDeeplinkTests {
 
         await store.receive(\.inner.딥링크_수신)
         await store.receive(\.async.포킷_딥링크_처리)
-        await store.receive(\.inner.포킷_딥링크_이동) {
-            $0.path.append(.카테고리상세(.init(
-                type: .참여,
-                category: makeCategory(id: 2, name: "UITest-Category-2")
-            )))
-            $0.contentDetail = .init(contentId: 777)
-        }
+        await store.receive(\.inner.포킷_딥링크_이동)
+
+        #expect(topCategoryID(in: store.state) == 2)
+        #expect(store.state.contentDetail == .init(contentId: 777))
 
         await router.routeTo(URL(string: "pokit://shared?categoryId=3&contentId=888"))
 
         await store.receive(\.inner.딥링크_수신)
         await store.receive(\.async.포킷_딥링크_처리)
-        await store.receive(\.inner.포킷_딥링크_이동) {
-            $0.path.append(.카테고리상세(.init(
-                type: .참여,
-                category: makeCategory(id: 3, name: "UITest-Category-3")
-            )))
-            $0.contentDetail = .init(contentId: 888)
-        }
+        await store.receive(\.inner.포킷_딥링크_이동)
 
         #expect(categoryIDs(in: store.state) == [2, 3])
         #expect(store.state.contentDetail == .init(contentId: 888))
@@ -349,5 +340,41 @@ private actor KakaoRouteSpy {
         _ continuation: AsyncStream<DeeplinkRoute>.Continuation
     ) {
         self.continuation = continuation
+    }
+}
+
+private actor QueueableRouteSpy {
+    private var queuedRoutes: [DeeplinkRoute] = []
+    private var continuation: AsyncStream<DeeplinkRoute>.Continuation?
+
+    nonisolated var client: DeeplinkRouteClient {
+        DeeplinkRouteClient(
+            routeTo: { _ in },
+            routeStream: {
+                self.makeStream()
+            }
+        )
+    }
+
+    func enqueue(_ route: DeeplinkRoute) {
+        queuedRoutes.append(route)
+    }
+
+    nonisolated private func makeStream() -> AsyncStream<DeeplinkRoute> {
+        AsyncStream { continuation in
+            Task {
+                await self.setContinuationAndDrain(continuation)
+            }
+        }
+    }
+
+    private func setContinuationAndDrain(
+        _ continuation: AsyncStream<DeeplinkRoute>.Continuation
+    ) {
+        self.continuation = continuation
+        for route in queuedRoutes {
+            continuation.yield(route)
+        }
+        queuedRoutes.removeAll()
     }
 }
