@@ -22,7 +22,7 @@ let package = Package(
         // Add your own dependencies here:
         // .package(url: "https://github.com/Alamofire/Alamofire", from: "5.0.0"),
         // You can read more about dependencies here: https://docs.tuist.io/documentation/tuist/dependencies
-        .package(url: "https://github.com/pointfreeco/swift-composable-architecture", "1.10.4" ..< "1.11.1"),
+        .package(url: "https://github.com/pointfreeco/swift-composable-architecture", "1.10.4" ..< "1.16.0"),
         .package(url: "https://github.com/google/GoogleSignIn-iOS", "7.0.0" ..< "7.1.0"),
         .package(url: "https://github.com/Moya/Moya", from: "15.0.0"),
         .package(url: "https://github.com/firebase/firebase-ios-sdk", "10.28.0" ..< "10.28.1"),
@@ -31,6 +31,8 @@ let package = Package(
         .package(url: "https://github.com/scinfu/SwiftSoup", "2.7.0" ..< "2.7.5"),
         .package(url: "https://github.com/kakao/kakao-ios-sdk", from: "2.22.5"),
         .package(url: "https://github.com/amplitude/Amplitude-Swift", from: "1.15.2"),
-        .package(url: "https://github.com/ShapeKim98/SchemeRoute", "0.3.1" ..< "0.4.0")
+        .package(url: "https://github.com/ShapeKim98/SchemeRoute", "0.3.1" ..< "0.4.0"),
+        // Tuist 호환성: swift-protobuf traits 미지원 버전으로 제한
+        .package(url: "https://github.com/apple/swift-protobuf", "1.20.0" ..< "1.29.0")
     ]
 )
