@@ -67,7 +67,40 @@ extension CategorySharing {
         public let thumbNail: String
         public let createdAt: String
         public let categoryName: String
-        public let isRead: Bool? = false
-        public let isFavorite: Bool? = false
+        public let isRead: Bool?
+        public let isFavorite: Bool?
+        public let authorUserId: Int?
+        public let authorNickname: String?
+        public let authorProfileImageURL: String?
+
+        public init(
+            id: Int,
+            data: String,
+            domain: String,
+            title: String,
+            memo: String?,
+            thumbNail: String,
+            createdAt: String,
+            categoryName: String,
+            isRead: Bool? = false,
+            isFavorite: Bool? = false,
+            authorUserId: Int? = nil,
+            authorNickname: String? = nil,
+            authorProfileImageURL: String? = nil
+        ) {
+            self.id = id
+            self.data = data
+            self.domain = domain
+            self.title = title
+            self.memo = memo
+            self.thumbNail = thumbNail
+            self.createdAt = createdAt
+            self.categoryName = categoryName
+            self.isRead = isRead
+            self.isFavorite = isFavorite
+            self.authorUserId = authorUserId
+            self.authorNickname = authorNickname
+            self.authorProfileImageURL = authorProfileImageURL
+        }
     }
 }

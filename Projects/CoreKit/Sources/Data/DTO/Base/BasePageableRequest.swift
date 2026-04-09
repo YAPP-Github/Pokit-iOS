@@ -8,9 +8,9 @@
 import Foundation
 /// Pageable
 public struct BasePageableRequest: Equatable, Encodable {
-    let page: Int
-    let size: Int
-    let sort: [String]
+    public let page: Int
+    public let size: Int
+    public let sort: [String]
     
     public init(page: Int, size: Int, sort: [String]) {
         self.page = page

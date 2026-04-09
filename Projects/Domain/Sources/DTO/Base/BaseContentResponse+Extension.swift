@@ -24,7 +24,10 @@ public extension ContentBaseResponse {
             createdAt: self.createdAt,
             isRead: self.isRead,
             isFavorite: self.isFavorite,
-            keyword: self.keyword
+            keyword: self.keyword,
+            authorUserId: self.authorUserId,
+            authorNickname: self.authorNickname,
+            authorProfileImageURL: self.authorProfileImageURL
         )
     }
 }

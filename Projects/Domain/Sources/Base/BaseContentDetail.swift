@@ -16,6 +16,9 @@ public struct BaseContentDetail: Equatable {
     public let createdAt: String
     public var favorites: Bool?
     public var alertYn: RemindState
+    public let authorUserId: Int?
+    public let authorNickname: String?
+    public let authorProfileImageURL: String?
     
     public init(
         id: Int,
@@ -25,7 +28,10 @@ public struct BaseContentDetail: Equatable {
         memo: String,
         createdAt: String,
         favorites: Bool?,
-        alertYn: RemindState
+        alertYn: RemindState,
+        authorUserId: Int? = nil,
+        authorNickname: String? = nil,
+        authorProfileImageURL: String? = nil
     ) {
         self.id = id
         self.category = category
@@ -35,6 +41,9 @@ public struct BaseContentDetail: Equatable {
         self.createdAt = createdAt
         self.favorites = favorites
         self.alertYn = alertYn
+        self.authorUserId = authorUserId
+        self.authorNickname = authorNickname
+        self.authorProfileImageURL = authorProfileImageURL
     }
 }
 

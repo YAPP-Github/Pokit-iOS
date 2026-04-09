@@ -22,6 +22,9 @@ public struct BaseContentItem: Identifiable, Equatable, PokitLinkCardItem, Sorta
     public var isRead: Bool?
     public var isFavorite: Bool?
     public let keyword: String?
+    public let authorUserId: Int?
+    public let authorNickname: String?
+    public let authorProfileImageURL: String?
     
     public init(
         id: Int,
@@ -35,7 +38,10 @@ public struct BaseContentItem: Identifiable, Equatable, PokitLinkCardItem, Sorta
         createdAt: String,
         isRead: Bool?,
         isFavorite: Bool?,
-        keyword: String? = nil
+        keyword: String? = nil,
+        authorUserId: Int? = nil,
+        authorNickname: String? = nil,
+        authorProfileImageURL: String? = nil
     ) {
         self.id = id
         self.categoryName = categoryName
@@ -49,5 +55,8 @@ public struct BaseContentItem: Identifiable, Equatable, PokitLinkCardItem, Sorta
         self.isRead = isRead
         self.isFavorite = isFavorite
         self.keyword = keyword
+        self.authorUserId = authorUserId
+        self.authorNickname = authorNickname
+        self.authorProfileImageURL = authorProfileImageURL
     }
 }

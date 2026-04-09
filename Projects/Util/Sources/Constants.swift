@@ -14,6 +14,7 @@ public enum Constants {
     public static let categoryPath: String = "/api/v1/category"
     public static let categoryPathV2: String = "/api/v2/category"
     public static let contentPath: String = "/api/v1/content"
+    public static let notificationPath: String = "/api/v2/notifications"
     public static let remindPath: String = "api/v1/remind"
     public static let alertPath: String = "/api/v1/alert"
     public static let versionPath: String = "/api/v1/version"

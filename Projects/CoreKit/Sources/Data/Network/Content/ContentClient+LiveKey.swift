@@ -65,8 +65,14 @@ extension ContentClient: DependencyKey {
             추천_컨텐츠_조회: { pageable, keyword in
                 try await provider.request(.추천_컨텐츠_조회(pageable: pageable, keyword: keyword))
             },
+            컨텐츠_신고사유_조회: {
+                try await provider.request(.컨텐츠_신고사유_조회)
+            },
             컨텐츠_신고: { id in
                 try await provider.requestNoBody(.컨텐츠_신고(contentId: id))
+            },
+            컨텐츠_신고_사유: { id, model in
+                try await provider.requestNoBody(.컨텐츠_신고_사유(contentId: id, model: model))
             }
         )
     }()

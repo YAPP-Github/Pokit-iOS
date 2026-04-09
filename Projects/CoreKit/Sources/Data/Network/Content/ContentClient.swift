@@ -54,8 +54,12 @@ public struct ContentClient {
         _ pageable: BasePageableRequest,
         _ keyword: String?
     ) async throws -> ContentListInquiryResponse
+    public var 컨텐츠_신고사유_조회: @Sendable () async throws -> [ReportReasonResponse]
     public var 컨텐츠_신고: @Sendable (
         _ contentId: Int
     ) async throws -> Void
+    public var 컨텐츠_신고_사유: @Sendable (
+        _ contentId: Int,
+        _ model: ContentReportRequest
+    ) async throws -> Void
 }
-
