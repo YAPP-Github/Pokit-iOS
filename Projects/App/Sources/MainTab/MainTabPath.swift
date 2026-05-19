@@ -120,7 +120,10 @@ public extension MainTabFeature {
                  let .path(.element(_, action: .링크목록(.delegate(.링크상세(content: content))))),
                  let .path(.element(_, action: .검색(.delegate(.linkCardTapped(content: content))))):
                 
-                state.contentDetail = ContentDetailFeature.State(contentId: content.id)
+                state.contentDetail = ContentDetailFeature.State(
+                    contentId: content.id,
+                    authorUserId: content.authorUserId
+                )
                 return .none
 
             /// - 링크상세 바텀시트에서 링크수정으로 이동

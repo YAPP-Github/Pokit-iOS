@@ -10,6 +10,7 @@ import ComposableArchitecture
 import DSKit
 import Domain
 import NukeUI
+import Util
 
 @ViewAction(for: PokitAlertBoxFeature.self)
 public struct PokitAlertBoxView: View {
@@ -40,12 +41,11 @@ public extension PokitAlertBoxView {
                                     AlertContent(item: item)
                                 }
                                 .listRowSeparator(.hidden)
-                                .listRowInsets(EdgeInsets())
+                                .listRowInsets(EdgeInsets(.zero))
                                 .onDelete(deleteAction: { delete(item) })
                                 .id(item.id)
                             }
                             .listRowBackground(Color.pokit(.bg(.base)))
-                            .padding(.top, 16)
                         }
                         .listStyle(.plain)
                     }
@@ -80,55 +80,64 @@ private extension PokitAlertBoxView {
         let item: NotificationItem
 
         var body: some View {
-            VStack(alignment: .leading, spacing: 20) {
-                HStack(spacing: 16) {
+            VStack(spacing: 0) {
+                HStack(alignment: .top, spacing: 16) {
                     LazyImage(url: URL(string: item.categoryImageUrl ?? "")) { state in
                         if let image = state.image {
-                            image.resizable()
+                            image.resizable().scaledToFill()
                         } else {
                             placeholder
                         }
                     }
-                    .frame(width: 94, height: 70)
-                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                    .frame(width: 48, height: 48)
+                    .background(
+                        !item.isRead
+                            ? .pokit(.bg(.base))
+                            : .pokit(.bg(.primary))
+                    )
+                    .clipShape(Circle())
 
-                    VStack(alignment: .leading, spacing: 0) {
-                        Text(item.title)
-                            .pokitFont(.b2(.b))
-                            .foregroundStyle(.pokit(.text(.primary)))
-                            .lineLimit(1)
-                            .padding(.bottom, 4)
-                        Text(item.body)
-                            .pokitFont(.detail2)
-                            .foregroundStyle(.pokit(.text(.secondary)))
-                            .padding(.bottom, 8)
+                    VStack(alignment: .leading, spacing: 8) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(item.title)
+                                .pokitFont(.b2(.b))
+                                .foregroundStyle(.pokit(.text(.primary)))
+                                .multilineTextAlignment(.leading)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                            Text(item.body)
+                                .pokitFont(.detail1)
+                                .foregroundStyle(.pokit(.text(.tertiary)))
+                                .lineLimit(1)
+                                .truncationMode(.tail)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                        }
                         Text(item.createdAt)
                             .pokitFont(.detail2)
                             .foregroundStyle(.pokit(.text(.tertiary)))
                     }
                 }
-                .padding(.horizontal, 20)
+                .padding(20)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(if: item.isRead) {
+                    Color.pokit(.bg(.base))
+                } else: {
+                    Color.pokit(.color(.orange(._700))).opacity(0.05)
+                }
                 Rectangle()
                     .frame(height: 1)
                     .foregroundStyle(.pokit(.border(.tertiary)))
             }
-            .padding(.top, 20)
-            .background(
-                !item.isRead
-                    ? .pokit(.color(.orange(._50)))
-                    : .clear
-            )
         }
 
         private var placeholder: some View {
             ZStack {
-                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                Circle()
                     .fill(.pokit(.bg(.primary)))
 
                 Image(.image(.profile))
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 48, height: 48)
+                    .frame(width: 32, height: 32)
             }
         }
     }

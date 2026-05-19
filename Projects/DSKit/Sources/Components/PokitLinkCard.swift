@@ -167,7 +167,7 @@ public struct PokitLinkCard<Item: PokitLinkCardItem>: View {
                     }
                 }
                 .frame(width: 20, height: 20)
-                .clipShape(Circle())
+                .clipShape(RoundedRectangle(cornerRadius: 4))
             }
         }
     }

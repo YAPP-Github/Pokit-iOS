@@ -30,12 +30,14 @@ public struct ContentDetailFeature {
     public struct State: Equatable {
         public init(
             content: BaseContentDetail? = nil,
-            contentId: Int? = nil
+            contentId: Int? = nil,
+            authorUserId: Int? = nil
         ) {
             self.domain = .init(
                 content: content,
                 contentId: contentId
             )
+            self.listAuthorUserId = authorUserId
         }
         fileprivate var domain: ContentDetail
         var content: BaseContentDetail? {
@@ -58,11 +60,12 @@ public struct ContentDetailFeature {
         var pokitList: [BaseCategoryItem]?
         var selectedPokit: BaseCategoryItem?
         var reportReasons: [BaseReportReason] = []
+        /// 목록 API에서 전달받은 authorUserId (상세 API에 없을 때 fallback)
+        var listAuthorUserId: Int?
         var isMine: Bool {
-            guard
-                let currentUserId,
-                let authorUserId = domain.content?.authorUserId
-            else { return true }
+            guard let currentUserId else { return true }
+            let authorUserId = domain.content?.authorUserId ?? listAuthorUserId
+            guard let authorUserId else { return true }
             return currentUserId == authorUserId
         }
     }
