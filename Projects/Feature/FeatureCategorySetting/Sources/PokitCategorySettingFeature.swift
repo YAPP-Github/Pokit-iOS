@@ -112,9 +112,11 @@ public struct PokitCategorySettingFeature {
                 categoryImage: category?.categoryImage,
                 openType: category?.openType,
                 keywordType: category?.keywordType,
-                userCount: category?.userCount
+                userCount: category?.userCount,
+                alertEnabled: category?.alertEnabled
             )
             self.categoryUserId = category?.userId
+            self.isAlert = category?.alertEnabled ?? true
         }
     }
     
@@ -236,7 +238,8 @@ private extension PokitCategorySettingFeature {
                 return .none
             } else {
                 return .run { [domain = state.domain,
-                               type = state.type] send in
+                               type = state.type,
+                               alertEnabled = state.isAlert] send in
                     switch type {
                     case .추가:
                         guard let image = domain.categoryImage else { return }
@@ -273,7 +276,8 @@ private extension PokitCategorySettingFeature {
                             categoryName: domain.categoryName,
                             categoryImageId: image.id,
                             openType: domain.openType.title,
-                            keywordType: domain.keywordType.title
+                            keywordType: domain.keywordType.title,
+                            alertEnabled: alertEnabled
                         )
                         let _ = try await categoryClient.카테고리_수정(categoryId, request)
                         await send(.delegate(.settingSuccess))
@@ -313,7 +317,8 @@ private extension PokitCategorySettingFeature {
             return .merge(
                 .send(.async(.프로필_목록_조회_API)),
                 .send(.async(.클립보드_감지)),
-                .send(.async(.키보드_감지))
+                .send(.async(.키보드_감지)),
+                .send(.async(.알림_권한_감지))
             )
         case .포킷명지우기_버튼_눌렀을때:
             state.domain.categoryName = ""
@@ -333,6 +338,7 @@ private extension PokitCategorySettingFeature {
             
         case let .알림_권한_바인딩(isAlert):
             state.isAlert = isAlert
+            state.domain.alertEnabled = isAlert
             guard isAlert && !state.isNotificationAuthorization else { return .none }
             state.showAlertSheet = true
             return .none

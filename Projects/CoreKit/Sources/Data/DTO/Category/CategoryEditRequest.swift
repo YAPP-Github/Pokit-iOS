@@ -12,16 +12,19 @@ public struct CategoryEditRequest: Encodable {
     public let categoryImageId: Int
     public let openType: String
     public let keywordType: String
+    public let alertEnabled: Bool?
     
     public init(
         categoryName: String,
         categoryImageId: Int,
         openType: String,
-        keywordType: String
+        keywordType: String,
+        alertEnabled: Bool? = nil
     ) {
         self.categoryName = categoryName
         self.categoryImageId = categoryImageId
         self.openType = openType
         self.keywordType = keywordType
+        self.alertEnabled = alertEnabled
     }
 }

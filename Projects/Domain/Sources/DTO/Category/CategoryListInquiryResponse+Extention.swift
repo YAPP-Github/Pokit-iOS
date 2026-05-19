@@ -34,7 +34,8 @@ public extension CategoryItemInquiryResponse {
             openType: BaseOpenType(rawValue: self.openType) ?? .비공개,
             keywordType: BaseInterestType(rawValue: self.keywordType.slashConvertUnderBar) ?? .default,
             userCount: self.userCount + 1,
-            isFavorite: self.isFavorite
+            isFavorite: self.isFavorite,
+            alertEnabled: self.alertEnabled
         )
     }
 }

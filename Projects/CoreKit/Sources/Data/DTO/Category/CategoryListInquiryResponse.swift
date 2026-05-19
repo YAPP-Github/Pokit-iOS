@@ -29,6 +29,33 @@ public struct CategoryItemInquiryResponse: Decodable {
     public let keywordType: String
     public let userCount: Int
     public let isFavorite: Bool
+    public let alertEnabled: Bool?
+    
+    public init(
+        categoryId: Int,
+        userId: Int,
+        categoryName: String,
+        categoryImage: CategoryImageResponse,
+        contentCount: Int,
+        createdAt: String,
+        openType: String,
+        keywordType: String,
+        userCount: Int,
+        isFavorite: Bool,
+        alertEnabled: Bool? = nil
+    ) {
+        self.categoryId = categoryId
+        self.userId = userId
+        self.categoryName = categoryName
+        self.categoryImage = categoryImage
+        self.contentCount = contentCount
+        self.createdAt = createdAt
+        self.openType = openType
+        self.keywordType = keywordType
+        self.userCount = userCount
+        self.isFavorite = isFavorite
+        self.alertEnabled = alertEnabled
+    }
 }
 /// Sort
 public struct ItemInquirySortResponse: Decodable {
