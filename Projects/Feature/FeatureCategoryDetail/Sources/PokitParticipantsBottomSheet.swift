@@ -40,6 +40,7 @@ struct PokitParticipantsBottomSheet: View {
         VStack(spacing: 0) {
             participantsList
         }
+        .accessibilityIdentifier("participants-sheet")
         .presentationDragIndicator(.visible)
         .presentationDetents([.height(height)])
         .pokitPresentationCornerRadius()

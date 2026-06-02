@@ -48,6 +48,7 @@ public extension CategoryDetailView {
                 }
                 .listRowInsets(EdgeInsets(.zero))
             }
+            .accessibilityIdentifier("category-detail-\(store.category.id)")
             .listStyle(.plain)
             .listRowSpacing(0)
             .refreshable { await send(.새로고침).finish() }
@@ -141,6 +142,7 @@ private extension CategoryDetailView {
                     .icon(.arrowLeft),
                     action: { send(.dismiss) }
                 )
+                .accessibilityIdentifier("category-detail-back")
             }
             
             if !store.isFavoriteCategory && store.type == .참여 {
@@ -362,6 +364,7 @@ private extension CategoryDetailView {
                             isLast: isLast,
                             showKebab: self.store.type == .참여
                         )
+                        .accessibilityIdentifier("content-card-\(store.state.content.id)")
                     } else if store.content.isFavorite == true {
                         ContentCardView(
                             store: store,
@@ -370,6 +373,7 @@ private extension CategoryDetailView {
                             isLast: isLast,
                             showKebab: self.store.type == .참여
                         )
+                        .accessibilityIdentifier("content-card-\(store.state.content.id)")
                     }
                 }
                 

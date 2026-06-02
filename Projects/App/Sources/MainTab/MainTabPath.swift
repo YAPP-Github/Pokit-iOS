@@ -30,6 +30,7 @@ public struct MainTabPath {
         case 링크목록(ContentListFeature.State)
     }
 
+    @CasePathable
     public enum Action {
         case 알림함(PokitAlertBoxFeature.Action)
         case 검색(PokitSearchFeature.Action)
@@ -59,7 +60,6 @@ public extension MainTabFeature {
             case .pokit(.delegate(.alertButtonTapped)),
                  .recommend(.delegate(.알림_버튼_눌렀을때)),
                  .delegate(.알림함이동):
-                state.isPushTapped = false
                 state.path.append(.알림함(PokitAlertBoxFeature.State()))
                 return .none
 
@@ -90,7 +90,8 @@ public extension MainTabFeature {
             case .delegate(.포킷추가하기),
                  .path(.element(_, action: .링크추가및수정(.delegate(.포킷추가하기)))),
                  .pokit(.delegate(.포킷추가_버튼_눌렀을때)),
-                 .recommend(.delegate(.포킷_추가하기_버튼_눌렀을때)):
+                 .recommend(.delegate(.포킷_추가하기_버튼_눌렀을때)),
+                 .contentDetail(.presented(.delegate(.포킷_추가하기_버튼_눌렀을때))):
                 state.path.append(.포킷추가및수정(PokitCategorySettingFeature.State(type: .추가)))
                 return .none
 
@@ -119,7 +120,10 @@ public extension MainTabFeature {
                  let .path(.element(_, action: .링크목록(.delegate(.링크상세(content: content))))),
                  let .path(.element(_, action: .검색(.delegate(.linkCardTapped(content: content))))):
                 
-                state.contentDetail = ContentDetailFeature.State(contentId: content.id)
+                state.contentDetail = ContentDetailFeature.State(
+                    contentId: content.id,
+                    authorUserId: content.authorUserId
+                )
                 return .none
 
             /// - 링크상세 바텀시트에서 링크수정으로 이동
@@ -127,8 +131,7 @@ public extension MainTabFeature {
                  let .pokit(.delegate(.링크수정하기(id))),
                  let .path(.element(_, action: .카테고리상세(.delegate(.링크수정(id))))),
                  let .path(.element(_, action: .링크목록(.delegate(.링크수정(id))))),
-                 let .path(.element(_, action: .검색(.delegate(.링크수정(id))))),
-                 let .path(.element(_, action: .알림함(.delegate(.moveToContentEdit(id))))):
+                 let .path(.element(_, action: .검색(.delegate(.링크수정(id))))):
                 return .run { send in await send(.inner(.링크추가및수정이동(contentId: id))) }
             
             /// - 컨텐츠 상세보기 내부 액션 실행

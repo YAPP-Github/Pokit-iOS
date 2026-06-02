@@ -75,6 +75,8 @@ public extension MainTabView {
                     }
                 }
             }
+            .accessibilityIdentifier("main-tab-root")
+            .task { await send(.onAppear).finish() }
             .onOpenURL { send(.onOpenURL(url: $0)) }
         }
     }
@@ -106,6 +108,7 @@ private extension MainTabView {
                 )
             ) { store in
                 ContentDetailView(store: store)
+                    .accessibilityIdentifier("content-detail-sheet")
             }
             .sheet(isPresented: $store.isErrorSheetPresented) {
                 PokitAlert(
@@ -115,7 +118,6 @@ private extension MainTabView {
                     action: { send(.경고_확인버튼_클릭) }
                 )
             }
-            .task { await send(.onAppear).finish() }
     }
     
     var tabView: some View {

@@ -17,4 +17,7 @@ public protocol PokitLinkCardItem {
     var data: String { get }
     var domain: String { get }
     var isFavorite: Bool? { get }
+    var authorUserId: Int? { get }
+    var authorNickname: String? { get }
+    var authorProfileImageURL: String? { get }
 }

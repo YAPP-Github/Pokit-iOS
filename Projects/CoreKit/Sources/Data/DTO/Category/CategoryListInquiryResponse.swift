@@ -29,6 +29,33 @@ public struct CategoryItemInquiryResponse: Decodable {
     public let keywordType: String
     public let userCount: Int
     public let isFavorite: Bool
+    public let alertEnabled: Bool
+    
+    public init(
+        categoryId: Int,
+        userId: Int,
+        categoryName: String,
+        categoryImage: CategoryImageResponse,
+        contentCount: Int,
+        createdAt: String,
+        openType: String,
+        keywordType: String,
+        userCount: Int,
+        isFavorite: Bool,
+        alertEnabled: Bool = true
+    ) {
+        self.categoryId = categoryId
+        self.userId = userId
+        self.categoryName = categoryName
+        self.categoryImage = categoryImage
+        self.contentCount = contentCount
+        self.createdAt = createdAt
+        self.openType = openType
+        self.keywordType = keywordType
+        self.userCount = userCount
+        self.isFavorite = isFavorite
+        self.alertEnabled = alertEnabled
+    }
 }
 /// Sort
 public struct ItemInquirySortResponse: Decodable {
@@ -53,7 +80,8 @@ public extension CategoryItemInquiryResponse {
         openType: "PRIVATE",
         keywordType: "스포츠/레저",
         userCount: 0,
-        isFavorite: false
+        isFavorite: false,
+        alertEnabled: true
     )
 }
 
@@ -73,7 +101,8 @@ extension CategoryListInquiryResponse {
                 openType: "PRIVATE",
                 keywordType: "스포츠/레저",
                 userCount: 0,
-                isFavorite: false
+                isFavorite: false,
+                alertEnabled: true
             ),
             CategoryItemInquiryResponse(
                 categoryId: 2,
@@ -88,7 +117,8 @@ extension CategoryListInquiryResponse {
                 openType: "PUBLIC",
                 keywordType: "스포츠/레저",
                 userCount: 1,
-                isFavorite: false
+                isFavorite: false,
+                alertEnabled: true
             ),
             CategoryItemInquiryResponse(
                 categoryId: 3,
@@ -103,7 +133,8 @@ extension CategoryListInquiryResponse {
                 openType: "PUBLIC",
                 keywordType: "스포츠/레저",
                 userCount: 5,
-                isFavorite: false
+                isFavorite: false,
+                alertEnabled: true
             )
         ],
         page: 1,

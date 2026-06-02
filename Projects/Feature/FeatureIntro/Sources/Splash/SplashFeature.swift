@@ -34,7 +34,7 @@ public struct SplashFeature {
     
     /// - State
     @ObservableState
-    public struct State {
+    public struct State: Equatable {
         @Shared(.appStorage("isNeedSessionDeleted")) var isNeedSessionDeleted: Bool = true
         @Presents var alert: AlertState<Action.Alert>?
         public init() {}
@@ -65,7 +65,7 @@ public struct SplashFeature {
             case loginNeeded
             case autoLoginSuccess
         }
-        public enum Alert {
+        public enum Alert: Equatable {
             case 앱스토어_이동(trackId: Int)
         }
     }

@@ -18,26 +18,35 @@ public struct PokitAlertBoxFeature {
     var dismiss
     @Dependency(PasteboardClient.self) 
     var pasteboard
-    @Dependency(AlertClient.self) 
-    var alertClient
+    @Dependency(NotificationClient.self)
+    var notificationClient
+    @Dependency(DeeplinkRouteClient.self)
+    var deeplinkRouter
     /// - State
     @ObservableState
     public struct State: Equatable {
         public init() {}
 
-        fileprivate var domain = Alert()
-        @Shared(.appStorage("lastAlertCheckDate"))
-        var lastAlertCheckDate: String?
+        var notifications = NotificationListInquiry(
+            data: [],
+            page: 0,
+            size: 10,
+            sort: [],
+            hasNext: false
+        )
+        var isLoading = true
 
-        var alertContents: IdentifiedArrayOf<AlertItem>? {
-            guard let list = domain.alertList.data else { return nil }
-            var identifiedArray = IdentifiedArrayOf<AlertItem>()
-            list.forEach { identifiedArray.append($0) }
+        var alertContents: IdentifiedArrayOf<NotificationItem>? {
+            guard !isLoading else { return nil }
+            var identifiedArray = IdentifiedArrayOf<NotificationItem>()
+            notifications.data.forEach { identifiedArray.append($0) }
             return identifiedArray
         }
+        var hasNext: Bool { notifications.hasNext }
     }
     
     /// - Action
+    @CasePathable
     public enum Action: FeatureAction, ViewAction {
         case view(View)
         case inner(InnerAction)
@@ -49,28 +58,33 @@ public struct PokitAlertBoxFeature {
         public enum View: Equatable {
             case dismiss
             case pagenation
-            case 밀어서_삭제했을때(item: AlertItem)
-            case 알람_항목_선택했을때(item: AlertItem)
+            case 밀어서_삭제했을때(item: NotificationItem)
+            case 알람_항목_선택했을때(item: NotificationItem)
             case 뷰가_나타났을때
         }
         
+        @CasePathable
         public enum InnerAction: Equatable {
-            case pagenation_알람_목록_조회_API_반영(AlertListInquiry)
-            case 뷰가_나타났을때_알람_목록_조회_API_반영(AlertListInquiry)
-            case 알람_삭제_API_반영(item: AlertItem)
+            case pagenation_알람_목록_조회_API_반영(NotificationListInquiry)
+            case 뷰가_나타났을때_알람_목록_조회_API_반영(NotificationListInquiry)
+            case 알람_삭제_API_반영(item: NotificationItem)
+            case 알람_읽음_API_반영(notificationId: Int)
         }
         
+        @CasePathable
         public enum AsyncAction: Equatable {
             case pagenation_알람_목록_조회_API
             case 뷰가_나타났을때_알람_목록_조회_API
-            case 알람_삭제_API(item: AlertItem)
+            case 알람_삭제_API(item: NotificationItem)
+            case 알람_읽음_API(item: NotificationItem)
             case 클립보드_감지
         }
         
+        @CasePathable
         public enum ScopeAction: Equatable { case 없음 }
         
+        @CasePathable
         public enum DelegateAction: Equatable {
-            case moveToContentEdit(id: Int)
             case linkCopyDetected(URL?)
             case alertBoxDismiss
         }
@@ -117,7 +131,10 @@ private extension PokitAlertBoxFeature {
             return .send(.async(.알람_삭제_API(item: item)))
             
         case let .알람_항목_선택했을때(item):
-            return .send(.delegate(.moveToContentEdit(id: item.contentId)))
+            guard !item.isRead else {
+                return routeEffect(for: item)
+            }
+            return .send(.async(.알람_읽음_API(item: item)))
             
         case .뷰가_나타났을때:
             return .merge(
@@ -126,7 +143,7 @@ private extension PokitAlertBoxFeature {
             )
             
         case .pagenation:
-            return state.domain.alertList.hasNext
+            return state.hasNext
             ? .send(.async(.pagenation_알람_목록_조회_API))
             : .none
         }
@@ -135,29 +152,33 @@ private extension PokitAlertBoxFeature {
     func handleInnerAction(_ action: Action.InnerAction, state: inout State) -> Effect<Action> {
         switch action {
         case let .뷰가_나타났을때_알람_목록_조회_API_반영(list):
-            state.domain.alertList = list
-            /// 가장 최신 알림의 날짜를 저장 (읽음 처리용)
-            if let latestAlert = list.data?.first {
-                state.lastAlertCheckDate = latestAlert.createdAt
-            }
+            state.notifications = list
+            state.isLoading = false
             return .none
             
         case let .pagenation_알람_목록_조회_API_반영(alertList):
-            guard var list = state.domain.alertList.data else { return .none }
-            guard let newList = alertList.data else { return .none }
-            
-            newList.forEach { list.append($0) }
-            state.domain.alertList = alertList
-            state.domain.alertList.data = list
+            state.notifications = .init(
+                data: state.notifications.data + alertList.data,
+                page: alertList.page,
+                size: alertList.size,
+                sort: alertList.sort,
+                hasNext: alertList.hasNext
+            )
             return .none
             
         case let .알람_삭제_API_반영(item):
             guard
-                let idx = state.domain.alertList.data?.firstIndex(where: {
+                let idx = state.notifications.data.firstIndex(where: {
                     $0 == item
                 })
             else { return .none }
-            state.domain.alertList.data?.remove(at: idx)
+            state.notifications.data.remove(at: idx)
+            return .none
+        case let .알람_읽음_API_반영(notificationId):
+            guard let index = state.notifications.data.firstIndex(where: { $0.id == notificationId }) else {
+                return .none
+            }
+            state.notifications.data[index].isRead = true
             return .none
         }
     }
@@ -165,29 +186,40 @@ private extension PokitAlertBoxFeature {
     func handleAsyncAction(_ action: Action.AsyncAction, state: inout State) -> Effect<Action> {
         switch action {
         case .pagenation_알람_목록_조회_API:
-                return .run { [domain = state.domain.alertList] send in
+                return .run { [notifications = state.notifications] send in
                     let sort: [String] = ["createdAt", "desc"]
                     let request = BasePageableRequest(
-                        page: domain.page + 1,
+                        page: notifications.page + 1,
                         size: 10,
                         sort: sort
                     )
-                    let result = try await alertClient.알람_목록_조회(request).toDomain()
+                    let result = try await notificationClient.알림_목록_조회(request).toDomain()
                     await send(.inner(.pagenation_알람_목록_조회_API_반영(result)))
                 }
             
         case .뷰가_나타났을때_알람_목록_조회_API:
-            return .run { [domain = state.domain.alertList] send in
+            return .run { [notifications = state.notifications] send in
                 let sort: [String] = ["createdAt", "desc"]
-                let request = BasePageableRequest(page: 0, size: domain.size, sort: sort)
-                let result = try await alertClient.알람_목록_조회(request).toDomain()
+                let request = BasePageableRequest(page: 0, size: notifications.size, sort: sort)
+                let result = try await notificationClient.알림_목록_조회(request).toDomain()
                 await send(.inner(.뷰가_나타났을때_알람_목록_조회_API_반영(result)))
             }
             
         case let .알람_삭제_API(item):
             return .run { send in
-                try await alertClient.알람_삭제("\(item.id)")
+                try await notificationClient.알림_삭제(item.id)
                 await send(.inner(.알람_삭제_API_반영(item: item)))
+            }
+        case let .알람_읽음_API(item):
+            return .run { send in
+                try await notificationClient.알림_읽음(item.id)
+                await send(.inner(.알람_읽음_API_반영(notificationId: item.id)))
+                guard
+                    let deeplink = item.deepLink,
+                    !deeplink.isEmpty,
+                    let url = URL(string: deeplink)
+                else { return }
+                await deeplinkRouter.routeTo(url)
             }
             
         case .클립보드_감지:
@@ -206,5 +238,17 @@ private extension PokitAlertBoxFeature {
     /// - Delegate Effect
     func handleDelegateAction(_ action: Action.DelegateAction, state: inout State) -> Effect<Action> {
         return .none
+    }
+
+    func routeEffect(for item: NotificationItem) -> Effect<Action> {
+        guard
+            let deeplink = item.deepLink,
+            !deeplink.isEmpty,
+            let url = URL(string: deeplink)
+        else { return .none }
+
+        return .run { _ in
+            await deeplinkRouter.routeTo(url)
+        }
     }
 }

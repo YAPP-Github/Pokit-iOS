@@ -31,7 +31,7 @@ public struct PokitRootFeature {
         var folderType: PokitRootFilterType = .folder(.포킷)
         var sortType: PokitRootFilterType = .sort(.최신순)
 
-        fileprivate var domain = Pokit()
+        var domain = Pokit()
         var categories: IdentifiedArrayOf<BaseCategoryItem>? {
             guard let categoryList = domain.categoryList.data else {
                 return nil
@@ -57,6 +57,7 @@ public struct PokitRootFeature {
     }
 
     /// - Action
+    @CasePathable
     public enum Action: FeatureAction, ViewAction {
         case view(View)
         case inner(InnerAction)
@@ -83,6 +84,7 @@ public struct PokitRootFeature {
             case 페이지_로딩중일때
         }
 
+        @CasePathable
         public enum InnerAction: Equatable {
             case sort
             case 카테고리_시트_활성화(Bool)
@@ -99,6 +101,7 @@ public struct PokitRootFeature {
             case 페이지네이션_초기화
         }
 
+        @CasePathable
         public enum AsyncAction: Equatable {
             case 카테고리_조회_API
             case 카테고리_페이징_조회_API
@@ -119,6 +122,7 @@ public struct PokitRootFeature {
             case linkEdit(PresentationAction<PokitLinkEditFeature.Action>)
         }
 
+        @CasePathable
         public enum DelegateAction: Equatable {
             case searchButtonTapped
             case alertButtonTapped

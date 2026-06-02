@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import XCTestDynamicOverlay
 
 import FeatureContentDetail
 
@@ -15,22 +16,24 @@ struct FeatureContentDetailDemoApp: App {
     
     var body: some Scene {
         WindowGroup {
-            // TODO: 루트 뷰 추가
-            VStack {
-                Spacer()
-                
-                Button("링크 상세") {
-                    showLinkDetail = true
+            if !_XCTIsTesting {
+                // TODO: 루트 뷰 추가
+                VStack {
+                    Spacer()
+                    
+                    Button("링크 상세") {
+                        showLinkDetail = true
+                    }
+                    
+                    Spacer()
                 }
-                
-                Spacer()
-            }
-            .background(.white)
-            .sheet(isPresented: $showLinkDetail) {
-                ContentDetailView(store: .init(
-                    initialState: .init(contentId: 3),
-                    reducer: { ContentDetailFeature()._printChanges() })
-                )
+                .background(.white)
+                .sheet(isPresented: $showLinkDetail) {
+                    ContentDetailView(store: .init(
+                        initialState: .init(contentId: 3),
+                        reducer: { ContentDetailFeature()._printChanges() })
+                    )
+                }
             }
         }
     }

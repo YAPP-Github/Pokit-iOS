@@ -14,7 +14,8 @@ public extension CategoryEditResponse {
         return .init(
             categoryId: self.categoryId,
             categoryName: self.categoryName,
-            categoryImage: self.categoryImage.toDomain()
+            categoryImage: self.categoryImage.toDomain(),
+            alertEnabled: self.alertEnabled
         )
     }
 }

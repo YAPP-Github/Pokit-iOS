@@ -22,7 +22,7 @@ public struct UserNotificationClient {
     
     @CasePathable
     public enum DelegateEvent {
-        case didReceiveResponse(Notification.Response, completionHandler: @Sendable () -> Void)
+        case didReceiveResponse(Notification.Response, completionHandler: @MainActor @Sendable () -> Void)
         case openSettingsForNotification(Notification?)
         case willPresentNotification(
             Notification, completionHandler: @Sendable (UNNotificationPresentationOptions) -> Void

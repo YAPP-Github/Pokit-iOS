@@ -21,7 +21,7 @@ public struct RootFeature {
     }
     
     @ObservableState
-    public enum State {
+    public enum State: Equatable {
         case intro(IntroFeature.State = .init())
         case mainTab(MainTabFeature.State = .init())
         

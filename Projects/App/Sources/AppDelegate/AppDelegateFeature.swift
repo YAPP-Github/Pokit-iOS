@@ -17,11 +17,11 @@ public struct AppDelegateFeature {
     @Dependency(UserNotificationClient.self) var userNotifications
     @Dependency(RemoteNotificationsClient.self) var registerForRemoteNotifications
     @Dependency(UserDefaultsClient.self) var userDefaults
+    @Dependency(DeeplinkRouteClient.self) var deeplinkRouter
     
     @ObservableState
-    public struct State {
+    public struct State: Equatable {
         public var root = RootFeature.State()
-        @Shared(.inMemory("PushTapped")) var isPushTapped: Bool = false
         
         public init() {}
     }
@@ -39,9 +39,14 @@ public struct AppDelegateFeature {
         Scope(state: \.root, action: \.root) {
             RootFeature()
         }
-        Reduce { state, action in
+        Reduce { _, action in
             switch action {
             case .didFinishLaunching:
+#if DEBUG
+                if let effect = self.handleDidFinishLaunchingForUITest() {
+                    return effect
+                }
+#endif
                 FirebaseApp.configure()
                 let userNotificationsEventStream = self.userNotifications.delegate()
                 if let kakaoAppKey = Bundle.main.object(forInfoDictionaryKey: "KAKAO_NATIVE_APP_KEY") as? String {
@@ -77,12 +82,22 @@ public struct AppDelegateFeature {
             case let .userNotifications(.willPresentNotification(_, completionHandler)):
                 return .run { _ in completionHandler(.banner) }
                 
-            case let .userNotifications(.didReceiveResponse(_, completionHandler)):
-                state.isPushTapped = true
-                return .run { @MainActor _ in completionHandler() }
+            case let .userNotifications(.didReceiveResponse(response, completionHandler)):
+                let content = response.notification.request.content
+                let deeplinkURL = {
+                    guard let deepLink = content.userInfo["deepLink"] as? String,
+                          let url = URL(string: deepLink),
+                          url.scheme?.isEmpty == false
+                    else { return URL(string: "pokit://alert") }
+                    return url
+                }()
+                
+                return .run { _ in
+                    await completionHandler()
+                    await deeplinkRouter.routeTo(deeplinkURL)
+                }
             case .userNotifications:
                 return .none
-                
             case .root:
                 return .none
             }

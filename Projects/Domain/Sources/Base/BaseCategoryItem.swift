@@ -20,6 +20,7 @@ public struct BaseCategoryItem: Identifiable, Equatable, PokitSelectItem, PokitC
     public let keywordType: BaseInterestType
     public let userCount: Int
     public let isFavorite: Bool
+    public let alertEnabled: Bool
     
     public init(
         id: Int,
@@ -31,7 +32,8 @@ public struct BaseCategoryItem: Identifiable, Equatable, PokitSelectItem, PokitC
         openType: BaseOpenType,
         keywordType: BaseInterestType,
         userCount: Int,
-        isFavorite: Bool
+        isFavorite: Bool,
+        alertEnabled: Bool = true
     ) {
         self.id = id
         self.userId = userId
@@ -43,5 +45,6 @@ public struct BaseCategoryItem: Identifiable, Equatable, PokitSelectItem, PokitC
         self.keywordType = keywordType
         self.userCount = userCount
         self.isFavorite = isFavorite
+        self.alertEnabled = alertEnabled
     }
 }

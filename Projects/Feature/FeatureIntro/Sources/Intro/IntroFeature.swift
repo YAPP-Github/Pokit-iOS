@@ -14,7 +14,7 @@ public struct IntroFeature {
     @Dependency(UserDefaultsClient.self) var userDefaults
     /// - State
     @ObservableState
-    public enum State {
+    public enum State: Equatable {
         case splash(SplashFeature.State = .init())
         case login(LoginRootFeature.State = .login(.init()))
         public init() { self = .splash() }

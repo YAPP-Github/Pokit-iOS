@@ -27,7 +27,11 @@ public struct LoginFeature {
     private var amplitude
     /// - State
     @ObservableState
-    public struct State {
+    public struct State: Equatable {
+        public static func == (lhs: LoginFeature.State, rhs: LoginFeature.State) -> Bool {
+            return lhs._$id == rhs._$id
+        }
+        
         var path = StackState<Path.State>()
 
         var nickName: String? = nil

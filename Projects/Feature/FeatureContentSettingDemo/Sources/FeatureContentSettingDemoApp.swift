@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import XCTestDynamicOverlay
 
 import FeatureContentSetting
 import FeatureIntro
@@ -15,17 +16,19 @@ struct FeatureContentSettingDemoApp: App {
     
     var body: some Scene {
         WindowGroup {
-            DemoView(store: .init(
-                initialState: DemoFeature.State(),
-                reducer: { DemoFeature() }
-            )) {
-                NavigationStack {
-                    ContentSettingView(
-                        store: .init(
-                            initialState: ContentSettingFeature.State(),
-                            reducer: { ContentSettingFeature()._printChanges() }
+            if !_XCTIsTesting {
+                DemoView(store: .init(
+                    initialState: DemoFeature.State(),
+                    reducer: { DemoFeature() }
+                )) {
+                    NavigationStack {
+                        ContentSettingView(
+                            store: .init(
+                                initialState: ContentSettingFeature.State(),
+                                reducer: { ContentSettingFeature()._printChanges() }
+                            )
                         )
-                    )
+                    }
                 }
             }
         }

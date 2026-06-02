@@ -52,6 +52,68 @@ extension SharedCategoryResponse {
         public let memo: String
         public let thumbNail: String
         public let createdAt: String
+        public let authorUserId: Int?
+        public let authorNickname: String?
+        public let authorProfileImageURL: String?
+
+        private enum CodingKeys: String, CodingKey {
+            case contentId
+            case data
+            case domain
+            case title
+            case memo
+            case thumbNail
+            case createdAt
+            case author
+            case authorUserId
+            case authorNickname
+            case authorProfileImageURL
+        }
+
+        private struct Author: Decodable {
+            let userId: Int?
+            let nickname: String?
+            let profileImageUrl: String?
+        }
+
+        public init(
+            contentId: Int,
+            data: String,
+            domain: String,
+            title: String,
+            memo: String,
+            thumbNail: String,
+            createdAt: String,
+            authorUserId: Int? = nil,
+            authorNickname: String? = nil,
+            authorProfileImageURL: String? = nil
+        ) {
+            self.contentId = contentId
+            self.data = data
+            self.domain = domain
+            self.title = title
+            self.memo = memo
+            self.thumbNail = thumbNail
+            self.createdAt = createdAt
+            self.authorUserId = authorUserId
+            self.authorNickname = authorNickname
+            self.authorProfileImageURL = authorProfileImageURL
+        }
+
+        public init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            let author = try container.decodeIfPresent(Author.self, forKey: .author)
+            self.contentId = try container.decode(Int.self, forKey: .contentId)
+            self.data = try container.decode(String.self, forKey: .data)
+            self.domain = try container.decode(String.self, forKey: .domain)
+            self.title = try container.decode(String.self, forKey: .title)
+            self.memo = try container.decode(String.self, forKey: .memo)
+            self.thumbNail = try container.decode(String.self, forKey: .thumbNail)
+            self.createdAt = try container.decode(String.self, forKey: .createdAt)
+            self.authorUserId = try container.decodeIfPresent(Int.self, forKey: .authorUserId) ?? author?.userId
+            self.authorNickname = try container.decodeIfPresent(String.self, forKey: .authorNickname) ?? author?.nickname
+            self.authorProfileImageURL = try container.decodeIfPresent(String.self, forKey: .authorProfileImageURL) ?? author?.profileImageUrl
+        }
     }
 }
 
@@ -64,7 +126,10 @@ extension SharedCategoryResponse.Content {
             title: "신서유기",
             memo: "신서유기는 재밌어",
             thumbNail: "https://i.ytimg.com/vi/NnOC4_kH0ok/hqdefault.jpg?sqp=-oaymwEjCNACELwBSFryq4qpAxUIARUAAAAAGAElAADIQj0AgKJDeAE=&rs=AOn4CLDN6u6mTjbaVmRZ4biJS_aDq4uvAQ",
-            createdAt: "2024.08.08"
+            createdAt: "2024.08.08",
+            authorUserId: 100,
+            authorNickname: "PokitMons",
+            authorProfileImageURL: Constants.mockImageUrl
         )
     }
 }

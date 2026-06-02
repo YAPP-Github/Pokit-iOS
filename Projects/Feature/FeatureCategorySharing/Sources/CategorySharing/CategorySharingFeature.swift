@@ -25,7 +25,7 @@ public struct CategorySharingFeature {
     /// - State
     @ObservableState
     public struct State: Equatable {
-        fileprivate var domain: CategorySharing
+        var domain: CategorySharing
         var category: CategorySharing.Category { domain.sharedCategory.category }
         var contents: IdentifiedArrayOf<ContentCardFeature.State> = []
         var hasNext: Bool { domain.sharedCategory.contentList.hasNext }
@@ -65,12 +65,14 @@ public struct CategorySharingFeature {
             case 뷰가_나타났을때
         }
         
+        @CasePathable
         public enum InnerAction: Equatable {
             case 공유받은_카테고리_API_반영(CategorySharing.SharedCategory)
             case 경고_닫음
             case 경고_띄움(BaseError)
         }
         
+        @CasePathable
         public enum AsyncAction: Equatable {
             case 공유받은_카테고리_조회_API
         }
@@ -79,6 +81,7 @@ public struct CategorySharingFeature {
             case contents(IdentifiedActionOf<ContentCardFeature>)
         }
         
+        @CasePathable
         public enum DelegateAction: Equatable {
             case 컨텐츠_아이템_클릭(categoryId: Int, content: CategorySharing.Content)
             case 공유받은_카테고리_추가(sharedCategory: CategorySharing.Category)
@@ -158,7 +161,10 @@ private extension CategorySharingFeature {
                     domain: content.domain,
                     createdAt: content.createdAt,
                     isRead: content.isRead,
-                    isFavorite: content.isFavorite
+                    isFavorite: content.isFavorite,
+                    authorUserId: content.authorUserId,
+                    authorNickname: content.authorNickname,
+                    authorProfileImageURL: content.authorProfileImageURL
                 )))
             }
             state.isLoading = false
@@ -184,7 +190,10 @@ private extension CategorySharingFeature {
                     domain: content.domain,
                     createdAt: content.createdAt,
                     isRead: content.isRead,
-                    isFavorite: content.isFavorite
+                    isFavorite: content.isFavorite,
+                    authorUserId: content.authorUserId,
+                    authorNickname: content.authorNickname,
+                    authorProfileImageURL: content.authorProfileImageURL
                 )))
             }
             state.isLoading = false

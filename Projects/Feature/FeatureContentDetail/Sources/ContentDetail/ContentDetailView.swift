@@ -76,6 +76,31 @@ public extension ContentDetailView {
                     .presentationDetents([.medium, .large])
                 }
             }
+            .sheet(isPresented: $store.showReportSheet) {
+                let reasons = store.reportReasons.map {
+                    PokitReportBottomSheet.Item(
+                        id: $0.code,
+                        title: $0.description
+                    )
+                }
+
+                PokitReportBottomSheet(
+                    reasons: reasons,
+                    onConfirm: { send(.신고하기_확인_버튼_눌렀을때($0.id)) }
+                )
+            }
+            .sheet(isPresented: $store.showSelectSheet) {
+                PokitSelectSheet(
+                    list: store.pokitList,
+                    selectedItem: .constant(nil),
+                    itemSelected: { send(.포킷선택_항목_눌렀을때($0)) },
+                    pokitAddAction: { send(.포킷_추가하기_버튼_눌렀을때) }
+                )
+                .presentationDragIndicator(.visible)
+                .pokitPresentationCornerRadius()
+                .presentationDetents([.height(564)])
+                .pokitPresentationBackground()
+            }
             .task {
                 await send(.뷰가_나타났을때, animation: .pokitDissolve).finish()
             }
@@ -106,6 +131,22 @@ private extension ContentDetailView {
     }
 
     @ViewBuilder
+    func authorInfo(content: BaseContentDetail) -> some View {
+        if let authorNickname = content.authorNickname, !store.isMine {
+            HStack(spacing: 4) {
+                Image(.icon(.member))
+                    .resizable()
+                    .frame(width: 16, height: 16)
+                    .foregroundStyle(.pokit(.icon(.tertiary)))
+
+                Text(authorNickname)
+                    .pokitFont(.detail2)
+                    .foregroundStyle(.pokit(.text(.tertiary)))
+            }
+        }
+    }
+
+    @ViewBuilder
     func title(content: BaseContentDetail) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             Group {
@@ -118,7 +159,7 @@ private extension ContentDetailView {
                 HStack {
                     remindAndBadge(content: content)
                     
-                    Spacer()
+                    authorInfo(content: content)
 
                     Text(content.createdAt)
                         .pokitFont(.detail2)
@@ -207,25 +248,46 @@ private extension ContentDetailView {
                 ),
                 action: { send(.공유_버튼_눌렀을때) }
             )
-            
-            PokitListButton(
-                title: "수정하기",
-                type: .bottomSheet(
-                    icon: .icon(.edit),
-                    iconColor: .pokit(.icon(.primary))
-                ),
-                action: { send(.수정_버튼_눌렀을때) }
-            )
-            
-            PokitListButton(
-                title: "삭제하기",
-                type: .bottomSheet(
-                    icon: .icon(.trash),
-                    iconColor: .pokit(.icon(.primary)),
-                    isLast: true
-                ),
-                action: { send(.삭제_버튼_눌렀을때) }
-            )
+
+            if store.isMine {
+                PokitListButton(
+                    title: "수정하기",
+                    type: .bottomSheet(
+                        icon: .icon(.edit),
+                        iconColor: .pokit(.icon(.primary))
+                    ),
+                    action: { send(.수정_버튼_눌렀을때) }
+                )
+
+                PokitListButton(
+                    title: "삭제하기",
+                    type: .bottomSheet(
+                        icon: .icon(.trash),
+                        iconColor: .pokit(.icon(.primary)),
+                        isLast: true
+                    ),
+                    action: { send(.삭제_버튼_눌렀을때) }
+                )
+            } else {
+                PokitListButton(
+                    title: "내 포킷에 저장하기",
+                    type: .bottomSheet(
+                        icon: .icon(.savePokit),
+                        iconColor: .pokit(.icon(.primary))
+                    ),
+                    action: { send(.내포킷에_저장하기_버튼_눌렀을때) }
+                )
+
+                PokitListButton(
+                    title: "신고하기",
+                    type: .bottomSheet(
+                        icon: .icon(.report),
+                        iconColor: .pokit(.icon(.primary)),
+                        isLast: true
+                    ),
+                    action: { send(.신고하기_버튼_눌렀을때) }
+                )
+            }
         }
     }
 }
@@ -240,5 +302,3 @@ private extension ContentDetailView {
         )
     )
 }
-
-

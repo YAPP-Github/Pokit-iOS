@@ -34,7 +34,9 @@ public enum ContentEndpoint {
         pageable: BasePageableRequest,
         keyword: String?
     )
+    case 컨텐츠_신고사유_조회
     case 컨텐츠_신고(contentId: Int)
+    case 컨텐츠_신고_사유(contentId: Int, model: ContentReportRequest)
 }
 
 extension ContentEndpoint: TargetType {
@@ -70,8 +72,12 @@ extension ContentEndpoint: TargetType {
             return "/uncategorized"
         case .추천_컨텐츠_조회:
             return "/recommended"
+        case .컨텐츠_신고사유_조회:
+            return "/report/reasons"
         case let .컨텐츠_신고(contentId):
-            return "report/\(contentId)"
+            return "/report/\(contentId)"
+        case let .컨텐츠_신고_사유(contentId, _):
+            return "/report/\(contentId)"
         }
     }
     
@@ -79,7 +85,7 @@ extension ContentEndpoint: TargetType {
         switch self {
         case .컨텐츠_삭제,
              .즐겨찾기_취소,
-             .미분류_링크_삭제:
+            .미분류_링크_삭제:
             return .put
             
         case .컨텐츠_상세_조회,
@@ -92,11 +98,15 @@ extension ContentEndpoint: TargetType {
              .썸네일_수정,
              .미분류_링크_포킷_이동:
             return .patch
+
+        case .컨텐츠_신고_사유:
+            return .post
             
         case .카태고리_내_컨텐츠_목록_조회,
              .미분류_카테고리_컨텐츠_조회,
              .컨텐츠_검색,
-             .추천_컨텐츠_조회:
+             .추천_컨텐츠_조회,
+             .컨텐츠_신고사유_조회:
             return .get
         }
     }
@@ -174,6 +184,10 @@ extension ContentEndpoint: TargetType {
         case let .미분류_링크_삭제(model):
             return .requestJSONEncodable(model)
         case .컨텐츠_신고:
+            return .requestPlain
+        case let .컨텐츠_신고_사유(_, model):
+            return .requestJSONEncodable(model)
+        case .컨텐츠_신고사유_조회:
             return .requestPlain
         }
     }

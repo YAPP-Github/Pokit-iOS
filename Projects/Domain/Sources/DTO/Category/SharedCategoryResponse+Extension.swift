@@ -34,7 +34,10 @@ public extension SharedCategoryResponse.Content {
             memo: self.memo,
             thumbNail: self.thumbNail,
             createdAt: self.createdAt,
-            categoryName: categoryName
+            categoryName: categoryName,
+            authorUserId: self.authorUserId,
+            authorNickname: self.authorNickname,
+            authorProfileImageURL: self.authorProfileImageURL
         )
     }
 }

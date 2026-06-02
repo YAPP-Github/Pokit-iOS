@@ -8,12 +8,12 @@
 import Foundation
 /// 컨텐츠 상세조회, 컨텐츠 수정, 컨텐츠 추가 API Request
 public struct ContentBaseRequest: Encodable {
-    let data: String
-    let title: String
-    let categoryId: Int
-    let memo: String
-    let alertYn: String
-    let thumbNail: String?
+    public let data: String
+    public let title: String
+    public let categoryId: Int
+    public let memo: String
+    public let alertYn: String
+    public let thumbNail: String?
     
     public init(
         data: String,

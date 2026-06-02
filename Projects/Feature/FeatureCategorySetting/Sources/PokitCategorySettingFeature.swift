@@ -112,13 +112,16 @@ public struct PokitCategorySettingFeature {
                 categoryImage: category?.categoryImage,
                 openType: category?.openType,
                 keywordType: category?.keywordType,
-                userCount: category?.userCount
+                userCount: category?.userCount,
+                alertEnabled: category?.alertEnabled ?? true
             )
             self.categoryUserId = category?.userId
+            self.isAlert = category?.alertEnabled ?? true
         }
     }
     
     /// - Action
+    @CasePathable
     public enum Action: FeatureAction, ViewAction {
         case view(View)
         case inner(InnerAction)
@@ -142,6 +145,7 @@ public struct PokitCategorySettingFeature {
             case scenePhase_바꼈을때(ScenePhase)
         }
         
+        @CasePathable
         public enum InnerAction: Equatable {
             case 프로필_목록_조회_API_반영(images: [BaseCategoryImage])
             case 포킷_오류_핸들링(BaseError)
@@ -150,6 +154,7 @@ public struct PokitCategorySettingFeature {
             case 알림_권한_감지_반영(Bool)
         }
         
+        @CasePathable
         public enum AsyncAction: Equatable {
             case 프로필_목록_조회_API
             case 클립보드_감지
@@ -157,10 +162,12 @@ public struct PokitCategorySettingFeature {
             case 알림_권한_감지
         }
         
+        @CasePathable
         public enum ScopeAction {
             case profile(PokitProfileBottomSheet<BaseCategoryImage>.Delegate)
         }
         
+        @CasePathable
         public enum DelegateAction: Equatable {
             /// 이전화면으로 돌아가 카테고리 항목을 추가하면됨
             case settingSuccess
@@ -231,7 +238,8 @@ private extension PokitCategorySettingFeature {
                 return .none
             } else {
                 return .run { [domain = state.domain,
-                               type = state.type] send in
+                               type = state.type,
+                               alertEnabled = state.isAlert] send in
                     switch type {
                     case .추가:
                         guard let image = domain.categoryImage else { return }
@@ -256,7 +264,8 @@ private extension PokitCategorySettingFeature {
                             openType: domain.openType,
                             keywordType: domain.keywordType,
                             userCount: 0,
-                            isFavorite: false
+                            isFavorite: false,
+                            alertEnabled: response.alertEnabled
                         )
                         await send(.inner(.카테고리_인메모리_저장(responseToCategoryDomain)))
                         await send(.delegate(.settingSuccess))
@@ -268,7 +277,8 @@ private extension PokitCategorySettingFeature {
                             categoryName: domain.categoryName,
                             categoryImageId: image.id,
                             openType: domain.openType.title,
-                            keywordType: domain.keywordType.title
+                            keywordType: domain.keywordType.title,
+                            alertEnabled: alertEnabled
                         )
                         let _ = try await categoryClient.카테고리_수정(categoryId, request)
                         await send(.delegate(.settingSuccess))
@@ -308,7 +318,8 @@ private extension PokitCategorySettingFeature {
             return .merge(
                 .send(.async(.프로필_목록_조회_API)),
                 .send(.async(.클립보드_감지)),
-                .send(.async(.키보드_감지))
+                .send(.async(.키보드_감지)),
+                .send(.async(.알림_권한_감지))
             )
         case .포킷명지우기_버튼_눌렀을때:
             state.domain.categoryName = ""
@@ -328,6 +339,7 @@ private extension PokitCategorySettingFeature {
             
         case let .알림_권한_바인딩(isAlert):
             state.isAlert = isAlert
+            state.domain.alertEnabled = isAlert
             guard isAlert && !state.isNotificationAuthorization else { return .none }
             state.showAlertSheet = true
             return .none

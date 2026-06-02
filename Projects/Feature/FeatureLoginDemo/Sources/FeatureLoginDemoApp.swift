@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import XCTestDynamicOverlay
 
 import FeatureLogin
 
@@ -13,13 +14,15 @@ import FeatureLogin
 struct FeatureLoginDemoApp: App {
     var body: some Scene {
         WindowGroup {
-            // TODO: 루트 뷰 추가
-            LoginView(
-                store: .init(
-                    initialState: .init(),
-                    reducer: { LoginFeature() }
+            if !_XCTIsTesting {
+                // TODO: 루트 뷰 추가
+                LoginView(
+                    store: .init(
+                        initialState: .init(),
+                        reducer: { LoginFeature() }
+                    )
                 )
-            )
+            }
         }
     }
 }

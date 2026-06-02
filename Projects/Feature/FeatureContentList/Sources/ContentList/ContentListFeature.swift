@@ -46,6 +46,7 @@ public struct ContentListFeature {
     }
 
     /// - Action
+    @CasePathable
     public enum Action: FeatureAction, ViewAction {
         case view(View)
         case inner(InnerAction)
@@ -67,6 +68,7 @@ public struct ContentListFeature {
             case 뷰가_나타났을때
         }
 
+        @CasePathable
         public enum InnerAction: Equatable {
             case 컨텐츠_목록_조회_API_반영(BaseContentListInquiry)
             case 컨텐츠_목록_조회_페이징_API_반영(BaseContentListInquiry)
@@ -74,6 +76,7 @@ public struct ContentListFeature {
             case 컨텐츠_개수_업데이트(Int)
         }
 
+        @CasePathable
         public enum AsyncAction: Equatable {
             case 컨텐츠_목록_조회_페이징_API
             case 컨텐츠_목록_조회_API
@@ -81,10 +84,12 @@ public struct ContentListFeature {
             case 클립보드_감지
         }
 
+        @CasePathable
         public enum ScopeAction {
             case contents(IdentifiedActionOf<ContentCardFeature>)
         }
 
+        @CasePathable
         public enum DelegateAction: Equatable {
             case 링크상세(content: BaseContentItem)
             case 링크수정(contentId: Int)

@@ -4,7 +4,38 @@ storage_mode("git")
 
 type("development") # The default type, can be: appstore, adhoc, enterprise or development
 
-app_identifier(["com.pokitmons.pokit"])
+app_identifier([
+  "com.pokitmons.pokit",
+  "com.pokitmons.pokit.ShareExtension",
+  "com.pokitmons.pokit.Feature.ContentDetailDemo",
+  "com.pokitmons.pokit.Feature.ContentSettingDemo",
+  "com.pokitmons.pokit.Feature.CategorySettingDemo",
+  "com.pokitmons.pokit.Feature.LoginDemo",
+  "com.pokitmons.pokit.Feature.PokitDemo",
+  "com.pokitmons.pokit.Feature.CategoryDetailDemo",
+  "com.pokitmons.pokit.Feature.SettingDemo",
+  "com.pokitmons.pokit.Feature.ContentListDemo",
+  "com.pokitmons.pokit.Feature.CategorySharingDemo",
+  "com.pokitmons.pokit.Feature.ContentCardDemo",
+  "com.pokitmons.pokit.Feature.IntroDemo",
+  "com.pokitmons.pokit.Feature.RecommendDemo",
+  "com.pokitmons.pokit.AppTests",
+  "com.pokitmons.pokit.CoreKitTests",
+  "com.pokitmons.pokit.Feature.ContentDetailTests",
+  "com.pokitmons.pokit.Feature.ContentSettingTests",
+  "com.pokitmons.pokit.Feature.CategorySettingTests",
+  "com.pokitmons.pokit.Feature.LoginTests",
+  "com.pokitmons.pokit.Feature.PokitTests",
+  "com.pokitmons.pokit.Feature.CategoryDetailTests",
+  "com.pokitmons.pokit.Feature.SettingTests",
+  "com.pokitmons.pokit.Feature.ContentListTests",
+  "com.pokitmons.pokit.Feature.CategorySharingTests",
+  "com.pokitmons.pokit.Feature.ContentCardTests",
+  "com.pokitmons.pokit.Feature.IntroTests",
+  "com.pokitmons.pokit.Feature.RecommendTests",
+  "com.pokitmons.pokit.AppUITests",
+  "com.pokitmons.pokit.AppUITests.xctrunner"
+])
 username("shapekim98@gmail.com") # Your Apple Developer Portal username
 
 # For all available options run `fastlane match --help`

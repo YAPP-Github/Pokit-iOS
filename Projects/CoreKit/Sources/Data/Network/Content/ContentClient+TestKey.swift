@@ -22,7 +22,9 @@ extension ContentClient: TestDependencyKey {
             미분류_링크_포킷_이동: { _ in },
             미분류_링크_삭제: { _ in },
             추천_컨텐츠_조회: { _, _ in .mock },
-            컨텐츠_신고: { _ in }
+            컨텐츠_신고사유_조회: { [ReportReasonResponse.mock] },
+            컨텐츠_신고: { _ in },
+            컨텐츠_신고_사유: { _, _ in }
         )
     }()
 }

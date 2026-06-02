@@ -9,6 +9,7 @@ import SwiftUI
 import UIKit
 
 import ComposableArchitecture
+import CoreKit
 import Firebase
 import FirebaseMessaging
 import GoogleSignIn
@@ -17,9 +18,19 @@ import Dependencies
 final class AppDelegate: NSObject {
     @Dependency(\.amplitude)
     private var amplitude
-    
-    let store = Store(initialState: AppDelegateFeature.State()) {
-        AppDelegateFeature()
+
+    let store: StoreOf<AppDelegateFeature>
+
+    override init() {
+#if DEBUG
+        if UITestLaunchConfig.current.isEnabled {
+            self.store = Self.makeUITestStore()
+            return
+        }
+#endif
+        self.store = Store(initialState: AppDelegateFeature.State()) {
+            AppDelegateFeature()
+        }
     }
 }
 //MARK: - UIApplicationDelegate
@@ -36,6 +47,12 @@ extension AppDelegate: UIApplicationDelegate {
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
         self.store.send(.didFinishLaunching)
+
+#if DEBUG
+        if Self.shouldSkipLaunchAnalytics {
+            return true
+        }
+#endif
 
         // 운영체제 버전 (ex: "iOS 18.0.0")
         let osVersion = "iOS \(UIDevice.current.systemVersion)"

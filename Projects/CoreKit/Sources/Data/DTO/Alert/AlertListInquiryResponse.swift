@@ -21,6 +21,7 @@ public struct AlertItemInquiryResponse: Decodable {
     public let id: Int
     public let userId: Int
     public let contentId: Int
+    public let deeplink: String?
     public let thumbNail: String
     public let title: String
     public let body: String
@@ -34,6 +35,7 @@ extension AlertListInquiryResponse {
                 id: 999999,
                 userId: 898989898,
                 contentId: 21312,
+                deeplink: nil,
                 thumbNail: Constants.mockImageUrl,
                 title: "제목타이틀",
                 body: "바디",
@@ -54,4 +56,3 @@ extension AlertListInquiryResponse {
         hasNext: false
     )
 }
-

@@ -53,13 +53,17 @@ public extension RecommendView {
                     send(.키워드_선택_버튼_눌렀을때(interests))
                 }
             }
-            .sheet(item: $store.reportContent) { content in
-                PokitAlert(
-                    "링크를 신고하시겠습니까?",
-                    message: "명확한 사유가 있는 경우 신고해주시기 바랍니다. \nex)음란성/선정성 이미지, 영상, 텍스트 등의 콘텐츠\n욕설, 비속어, 모욕, 저속한 단어 등",
-                    confirmText: "확인",
-                    action: { send(.신고하기_확인_버튼_눌렀을때(content)) },
-                    cancelAction: { send(.경고시트_dismiss) }
+            .sheet(item: $store.reportContent) { _ in
+                let reasons = store.reportReasons.map {
+                    PokitReportBottomSheet.Item(
+                        id: $0.code,
+                        title: $0.description
+                    )
+                }
+
+                PokitReportBottomSheet(
+                    reasons: reasons,
+                    onConfirm: { send(.신고하기_확인_버튼_눌렀을때($0.id)) }
                 )
             }
             .sheet(isPresented: $store.showSelectSheet) {
@@ -324,5 +328,3 @@ private extension RecommendView {
         )
     )
 }
-
-
