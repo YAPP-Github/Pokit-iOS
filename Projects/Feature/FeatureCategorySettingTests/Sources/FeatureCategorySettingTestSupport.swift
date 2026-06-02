@@ -24,6 +24,20 @@ extension BaseCategoryItem {
         isFavorite: false,
         alertEnabled: true
     )
+
+    static let featureCategorySetting_alertDisabledEditTarget = Self(
+        id: 43,
+        userId: 100,
+        categoryName: "알림 꺼진 포킷",
+        categoryImage: .featureCategorySetting_image,
+        contentCount: 3,
+        createdAt: "2026-05-19",
+        openType: .공개,
+        keywordType: .IT,
+        userCount: 2,
+        isFavorite: false,
+        alertEnabled: false
+    )
 }
 
 extension CategoryClient {

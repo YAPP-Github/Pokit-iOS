@@ -113,7 +113,7 @@ public struct PokitCategorySettingFeature {
                 openType: category?.openType,
                 keywordType: category?.keywordType,
                 userCount: category?.userCount,
-                alertEnabled: category?.alertEnabled
+                alertEnabled: category?.alertEnabled ?? true
             )
             self.categoryUserId = category?.userId
             self.isAlert = category?.alertEnabled ?? true
@@ -264,7 +264,8 @@ private extension PokitCategorySettingFeature {
                             openType: domain.openType,
                             keywordType: domain.keywordType,
                             userCount: 0,
-                            isFavorite: false
+                            isFavorite: false,
+                            alertEnabled: response.alertEnabled
                         )
                         await send(.inner(.카테고리_인메모리_저장(responseToCategoryDomain)))
                         await send(.delegate(.settingSuccess))

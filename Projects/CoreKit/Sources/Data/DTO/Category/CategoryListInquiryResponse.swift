@@ -29,7 +29,7 @@ public struct CategoryItemInquiryResponse: Decodable {
     public let keywordType: String
     public let userCount: Int
     public let isFavorite: Bool
-    public let alertEnabled: Bool?
+    public let alertEnabled: Bool
     
     public init(
         categoryId: Int,
@@ -42,7 +42,7 @@ public struct CategoryItemInquiryResponse: Decodable {
         keywordType: String,
         userCount: Int,
         isFavorite: Bool,
-        alertEnabled: Bool? = nil
+        alertEnabled: Bool = true
     ) {
         self.categoryId = categoryId
         self.userId = userId
@@ -80,7 +80,8 @@ public extension CategoryItemInquiryResponse {
         openType: "PRIVATE",
         keywordType: "스포츠/레저",
         userCount: 0,
-        isFavorite: false
+        isFavorite: false,
+        alertEnabled: true
     )
 }
 
@@ -100,7 +101,8 @@ extension CategoryListInquiryResponse {
                 openType: "PRIVATE",
                 keywordType: "스포츠/레저",
                 userCount: 0,
-                isFavorite: false
+                isFavorite: false,
+                alertEnabled: true
             ),
             CategoryItemInquiryResponse(
                 categoryId: 2,
@@ -115,7 +117,8 @@ extension CategoryListInquiryResponse {
                 openType: "PUBLIC",
                 keywordType: "스포츠/레저",
                 userCount: 1,
-                isFavorite: false
+                isFavorite: false,
+                alertEnabled: true
             ),
             CategoryItemInquiryResponse(
                 categoryId: 3,
@@ -130,7 +133,8 @@ extension CategoryListInquiryResponse {
                 openType: "PUBLIC",
                 keywordType: "스포츠/레저",
                 userCount: 5,
-                isFavorite: false
+                isFavorite: false,
+                alertEnabled: true
             )
         ],
         page: 1,

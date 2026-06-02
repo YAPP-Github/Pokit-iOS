@@ -39,7 +39,7 @@ public struct PokitCategorySetting: Equatable {
         openType: BaseOpenType?,
         keywordType: BaseInterestType?,
         userCount: Int? = nil,
-        alertEnabled: Bool? = nil
+        alertEnabled: Bool = true
     ) {
         self.imageList = []
         self.pageable = .init(
@@ -53,6 +53,6 @@ public struct PokitCategorySetting: Equatable {
         self.openType = openType ?? .공개
         self.keywordType = keywordType ?? .default
         self.userCount = userCount
-        self.alertEnabled = alertEnabled ?? true
+        self.alertEnabled = alertEnabled
     }
 }

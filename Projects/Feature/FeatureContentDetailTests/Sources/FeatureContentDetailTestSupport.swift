@@ -102,7 +102,8 @@ extension CategoryListInquiryResponse {
                 "openType": "PUBLIC",
                 "keywordType": "IT",
                 "userCount": 2,
-                "isFavorite": false
+                "isFavorite": false,
+                "alertEnabled": true
             ],
             [
                 "categoryId": 0,
@@ -117,7 +118,8 @@ extension CategoryListInquiryResponse {
                 "openType": "PRIVATE",
                 "keywordType": "default",
                 "userCount": 1,
-                "isFavorite": false
+                "isFavorite": false,
+                "alertEnabled": true
             ]
         ],
         "page": 0,

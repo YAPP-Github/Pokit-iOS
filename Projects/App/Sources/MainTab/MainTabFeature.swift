@@ -388,7 +388,8 @@ private extension MainTabFeature {
                         openType: .공개,
                         keywordType: .default,
                         userCount: 0,
-                        isFavorite: false
+                        isFavorite: false,
+                        alertEnabled: response.alertEnabled
                     )
 
                     await send(.inner(.포킷_딥링크_이동(category: category, contentId: contentId, userId: userId)), animation: .smooth)

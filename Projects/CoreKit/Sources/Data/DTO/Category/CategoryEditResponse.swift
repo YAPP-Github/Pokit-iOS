@@ -13,6 +13,7 @@ public struct CategoryEditResponse: Decodable {
     public let categoryId: Int
     public let categoryName: String
     public let categoryImage: CategoryImageResponse
+    public let alertEnabled: Bool
 }
 
 extension CategoryEditResponse {
@@ -22,7 +23,8 @@ extension CategoryEditResponse {
         categoryImage: CategoryImageResponse(
             imageId: 4441,
             imageUrl: Constants.mockImageUrl
-        )
+        ),
+        alertEnabled: true
     )
 }
 

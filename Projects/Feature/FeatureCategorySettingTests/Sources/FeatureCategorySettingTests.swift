@@ -41,6 +41,45 @@ final class FeatureCategorySettingTests: XCTestCase {
         }
     }
 
+    func test_카테고리_조회_alertEnabled_false가_수정화면_토글에_반영된다() async {
+        let store = TestStore(
+            initialState: PokitCategorySettingFeature.State(
+                type: .수정,
+                category: .featureCategorySetting_alertDisabledEditTarget
+            )
+        ) {
+            PokitCategorySettingFeature()
+        } withDependencies: {
+            $0[CategoryClient.self] = .featureCategorySettingTestValue(
+                onProfileList: { [] }
+            )
+            $0[UserNotificationClient.self] = .featureCategorySettingTestValue(
+                authorizationStatus: .authorized
+            )
+            $0[UserDefaultsClient.self] = .featureCategorySettingTestValue
+            $0[PasteboardClient.self] = .noop
+            $0[KeyboardClient.self] = .noop
+        }
+        store.exhaustivity = .off
+
+        await store.send(.view(.뷰가_나타났을때)) {
+            guard $0.isAlert == false else {
+                preconditionFailure("서버 alertEnabled=false가 수정 화면 토글에 반영되어야 합니다.")
+            }
+            $0.keywordSelectType = .select(keywordName: BaseInterestType.IT.title)
+        }
+        await store.receive(\.async.프로필_목록_조회_API)
+        await store.receive(\.async.클립보드_감지)
+        await store.receive(\.async.키보드_감지)
+        await store.receive(\.async.알림_권한_감지)
+        await store.receive(\.inner.알림_권한_감지_반영) {
+            $0.isNotificationAuthorization = true
+            guard $0.alertEnable == false else {
+                preconditionFailure("시스템 알림 권한이 있어도 서버 알림 설정이 꺼져 있으면 토글은 꺼짐 상태여야 합니다.")
+            }
+        }
+    }
+
     func test_카테고리_수정시_alertEnabled를_요청에_포함한다() async {
         let store = TestStore(
             initialState: PokitCategorySettingFeature.State(

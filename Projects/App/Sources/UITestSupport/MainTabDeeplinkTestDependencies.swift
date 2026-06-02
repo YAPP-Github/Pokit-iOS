@@ -306,7 +306,8 @@ private enum MainTabDeeplinkTestFixtures {
                 "categoryImage": [
                     "imageId": 2000 + categoryId,
                     "imageUrl": "https://example.com/category-\(categoryId).png"
-                ]
+                ],
+                "alertEnabled": true
             ]
         )
     }
@@ -491,7 +492,8 @@ private enum MainTabDeeplinkTestFixtures {
             "openType": "PUBLIC",
             "keywordType": "default",
             "userCount": userCount,
-            "isFavorite": false
+            "isFavorite": false,
+            "alertEnabled": true
         ]
     }
 

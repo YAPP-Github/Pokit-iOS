@@ -127,7 +127,8 @@ extension CategoryListInquiryResponse {
                 "openType": "PRIVATE",
                 "keywordType": "default",
                 "userCount": 0,
-                "isFavorite": true
+                "isFavorite": true,
+                "alertEnabled": true
             ],
             [
                 "categoryId": 901,
@@ -142,7 +143,8 @@ extension CategoryListInquiryResponse {
                 "openType": "PUBLIC",
                 "keywordType": "IT",
                 "userCount": 2,
-                "isFavorite": false
+                "isFavorite": false,
+                "alertEnabled": true
             ]
         ],
         "page": 0,
@@ -172,7 +174,8 @@ extension CategoryListInquiryResponse {
                 "openType": "PRIVATE",
                 "keywordType": "default",
                 "userCount": 0,
-                "isFavorite": true
+                "isFavorite": true,
+                "alertEnabled": true
             ],
             [
                 "categoryId": 903,
@@ -187,7 +190,8 @@ extension CategoryListInquiryResponse {
                 "openType": "PRIVATE",
                 "keywordType": "IT",
                 "userCount": 1,
-                "isFavorite": false
+                "isFavorite": false,
+                "alertEnabled": true
             ],
             [
                 "categoryId": 904,
@@ -202,7 +206,8 @@ extension CategoryListInquiryResponse {
                 "openType": "PRIVATE",
                 "keywordType": "default",
                 "userCount": 0,
-                "isFavorite": false
+                "isFavorite": false,
+                "alertEnabled": true
             ],
             [
                 "categoryId": 905,
@@ -217,7 +222,8 @@ extension CategoryListInquiryResponse {
                 "openType": "PUBLIC",
                 "keywordType": "IT",
                 "userCount": 2,
-                "isFavorite": false
+                "isFavorite": false,
+                "alertEnabled": true
             ],
             [
                 "categoryId": 906,
@@ -232,7 +238,8 @@ extension CategoryListInquiryResponse {
                 "openType": "PUBLIC",
                 "keywordType": "default",
                 "userCount": 0,
-                "isFavorite": false
+                "isFavorite": false,
+                "alertEnabled": true
             ]
         ],
         "page": 0,
@@ -296,7 +303,8 @@ extension CategoryListInquiryResponse {
                 "openType": "PRIVATE",
                 "keywordType": "default",
                 "userCount": 0,
-                "isFavorite": true
+                "isFavorite": true,
+                "alertEnabled": true
             ]
         ],
         "page": 0,
@@ -327,7 +335,8 @@ extension CategoryListInquiryResponse {
                 "openType": "PRIVATE",
                 "keywordType": "IT",
                 "userCount": 1,
-                "isFavorite": false
+                "isFavorite": false,
+                "alertEnabled": true
             ]
         ],
         "page": 0,
@@ -358,7 +367,8 @@ extension CategoryListInquiryResponse {
                 "openType": "PRIVATE",
                 "keywordType": "default",
                 "userCount": 0,
-                "isFavorite": false
+                "isFavorite": false,
+                "alertEnabled": true
             ]
         ],
         "page": 0,
@@ -389,7 +399,8 @@ extension CategoryListInquiryResponse {
                 "openType": "PUBLIC",
                 "keywordType": "IT",
                 "userCount": 2,
-                "isFavorite": false
+                "isFavorite": false,
+                "alertEnabled": true
             ]
         ],
         "page": 0,
@@ -420,7 +431,8 @@ extension CategoryListInquiryResponse {
                 "openType": "PUBLIC",
                 "keywordType": "default",
                 "userCount": 0,
-                "isFavorite": false
+                "isFavorite": false,
+                "alertEnabled": true
             ]
         ],
         "page": 0,
